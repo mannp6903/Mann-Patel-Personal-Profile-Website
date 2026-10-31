@@ -40,7 +40,6 @@ export const faqs: Faq[] = [
   },
   {
     q: 'Where do you work?',
-    a: 'I work with small businesses in Toronto and the GTA.',
-    confirm: 'Confirm the public service area and whether you also take remote clients.',
+    a: 'I’m based in Toronto and work with small businesses across the Greater Toronto Area (GTA).',
   },
 ];

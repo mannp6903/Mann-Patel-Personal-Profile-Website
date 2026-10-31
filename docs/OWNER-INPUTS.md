@@ -10,7 +10,7 @@ Everything below is tracked in code. Unverified **claims** are wrapped in `<Conf
 4. **Public contact details.** *Interim answer (31 Oct 2026):* `mannp6903claudeai@gmail.com` is shown on the site. Switch to an address on your own domain (e.g. `hello@` your domain) once email is set up. Phone or WhatsApp: not public. Tell me if you want one.
 4b. **Social links.** GitHub is linked (`github.com/mannp6903`, your connected account). **Instagram, Facebook and LinkedIn URLs are still needed.** Until then their buttons show as greyed placeholders in previews and are **hidden in production** (no dead buttons). Add them in `src/data/site.ts` → `social`.
 5. ~~Domain~~ **Answered (31 Oct 2026): mannpatel.me** (your domain; replaces the earlier mannpatel.ca plan). Set as the production URL in `netlify.toml`. Owner action: connect it to Netlify (see `docs/05` §4).
-6. **Public location wording.** "Toronto", "Scarborough, Toronto" or "the GTA"? Do you take remote clients outside the GTA? *(Blocks: hero eyebrow and an FAQ answer.)*
+6. ~~Public location wording~~ **Answered (31 Oct 2026): based in Toronto, serving the GTA.** The hero says "Mann Patel · Toronto" and the FAQ says you work with small businesses across the GTA. (Clients outside the GTA aren't mentioned; tell me if you want to add remote work.)
 7. ~~Portrait~~ **Done (31 Oct 2026):** your photo is used in the home hero, About, Contact and the share image.
 8. **Your story, in your words.** Edit the drafted founder story and vision on the About page. *(Blocks: About page.)*
 9. **AI tools FAQ.** Is the drafted answer about how you use AI tools accurate and something you're comfortable publishing? *(Blocks: one FAQ.)*

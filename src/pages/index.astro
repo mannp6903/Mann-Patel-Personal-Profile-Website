@@ -9,7 +9,6 @@ import WorkflowDemo from '../components/WorkflowDemo.astro';
 import ProcessSteps from '../components/ProcessSteps.astro';
 import CtaBand from '../components/CtaBand.astro';
 import Marquee from '../components/Marquee.astro';
-import Confirm from '../components/Confirm.astro';
 import Logo from '../components/Logo.astro';
 import { Image } from 'astro:assets';
 import { profile, businesses } from '../data/site';
@@ -60,7 +59,6 @@ const jsonLd = {
       <div class="hero-copy">
         <p class="label eyebrow">
           {profile.name} · {profile.location}
-          {!profile.locationConfirmed && <Confirm note="preferred public location (Toronto, Scarborough or GTA?)" />}
         </p>
         <h1 class="hero-title" set:html={heroHtml} />
         <p class="lead intro">{profile.intro}</p>

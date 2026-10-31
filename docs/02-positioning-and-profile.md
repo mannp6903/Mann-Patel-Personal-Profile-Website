@@ -12,7 +12,7 @@
 | Nest & Rest serves Scarborough and North York, Toronto | Brief; Nest & Rest site |
 | "Today, I clean every home myself." | Nest & Rest `/vision/` |
 | Nest & Rest website: nestnrestcleaning.com (launched by 19 Oct 2026, **returning 404 on 31 Oct 2026**) | Wayback capture; live check |
-| Initial market for digital services: Toronto/GTA | Brief |
+| Based in Toronto; serves clients across the GTA | Mann, 31 Oct 2026 |
 
 Everything else (education, background, portrait, contact details, domain, prices, client work) is **unconfirmed** and tracked in `docs/OWNER-INPUTS.md`.
 
