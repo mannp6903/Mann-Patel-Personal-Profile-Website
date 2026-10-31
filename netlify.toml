@@ -17,7 +17,7 @@
   SITE_MODE = "production"
   # Decided by Mann on 31 Oct 2026. Production deploys are still gated by the
   # "To confirm" items and scripts/prelaunch-check.mjs before anything is indexed.
-  PUBLIC_SITE_URL = "https://mannpatel.com"
+  PUBLIC_SITE_URL = "https://mannpatel.ca"
   SITE_INDEXING = "true"
 
 # Deploy previews and branch deploys must never be indexed.

@@ -4,12 +4,12 @@ Everything below is tracked in code. Unverified **claims** are wrapped in `<Conf
 
 ## The short set of questions (highest impact first)
 
-1. **Nest & Rest website is down.** nestnrestcleaning.com returned a GitHub Pages 404 on 31 Oct 2026. Please restore it. It's your business's front door, and this site links to it in several places. *(Blocks: Nest & Rest case study.)*
+1. ~~Nest & Rest website is down~~ **Resolved:** the site was back online later on 31 Oct 2026. The case study now uses fresh captures of the live site. (Still recommended: add the domain as a *verified domain* in GitHub Pages settings.)
 2. **How was the Nest & Rest site built?** What did you do yourself, which tools did you use (including AI-assisted tools), and did anyone else help? *(Blocks: case-study role line.)*
 3. **Concept samples.** Kettle & Crumb and Northline Plumbing were produced by Claude (AI) while building this site. Keep them with that attribution, replace them with your own work, or remove them? *(Blocks: both concept pages.)*
 4. **Public contact details.** *Interim answer (31 Oct 2026):* `mannp6903claudeai@gmail.com` is shown on the site. Switch to an address on your own domain (e.g. `hello@` your domain) once email is set up. Phone or WhatsApp: not public. Tell me if you want one.
 4b. **Social links.** GitHub is linked (`github.com/mannp6903`, your connected account). **Instagram, Facebook and LinkedIn URLs are still needed.** Until then their buttons show as greyed placeholders in previews and are **hidden in production** (no dead buttons). Add them in `src/data/site.ts` → `social`.
-5. **Domain: you chose mannpatel.com, but it's not available to register.** A registry lookup on 31 Oct 2026 shows it **already registered** (since 20 Aug 2020, via Squarespace Domains, renews by 20 Aug 2027, no website). You could only get it by buying it from the current owner. Available on the same day: **mannpatel.ca** (recommended for a Toronto business), mannpatel.co, mannpatel.me, mannpatel.studio, mannpatel.design, mannpatel.digital, iammannpatel.com, hellomannpatel.com, bymannpatel.com, mannpatelstudio.com. `netlify.toml` still says `https://mannpatel.com`; change that one line if you pick another.
+5. ~~Domain~~ **Answered (31 Oct 2026): mannpatel.ca** (mannpatel.com is registered to someone else). Set as the production URL in `netlify.toml`. Owner action: register it in your name and connect it (see `docs/05` §4).
 6. **Public location wording.** "Toronto", "Scarborough, Toronto" or "the GTA"? Do you take remote clients outside the GTA? *(Blocks: hero eyebrow and an FAQ answer.)*
 7. ~~Portrait~~ **Done (31 Oct 2026):** your photo is used in the home hero, About, Contact and the share image.
 8. **Your story, in your words.** Edit the drafted founder story and vision on the About page. *(Blocks: About page.)*
@@ -18,12 +18,14 @@ Everything below is tracked in code. Unverified **claims** are wrapped in `<Conf
 11. **Pricing.** The public site says "Request a quote". If you want public prices or "starting from" figures, decide them first (see the private worksheet).
 12. ~~Brand name~~ **Answered (31 Oct 2026): "Mann Patel".** No studio name.
 
+13. **Samp Hair & Spa permission.** The project is shown as *In progress* with a link to the Lovable preview. Confirm the salon agrees to appear in your portfolio, ideally in writing. *(Blocks: Samp case study in production.)*
+
 ## Accounts and live actions (only Mann can do these)
 
 | Action | Why | Where it's explained |
 | --- | --- | --- |
 | Connect the repo to Netlify | Hosting + the enquiry function | `docs/05` §4 |
-| Connect **mannpatel.com** to Netlify (DNS at Squarespace Domains) | Real URL, email sender, Search Console | `docs/05` §4 |
+| Register **mannpatel.ca** and connect it to Netlify | Real URL, email sender, Search Console | `docs/05` §4 |
 | Resend account + domain verification + env vars | Make the form deliver to your inbox | `docs/05` §1 |
 | Live test with sample data | Prove delivery end to end | `docs/05` §1 |
 | Search Console Domain property + sitemap | Indexing visibility | `docs/05` §3 |

@@ -6,7 +6,7 @@ import PreviewNote from '../components/PreviewNote.astro';
 import { profile, businesses } from '../data/site';
 import { personJsonLd } from '../lib/seo';
 import { Image } from 'astro:assets';
-import Monogram from '../components/Monogram.astro';
+import Logo from '../components/Logo.astro';
 import SocialLinks from '../components/SocialLinks.astro';
 
 const principles = [
@@ -68,7 +68,7 @@ const jsonLd = { '@context': 'https://schema.org', '@type': 'AboutPage', mainEnt
             />
           ) : (
             <div class="mark" aria-hidden="true">
-              <span><Monogram /></span>
+              <span><Logo variant="mark" /></span>
             </div>
           )
         }
@@ -228,6 +228,10 @@ const jsonLd = { '@context': 'https://schema.org', '@type': 'AboutPage', mainEnt
     border-radius: var(--radius-l);
     color: var(--ink);
     transform: rotate(-4deg);
+  }
+  .mark span :global(.logo) {
+    width: 100%;
+    height: auto;
   }
   .story {
     display: grid;

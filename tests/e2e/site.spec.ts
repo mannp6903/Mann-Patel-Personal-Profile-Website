@@ -7,6 +7,7 @@ const PAGES = [
   '/services/',
   '/work/',
   '/work/nest-and-rest-cleaning/',
+  '/work/samp-hair-spa/',
   '/work/concept-kettle-and-crumb/',
   '/work/concept-northline-plumbing/',
   '/about/',

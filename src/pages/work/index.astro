@@ -18,20 +18,20 @@ const concepts = work.filter((w) => w.data.status === 'concept');
       <p class="label">Work</p>
       <h1>Real work, clearly labelled.</h1>
       <p class="lead measure">
-        I’m early in offering these services, so this page is honest about what’s what. Every item carries one of these
+        I’m early in offering these services, so this page is clear about what’s what. Every item carries one of these
         labels:
       </p>
       <dl class="legend">
-        <div><dt><span class="chip chip--launched">Launched</span></dt><dd>Real and live. Here, it’s my own business.</dd></div>
+        <div><dt><span class="chip chip--launched">Launched</span></dt><dd>Real and live.</dd></div>
         <div><dt><span class="chip chip--concept">Concept</span></dt><dd>An original sample for a fictional business. Not a client project.</dd></div>
-        <div><dt><span class="chip chip--in-progress">In progress</span></dt><dd>Real work that isn’t finished yet.</dd></div>
+        <div><dt><span class="chip chip--in-progress">In progress</span></dt><dd>Real client work that isn’t finished yet.</dd></div>
       </dl>
     </div>
   </section>
 
   <section class="section section--tight" aria-labelledby="own-title">
     <div class="container">
-      <h2 id="own-title" class="sub">My own business</h2>
+      <h2 id="own-title" class="sub">Real projects</h2>
       <div class="list">
         {real.map((w) => <WorkCard entry={w} large headingLevel="h3" />)}
       </div>
@@ -55,8 +55,8 @@ const concepts = work.filter((w) => w.data.status === 'concept');
     <div class="container">
       <h2 id="yours-title" class="sub">Your project could be next</h2>
       <p class="muted measure">
-        I’ll only show client work here with written permission. If you want help and are happy to be a case study, say
-        so in your brief.
+        I only show client work here with the client’s permission. If you want help and are happy to be a case study,
+        say so in your brief.
       </p>
     </div>
   </section>
@@ -99,6 +99,10 @@ const concepts = work.filter((w) => w.data.status === 'concept');
   .intro {
     margin-top: calc(var(--space-m) * -1);
     margin-bottom: var(--space-l);
+  }
+  .list {
+    display: grid;
+    gap: var(--space-l);
   }
   .grid {
     display: grid;

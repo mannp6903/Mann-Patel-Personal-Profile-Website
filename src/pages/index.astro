@@ -8,16 +8,37 @@ import Guide from '../components/Guide.astro';
 import WorkflowDemo from '../components/WorkflowDemo.astro';
 import ProcessSteps from '../components/ProcessSteps.astro';
 import CtaBand from '../components/CtaBand.astro';
+import Marquee from '../components/Marquee.astro';
 import Confirm from '../components/Confirm.astro';
-import Monogram from '../components/Monogram.astro';
+import Logo from '../components/Logo.astro';
 import { Image } from 'astro:assets';
 import { profile, businesses } from '../data/site';
 import { personJsonLd } from '../lib/seo';
 import { absoluteUrl } from '../lib/mode';
 
 const work = (await getCollection('work')).sort((a, b) => a.data.order - b.data.order);
-const [featured, ...concepts] = work;
+const real = work.filter((w) => w.data.status !== 'concept');
+const concepts = work.filter((w) => w.data.status === 'concept');
 const nest = businesses[0];
+
+// Hero headline, split into words for the staggered reveal (reads as plain text without motion).
+let wi = 0;
+const w = (text: string) => text.split(' ').map((t) => `<span class="w" style="--i:${wi++}">${t}</span>`).join(' ');
+const verb = (text: string, href: string, u: number) => `<a class="verb" href="${href}" style="--u:${u}">${w(text)}</a>`;
+const heroHtml = [
+  w('I help small businesses'),
+  ' ',
+  verb('look professional', '#overview-content', 0),
+  w(','),
+  ' ',
+  verb('get found', '#overview-visibility', 1),
+  w(','),
+  ' ',
+  w('and'),
+  ' ',
+  verb('follow up', '#overview-follow-up', 2),
+  w('.'),
+].join('');
 
 const jsonLd = {
   '@context': 'https://schema.org',
@@ -41,12 +62,7 @@ const jsonLd = {
           {profile.name} · {profile.location}
           {!profile.locationConfirmed && <Confirm note="preferred public location (Toronto, Scarborough or GTA?)" />}
         </p>
-        <h1>
-          I help small businesses <a class="verb" href="#overview-content">look professional</a>, <a
-            class="verb"
-            href="#overview-visibility">get found</a
-          >, and <a class="verb" href="#overview-follow-up">follow up</a>.
-        </h1>
+        <h1 class="hero-title" set:html={heroHtml} />
         <p class="lead intro">{profile.intro}</p>
         <div class="btn-row">
           <a class="btn" href="/contact/">Start a project <span class="arrow" aria-hidden="true">→</span></a>
@@ -82,6 +98,8 @@ const jsonLd = {
     </div>
   </section>
 
+  <Marquee />
+
   <!-- ── What I do ────────────────────────────────────── -->
   <section class="section section--tight" aria-labelledby="what-title">
     <div class="container">
@@ -104,14 +122,14 @@ const jsonLd = {
     <div class="container">
       <div class="section-head">
         <p class="label">Evidence, not promises</p>
-        <h2 id="work-title">My own business first. Concepts clearly labelled.</h2>
+        <h2 id="work-title">Real work, clearly labelled.</h2>
         <p class="muted measure">
-          I don’t have client case studies to show yet, and I won’t invent them. Here is the business I run, and two
-          concept samples made to show the kind of work I offer.
+          The business I run, a client website I’m building now, and two concept samples. Every card says which is
+          which, and no results are invented.
         </p>
       </div>
       <div class="work-grid">
-        <div class="featured"><WorkCard entry={featured} headingLevel="h3" large /></div>
+        {real.map((r) => <div class="featured"><WorkCard entry={r} headingLevel="h3" large /></div>)}
         {concepts.map((c) => <WorkCard entry={c} headingLevel="h3" />)}
       </div>
       <p class="more-link"><a class="link-accent" href="/work/">All work and how it’s labelled →</a></p>
@@ -162,7 +180,7 @@ const jsonLd = {
   <!-- ── Founder note ─────────────────────────────────── -->
   <section class="section section--alt" aria-labelledby="founder-title">
     <div class="container founder">
-      <div class="stamp-mark" aria-hidden="true"><Monogram /></div>
+      <div class="stamp-mark" aria-hidden="true"><Logo variant="mark" /></div>
       <div class="stack" style="--stack: var(--space-m)">
         <p class="label">Why me</p>
         <h2 id="founder-title">I’m building a small business too.</h2>
@@ -214,7 +232,7 @@ const jsonLd = {
     letter-spacing: -0.035em;
     max-width: 15ch;
   }
-  .verb {
+  .hero-title :global(.verb) {
     text-decoration: none;
     background-image: linear-gradient(var(--accent), var(--accent));
     background-repeat: no-repeat;
@@ -225,8 +243,29 @@ const jsonLd = {
     -webkit-box-decoration-break: clone;
     box-decoration-break: clone;
   }
-  .verb:hover {
+  .hero-title :global(.verb:hover) {
     background-size: 100% 0.3em;
+  }
+  /* Motion: words rise in sequence, then the verb underlines draw left to right. */
+  :global(.js-motion) .hero-title :global(.w) {
+    display: inline-block;
+    animation: word-rise 720ms var(--ease-out) backwards;
+    animation-delay: calc(60ms + var(--i) * 55ms);
+  }
+  :global(.js-motion) .hero-title :global(.verb) {
+    animation: underline-draw 620ms cubic-bezier(0.65, 0, 0.35, 1) backwards;
+    animation-delay: calc(820ms + var(--u) * 160ms);
+  }
+  @keyframes word-rise {
+    from {
+      opacity: 0;
+      transform: translateY(0.42em);
+    }
+  }
+  @keyframes underline-draw {
+    from {
+      background-size: 0% 0.12em;
+    }
   }
   .intro {
     max-width: 40ch;
@@ -331,6 +370,10 @@ const jsonLd = {
   }
   .founder .lead {
     max-width: 52ch;
+  }
+  .stamp-mark :global(.logo) {
+    width: 100%;
+    height: auto;
   }
   .stamp-mark {
     display: grid;

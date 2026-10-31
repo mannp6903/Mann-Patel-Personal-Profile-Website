@@ -1,6 +1,6 @@
 ---
 title: Kettle & Crumb
-order: 2
+order: 3
 status: concept
 kind: Concept sample (fictional bakery-café)
 year: '2026'

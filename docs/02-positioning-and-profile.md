@@ -7,7 +7,7 @@
 | Fact | Source |
 | --- | --- |
 | Public brand: **Mann Patel** (no studio name) | Mann, 31 Oct 2026 |
-| Website: **mannpatel.com** | Mann, 31 Oct 2026 (registration ownership to confirm) |
+| Website: **mannpatel.ca** (to be registered) | Mann, 31 Oct 2026 |
 | Founder & Owner of Nest & Rest Cleaning | Nest & Rest `/vision/` page, signed "Mann Patel, Founder & Owner" (cached 24 Oct 2026) |
 | Nest & Rest serves Scarborough and North York, Toronto | Brief; Nest & Rest site |
 | "Today, I clean every home myself." | Nest & Rest `/vision/` |
@@ -174,8 +174,8 @@ Plain text only. No images (they get blocked, or attached as files), no quotes, 
 | Asset | Direction |
 | --- | --- |
 | **Portrait** | **Supplied 31 Oct 2026** (smiling, dark green sweatshirt, tree-lined street at dusk) and used across the site. Future shoots: a real photo, never generated. Natural light, at work rather than studio-posed: at a laptop with a notebook, or in a neutral Nest & Rest setting. Chest-up, eye-level, plain warm background (paper/off-white) so it sits on the site's palette. Shoot one landscape (site hero/About) and one square (profiles). Until then the site uses a typographic mark and a clearly labelled empty slot (preview only). |
-| **Wordmark (implemented 31 Oct 2026)** | "Mann Patel." in **Bodoni Moda** (high-contrast Didone, the style used by luxury and fashion personal brands; SIL OFL 1.1), converted to vector outlines with real kerning by `scripts/make-logo.py`. Two masters: *display* (optical size 72, weight 500) for large use, *small* (optical size 28, weight 600) for the header. The stamp-orange full stop is the signature. Files: `public/brand/mann-patel-wordmark*.svg`. |
-| **Monogram** | "MP" in Bodoni Moda (heavier small master), paper on an ink tile with an orange dot: the favicon and app icon (`public/favicon.svg`, `public/brand/mann-patel-monogram.svg`). |
+| **Logo (v3, implemented 31 Oct 2026)** | A custom **MP ligature monogram**: the M's last stroke is also the P's stem, finished with a stamp-orange square (the brand's full stop). Paired with **MANN PATEL** in Archivo Expanded Bold, tracked wide (SIL OFL 1.1, converted to outlines). Bold enough for a 32 px app icon, calm enough for a business card. Files: `public/brand/mann-patel-lockup.svg` (+ `-light`), `mann-patel-monogram.svg`, `mann-patel-wordmark.svg`; generator `scripts/make-logo.py`. Earlier Bodoni Moda wordmark retired at Mann's request. |
+| **Motion** | The monogram draws itself in once per visit, the square stamps on, the name slides in; on hover the square nudges. |
 | **Profile image** | Real portrait cropped to a circle-safe square on paper background. Fallback: the MP stamp, ink on paper. |
 | **Social cover (LinkedIn 1584×396, Facebook 1640×624 safe area)** | Paper background, the three verbs as a stacked display line ("Look professional. Get found. Follow up.") on the left, a small "enquiry ticket" graphic on the right, wordmark bottom-left. Keep text out of the area covered by the avatar (left on LinkedIn). |
 | **Separation from Nest & Rest** | Nest & Rest uses navy/blue/green with a house icon. The personal brand uses ink/paper/stamp-orange and no house imagery, so the two brands are never confused. |

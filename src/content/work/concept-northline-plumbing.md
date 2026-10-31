@@ -1,6 +1,6 @@
 ---
 title: Northline Plumbing
-order: 3
+order: 4
 status: concept
 kind: Concept sample (fictional trades business)
 year: '2026'

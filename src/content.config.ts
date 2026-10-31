@@ -23,7 +23,7 @@ const work = defineCollection({
     serviceIds: z.array(z.string()),
     highlights: z.array(z.string()),
     /** Key of a coded mock-up scene (concepts), see src/components/mocks/Scene.astro */
-    scene: z.enum(['nest-and-rest', 'kettle', 'northline']),
+    scene: z.enum(['nest-and-rest', 'samp', 'kettle', 'northline']),
     links: z.array(z.object({ label: z.string(), url: z.url() })).default([]),
     disclaimer: z.string().optional(),
     description: z.string(),

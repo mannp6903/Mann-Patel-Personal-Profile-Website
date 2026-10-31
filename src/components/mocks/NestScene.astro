@@ -1,140 +1,35 @@
 ---
-/**
- * Nest & Rest — genuine archived captures of Mann's own site (Wayback Machine, 19 Oct 2026).
- */
-import { Image } from 'astro:assets';
-import desktop from '../../assets/work/nest-and-rest/archive-2026-10-19-desktop.png';
-import mobile from '../../assets/work/nest-and-rest/archive-2026-10-19-mobile.png';
+/** Nest & Rest — screenshots of Mann's own live site (31 Oct 2026) plus the archived 19 Oct version. */
+import Captures from './Captures.astro';
+import desktop from '../../assets/work/nest-and-rest/live-2026-10-31-desktop.png';
+import mobile from '../../assets/work/nest-and-rest/live-2026-10-31-mobile.png';
+import earlier from '../../assets/work/nest-and-rest/archive-2026-10-19-desktop.png';
 
 interface Props {
   variant?: 'thumb' | 'full';
   eager?: boolean;
 }
 const { variant = 'thumb', eager = false } = Astro.props;
-const loading = eager ? 'eager' : 'lazy';
 ---
 
-{
-  variant === 'thumb' ? (
-    <div class="thumb-stage">
-      <div class="browser">
-        <Image
-          src={desktop}
-          alt="Nest & Rest Cleaning home page on desktop: headline “We clean. You rest.” beside an instant price estimator."
-          widths={[480, 720, 960]}
-          sizes="(min-width: 64em) 36rem, 90vw"
-          loading={loading}
-          decoding="async"
-        />
-      </div>
-      <div class="phone">
-        <Image
-          src={mobile}
-          alt=""
-          widths={[180, 270]}
-          sizes="10rem"
-          loading={loading}
-          decoding="async"
-        />
-      </div>
-    </div>
-  ) : (
-    <div class="gallery">
-      <figure class="g-desktop">
-        <div class="browser">
-          <Image
-            src={desktop}
-            alt="Nest & Rest Cleaning home page on desktop. The headline “We clean. You rest.” sits beside a “Your price, in seconds” estimator with service, type of home, bedrooms and bathrooms, and a “Choose your time” button."
-            widths={[720, 1080, 1440]}
-            sizes="(min-width: 80em) 52rem, 92vw"
-            loading={loading}
-            decoding="async"
-          />
-        </div>
-        <figcaption>Desktop, 1440 px. Archived capture from 19 Oct 2026 (Internet Archive Wayback Machine).</figcaption>
-      </figure>
-      <figure class="g-mobile">
-        <div class="phone">
-          <Image
-            src={mobile}
-            alt="Nest & Rest Cleaning home page on a phone: headline, call-or-text link, the start of the price estimator, and a fixed bar with Call, Text and Book your clean."
-            widths={[360, 540]}
-            sizes="16rem"
-            loading={loading}
-            decoding="async"
-          />
-        </div>
-        <figcaption>Phone, 360 px, same capture date. Note the fixed Call, Text and Book bar.</figcaption>
-      </figure>
-    </div>
-  )
-}
-
-<style>
-  .browser {
-    border: 1px solid var(--line);
-    border-top: 1.4rem solid #e3ded3;
-    border-radius: 10px;
-    overflow: hidden;
-    background: #fff;
-    box-shadow: var(--shadow-card);
-    position: relative;
-  }
-  .browser::before {
-    content: '';
-    position: absolute;
-    top: -0.95rem;
-    left: 0.7rem;
-    width: 2.2rem;
-    height: 0.5rem;
-    background: radial-gradient(circle, #c4bcad 0.25rem, transparent 0.27rem) 0 0 / 0.75rem 0.5rem repeat-x;
-  }
-  .phone {
-    border: 0.5rem solid var(--ink);
-    border-radius: 1.4rem;
-    overflow: hidden;
-    background: #fff;
-    box-shadow: var(--shadow-ticket);
-  }
-  img {
-    width: 100%;
-    height: auto;
-  }
-  .thumb-stage {
-    position: relative;
-    aspect-ratio: 16 / 11;
-    background: #e7eef3;
-    overflow: hidden;
-    padding: 7% 18% 0 6%;
-  }
-  .thumb-stage .phone {
-    position: absolute;
-    width: 24%;
-    right: 6%;
-    bottom: -14%;
-    border-width: 0.35rem;
-    border-radius: 1rem;
-  }
-  .gallery {
-    display: grid;
-    gap: var(--space-l);
-    grid-template-columns: minmax(0, 3fr) minmax(0, 1fr);
-    align-items: start;
-  }
-  figure {
-    display: grid;
-    gap: var(--space-s);
-  }
-  figcaption {
-    font-size: var(--step--1);
-    color: var(--ink-2);
-  }
-  @media (max-width: 47.99em) {
-    .gallery {
-      grid-template-columns: minmax(0, 1fr);
-    }
-    .g-mobile .phone {
-      max-width: 16rem;
-    }
-  }
-</style>
+<Captures
+  variant={variant}
+  eager={eager}
+  tint="#e5eef2"
+  url="https://nestnrestcleaning.com/"
+  desktop={{
+    src: desktop,
+    alt: 'Nest & Rest Cleaning home page on desktop: “We clean. You rest.” with a postal-code check, a “Request a clean” button and a “Your price, in seconds” estimator.',
+    caption: 'Live site on desktop, 1440 px, captured 31 Oct 2026.',
+  }}
+  mobile={{
+    src: mobile,
+    alt: 'Nest & Rest Cleaning home page on a phone: an Airbnb turnovers banner, the headline, illustrated Toronto skyline and Scarborough Bluffs, and a fixed “Request a clean” bar.',
+    caption: 'Live site on a phone, 360 px, same day.',
+  }}
+  earlier={{
+    src: earlier,
+    alt: 'Earlier Nest & Rest home page from 19 October 2026 with a navy headline and a price estimator card.',
+    caption: 'Earlier version, 19 Oct 2026 (Internet Archive). Two weeks later the site had Airbnb turnovers, a room-by-room checklist, gift cards and neighbourhood pages.',
+  }}
+/>

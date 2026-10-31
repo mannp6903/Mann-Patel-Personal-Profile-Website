@@ -84,6 +84,15 @@ Done: semantic landmarks, one H1 per page, skip link, visible 3 px focus rings, 
 | Static preview export | 11 pages, 0 missing link targets; click-tested under a sub-path (fonts, photo, navigation, guide → brief pre-fill, honest "not connected" form) |
 | Social links | GitHub live; Instagram/Facebook/LinkedIn placeholders render in preview only, hidden in production |
 
+## 6c · Round 3 (31 Oct 2026): new logo, motion, domain, real projects
+
+| Check | Result |
+| --- | --- |
+| Unit / E2E | 30/30 and 36/36 passed (Samp page added; axe: 0 violations on all 11 pages) |
+| Lighthouse 13.6.0 mobile (`/`, `/work/`, `/work/samp-hair-spa/`) | Performance 100 / 100 / 99; Accessibility 100; Best practices 100; CLS ≤ 0.013 |
+| Motion | Logo draw-in, headline word rise + underline draw, services marquee: verified frame by frame; disabled under reduced motion |
+| Work | Nest & Rest now uses live captures (31 Oct) plus the 19 Oct archive; Samp Hair & Spa added as *In progress*, gated on client permission |
+
 ## 7 · Internal design review (subjective)
 
 This is a self-assessment against the brief's rubric, **not** a test result or an outcome measure.

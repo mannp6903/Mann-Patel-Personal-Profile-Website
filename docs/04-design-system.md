@@ -76,7 +76,19 @@ All sizes use `clamp()` with a rem floor, so browser zoom and user font size are
 
 ### Logo
 
-The wordmark is **Bodoni Moda** outlines, not a web font (`src/components/Logo.astro`, data in `src/data/logo.json`). It costs no font download and looks identical everywhere. The letters take `currentColor`; the full stop takes `--logo-dot` (stamp orange on paper, `#FF7A4D` on dark). Regenerate with `scripts/make-logo.py` (see the setup line in the file). The contrast of Didone serifs with the grotesk UI type is deliberate: the name is the luxury mark, the interface stays practical.
+Custom **MP ligature monogram** (stroke geometry, 20-unit strokes, miter joins) + **MANN PATEL** wordmark outlined from Archivo Expanded Bold (wdth 125, wght 760, +0.16em tracking). `src/components/Logo.astro` renders the lockup or the mark from `src/data/logo.json`; letters use `currentColor`, the square uses `--logo-dot`. Regenerate with `scripts/make-logo.py`.
+
+### Motion graphics (added 31 Oct 2026)
+
+| Where | What | Timing | Reduced motion |
+| --- | --- | --- | --- |
+| Header logo | Monogram strokes draw in (M, then P), square stamps on, wordmark slides in. Once per visit (sessionStorage) | 0.12–1.6 s | Static |
+| Logo hover | Square nudges up-right | 220 ms | Instant |
+| Home headline | Words rise in sequence, then the three verb underlines draw left to right | 0.06–1.4 s | Static |
+| Services marquee | Slow band of service names under the hero; pauses on hover; hidden from screen readers (services are listed right below) | 48 s loop | Not animated |
+| Hero ticket, workflow demo, guide, reveals | As before | — | Static |
+
+Only `transform`, `opacity`, `stroke-dashoffset` and `background-size` are animated. Lab CLS stays ≤ 0.013.
 
 ### Space, size, shape
 

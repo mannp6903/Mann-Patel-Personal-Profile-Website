@@ -12,7 +12,7 @@ const favicon = await readFile(`${root}public/favicon.svg`);
 await sharp(favicon, { density: 384 }).resize(32, 32).png().toFile(`${root}public/favicon-32.png`);
 await sharp(favicon, { density: 768 }).resize(180, 180).png().toFile(`${root}public/apple-touch-icon.png`);
 
-const logo = JSON.parse(await readFile(`${root}src/data/logo.json`, 'utf8')).wordmark.display;
+const lockup = (await readFile(`${root}public/brand/mann-patel-lockup.svg`, 'utf8')).replace(/<title>.*?<\/title>/, '');
 const portrait = (await sharp(`${root}src/assets/mann-patel-portrait.jpg`).resize(520, 624, { fit: 'cover', position: 'attention' }).jpeg({ quality: 82 }).toBuffer()).toString('base64');
 const font = (f) => `file://${root}public/fonts/${f}`;
 
@@ -25,7 +25,7 @@ body{width:1200px;height:630px;background:#f4f1ea;color:#15171a;position:relativ
 .label{font-family:M;font-weight:700;letter-spacing:.07em;text-transform:uppercase;font-size:17px;color:#4b5058;white-space:nowrap}
 h1{font-family:B;font-weight:780;font-size:70px;line-height:1.04;letter-spacing:-.035em;white-space:nowrap}
 h1 span{background:linear-gradient(#d9481c,#d9481c) no-repeat 0 92%/100% 8px}
-.wm{height:54px}.wm svg{height:100%;width:auto}.wm .l{fill:#15171a}.wm .d{fill:#d9481c}
+.wm{height:46px}.wm svg{height:100%;width:auto}.wm .l{fill:#15171a}.wm .d{fill:#d9481c}
 .sub{font-family:M;font-size:15.5px;color:#4b5058;margin-top:12px;white-space:nowrap}
 .photo{position:absolute;right:70px;top:52px;width:390px;padding:12px 12px 48px;background:#fbfaf6;border-radius:16px;transform:rotate(2deg);box-shadow:0 2px 0 rgba(21,23,26,.08),0 24px 40px -24px rgba(21,23,26,.45)}
 .photo img{width:100%;height:auto;display:block;border-radius:10px}
@@ -34,7 +34,7 @@ h1 span{background:linear-gradient(#d9481c,#d9481c) no-repeat 0 92%/100% 8px}
 <div class="copy">
 <p class="label">Toronto · small-business digital foundations</p>
 <h1>Look <span>professional</span>.<br>Get <span>found</span>.<br>Follow <span>up</span>.</h1>
-<div><div class="wm"><svg viewBox="${logo.viewBox}"><path class="l" d="${logo.letters}"/><path class="d" d="${logo.dot}"/></svg></div>
+<div><div class="wm">${lockup}</div>
 <p class="sub">Websites · Google visibility · business email · follow-up</p></div>
 </div>
 <figure class="photo"><img src="data:image/jpeg;base64,${portrait}" alt=""><p>Mann Patel</p></figure>

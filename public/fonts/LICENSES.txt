@@ -188,7 +188,8 @@ DAMAGES, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING
 FROM, OUT OF THE USE OR INABILITY TO USE THE FONT SOFTWARE OR FROM
 OTHER DEALINGS IN THE FONT SOFTWARE.
 
-Bodoni Moda (outlined in the logo) — SIL Open Font License 1.1
+Archivo (outlined in the logo wordmark) — SIL Open Font License 1.1
+(Licence text below is the standard OFL 1.1, identical for each family; the copyright line for Archivo is: Copyright 2020 The Archivo Project Authors (https://github.com/Omnibus-Type/Archivo))
 Copyright 2020 The Bodoni Moda Project Authors (https://github.com/indestructible-type/Bodoni) BodoniModa-Italic[opsz,wght].ttf: Copyright 2020 The Bodoni Moda Project Authors (https://github.com/indestructible-type/Bodoni)
 
 This Font Software is licensed under the SIL Open Font License, Version 1.1.

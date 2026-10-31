@@ -1,0 +1,87 @@
+---
+/**
+ * Slow, decorative services marquee (the same services are listed in full right after it,
+ * so it is hidden from assistive tech). Pauses on hover; static with reduced motion.
+ */
+const items = [
+  'Websites',
+  'Landing pages',
+  'Google Business Profile',
+  'Search Console',
+  'Analytics',
+  'Professional email',
+  'Enquiry follow-up',
+  'Social content',
+  'Logos & print',
+];
+---
+
+<div class="marquee" aria-hidden="true">
+  <div class="track">
+    {
+      [0, 1].map(() => (
+        <ul class="set">
+          {items.map((t) => (
+            <li>
+              <span>{t}</span>
+              <i class="sq" />
+            </li>
+          ))}
+        </ul>
+      ))
+    }
+  </div>
+</div>
+
+<style>
+  .marquee {
+    overflow: hidden;
+    background: var(--ink);
+    color: var(--paper);
+    padding-block: 0.95rem;
+    border-block: 1px solid var(--ink);
+    user-select: none;
+  }
+  .track {
+    display: flex;
+    width: max-content;
+  }
+  .set {
+    display: flex;
+    flex-shrink: 0;
+    gap: 0;
+    list-style: none;
+    padding: 0;
+    margin: 0;
+  }
+  li {
+    display: flex;
+    align-items: center;
+    gap: 1.6rem;
+    padding-right: 1.6rem;
+    font-family: var(--font-display);
+    font-weight: 700;
+    font-size: clamp(1.05rem, 0.9rem + 0.7vw, 1.5rem);
+    letter-spacing: -0.01em;
+    white-space: nowrap;
+  }
+  .sq {
+    width: 0.5em;
+    height: 0.5em;
+    background: var(--accent-on-night);
+    transform: rotate(8deg);
+  }
+  @media (prefers-reduced-motion: no-preference) {
+    .track {
+      animation: marquee 48s linear infinite;
+    }
+    .marquee:hover .track {
+      animation-play-state: paused;
+    }
+  }
+  @keyframes marquee {
+    to {
+      transform: translateX(-50%);
+    }
+  }
+</style>

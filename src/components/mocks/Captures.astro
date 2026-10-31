@@ -1,0 +1,168 @@
+---
+/**
+ * Real screenshots of a real project: a browser-framed desktop capture plus a phone capture.
+ * variant="thumb" composes both for cards; variant="full" shows them with captions,
+ * plus an optional earlier version.
+ */
+import { Image } from 'astro:assets';
+import type { ImageMetadata } from 'astro';
+
+interface Shot {
+  src: ImageMetadata;
+  alt: string;
+  caption: string;
+}
+interface Props {
+  variant?: 'thumb' | 'full';
+  eager?: boolean;
+  desktop: Shot;
+  mobile: Shot;
+  earlier?: Shot;
+  tint?: string;
+  url?: string;
+}
+const { variant = 'thumb', eager = false, desktop, mobile, earlier, tint = '#e7eef3', url } = Astro.props;
+const loading = eager ? 'eager' : 'lazy';
+const host = url ? new URL(url).host : '';
+---
+
+{
+  variant === 'thumb' ? (
+    <div class="thumb-stage" style={`--tint:${tint}`}>
+      <div class="browser">
+        <span class="bar" aria-hidden="true">
+          <i />
+          <i />
+          <i />
+          {host && <b>{host}</b>}
+        </span>
+        <Image src={desktop.src} alt={desktop.alt} widths={[480, 720, 960]} sizes="(min-width: 64em) 36rem, 90vw" loading={loading} decoding="async" />
+      </div>
+      <div class="phone">
+        <Image src={mobile.src} alt="" widths={[180, 270]} sizes="10rem" loading={loading} decoding="async" />
+      </div>
+    </div>
+  ) : (
+    <div class="gallery">
+      <figure class="g-desktop">
+        <div class="browser">
+          <span class="bar" aria-hidden="true">
+            <i />
+            <i />
+            <i />
+            {host && <b>{host}</b>}
+          </span>
+          <Image src={desktop.src} alt={desktop.alt} widths={[720, 1080, 1440]} sizes="(min-width: 80em) 52rem, 92vw" loading={loading} decoding="async" />
+        </div>
+        <figcaption>{desktop.caption}</figcaption>
+      </figure>
+      <figure class="g-mobile">
+        <div class="phone">
+          <Image src={mobile.src} alt={mobile.alt} widths={[360, 540]} sizes="16rem" loading={loading} decoding="async" />
+        </div>
+        <figcaption>{mobile.caption}</figcaption>
+      </figure>
+      {earlier && (
+        <figure class="g-earlier">
+          <div class="browser small">
+            <span class="bar" aria-hidden="true">
+              <i />
+              <i />
+              <i />
+            </span>
+            <Image src={earlier.src} alt={earlier.alt} widths={[480, 720]} sizes="(min-width: 64em) 24rem, 80vw" loading="lazy" decoding="async" />
+          </div>
+          <figcaption>{earlier.caption}</figcaption>
+        </figure>
+      )}
+    </div>
+  )
+}
+
+<style>
+  .browser {
+    border: 1px solid var(--line);
+    border-radius: 10px;
+    overflow: hidden;
+    background: #fff;
+    box-shadow: var(--shadow-card);
+  }
+  .bar {
+    display: flex;
+    align-items: center;
+    gap: 0.3rem;
+    height: 1.5rem;
+    padding-inline: 0.6rem;
+    background: #e8e3d8;
+  }
+  .bar i {
+    width: 0.45rem;
+    height: 0.45rem;
+    border-radius: 50%;
+    background: #c4bcad;
+  }
+  .bar b {
+    margin-left: 0.6rem;
+    padding: 0.05rem 0.6rem;
+    border-radius: 99px;
+    background: #f6f3ec;
+    font: 600 0.62rem/1.4 var(--font-mono);
+    color: var(--ink-2);
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+  }
+  .phone {
+    border: 0.5rem solid var(--ink);
+    border-radius: 1.4rem;
+    overflow: hidden;
+    background: #fff;
+    box-shadow: var(--shadow-ticket);
+  }
+  img {
+    width: 100%;
+    height: auto;
+  }
+  .thumb-stage {
+    position: relative;
+    aspect-ratio: 16 / 11;
+    background: var(--tint);
+    overflow: hidden;
+    padding: 7% 18% 0 6%;
+  }
+  .thumb-stage .phone {
+    position: absolute;
+    width: 24%;
+    right: 6%;
+    bottom: -14%;
+    border-width: 0.35rem;
+    border-radius: 1rem;
+  }
+  .gallery {
+    display: grid;
+    gap: var(--space-l);
+    grid-template-columns: minmax(0, 3fr) minmax(0, 1fr);
+    align-items: start;
+  }
+  .g-earlier {
+    grid-column: 1 / -1;
+    max-width: 30rem;
+  }
+  figure {
+    display: grid;
+    gap: var(--space-s);
+    margin: 0;
+  }
+  figcaption {
+    font-size: var(--step--1);
+    color: var(--ink-2);
+  }
+  @media (max-width: 47.99em) {
+    .gallery {
+      grid-template-columns: minmax(0, 1fr);
+    }
+    .g-mobile .phone {
+      max-width: 16rem;
+    }
+  }
+</style>

@@ -8,7 +8,7 @@ const year = new Date().getFullYear();
 <footer class="site-footer on-night">
   <div class="container grid">
     <div class="brand">
-      <p class="wordmark"><Logo variant="display" /><span class="visually-hidden">Mann Patel</span></p>
+      <p class="wordmark"><Logo /><span class="visually-hidden">Mann Patel</span></p>
       <p class="muted">{profile.descriptor}.</p>
       {profile.contact.email && (
         <p>
@@ -64,7 +64,7 @@ const year = new Date().getFullYear();
     }
   }
   .wordmark {
-    font-size: clamp(2.2rem, 1.6rem + 2vw, 3rem);
+    font-size: clamp(2.6rem, 2rem + 2vw, 3.4rem);
     color: var(--night-ink);
     --logo-dot: var(--accent-on-night);
     margin-bottom: var(--space-s);
