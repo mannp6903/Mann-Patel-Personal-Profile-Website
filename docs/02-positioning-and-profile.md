@@ -10,7 +10,9 @@
 | Website: **mannpatel.me** (Mann's domain; replaces the earlier mannpatel.ca plan) | Mann, 31 Oct 2026 |
 | Founder & Owner of Nest & Rest Cleaning | Nest & Rest `/vision/` page, signed "Mann Patel, Founder & Owner" (cached 24 Oct 2026) |
 | Nest & Rest serves Scarborough and North York, Toronto | Brief; Nest & Rest site |
-| "Today, I clean every home myself." | Nest & Rest `/vision/` |
+| "Today, I clean every home myself." | Nest & Rest `/vision/` (a plan: Nest & Rest takes its first clients in summer 2027; no paying clients yet, Mann 31 Oct 2026) |
+| nestnrestcleaning.com built from scratch by Mann | Mann, 31 Oct 2026 |
+| Story: grew up in Palana (rural Gujarat, India); computer programming at Seneca College; Subway (North York), security guard at the Pan Am Sports Centre; failed C++ three times; Saint John and Rothesay, NB; Thunder Bay (Dairy Queen, casino housekeeping, depression, lost the job after missing shifts while unwell); back to North York, gas-station jobs; now overnight associate and modular associate at Walmart Canada, power-equipment trained within 45 days, acting lead for dairy and frozen | Mann, 31 Oct 2026 |
 | Nest & Rest website: nestnrestcleaning.com (launched by 19 Oct 2026, **returning 404 on 31 Oct 2026**) | Wayback capture; live check |
 | Based in Toronto; serves clients across the GTA | Mann, 31 Oct 2026 |
 

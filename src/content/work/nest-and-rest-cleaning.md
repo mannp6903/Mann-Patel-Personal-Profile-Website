@@ -2,11 +2,10 @@
 title: Nest & Rest Cleaning
 order: 1
 status: launched
-kind: Self-owned business
+kind: Own business · bookings open summer 2027
 year: '2026'
-summary: My own home-cleaning business in Scarborough and North York, and the website that prices it, explains it and takes booking requests.
-role: Founder & Owner. I run the business and clean every home myself.
-roleConfirm: "Describe exactly how the website was built: what you did yourself, which tools you used (including any AI-assisted tools), and anything someone else did."
+summary: My own home-cleaning business in Scarborough and North York, and the website I built from scratch to price it, explain it and take booking requests. Bookings open in summer 2027.
+role: Founder & Owner. I built the website myself, from scratch. When bookings open in summer 2027, I'll clean every home myself.
 serviceIds: [websites, enquiry-workflows, seo, identity]
 highlights:
   - Instant price estimate and postal-code check on the home page
@@ -39,7 +38,7 @@ Busy households in Scarborough and North York, in condos, townhouses and houses,
 
 1. **Price first.** The home page opens with an estimate built from the service, home type, bedrooms and bathrooms, rather than a "get a quote" form.
 2. **Show exactly what's included.** A room-by-room explorer lists what each service covers, what costs extra and what isn't part of the clean, so there are no surprises.
-3. **The owner is the brand.** "Hi, I'm Mann. I clean every home myself." The person at the door runs the business, and the site says so.
+3. **The owner is the brand.** "Hi, I'm Mann. I clean every home myself." The person at the door will be the person who runs the business, and the site says so.
 4. **Believable areas.** Two districts, with neighbourhood pages and a postal-code check, instead of claiming the whole GTA.
 5. **Honest booking.** Sending the form is a request; Mann confirms the time and final price personally. Payment happens after the clean, with no deposit.
 
@@ -49,4 +48,4 @@ The archived 19 October version had the estimator, services and the visit standa
 
 ## Results
 
-None are claimed here. The business launched in October 2026, and it's too early for honest numbers.
+None are claimed here. The website went live in October 2026, and the business starts taking clients in summer 2027.

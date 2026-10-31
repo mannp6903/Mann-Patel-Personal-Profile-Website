@@ -61,7 +61,7 @@ export const businesses: Business[] = [
     role: 'Founder & Owner',
     area: 'Scarborough and North York, Toronto',
     description:
-      'Home cleaning with transparent prices, online booking requests and a written standard for every visit. I clean every home myself while the business grows.',
+      'Home cleaning with transparent prices, online booking requests and a written standard for every visit. Bookings open in summer 2027, and I’ll clean every home myself while the business grows.',
   },
 ];
 
