@@ -5,15 +5,12 @@
  */
 import { social } from '../data/site';
 import { isProduction } from '../lib/mode';
-import PreviewNote from './PreviewNote.astro';
 
 interface Props {
-  note?: boolean;
   label?: string;
 }
-const { note = false, label = 'Mann Patel elsewhere' } = Astro.props;
+const { label = 'Mann Patel elsewhere' } = Astro.props;
 const visible = social.filter((s) => s.url || !isProduction);
-const pending = social.filter((s) => !s.url).map((s) => s.label);
 
 const icons: Record<string, string> = {
   github:
@@ -45,7 +42,6 @@ const icons: Record<string, string> = {
           </li>
         ))}
       </ul>
-      {note && pending.length > 0 && <PreviewNote note={`add your ${pending.join(', ')} profile links in src/data/site.ts (hidden in production until then)`} />}
     </div>
   )
 }

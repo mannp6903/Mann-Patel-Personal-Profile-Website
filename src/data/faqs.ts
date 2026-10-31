@@ -36,7 +36,6 @@ export const faqs: Faq[] = [
   {
     q: 'Do you use AI tools?',
     a: 'Yes, for some drafting, design exploration and coding. I review and test everything myself, and I do not paste your private customer information into AI tools without your agreement.',
-    confirm: 'Confirm this describes how you actually work and what you are comfortable stating.',
   },
   {
     q: 'Where do you work?',

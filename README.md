@@ -4,7 +4,7 @@ Personal profile and digital-services site for Mann Patel (production domain: **
 
 Built with **Astro 7** (static pages + one server endpoint for the project-brief form), vanilla TypeScript islands, and self-hosted OFL fonts. No CMS, no client framework, no tracking unless configured.
 
-> **Status: private preview.** Draft copy has yellow "To confirm" notes. A production build fails until they're resolved. See [`docs/OWNER-INPUTS.md`](docs/OWNER-INPUTS.md).
+> **Status: content confirmed (31 Oct 2026).** All "To confirm" items are answered. Production deploys still run the pre-launch check, which fails until email delivery (Resend) and the form secret are set in Netlify. See [`docs/OWNER-INPUTS.md`](docs/OWNER-INPUTS.md).
 
 ## Quick start
 

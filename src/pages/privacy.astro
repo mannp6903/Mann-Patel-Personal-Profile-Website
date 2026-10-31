@@ -1,11 +1,11 @@
 ---
 /**
  * Privacy notice. It describes what the code actually does, and the text adapts to the
- * configuration: analytics appear only if PUBLIC_GA4_ID is set. Processor names for the
- * enquiry form must match the production setup; see the "To confirm" notes.
+ * configuration: analytics appear only if PUBLIC_GA4_ID is set. The processors named below
+ * (Netlify for hosting, Resend for email delivery) must match the production setup
+ * (ENQUIRY_DELIVERY=resend); update this page if that ever changes.
  */
 import BaseLayout from '../layouts/BaseLayout.astro';
-import Confirm from '../components/Confirm.astro';
 import PreviewNote from '../components/PreviewNote.astro';
 import { profile } from '../data/site';
 import { PUBLIC_GA4_ID, PUBLIC_TURNSTILE_SITE_KEY } from 'astro:env/client';
@@ -46,11 +46,17 @@ const contactEmail = profile.contact.email;
 
       <h2>Where it goes</h2>
       <p>
-        When you send the form, the website’s server checks it and passes it to the service that delivers it to my
-        inbox or my enquiry list. The website host and that delivery service process the information on my behalf, only
-        to deliver it.
+        When you send the form, the website’s server checks it and emails it to my inbox. Two services handle it on my
+        behalf, only to do that job:
       </p>
-      <Confirm note="name the actual host and delivery service before launch (planned: Netlify for hosting; Resend for email delivery and/or a Google Sheet via webhook) and where they store data" />
+      <ul>
+        <li><strong>Netlify</strong> hosts this website and runs the server that checks the form.</li>
+        <li><strong>Resend</strong> delivers the email with your brief to my inbox.</li>
+      </ul>
+      <p>
+        Both companies are based in the United States, so your information may be processed and stored there, where
+        it is subject to that country’s laws. Neither service may use it for its own purposes.
+      </p>
       {
         PUBLIC_TURNSTILE_SITE_KEY && (
           <p>
@@ -66,10 +72,10 @@ const contactEmail = profile.contact.email;
 
       <h2>How long it’s kept</h2>
       <p>
-        Enquiries that don’t become projects are deleted within 12 months. If we work together, project records are kept
-        for as long as needed for the work and for tax and legal requirements.
+        Enquiries that don’t become projects are deleted from my inbox within 12 months. If we work together, project
+        records are kept for as long as needed for the work and for tax and legal requirements. Resend keeps its own
+        delivery records for a limited time under its own policy.
       </p>
-      <Confirm note="confirm the 12-month retention period and that you will actually follow it" />
 
       <h2 id="analytics">Analytics and cookies</h2>
       {

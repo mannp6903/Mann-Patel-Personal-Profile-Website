@@ -13,8 +13,8 @@ Everything below is tracked in code. Unverified **claims** are wrapped in `<Conf
 6. ~~Public location wording~~ **Answered (31 Oct 2026): based in Toronto, serving the GTA.** The hero says "Mann Patel · Toronto" and the FAQ says you work with small businesses across the GTA. (Clients outside the GTA aren't mentioned; tell me if you want to add remote work.)
 7. ~~Portrait~~ **Done (31 Oct 2026):** your photo is used in the home hero, About, Contact and the share image.
 8. ~~Your story~~ **Answered (31 Oct 2026):** the About page now tells Mann's story (Palana → Seneca → Saint John → Thunder Bay → North York → Walmart → Nest & Rest), with the depression and the lost job described plainly. Edit it any time in `src/pages/about.astro`.
-9. **AI tools FAQ.** Is the drafted answer about how you use AI tools accurate and something you're comfortable publishing? *(Blocks: one FAQ.)*
-10. **Privacy details.** Confirm the host (Netlify) and delivery service (Resend and/or a Google Sheet), and the 12-month retention period. *(Blocks: Privacy page.)*
+9. ~~AI tools FAQ~~ **Answered (31 Oct 2026): accurate**, published as written.
+10. ~~Privacy details~~ **Decided (31 Oct 2026, Mann: "do whatever is best"):** Netlify hosts the site, Resend emails each enquiry to your inbox (no Google Sheet), both US-based and named on the Privacy page; enquiries that don't become projects are deleted from your inbox within 12 months. **Your part:** set up Resend as `docs/05` §1 describes, and once a year delete enquiry emails older than 12 months (a yearly calendar reminder works).
 11. **Pricing.** The public site says "Request a quote". If you want public prices or "starting from" figures, decide them first (see the private worksheet).
 12. ~~Brand name~~ **Answered (31 Oct 2026): "Mann Patel".** No studio name.
 
