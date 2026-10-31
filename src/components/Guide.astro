@@ -76,6 +76,7 @@ const svcNames = Object.fromEntries(services.map((s) => [s.id, s.name]));
 <script>
   import { parseAnswers, recommend, briefHref } from '../lib/guide';
   import { track } from '../scripts/analytics';
+  import { sitePath } from '../scripts/paths';
 
   document.querySelectorAll<HTMLElement>('[data-guide]').forEach((root) => {
     const form = root.querySelector<HTMLFormElement>('[data-guide-form]')!;
@@ -119,13 +120,13 @@ const svcNames = Object.fromEntries(services.map((s) => [s.id, s.name]));
         ...rec.serviceIds.map((id) => {
           const li = document.createElement('li');
           const a = document.createElement('a');
-          a.href = `/services/#${id}`;
+          a.href = sitePath(`/services/#${id}`);
           a.textContent = svcNames[id] ?? id;
           li.append(a);
           return li;
         }),
       );
-      result.querySelector<HTMLAnchorElement>('[data-r-cta]')!.href = briefHref(rec);
+      result.querySelector<HTMLAnchorElement>('[data-r-cta]')!.href = sitePath(briefHref(rec));
       result.hidden = false;
       result.classList.remove('is-in');
       void result.offsetWidth;

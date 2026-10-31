@@ -9,6 +9,8 @@ import WorkflowDemo from '../components/WorkflowDemo.astro';
 import ProcessSteps from '../components/ProcessSteps.astro';
 import CtaBand from '../components/CtaBand.astro';
 import Confirm from '../components/Confirm.astro';
+import Monogram from '../components/Monogram.astro';
+import { Image } from 'astro:assets';
 import { profile, businesses } from '../data/site';
 import { personJsonLd } from '../lib/seo';
 import { absoluteUrl } from '../lib/mode';
@@ -55,7 +57,27 @@ const jsonLd = {
         </p>
       </div>
       <div class="hero-visual">
-        <Ticket />
+        {
+          profile.portrait && (
+            <figure class="portrait-card">
+              <Image
+                src={profile.portrait.src}
+                alt={profile.portrait.alt}
+                widths={[320, 480, 640, 860]}
+                sizes="(min-width: 64em) 27rem, 78vw"
+                width={860}
+                height={1032}
+                loading="eager"
+                fetchpriority="high"
+                class="portrait-img"
+              />
+              <figcaption class="portrait-tag">Mann Patel</figcaption>
+            </figure>
+          )
+        }
+        <div class="ticket-slot">
+          <Ticket />
+        </div>
       </div>
     </div>
   </section>
@@ -140,7 +162,7 @@ const jsonLd = {
   <!-- ── Founder note ─────────────────────────────────── -->
   <section class="section section--alt" aria-labelledby="founder-title">
     <div class="container founder">
-      <div class="stamp-mark" aria-hidden="true">MP</div>
+      <div class="stamp-mark" aria-hidden="true"><Monogram /></div>
       <div class="stack" style="--stack: var(--space-m)">
         <p class="label">Why me</p>
         <h2 id="founder-title">I’m building a small business too.</h2>
@@ -215,6 +237,53 @@ const jsonLd = {
   .hero-visual {
     display: grid;
     justify-items: center;
+    position: relative;
+  }
+  .portrait-card {
+    position: relative;
+    width: min(78%, 27rem);
+    justify-self: end;
+    margin: 0;
+    padding: 0.6rem 0.6rem 2.6rem;
+    background: var(--card);
+    border-radius: var(--radius-m);
+    box-shadow: var(--shadow-ticket);
+    transform: rotate(1.6deg);
+  }
+  .portrait-img {
+    width: 100%;
+    height: auto;
+    aspect-ratio: 5 / 6;
+    object-fit: cover;
+    object-position: 50% 30%;
+    border-radius: 8px;
+  }
+  .portrait-tag {
+    position: absolute;
+    left: 0.9rem;
+    bottom: 0.7rem;
+    font-family: var(--font-mono);
+    font-size: var(--step--1);
+    font-weight: 700;
+    letter-spacing: 0.06em;
+    text-transform: uppercase;
+    color: var(--ink-2);
+  }
+  .ticket-slot {
+    position: relative;
+    z-index: 1;
+    width: min(88%, 24rem);
+    justify-self: start;
+    margin-top: -24%;
+  }
+  .ticket-slot :global(.ticket) {
+    width: 100%;
+  }
+  @media (min-width: 64em) {
+    .ticket-slot {
+      margin-top: -34%;
+      margin-left: -6%;
+    }
   }
 
   .work-grid {
@@ -268,13 +337,10 @@ const jsonLd = {
     place-items: center;
     width: clamp(7rem, 4rem + 10vw, 11rem);
     aspect-ratio: 1;
+    padding: 18%;
     border: 6px double var(--accent);
     border-radius: var(--radius-l);
-    color: var(--accent);
-    font-family: var(--font-display);
-    font-weight: 800;
-    font-size: clamp(2.75rem, 1.5rem + 4vw, 4.5rem);
-    letter-spacing: -0.04em;
+    color: var(--ink);
     transform: rotate(-4deg);
   }
 </style>

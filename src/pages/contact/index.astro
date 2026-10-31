@@ -2,6 +2,8 @@
 import BaseLayout from '../../layouts/BaseLayout.astro';
 import ContactForm from '../../components/ContactForm.astro';
 import PreviewNote from '../../components/PreviewNote.astro';
+import SocialLinks from '../../components/SocialLinks.astro';
+import { Image } from 'astro:assets';
 import { profile, businesses } from '../../data/site';
 
 const nest = businesses[0];
@@ -33,6 +35,14 @@ const waNumber = whatsapp?.replace(/[^\d]/g, '');
 
       <aside class="aside" aria-label="About this form">
         <div class="card">
+          {
+            profile.portrait && (
+              <div class="from-me">
+                <Image src={profile.portrait.src} alt="" width={112} height={112} class="avatar" loading="lazy" />
+                <p class="small"><strong>You’ll hear back from me, Mann.</strong> No assistants, no agency hand-off.</p>
+              </div>
+            )
+          }
           <h2>What happens next</h2>
           <ol class="steps">
             <li><strong>I read your brief</strong> and reply by email.</li>
@@ -45,6 +55,7 @@ const waNumber = whatsapp?.replace(/[^\d]/g, '');
           <h2>Other ways to reach me</h2>
           {
             hasDirect ? (
+              <>
               <ul class="direct" role="list">
                 {email && (
                   <li>
@@ -64,6 +75,8 @@ const waNumber = whatsapp?.replace(/[^\d]/g, '');
                   </li>
                 )}
               </ul>
+              <SocialLinks note />
+              </>
             ) : (
               <>
                 <p class="muted small">For now, the form is the way to reach me.</p>
@@ -156,6 +169,24 @@ const waNumber = whatsapp?.replace(/[^\d]/g, '');
   }
   .cleaning {
     background: var(--paper-2);
+  }
+  .from-me {
+    display: grid;
+    grid-template-columns: 3.5rem 1fr;
+    gap: var(--space-s);
+    align-items: center;
+    padding-bottom: var(--space-s);
+    border-bottom: 1px dashed var(--line);
+  }
+  .from-me :global(.avatar) {
+    width: 3.5rem;
+    height: 3.5rem;
+    border-radius: 50%;
+    object-fit: cover;
+    object-position: 50% 28%;
+  }
+  .direct a {
+    overflow-wrap: anywhere;
   }
   .cleaning .btn {
     justify-self: start;

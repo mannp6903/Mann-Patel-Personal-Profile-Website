@@ -20,3 +20,8 @@ coverage/
 # OS / editor
 .DS_Store
 *.log
+
+# static preview export
+preview-static/
+.og-template.tmp.html
+preview-artifact/

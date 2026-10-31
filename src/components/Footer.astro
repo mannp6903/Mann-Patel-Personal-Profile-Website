@@ -1,13 +1,21 @@
 ---
 import { profile, businesses, nav } from '../data/site';
+import Logo from './Logo.astro';
+import SocialLinks from './SocialLinks.astro';
 const year = new Date().getFullYear();
 ---
 
 <footer class="site-footer on-night">
   <div class="container grid">
     <div class="brand">
-      <p class="wordmark">Mann Patel<span class="dot" aria-hidden="true">.</span></p>
+      <p class="wordmark"><Logo variant="display" /><span class="visually-hidden">Mann Patel</span></p>
       <p class="muted">{profile.descriptor}.</p>
+      {profile.contact.email && (
+        <p>
+          <a class="email" href={`mailto:${profile.contact.email}`} data-contact="email">{profile.contact.email}</a>
+        </p>
+      )}
+      <SocialLinks />
     </div>
 
     <nav aria-label="Footer">
@@ -56,15 +64,19 @@ const year = new Date().getFullYear();
     }
   }
   .wordmark {
-    font-family: var(--font-display);
-    font-weight: 750;
-    font-size: var(--step-3);
-    letter-spacing: -0.03em;
-    line-height: 1;
+    font-size: clamp(2.2rem, 1.6rem + 2vw, 3rem);
+    color: var(--night-ink);
+    --logo-dot: var(--accent-on-night);
     margin-bottom: var(--space-s);
   }
-  .dot {
-    color: var(--accent-on-night);
+  .brand {
+    display: grid;
+    gap: var(--space-s);
+    align-content: start;
+  }
+  .email {
+    font-weight: 700;
+    overflow-wrap: anywhere;
   }
   .brand p.muted {
     max-width: 30ch;

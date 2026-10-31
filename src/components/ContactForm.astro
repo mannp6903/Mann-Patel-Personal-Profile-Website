@@ -187,12 +187,14 @@ const groups = [
     async function refreshToken() {
       try {
         const res = await fetch('/api/enquiry/', { headers: { Accept: 'application/json' }, cache: 'no-store' });
+        if (!res.ok) throw new Error(`status ${res.status}`);
         const data = (await res.json()) as { connected: boolean; token: string | null };
         tokenInput.value = data.token ?? '';
         notConnected.hidden = data.connected;
         tokenFetched = true;
       } catch {
-        /* the server will still accept the message without a token, flagged for review */
+        // No server behind this page (e.g. a static preview) or it is unreachable: say so up front.
+        notConnected.hidden = false;
       }
     }
     refreshToken();

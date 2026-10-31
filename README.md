@@ -33,7 +33,9 @@ npm run preview             # node ./dist/server/entry.mjs → http://localhost:
 | `npm run test:e2e` | Browser tests (Playwright + axe): pages, accessibility, layout 320–1440 px, navigation, interactions, every form path. Run `npm run build` first. |
 | `npm run qa:captures` | Full-page screenshots at 360/390/768/1024/1440 + overflow report (server must be running) |
 | `npm run qa:lighthouse` | Lighthouse mobile run (`npm i --no-save lighthouse` first) |
-| `npm run images` | Regenerate favicons and the Open Graph image |
+| `npm run images` | Regenerate favicons and the Open Graph image (uses the portrait and logo) |
+| `npm run preview:static` | Export a server-less copy with relative links to `preview-static/` (for private previews; the form shows "not connected") |
+| `python scripts/make-logo.py` | Regenerate the Bodoni Moda wordmark/monogram outlines (needs `fonttools brotli uharfbuzz`) |
 | `npm run prelaunch` | Production gate: env, preview markers, canonicals, robots/sitemap, internal links |
 
 ## Editing content
@@ -72,4 +74,4 @@ Netlify: import the repo; settings come from `netlify.toml`. Branch and preview 
 
 ## Licences
 
-Fonts: Bricolage Grotesque and Atkinson Hyperlegible Next/Mono, SIL Open Font License 1.1 (`public/fonts/LICENSES.txt`). Nest & Rest captures are archived screenshots of Mann's own website (Internet Archive, 19 Oct 2026).
+Fonts: Bricolage Grotesque and Atkinson Hyperlegible Next/Mono, SIL Open Font License 1.1 (`public/fonts/LICENSES.txt`). The logo is outlined from Bodoni Moda (SIL OFL 1.1). The portrait is Mann's own photo. Nest & Rest captures are archived screenshots of Mann's own website (Internet Archive, 19 Oct 2026).

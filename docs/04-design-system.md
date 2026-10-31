@@ -74,6 +74,10 @@ Focus ring: 3 px solid `--ink` (on light) / `--night-ink` (on dark), 3 px offset
 
 All sizes use `clamp()` with a rem floor, so browser zoom and user font size are respected. Body line-height is 1.6 and display line-height 1.02–1.1. Reading measure is capped at 68 ch. Font loading: the Latin subsets are self-hosted (Bricolage 41 KB, Atkinson Next 34 KB, Mono 18 KB, woff2). Display and body are preloaded and use `font-display: swap`, with size-adjusted local fallbacks to limit layout shift.
 
+### Logo
+
+The wordmark is **Bodoni Moda** outlines, not a web font (`src/components/Logo.astro`, data in `src/data/logo.json`). It costs no font download and looks identical everywhere. The letters take `currentColor`; the full stop takes `--logo-dot` (stamp orange on paper, `#FF7A4D` on dark). Regenerate with `scripts/make-logo.py` (see the setup line in the file). The contrast of Didone serifs with the grotesk UI type is deliberate: the name is the luxury mark, the interface stays practical.
+
 ### Space, size, shape
 
 - Space: `--space-3xs` 4 px · `2xs` 8 · `xs` 12 · `s` 16 · `m` 24 · `l` 32 · `xl` 48 · `2xl` 64 · `3xl` 96. Section padding is fluid: `clamp(64px, 10vw, 128px)`.

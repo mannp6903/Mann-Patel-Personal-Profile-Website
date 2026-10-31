@@ -1,0 +1,35 @@
+---
+/**
+ * "Mann Patel." wordmark — Bodoni Moda (OFL) converted to outlines by scripts/make-logo.py.
+ * Letters use currentColor; the full stop uses --logo-dot (defaults to the accent).
+ * Decorative here: the surrounding link or heading carries the accessible name.
+ */
+import logo from '../data/logo.json';
+
+interface Props {
+  variant?: 'small' | 'display';
+  class?: string;
+}
+const { variant = 'small', class: className } = Astro.props;
+const w = logo.wordmark[variant];
+---
+
+<svg class:list={['logo', className]} viewBox={w.viewBox} aria-hidden="true" focusable="false">
+  <path class="logo-letters" d={w.letters}></path>
+  <path class="logo-dot" d={w.dot}></path>
+</svg>
+
+<style>
+  .logo {
+    display: block;
+    height: 1em;
+    width: auto;
+    overflow: visible;
+  }
+  .logo-letters {
+    fill: currentColor;
+  }
+  .logo-dot {
+    fill: var(--logo-dot, var(--accent));
+  }
+</style>

@@ -164,7 +164,7 @@ Check each limit in the app before posting. Official limit pages could not be fe
 Mann Patel
 Websites, Google visibility & follow-up systems for small businesses
 Founder, Nest & Rest Cleaning · nestnrestcleaning.com
-mannpatel.com  ·  [business email, e.g. hello@mannpatel.com once set up]  ·  [phone, if published]
+[your domain]  ·  mannp6903claudeai@gmail.com (until a domain address is set up)  ·  [phone, if published]
 ```
 
 Plain text only. No images (they get blocked, or attached as files), no quotes, no legal boilerplate. Fill the bracketed items once they are confirmed.
@@ -173,9 +173,9 @@ Plain text only. No images (they get blocked, or attached as files), no quotes, 
 
 | Asset | Direction |
 | --- | --- |
-| **Portrait** | A real photo, never generated. Natural light, at work rather than studio-posed: at a laptop with a notebook, or in a neutral Nest & Rest setting. Chest-up, eye-level, plain warm background (paper/off-white) so it sits on the site's palette. Shoot one landscape (site hero/About) and one square (profiles). Until then the site uses a typographic mark and a clearly labelled empty slot (preview only). |
-| **Wordmark** | "Mann Patel" set in Bricolage Grotesque Bold, tight tracking, with a stamp-orange full stop: **Mann Patel.** The full stop echoes "done properly". |
-| **Monogram** | "MP" set inside a rounded-rectangle "stamp" outline, ink on paper, rotated −4°, used as the favicon and profile image fallback. Drawn as SVG in `public/favicon.svg`. |
+| **Portrait** | **Supplied 31 Oct 2026** (smiling, dark green sweatshirt, tree-lined street at dusk) and used across the site. Future shoots: a real photo, never generated. Natural light, at work rather than studio-posed: at a laptop with a notebook, or in a neutral Nest & Rest setting. Chest-up, eye-level, plain warm background (paper/off-white) so it sits on the site's palette. Shoot one landscape (site hero/About) and one square (profiles). Until then the site uses a typographic mark and a clearly labelled empty slot (preview only). |
+| **Wordmark (implemented 31 Oct 2026)** | "Mann Patel." in **Bodoni Moda** (high-contrast Didone, the style used by luxury and fashion personal brands; SIL OFL 1.1), converted to vector outlines with real kerning by `scripts/make-logo.py`. Two masters: *display* (optical size 72, weight 500) for large use, *small* (optical size 28, weight 600) for the header. The stamp-orange full stop is the signature. Files: `public/brand/mann-patel-wordmark*.svg`. |
+| **Monogram** | "MP" in Bodoni Moda (heavier small master), paper on an ink tile with an orange dot: the favicon and app icon (`public/favicon.svg`, `public/brand/mann-patel-monogram.svg`). |
 | **Profile image** | Real portrait cropped to a circle-safe square on paper background. Fallback: the MP stamp, ink on paper. |
 | **Social cover (LinkedIn 1584×396, Facebook 1640×624 safe area)** | Paper background, the three verbs as a stacked display line ("Look professional. Get found. Follow up.") on the left, a small "enquiry ticket" graphic on the right, wordmark bottom-left. Keep text out of the area covered by the avatar (left on LinkedIn). |
 | **Separation from Nest & Rest** | Nest & Rest uses navy/blue/green with a house icon. The personal brand uses ink/paper/stamp-orange and no house imagery, so the two brands are never confused. |

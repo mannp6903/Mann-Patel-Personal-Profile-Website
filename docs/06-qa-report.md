@@ -74,6 +74,16 @@ Done: semantic landmarks, one H1 per page, skip link, visible 3 px focus rings, 
 - No real portrait, no client work, no field performance data yet.
 - Nest & Rest's live site was offline on 31 Oct 2026; the case study uses archived captures and is gated until it's restored.
 
+## 6b · Round 2 (31 Oct 2026, same day): photo, logo, email, social links
+
+| Check | Result |
+| --- | --- |
+| Unit / E2E | 30/30 and 35/35 passed after the changes (axe: 0 violations on all pages) |
+| Horizontal overflow | None at 360, 390, 768, 1024, 1440 px on Home, About, Contact, Services, Work |
+| Lighthouse 13.6.0 mobile (`/`, `/about/`, `/contact/`) | Performance 100 / Accessibility 100 / Best practices 100; LCP 1.4 s, 0.9 s, 1.1 s; CLS ≤ 0.013 |
+| Static preview export | 11 pages, 0 missing link targets; click-tested under a sub-path (fonts, photo, navigation, guide → brief pre-fill, honest "not connected" form) |
+| Social links | GitHub live; Instagram/Facebook/LinkedIn placeholders render in preview only, hidden in production |
+
 ## 7 · Internal design review (subjective)
 
 This is a self-assessment against the brief's rubric, **not** a test result or an outcome measure.
@@ -82,11 +92,11 @@ This is a self-assessment against the brief's rubric, **not** a test result or a
 | --- | --- | --- | --- | --- |
 | Positioning, profile, service clarity | 20 | 17 | Plain three-verb H1; every service has problem, deliverables, inputs, exclusions, handover; packages; honest FAQ | Copy isn't yet in Mann's own voice; no client proof |
 | Navigation and hierarchy | 15 | 13 | 3 nav items + one CTA; one primary action per page; Services jump links; cleaning exit on every page | Services and Home are long; a returning visitor may want shorter paths |
-| Art direction, typography, consistency | 20 | 16 | Distinct "front desk" ticket language, consistent tokens, coded concept artwork, no stock imagery | No real portrait or photography yet; some text-only sections feel plain |
+| Art direction, typography, consistency | 20 | 17 | Distinct "front desk" ticket language, consistent tokens, coded concept artwork, real portrait, premium Bodoni Moda wordmark | Some text-only sections feel plain; the warm paper + orange palette is a common look |
 | Useful interaction and motion | 10 | 9 | Guide + workflow demo with full fallbacks; restrained stamps; reduced-motion support | Brand-preview interaction not built |
 | Mobile usability and accessibility | 15 | 13 | 0 axe violations, Lighthouse a11y 100, 320–1440 px and 200% text pass, keyboard tests | No manual screen-reader or real-device testing |
 | Performance and technical SEO | 10 | 9 | Perf 99–100, CLS ≤ 0.013; SEO 100 on indexing build; sitemap, canonicals, JSON-LD | Lab data only; no domain yet |
 | Enquiry reliability and measurement | 10 | 7 | Full pipeline incl. failure paths tested locally; GA4 plan with deduped `generate_lead` | Production delivery not connected or live-tested |
-| **Total** | **100** | **84** | | |
+| **Total** | **100** | **85** | | |
 
-**Path to 90+:** a real portrait, the About and founder copy rewritten in Mann's words, the Nest & Rest site restored and its build role confirmed, a live email delivery test, and one permissioned client project.
+**Path to 90+:** the About and founder copy rewritten in Mann's words, the Nest & Rest site restored and its build role confirmed, a live email delivery test, and one permissioned client project.

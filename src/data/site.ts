@@ -1,3 +1,5 @@
+import portraitImage from '../assets/mann-patel-portrait.jpg';
+
 /**
  * Profile and site settings.
  *
@@ -26,19 +28,32 @@ export const profile = {
   location: 'Toronto',
   locationConfirmed: false,
   serviceArea: 'Toronto and the GTA',
-  /** Real portrait only. Path under src/assets, or null. */
-  portrait: null as null | { src: string; alt: string },
+  /** Real portrait only (supplied by Mann, 31 Oct 2026). */
+  portrait: {
+    src: portraitImage,
+    alt: 'Mann Patel smiling, in a dark green sweatshirt, on a tree-lined street at dusk.',
+  } as null | { src: ImageMetadata; alt: string },
   contact: {
     /** Verified business email for the public site, e.g. hello@yourdomain.ca */
-    email: null as null | string,
+    email: 'mannp6903claudeai@gmail.com' as null | string,
     /** E.164 format, only if Mann wants a public number. */
     phone: null as null | string,
     /** WhatsApp click-to-chat number in E.164, only if supplied. */
     whatsapp: null as null | string,
   },
-  /** Verified profile URLs only (used for links and structured data sameAs). */
-  sameAs: [] as string[],
 };
+
+/**
+ * Social profiles. `url: null` = not supplied yet: shown as a greyed placeholder in
+ * previews and hidden in production. Only real URLs go into structured data (sameAs).
+ */
+export const social: { id: 'github' | 'instagram' | 'facebook' | 'linkedin'; label: string; url: string | null }[] = [
+  { id: 'github', label: 'GitHub', url: 'https://github.com/mannp6903' },
+  { id: 'instagram', label: 'Instagram', url: null },
+  { id: 'facebook', label: 'Facebook', url: null },
+  { id: 'linkedin', label: 'LinkedIn', url: null },
+];
+export const sameAs = social.flatMap((s) => (s.url ? [s.url] : []));
 
 export const businesses: Business[] = [
   {

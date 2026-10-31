@@ -1,4 +1,4 @@
-import { profile, businesses } from '../data/site';
+import { profile, businesses, sameAs } from '../data/site';
 import { absoluteUrl } from './mode';
 
 /**
@@ -12,7 +12,8 @@ export function personJsonLd() {
     name: profile.name,
     description: profile.descriptor,
     ...(url ? { url } : {}),
-    ...(profile.sameAs.length ? { sameAs: profile.sameAs } : {}),
+    ...(profile.portrait && url ? { image: new URL('/og/default.png', url).toString() } : {}),
+    ...(sameAs.length ? { sameAs } : {}),
     worksFor: businesses.map((b) => ({ '@type': 'Organization', name: b.name, url: b.url })),
     knowsAbout: ['Websites', 'Search engine optimisation', 'Google Search Console', 'Google Analytics 4', 'Business email', 'Social media content'],
   };

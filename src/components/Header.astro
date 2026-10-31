@@ -1,5 +1,6 @@
 ---
 import { nav, primaryCta, businesses } from '../data/site';
+import Logo from './Logo.astro';
 
 const path = Astro.url.pathname;
 const isCurrent = (href: string) => path === href || (href !== '/' && path.startsWith(href));
@@ -9,7 +10,7 @@ const nestAndRest = businesses[0];
 <header class="site-header">
   <div class="container bar">
     <a class="wordmark" href="/" aria-label="Mann Patel, home">
-      Mann Patel<span class="dot" aria-hidden="true">.</span>
+      <Logo variant="small" />
     </a>
 
     <button
@@ -89,17 +90,12 @@ const nestAndRest = businesses[0];
     min-height: 4.25rem;
   }
   .wordmark {
-    font-family: var(--font-display);
-    font-weight: 750;
-    font-size: 1.375rem;
-    letter-spacing: -0.03em;
+    display: inline-flex;
+    align-items: center;
+    min-height: var(--tap);
+    font-size: clamp(1.45rem, 1.3rem + 0.5vw, 1.7rem);
+    color: var(--ink);
     text-decoration: none;
-    line-height: 1;
-    padding-block: var(--space-2xs);
-    white-space: nowrap;
-  }
-  .wordmark .dot {
-    color: var(--accent);
   }
   .menu-toggle {
     display: none;
