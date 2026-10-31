@@ -319,10 +319,6 @@ a:hover {
   color: var(--ok);
   background: var(--ok-wash);
 }
-.chip--concept {
-  color: var(--accent-text);
-  background: var(--accent-wash);
-}
 .chip--prototype,
 .chip--in-progress {
   color: var(--ink-2);

@@ -62,7 +62,7 @@ for (const f of files) {
   const html = await readFile(f, 'utf8');
   const rel = '/' + relative(root, f).replace(/index\.html$/, '').replace(/\.html$/, '');
   if (/data-confirm|data-preview-note|Private preview\./.test(html)) errors.push(`${rel}: contains a preview marker or "To confirm" note`);
-  if (/@example\.|\(000\)|555-01|lorem ipsum/i.test(html.replace(/kettleandcrumb\.example|example@|yourbusiness\.ca/g, ''))) {
+  if (/@example\.|\(000\)|555-01|lorem ipsum/i.test(html.replace(/example@|yourbusiness\.ca/g, ''))) {
     warnings.push(`${rel}: contains placeholder-looking contact text; check it`);
   }
   if (!rel.startsWith('/404') && !rel.startsWith('/contact/received')) {

@@ -1,11 +1,10 @@
 ---
 interface Props {
-  status: 'launched' | 'concept' | 'prototype' | 'in-progress';
+  status: 'launched' | 'prototype' | 'in-progress';
 }
 const { status } = Astro.props;
 const labels = {
   launched: 'Launched',
-  concept: 'Concept · not a client project',
   prototype: 'Prototype',
   'in-progress': 'In progress',
 } as const;

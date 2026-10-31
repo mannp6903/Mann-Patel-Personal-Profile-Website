@@ -49,7 +49,6 @@ Done: semantic landmarks, one H1 per page, skip link, visible 3 px focus rings, 
 | `docs/captures/services-mobile-390.jpg` | Services, 390 px |
 | `docs/captures/contact-mobile-390.jpg` | Contact form, 390 px |
 | `docs/captures/case-study-desktop-1440.jpg` | Nest & Rest case study, 1440 px |
-| `docs/captures/concept-desktop-1440.jpg` | Kettle & Crumb concept, 1440 px |
 | `docs/captures/404-mobile-390.jpg` | 404, 390 px |
 
 ## 5 · Issues found during QA and fixed

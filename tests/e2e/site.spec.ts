@@ -8,8 +8,6 @@ const PAGES = [
   '/work/',
   '/work/nest-and-rest-cleaning/',
   '/work/samp-hair-spa/',
-  '/work/concept-kettle-and-crumb/',
-  '/work/concept-northline-plumbing/',
   '/about/',
   '/contact/',
   '/privacy/',

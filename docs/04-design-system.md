@@ -110,7 +110,7 @@ Only `transform`, `opacity`, `stroke-dashoffset`, `background-size` and one SVG 
 | Header + mobile menu | collapsed/expanded (`aria-expanded`), current page (`aria-current`), Escape to close, focus return |
 | Ticket (signature) | static, stamped (stage reached), current stage; reduced-motion version without animation |
 | Service ledger row | default, hover, focus-within; the details are always visible (no hover-only content) |
-| Work card | status chip: **Launched** / **Concept** / **Prototype** / **In progress** |
+| Work card | status chip: **Launched** / **Prototype** / **In progress** |
 | Guide | unanswered, answered, recommendation shown (live region), reset |
 | Workflow demo | step 1–4 (tabs), each step's panel; no-JS: all steps as an ordered list |
 | Form field | default, focus, filled, invalid (message + `aria-invalid`), disabled while sending |
@@ -154,4 +154,4 @@ Rules: no scroll hijacking, no loaders, no custom cursor, no autoplay audio, not
 
 ### 3 · Brand preview (designed, not built for launch)
 
-A fictional brand shown across a business card, flyer, social post and website mock-up, with a toggle between "business card / flyer / post / website". The two concept case studies already show the same artwork statically; build the toggle later if visitors engage with the concepts.
+A fictional brand shown across a business card, flyer, social post and website mock-up, with a toggle between "business card / flyer / post / website". (The concept samples that showed this artwork statically were removed on 31 Oct 2026; build this only with real or clearly labelled sample work.)

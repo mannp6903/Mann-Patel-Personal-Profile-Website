@@ -16,8 +16,6 @@ import { personJsonLd } from '../lib/seo';
 import { absoluteUrl } from '../lib/mode';
 
 const work = (await getCollection('work')).sort((a, b) => a.data.order - b.data.order);
-const real = work.filter((w) => w.data.status !== 'concept');
-const concepts = work.filter((w) => w.data.status === 'concept');
 const nest = businesses[0];
 
 // Hero headline, split into words for the staggered reveal (reads as plain text without motion).
@@ -122,13 +120,12 @@ const jsonLd = {
         <p class="label">Evidence, not promises</p>
         <h2 id="work-title">Real work, clearly labelled.</h2>
         <p class="muted measure">
-          The business I run, a client website I’m building now, and two concept samples. Every card says which is
-          which, and no results are invented.
+          The business I run and a client website I’m building now. Every card says which is which, and no results
+          are invented.
         </p>
       </div>
       <div class="work-grid">
-        {real.map((r) => <div class="featured"><WorkCard entry={r} headingLevel="h3" large /></div>)}
-        {concepts.map((c) => <WorkCard entry={c} headingLevel="h3" />)}
+        {work.map((r) => <WorkCard entry={r} headingLevel="h3" large />)}
       </div>
       <p class="more-link"><a class="link-accent" href="/work/">All work and how it’s labelled →</a></p>
     </div>
@@ -327,14 +324,6 @@ const jsonLd = {
     display: grid;
     gap: var(--space-l);
     grid-template-columns: minmax(0, 1fr);
-  }
-  @media (min-width: 48em) {
-    .work-grid {
-      grid-template-columns: repeat(2, minmax(0, 1fr));
-    }
-  }
-  .featured {
-    grid-column: 1 / -1;
   }
   .more-link {
     margin-top: var(--space-l);

@@ -6,7 +6,7 @@ Everything below is tracked in code. Unverified **claims** are wrapped in `<Conf
 
 1. ~~Nest & Rest website is down~~ **Resolved:** the site was back online later on 31 Oct 2026. The case study now uses fresh captures of the live site. (Still recommended: add the domain as a *verified domain* in GitHub Pages settings.)
 2. **How was the Nest & Rest site built?** What did you do yourself, which tools did you use (including AI-assisted tools), and did anyone else help? *(Blocks: case-study role line.)*
-3. **Concept samples.** Kettle & Crumb and Northline Plumbing were produced by Claude (AI) while building this site. Keep them with that attribution, replace them with your own work, or remove them? *(Blocks: both concept pages.)*
+3. ~~Concept samples~~ **Answered (31 Oct 2026): removed.** Kettle & Crumb and Northline Plumbing are gone from the site; the Work page shows only real projects (Nest & Rest, Samp Hair & Spa).
 4. **Public contact details.** *Interim answer (31 Oct 2026):* `mannp6903claudeai@gmail.com` is shown on the site. Switch to an address on your own domain (e.g. `hello@` your domain) once email is set up. Phone or WhatsApp: not public. Tell me if you want one.
 4b. **Social links.** GitHub is linked (`github.com/mannp6903`, your connected account). **Instagram, Facebook and LinkedIn URLs are still needed.** Until then their buttons show as greyed placeholders in previews and are **hidden in production** (no dead buttons). Add them in `src/data/site.ts` → `social`.
 5. ~~Domain~~ **Answered (31 Oct 2026): mannpatel.me** (your domain; replaces the earlier mannpatel.ca plan). Set as the production URL in `netlify.toml`. Owner action: connect it to Netlify (see `docs/05` §4).
