@@ -1,6 +1,6 @@
 # Mann Patel: personal site
 
-Personal profile and digital-services site for Mann Patel, founder of Nest & Rest Cleaning, who helps Toronto small businesses **look professional, get found, and follow up**.
+Personal profile and digital-services site for Mann Patel (production domain: **mannpatel.com**), founder of Nest & Rest Cleaning, who helps Toronto small businesses **look professional, get found, and follow up**.
 
 Built with **Astro 7** (static pages + one server endpoint for the project-brief form), vanilla TypeScript islands, and self-hosted OFL fonts. No CMS, no client framework, no tracking unless configured.
 

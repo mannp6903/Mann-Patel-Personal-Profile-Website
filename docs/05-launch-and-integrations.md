@@ -77,8 +77,8 @@ Browser form ──► GET /api/enquiry/  → { connected, token }      (status 
 
 ### Search Console plan (Owner action)
 
-1. Add a **Domain property** for the final domain and verify it with the DNS TXT record (covers http/https and all subdomains). Keep the record in place permanently.
-2. Submit `https://<domain>/sitemap-index.xml`.
+1. Add a **Domain property** for `mannpatel.com` and verify it with the DNS TXT record (covers http/https and all subdomains). Keep the record in place permanently.
+2. Submit `https://mannpatel.com/sitemap-index.xml`.
 3. After a few days, check Pages (indexing) and Performance. Don't claim verification is done until Search Console shows "Ownership verified".
 
 ### Google Business Profile
@@ -92,7 +92,7 @@ Mann's digital-services work probably **doesn't qualify** for a Business Profile
 1. **Owner action:** Netlify → Add new site → Import from GitHub → this repository. Build settings come from `netlify.toml`.
 2. Branch deploys and deploy previews are always `noindex` and show the preview banner.
 3. Production deploys run `npm run build && npm run prelaunch`. They **fail on purpose** until every "To confirm" item is resolved and the delivery and secret variables are set. That's the guard against unverified claims or a dead form going live.
-4. **Domain (Owner action):** buy the domain in Mann's name (not via a reseller account he doesn't control), add it in Netlify → Domain management, follow Netlify's DNS instructions, then set `PUBLIC_SITE_URL=https://<domain>` and `SITE_INDEXING=true`, and redeploy.
+4. **Domain: mannpatel.com (Owner action).** `PUBLIC_SITE_URL=https://mannpatel.com` and `SITE_INDEXING=true` are already set for production in `netlify.toml`. On 31 Oct 2026 the public registry showed mannpatel.com registered since 20 Aug 2020 via **Squarespace Domains** (nameservers `ns-cloud-d1…d4.googledomains.com`, i.e. a former Google Domains registration), expiring 20 Aug 2027, with no website. First confirm it's in *your* Squarespace account and turn on auto-renew. Then in Netlify → Domain management → Add domain `mannpatel.com` (and `www`), and either add the DNS records Netlify shows in Squarespace's DNS settings, or switch the nameservers to Netlify DNS. Netlify issues the HTTPS certificate automatically. Use `hello@mannpatel.com` (or similar) as the Resend sender once the domain is verified there.
 
 **Rollback:** Netlify → Deploys → choose the last good deploy → "Publish deploy" (instant). In git, `git revert <commit>` and push. Environment-variable changes need a redeploy to take effect.
 

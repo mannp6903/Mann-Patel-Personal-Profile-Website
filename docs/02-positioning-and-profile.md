@@ -6,7 +6,8 @@
 
 | Fact | Source |
 | --- | --- |
-| Name: Mann Patel (working public brand) | Brief |
+| Public brand: **Mann Patel** (no studio name) | Mann, 31 Oct 2026 |
+| Website: **mannpatel.com** | Mann, 31 Oct 2026 (registration ownership to confirm) |
 | Founder & Owner of Nest & Rest Cleaning | Nest & Rest `/vision/` page, signed "Mann Patel, Founder & Owner" (cached 24 Oct 2026) |
 | Nest & Rest serves Scarborough and North York, Toronto | Brief; Nest & Rest site |
 | "Today, I clean every home myself." | Nest & Rest `/vision/` |
@@ -163,7 +164,7 @@ Check each limit in the app before posting. Official limit pages could not be fe
 Mann Patel
 Websites, Google visibility & follow-up systems for small businesses
 Founder, Nest & Rest Cleaning · nestnrestcleaning.com
-[personal-site domain]  ·  [business email]  ·  [phone, if published]
+mannpatel.com  ·  [business email, e.g. hello@mannpatel.com once set up]  ·  [phone, if published]
 ```
 
 Plain text only. No images (they get blocked, or attached as files), no quotes, no legal boilerplate. Fill the bracketed items once they are confirmed.
