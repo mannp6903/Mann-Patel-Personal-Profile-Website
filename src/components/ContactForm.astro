@@ -1,0 +1,552 @@
+---
+import { SERVICE_OPTIONS, PACKAGE_OPTIONS, BUDGET_OPTIONS, TIMEFRAME_OPTIONS } from '../lib/enquiry/options';
+import { LIMITS } from '../lib/enquiry/validate';
+import { HONEYPOT_FIELD } from '../lib/enquiry/spam';
+import { PUBLIC_TURNSTILE_SITE_KEY } from 'astro:env/client';
+
+const groups = [
+  { id: 'A', title: 'Websites and visibility' },
+  { id: 'B', title: 'Email and follow-up' },
+  { id: 'C', title: 'Content and branding' },
+  { id: 'other', title: 'Other' },
+];
+---
+
+<div class="brief" data-brief>
+  <form class="form" id="brief" action="/api/enquiry/" method="post" data-brief-form>
+    <div class="error-summary" role="alert" tabindex="-1" data-error-summary hidden>
+      <h2 class="es-title">Please check these fields</h2>
+      <ul data-error-list></ul>
+    </div>
+    <p class="notice notice--warn" data-not-connected hidden role="status">
+      This form isn’t connected to an inbox yet, so messages can’t be sent from here at the moment.
+    </p>
+
+    <p class="small muted req-note">Fields marked <span class="req" aria-hidden="true">*</span><span class="visually-hidden">with an asterisk</span> are required.</p>
+
+    <div class="grid two">
+      <div class="field">
+        <label for="f-name">Your name <span class="req" aria-hidden="true">*</span></label>
+        <input class="input" id="f-name" name="name" type="text" autocomplete="name" required maxlength={LIMITS.name} aria-describedby="e-name" />
+        <p class="error-text" id="e-name" data-error-for="name"></p>
+      </div>
+      <div class="field">
+        <label for="f-email">Email <span class="req" aria-hidden="true">*</span></label>
+        <input class="input" id="f-email" name="email" type="email" autocomplete="email" required maxlength={LIMITS.email} aria-describedby="h-email e-email" />
+        <p class="hint" id="h-email">I’ll reply here.</p>
+        <p class="error-text" id="e-email" data-error-for="email"></p>
+      </div>
+      <div class="field">
+        <label for="f-business">Business name</label>
+        <input class="input" id="f-business" name="business" type="text" autocomplete="organization" maxlength={LIMITS.business} aria-describedby="e-business" />
+        <p class="error-text" id="e-business" data-error-for="business"></p>
+      </div>
+      <div class="field">
+        <label for="f-website">Website, if you have one</label>
+        <input class="input" id="f-website" name="website" type="text" inputmode="url" autocomplete="url" placeholder="yourbusiness.ca" maxlength={LIMITS.website} aria-describedby="e-website" />
+        <p class="error-text" id="e-website" data-error-for="website"></p>
+      </div>
+    </div>
+
+    <fieldset class="field services" aria-describedby="h-services e-services">
+      <legend>What would you like help with?</legend>
+      <p class="hint" id="h-services">Choose any that apply, or “Not sure yet”.</p>
+      <div class="svc-groups">
+        {
+          groups.map((g) => (
+            <div class="svc-group">
+              <p class="svc-title">{g.title}</p>
+              {SERVICE_OPTIONS.filter((o) => o.group === g.id).map((o) => (
+                <label class="check">
+                  <input type="checkbox" name="services" value={o.id} />
+                  <span>{o.label}</span>
+                </label>
+              ))}
+            </div>
+          ))
+        }
+      </div>
+      <p class="error-text" id="e-services" data-error-for="services"></p>
+    </fieldset>
+
+    <div class="field package" data-package-field hidden>
+      <label for="f-package">Suggested starting point</label>
+      <select class="select" id="f-package" name="packageId" aria-describedby="h-package">
+        <option value="">None</option>
+        {PACKAGE_OPTIONS.map((p) => <option value={p.id}>{p.label}</option>)}
+      </select>
+      <p class="hint" id="h-package">Pre-filled from the guide. Change it or choose “None”.</p>
+    </div>
+
+    <div class="field">
+      <label for="f-message">Tell me about your business and what you’d like to change <span class="req" aria-hidden="true">*</span></label>
+      <textarea class="textarea" id="f-message" name="message" required minlength={LIMITS.messageMin} maxlength={LIMITS.message} rows="6" aria-describedby="h-message e-message c-message"></textarea>
+      <p class="hint" id="h-message">For example: what you do, where, what isn’t working, and anything you already have (domain, logo, accounts).</p>
+      <p class="hint counter" id="c-message" data-counter aria-live="polite"></p>
+      <p class="error-text" id="e-message" data-error-for="message"></p>
+    </div>
+
+    <details class="optional">
+      <summary>Optional: phone, budget and timing</summary>
+      <div class="grid three">
+        <div class="field">
+          <label for="f-phone">Phone</label>
+          <input class="input" id="f-phone" name="phone" type="tel" autocomplete="tel" maxlength={LIMITS.phone} aria-describedby="h-phone e-phone" />
+          <p class="hint" id="h-phone">Only if you’d rather talk.</p>
+          <p class="error-text" id="e-phone" data-error-for="phone"></p>
+        </div>
+        <div class="field">
+          <label for="f-budget">Budget range (CAD)</label>
+          <select class="select" id="f-budget" name="budget">
+            <option value="">Prefer not to say</option>
+            {BUDGET_OPTIONS.map((b) => <option value={b.id}>{b.label}</option>)}
+          </select>
+        </div>
+        <div class="field">
+          <label for="f-timeframe">Timeframe</label>
+          <select class="select" id="f-timeframe" name="timeframe">
+            <option value="">Not sure</option>
+            {TIMEFRAME_OPTIONS.map((t) => <option value={t.id}>{t.label}</option>)}
+          </select>
+        </div>
+      </div>
+    </details>
+
+    <div class="hp" aria-hidden="true">
+      <label for="f-hp">Leave this field empty</label>
+      <input id="f-hp" type="text" name={HONEYPOT_FIELD} tabindex="-1" autocomplete="off" />
+    </div>
+    <input type="hidden" name="formToken" data-token />
+    <input type="hidden" name="submissionId" data-submission-id />
+
+    {PUBLIC_TURNSTILE_SITE_KEY && <div class="cf-turnstile" data-sitekey={PUBLIC_TURNSTILE_SITE_KEY} />}
+
+    <p class="small muted privacy">
+      I use these details only to reply to this enquiry. Nothing you type here is sent to analytics. <a href="/privacy/">How your information is handled</a>.
+    </p>
+
+    <div class="submit-row">
+      <button class="btn" type="submit" data-submit>
+        <span class="spinner" aria-hidden="true" hidden data-spinner></span>
+        <span data-submit-label>Send my brief</span>
+      </button>
+      <p class="small muted">This asks for a conversation; it doesn’t book an appointment.</p>
+    </div>
+    <div class="notice notice--error" role="alert" tabindex="-1" data-form-error hidden></div>
+  </form>
+
+  <section class="success" data-success hidden tabindex="-1" aria-labelledby="success-title">
+    <p class="stamp-ok" aria-hidden="true">Received</p>
+    <h2 id="success-title">Thanks, <span data-success-name></span>. Your brief arrived.</h2>
+    <p data-success-ack></p>
+    <ol class="next">
+      <li>I read every brief myself.</li>
+      <li>I reply by email with questions or a suggested next step.</li>
+      <li>If we go ahead, you get a written scope before any work starts.</li>
+    </ol>
+    <p class="small muted">Reference: <span class="mono" data-success-id></span></p>
+    <p><a class="link-accent" href="/work/">While you wait, see my work →</a></p>
+  </section>
+</div>
+
+{PUBLIC_TURNSTILE_SITE_KEY && <script is:inline src="https://challenges.cloudflare.com/turnstile/v0/api.js" async defer></script>}
+
+<script>
+  import { validateEnquiry, LIMITS, type FieldErrors } from '../lib/enquiry/validate';
+  import { parseAnswers, recommend } from '../lib/guide';
+  import { trackOnce } from '../scripts/analytics';
+
+  const root = document.querySelector<HTMLElement>('[data-brief]');
+  if (root) {
+    const form = root.querySelector<HTMLFormElement>('[data-brief-form]')!;
+    form.noValidate = true; // JS shows its own accessible errors; native validation remains without JS
+    const summary = root.querySelector<HTMLElement>('[data-error-summary]')!;
+    const summaryList = root.querySelector<HTMLUListElement>('[data-error-list]')!;
+    const formError = root.querySelector<HTMLElement>('[data-form-error]')!;
+    const submit = root.querySelector<HTMLButtonElement>('[data-submit]')!;
+    const spinner = root.querySelector<HTMLElement>('[data-spinner]')!;
+    const submitLabel = root.querySelector<HTMLElement>('[data-submit-label]')!;
+    const tokenInput = root.querySelector<HTMLInputElement>('[data-token]')!;
+    const idInput = root.querySelector<HTMLInputElement>('[data-submission-id]')!;
+    const counter = root.querySelector<HTMLElement>('[data-counter]')!;
+    const message = form.elements.namedItem('message') as HTMLTextAreaElement;
+    const success = root.querySelector<HTMLElement>('[data-success]')!;
+    const notConnected = root.querySelector<HTMLElement>('[data-not-connected]')!;
+
+    const newId = () => (crypto.randomUUID ? crypto.randomUUID() : `${Date.now()}-${Math.random().toString(36).slice(2, 10)}`);
+    idInput.value = newId();
+
+    const labels: Record<string, string> = {
+      name: 'Your name', email: 'Email', business: 'Business name', website: 'Website', phone: 'Phone',
+      services: 'Services', packageId: 'Starting point', budget: 'Budget', timeframe: 'Timeframe', message: 'About your business',
+    };
+    const fieldTarget: Record<string, string> = { services: 'input[name="services"]' };
+
+    // ── Status + time-check token ──
+    let tokenFetched = false;
+    async function refreshToken() {
+      try {
+        const res = await fetch('/api/enquiry/', { headers: { Accept: 'application/json' }, cache: 'no-store' });
+        const data = (await res.json()) as { connected: boolean; token: string | null };
+        tokenInput.value = data.token ?? '';
+        notConnected.hidden = data.connected;
+        tokenFetched = true;
+      } catch {
+        /* the server will still accept the message without a token, flagged for review */
+      }
+    }
+    refreshToken();
+
+    // ── Pre-fill from the guide (?package=…&services=…  or  ?stage=…&problem=…&site=…) ──
+    const params = new URLSearchParams(location.search);
+    let pkg = params.get('package') ?? '';
+    let svcs = (params.get('services') ?? '').split(',').filter(Boolean);
+    const answers = parseAnswers(Object.fromEntries(params.entries()));
+    if (answers && !pkg) {
+      const rec = recommend(answers);
+      pkg = rec.packageId;
+      svcs = rec.serviceIds;
+    }
+    const pkgSelect = form.elements.namedItem('packageId') as HTMLSelectElement;
+    if (pkg && [...pkgSelect.options].some((o) => o.value === pkg)) {
+      pkgSelect.value = pkg;
+      root.querySelector<HTMLElement>('[data-package-field]')!.hidden = false;
+    }
+    const single = params.get('service');
+    if (single) svcs.push(single);
+    form.querySelectorAll<HTMLInputElement>('input[name="services"]').forEach((cb) => {
+      if (svcs.includes(cb.value)) cb.checked = true;
+    });
+
+    // ── Character counter ──
+    const updateCounter = () => {
+      const n = message.value.trim().length;
+      counter.textContent = n < LIMITS.messageMin ? `${LIMITS.messageMin - n} more characters needed` : `${n} / ${LIMITS.message}`;
+    };
+    let counterTimer: number | undefined;
+    message.addEventListener('input', () => {
+      window.clearTimeout(counterTimer);
+      counterTimer = window.setTimeout(updateCounter, 400);
+    });
+    updateCounter();
+
+    // ── Errors ──
+    const read = () => {
+      const fd = new FormData(form);
+      const data: Record<string, unknown> = {};
+      for (const [k, v] of fd.entries()) {
+        if (k === 'services') data.services = [...((data.services as string[]) ?? []), String(v)];
+        else data[k] = String(v);
+      }
+      return data;
+    };
+    const clearErrors = () => {
+      form.querySelectorAll('[aria-invalid="true"]').forEach((el) => el.removeAttribute('aria-invalid'));
+      form.querySelectorAll<HTMLElement>('[data-error-for]').forEach((el) => (el.textContent = ''));
+      summary.hidden = true;
+      summaryList.replaceChildren();
+    };
+    const showErrors = (errors: FieldErrors) => {
+      clearErrors();
+      const entries = Object.entries(errors) as [string, string][];
+      for (const [field, msg] of entries) {
+        const out = form.querySelector<HTMLElement>(`[data-error-for="${field}"]`);
+        if (out) out.textContent = msg;
+        const input = form.querySelector<HTMLElement>(fieldTarget[field] ?? `[name="${field}"]`);
+        input?.setAttribute('aria-invalid', 'true');
+        if (input?.closest('details')) (input.closest('details') as HTMLDetailsElement).open = true;
+        const li = document.createElement('li');
+        const a = document.createElement('a');
+        a.href = `#${input?.id || 'brief'}`;
+        a.textContent = `${labels[field] ?? field}: ${msg}`;
+        a.addEventListener('click', (e) => {
+          e.preventDefault();
+          input?.focus();
+        });
+        li.append(a);
+        summaryList.append(li);
+      }
+      if (entries.length > 1) {
+        summary.hidden = false;
+        summary.focus();
+      } else {
+        form.querySelector<HTMLElement>(fieldTarget[entries[0][0]] ?? `[name="${entries[0][0]}"]`)?.focus();
+      }
+    };
+    // Re-validate a field when it changes after an error.
+    form.addEventListener('change', (e) => {
+      const t = e.target as HTMLInputElement;
+      if (t.getAttribute('aria-invalid') !== 'true') return;
+      const res = validateEnquiry(read());
+      const name = t.name as keyof FieldErrors;
+      if (res.ok || !res.errors[name]) {
+        t.removeAttribute('aria-invalid');
+        const out = form.querySelector<HTMLElement>(`[data-error-for="${name}"]`);
+        if (out) out.textContent = '';
+      }
+    });
+
+    const setSending = (on: boolean) => {
+      submit.disabled = on;
+      spinner.hidden = !on;
+      submitLabel.textContent = on ? 'Sending…' : 'Send my brief';
+      form.setAttribute('aria-busy', String(on));
+    };
+    const showFormError = (text: string) => {
+      formError.textContent = text;
+      formError.hidden = false;
+      formError.focus();
+    };
+
+    form.addEventListener('submit', async (e) => {
+      e.preventDefault();
+      formError.hidden = true;
+      const data = read();
+      const local = validateEnquiry(data);
+      if (!local.ok) {
+        showErrors(local.errors);
+        return;
+      }
+      clearErrors();
+      if (!tokenFetched) await refreshToken();
+      data.formToken = tokenInput.value || undefined;
+      const turnstile = form.querySelector<HTMLInputElement>('[name="cf-turnstile-response"]');
+      if (turnstile) data['cf-turnstile-response'] = turnstile.value;
+
+      setSending(true);
+      let res: Response;
+      let body: any;
+      try {
+        res = await fetch('/api/enquiry/', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json', Accept: 'application/json' },
+          body: JSON.stringify(data),
+        });
+        body = await res.json();
+      } catch {
+        setSending(false);
+        showFormError('Your brief wasn’t sent: the connection failed. Your answers are still here. Please check your connection and try again.');
+        return;
+      }
+      setSending(false);
+
+      if (res.ok && body.ok) {
+        const firstName = String(data.name).split(' ')[0];
+        root.querySelector('[data-success-name]')!.textContent = firstName;
+        root.querySelector('[data-success-id]')!.textContent = body.id;
+        root.querySelector('[data-success-ack]')!.textContent =
+          body.acknowledgement === 'sent'
+            ? `A confirmation email is on its way to ${data.email}. If it isn’t there in a few minutes, check your spam folder.`
+            : body.acknowledgement === 'failed'
+              ? `Your brief was received, but the confirmation email couldn’t be sent. I’ll still reply to ${data.email}.`
+              : `I’ll reply to ${data.email}.`;
+        form.hidden = true;
+        success.hidden = false;
+        success.focus();
+        success.scrollIntoView({ block: 'start' });
+        trackOnce(body.id, 'generate_lead', {
+          form_id: 'project_brief',
+          lead_source: 'website',
+          service_count: (data.services as string[] | undefined)?.length ?? 0,
+          starting_point: String(data.packageId || 'none'),
+        });
+        idInput.value = newId();
+        return;
+      }
+
+      switch (body?.code) {
+        case 'validation':
+          if (body.errors) showErrors(body.errors);
+          else showFormError(body.message);
+          break;
+        case 'expired':
+          await refreshToken();
+          showFormError(body.message);
+          break;
+        case 'rate_limited':
+          showFormError(`${body.message}${body.retryAfter ? ` (about ${Math.ceil(body.retryAfter / 60)} min)` : ''}`);
+          break;
+        case 'not_connected':
+          notConnected.hidden = false;
+          showFormError(body.message);
+          break;
+        default:
+          showFormError(body?.message ?? 'Your brief wasn’t sent. Your answers are still here. Please try again.');
+      }
+    });
+  }
+</script>
+
+<style>
+  .brief {
+    display: grid;
+  }
+  .form {
+    display: grid;
+    gap: var(--space-l);
+  }
+  .grid {
+    display: grid;
+    gap: var(--space-m);
+  }
+  @media (min-width: 40em) {
+    .grid.two {
+      grid-template-columns: repeat(2, minmax(0, 1fr));
+    }
+    .grid.three {
+      grid-template-columns: repeat(3, 1fr);
+    }
+  }
+  .req-note {
+    margin-bottom: calc(var(--space-s) * -1);
+  }
+  fieldset {
+    border: 0;
+    padding: 0;
+    margin: 0;
+    min-width: 0;
+  }
+  .services legend {
+    margin-bottom: var(--space-3xs);
+  }
+  .svc-groups {
+    display: grid;
+    gap: var(--space-m);
+    margin-top: var(--space-s);
+  }
+  @media (min-width: 40em) {
+    .svc-groups {
+      grid-template-columns: repeat(2, minmax(0, 1fr));
+    }
+  }
+  .svc-group {
+    display: grid;
+    gap: var(--space-3xs);
+    align-content: start;
+  }
+  .svc-title {
+    font-family: var(--font-mono);
+    font-size: var(--step--1);
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: 0.06em;
+    color: var(--ink-3);
+  }
+  .check {
+    display: flex;
+    gap: var(--space-xs);
+    align-items: center;
+    min-height: var(--tap);
+    cursor: pointer;
+    line-height: 1.3;
+  }
+  .check input {
+    width: 1.25rem;
+    height: 1.25rem;
+    accent-color: var(--ink);
+    flex: none;
+    margin: 0;
+  }
+  .optional summary {
+    cursor: pointer;
+    font-weight: 700;
+    min-height: var(--tap);
+    display: flex;
+    align-items: center;
+  }
+  .optional[open] summary {
+    margin-bottom: var(--space-m);
+  }
+  .counter {
+    text-align: right;
+    margin-top: calc(var(--space-2xs) * -1);
+  }
+  .hp {
+    position: absolute;
+    left: -10000px;
+    width: 1px;
+    height: 1px;
+    overflow: hidden;
+  }
+  .submit-row {
+    display: flex;
+    flex-wrap: wrap;
+    gap: var(--space-s) var(--space-m);
+    align-items: center;
+  }
+  .submit-row .btn {
+    min-width: 12rem;
+  }
+  .notice {
+    padding: var(--space-s) var(--space-m);
+    border-radius: var(--radius-m);
+    border: 1.5px solid currentColor;
+    font-weight: 600;
+  }
+  .notice:focus {
+    outline: 3px solid var(--focus);
+    outline-offset: 3px;
+  }
+  .notice--error {
+    color: var(--error);
+    background: var(--error-wash);
+  }
+  .notice--warn {
+    color: #5c3c00;
+    background: var(--warn-wash);
+  }
+  .error-summary {
+    padding: var(--space-m);
+    border: 2px solid var(--error);
+    border-radius: var(--radius-m);
+    background: var(--error-wash);
+  }
+  .error-summary:focus {
+    outline: 3px solid var(--focus);
+    outline-offset: 3px;
+  }
+  .es-title {
+    font-size: var(--step-1);
+    color: var(--error);
+    margin-bottom: var(--space-2xs);
+  }
+  .error-summary a {
+    color: var(--error);
+    font-weight: 600;
+  }
+  .success {
+    display: grid;
+    gap: var(--space-m);
+    padding: var(--space-l);
+    background: var(--card);
+    border: 2px solid var(--ink);
+    border-radius: var(--radius-l);
+    box-shadow: 6px 6px 0 var(--ok);
+  }
+  .success:focus {
+    outline: none;
+  }
+  .success h2 {
+    font-size: var(--step-3);
+  }
+  .stamp-ok {
+    justify-self: start;
+    font-family: var(--font-display);
+    font-weight: 800;
+    text-transform: uppercase;
+    letter-spacing: 0.06em;
+    color: var(--ok);
+    border: 3px double var(--ok);
+    border-radius: var(--radius-s);
+    padding: 0.1em 0.6em;
+    transform: rotate(-4deg);
+  }
+  .next {
+    padding-left: 1.3em;
+    display: grid;
+    gap: var(--space-2xs);
+  }
+  .mono {
+    font-family: var(--font-mono);
+  }
+</style>

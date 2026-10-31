@@ -1,0 +1,44 @@
+# Netlify build settings. Environment variables (secrets, PUBLIC_SITE_URL, SITE_INDEXING)
+# are set in the Netlify dashboard, not here, because this repository is public.
+[build]
+  command = "npm run build"
+  publish = "dist"
+
+[build.environment]
+  NODE_VERSION = "22"
+  DEPLOY_TARGET = "netlify"
+
+# Production: the build fails while any "To confirm" item remains, and the pre-launch
+# check fails until delivery, secrets and the real domain are configured in the dashboard.
+[context.production]
+  command = "npm run build && npm run prelaunch"
+
+[context.production.environment]
+  SITE_MODE = "production"
+
+# Deploy previews and branch deploys must never be indexed.
+[context.deploy-preview.environment]
+  SITE_INDEXING = "false"
+  SITE_MODE = "preview"
+
+[context.branch-deploy.environment]
+  SITE_INDEXING = "false"
+  SITE_MODE = "preview"
+
+[[headers]]
+  for = "/*"
+  [headers.values]
+    X-Content-Type-Options = "nosniff"
+    Referrer-Policy = "strict-origin-when-cross-origin"
+    Permissions-Policy = "camera=(), microphone=(), geolocation=(), interest-cohort=()"
+    X-Frame-Options = "DENY"
+
+[[headers]]
+  for = "/fonts/*"
+  [headers.values]
+    Cache-Control = "public, max-age=31536000, immutable"
+
+[[headers]]
+  for = "/_astro/*"
+  [headers.values]
+    Cache-Control = "public, max-age=31536000, immutable"

@@ -1,0 +1,15 @@
+---
+// Confirmation page for the no-JavaScript form path (the API redirects here after acceptance).
+import BaseLayout from '../../layouts/BaseLayout.astro';
+---
+
+<BaseLayout title="Brief received" description="Your brief arrived." noindex>
+  <section class="section">
+    <div class="container stack" style="--stack: var(--space-m)">
+      <p class="label">Received</p>
+      <h1>Thanks, your brief arrived.</h1>
+      <p class="lead measure">I read every brief myself and will reply by email with questions or a suggested next step.</p>
+      <p><a class="btn btn--secondary" href="/">Back to the home page</a></p>
+    </div>
+  </section>
+</BaseLayout>

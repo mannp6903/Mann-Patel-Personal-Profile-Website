@@ -1,0 +1,280 @@
+---
+import { getCollection } from 'astro:content';
+import BaseLayout from '../layouts/BaseLayout.astro';
+import Ticket from '../components/Ticket.astro';
+import ServiceOverview from '../components/ServiceOverview.astro';
+import WorkCard from '../components/WorkCard.astro';
+import Guide from '../components/Guide.astro';
+import WorkflowDemo from '../components/WorkflowDemo.astro';
+import ProcessSteps from '../components/ProcessSteps.astro';
+import CtaBand from '../components/CtaBand.astro';
+import Confirm from '../components/Confirm.astro';
+import { profile, businesses } from '../data/site';
+import { personJsonLd } from '../lib/seo';
+import { absoluteUrl } from '../lib/mode';
+
+const work = (await getCollection('work')).sort((a, b) => a.data.order - b.data.order);
+const [featured, ...concepts] = work;
+const nest = businesses[0];
+
+const jsonLd = {
+  '@context': 'https://schema.org',
+  '@type': 'ProfilePage',
+  ...(absoluteUrl('/') ? { url: absoluteUrl('/') } : {}),
+  mainEntity: personJsonLd(),
+};
+---
+
+<BaseLayout
+  title="Home"
+  fullTitle="Mann Patel · Websites, Google visibility & follow-up for Toronto small businesses"
+  description="I help small businesses in Toronto look professional, get found and follow up: websites, Google Search Console and Business Profile support, professional email, enquiry follow-up and social content."
+  jsonLd={jsonLd}
+>
+  <!-- ── Hero ─────────────────────────────────────────── -->
+  <section class="hero">
+    <div class="container hero-grid">
+      <div class="hero-copy">
+        <p class="label eyebrow">
+          {profile.name} · {profile.location}
+          {!profile.locationConfirmed && <Confirm note="preferred public location (Toronto, Scarborough or GTA?)" />}
+        </p>
+        <h1>
+          I help small businesses <a class="verb" href="#overview-content">look professional</a>, <a
+            class="verb"
+            href="#overview-visibility">get found</a
+          >, and <a class="verb" href="#overview-follow-up">follow up</a>.
+        </h1>
+        <p class="lead intro">{profile.intro}</p>
+        <div class="btn-row">
+          <a class="btn" href="/contact/">Start a project <span class="arrow" aria-hidden="true">→</span></a>
+          <a class="btn btn--secondary" href="#guide">Find your starting point</a>
+        </div>
+        <p class="cleaning small">
+          Looking for home cleaning? <a href={nest.url} rel="noopener">Visit {nest.name}&nbsp;↗</a>
+        </p>
+      </div>
+      <div class="hero-visual">
+        <Ticket />
+      </div>
+    </div>
+  </section>
+
+  <!-- ── What I do ────────────────────────────────────── -->
+  <section class="section section--tight" aria-labelledby="what-title">
+    <div class="container">
+      <div class="section-head">
+        <p class="label">What I do</p>
+        <h2 id="what-title">Three kinds of help, one goal: a business that’s easy to choose.</h2>
+        <p class="muted measure">
+          Every service has written deliverables, a list of what I need from you, and what isn’t included. <a
+            class="link-accent"
+            href="/services/">See every service in detail</a
+          >.
+        </p>
+      </div>
+      <ServiceOverview />
+    </div>
+  </section>
+
+  <!-- ── Evidence ─────────────────────────────────────── -->
+  <section class="section section--alt" aria-labelledby="work-title">
+    <div class="container">
+      <div class="section-head">
+        <p class="label">Evidence, not promises</p>
+        <h2 id="work-title">My own business first. Concepts clearly labelled.</h2>
+        <p class="muted measure">
+          I don’t have client case studies to show yet, and I won’t invent them. Here is the business I run, and two
+          concept samples made to show the kind of work I offer.
+        </p>
+      </div>
+      <div class="work-grid">
+        <div class="featured"><WorkCard entry={featured} headingLevel="h3" large /></div>
+        {concepts.map((c) => <WorkCard entry={c} headingLevel="h3" />)}
+      </div>
+      <p class="more-link"><a class="link-accent" href="/work/">All work and how it’s labelled →</a></p>
+    </div>
+  </section>
+
+  <!-- ── Guide ────────────────────────────────────────── -->
+  <section class="section" id="guide" aria-labelledby="guide-title">
+    <div class="container guide-grid">
+      <div class="section-head sticky">
+        <p class="label">Not sure where to start?</p>
+        <h2 id="guide-title">What does your business need?</h2>
+        <p class="muted">
+          Three quick questions. You’ll get a suggested starting point with the reasons, and you can pass it straight
+          into a brief.
+        </p>
+      </div>
+      <Guide />
+    </div>
+  </section>
+
+  <!-- ── Workflow demo ────────────────────────────────── -->
+  <section class="section on-night" id="follow-up" aria-labelledby="demo-title">
+    <div class="container">
+      <div class="section-head">
+        <p class="label">What “follow up” looks like</p>
+        <h2 id="demo-title">From enquiry to answer, without anything slipping through.</h2>
+        <p class="muted measure">
+          This is the kind of simple routine I set up for owners: an honest acknowledgement, one place to see every
+          enquiry, and a reminder before anyone is forgotten.
+        </p>
+      </div>
+      <WorkflowDemo />
+    </div>
+  </section>
+
+  <!-- ── Process ──────────────────────────────────────── -->
+  <section class="section" aria-labelledby="process-title">
+    <div class="container">
+      <div class="section-head">
+        <p class="label">How a project works</p>
+        <h2 id="process-title">Written down, built with you, handed over.</h2>
+      </div>
+      <ProcessSteps />
+    </div>
+  </section>
+
+  <!-- ── Founder note ─────────────────────────────────── -->
+  <section class="section section--alt" aria-labelledby="founder-title">
+    <div class="container founder">
+      <div class="stamp-mark" aria-hidden="true">MP</div>
+      <div class="stack" style="--stack: var(--space-m)">
+        <p class="label">Why me</p>
+        <h2 id="founder-title">I’m building a small business too.</h2>
+        <p class="lead">
+          I run {nest.name} in {nest.area}, and I still clean every home myself. Setting it up meant doing what my
+          clients need: a clear offer, a website people understand on their phone, booking requests, email, and a
+          habit of answering every enquiry.
+        </p>
+        <p class="btn-row">
+          <a class="btn btn--secondary" href="/about/">More about me</a>
+          <a class="link-accent" href="/work/nest-and-rest-cleaning/">Read the Nest &amp; Rest case study →</a>
+        </p>
+      </div>
+    </div>
+  </section>
+
+  <CtaBand />
+</BaseLayout>
+
+<style>
+  .hero {
+    overflow-x: clip;
+    padding-block: clamp(2.5rem, 1rem + 6vw, 6rem) clamp(3rem, 1rem + 6vw, 6rem);
+  }
+  .hero-grid {
+    display: grid;
+    gap: var(--space-2xl);
+    align-items: center;
+  }
+  @media (min-width: 64em) {
+    .hero-grid {
+      grid-template-columns: minmax(0, 1.55fr) minmax(0, 1fr);
+      gap: var(--space-xl);
+    }
+  }
+  .hero-copy {
+    display: grid;
+    gap: var(--space-m);
+  }
+  .eyebrow {
+    display: flex;
+    flex-wrap: wrap;
+    gap: var(--space-2xs) var(--space-s);
+    align-items: center;
+  }
+  h1 {
+    font-size: var(--step-5);
+    line-height: 1.02;
+    letter-spacing: -0.035em;
+    max-width: 15ch;
+  }
+  .verb {
+    text-decoration: none;
+    background-image: linear-gradient(var(--accent), var(--accent));
+    background-repeat: no-repeat;
+    background-size: 100% 0.12em;
+    background-position: 0 92%;
+    padding-bottom: 0.02em;
+    transition: background-size var(--dur-base) var(--ease-out);
+    -webkit-box-decoration-break: clone;
+    box-decoration-break: clone;
+  }
+  .verb:hover {
+    background-size: 100% 0.3em;
+  }
+  .intro {
+    max-width: 40ch;
+  }
+  .cleaning {
+    color: var(--ink-2);
+  }
+  .hero-visual {
+    display: grid;
+    justify-items: center;
+  }
+
+  .work-grid {
+    display: grid;
+    gap: var(--space-l);
+    grid-template-columns: minmax(0, 1fr);
+  }
+  @media (min-width: 48em) {
+    .work-grid {
+      grid-template-columns: repeat(2, minmax(0, 1fr));
+    }
+  }
+  .featured {
+    grid-column: 1 / -1;
+  }
+  .more-link {
+    margin-top: var(--space-l);
+  }
+
+  .guide-grid {
+    display: grid;
+    gap: var(--space-xl);
+  }
+  @media (min-width: 64em) {
+    .guide-grid {
+      grid-template-columns: minmax(0, 0.8fr) minmax(0, 1.4fr);
+      align-items: start;
+    }
+    .sticky {
+      position: sticky;
+      top: 6rem;
+    }
+  }
+
+  .founder {
+    display: grid;
+    gap: var(--space-xl);
+    align-items: center;
+  }
+  @media (min-width: 56em) {
+    .founder {
+      grid-template-columns: auto 1fr;
+      gap: var(--space-2xl);
+    }
+  }
+  .founder .lead {
+    max-width: 52ch;
+  }
+  .stamp-mark {
+    display: grid;
+    place-items: center;
+    width: clamp(7rem, 4rem + 10vw, 11rem);
+    aspect-ratio: 1;
+    border: 6px double var(--accent);
+    border-radius: var(--radius-l);
+    color: var(--accent);
+    font-family: var(--font-display);
+    font-weight: 800;
+    font-size: clamp(2.75rem, 1.5rem + 4vw, 4.5rem);
+    letter-spacing: -0.04em;
+    transform: rotate(-4deg);
+  }
+</style>

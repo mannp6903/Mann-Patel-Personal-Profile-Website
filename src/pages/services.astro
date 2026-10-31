@@ -1,0 +1,465 @@
+---
+import BaseLayout from '../layouts/BaseLayout.astro';
+import ProcessSteps from '../components/ProcessSteps.astro';
+import CtaBand from '../components/CtaBand.astro';
+import Confirm from '../components/Confirm.astro';
+import { groups, servicesInGroup } from '../data/services';
+import { packages, checkUp } from '../data/packages';
+import { faqs } from '../data/faqs';
+
+const allPackages = [...packages, checkUp];
+const faqLd = {
+  '@context': 'https://schema.org',
+  '@type': 'FAQPage',
+  mainEntity: faqs
+    .filter((f) => !f.confirm)
+    .map((f) => ({ '@type': 'Question', name: f.q, acceptedAnswer: { '@type': 'Answer', text: f.a } })),
+};
+---
+
+<BaseLayout
+  title="Services"
+  description="Websites, SEO, Google Search Console, Analytics and Business Profile support, professional email, enquiry follow-up workflows, social content and print materials for small businesses in Toronto. Deliverables, inputs and exclusions for each."
+  jsonLd={faqLd}
+>
+  <section class="section page-head">
+    <div class="container head">
+      <p class="label">Services</p>
+      <h1>Clear deliverables. Plain language. Yours to keep.</h1>
+      <p class="lead measure">
+        Each service below lists the problem it solves, what you get, what I need from you, and what isn’t included.
+        Prices depend on scope, so every project gets a written quote.
+      </p>
+      <nav class="jump" aria-label="On this page">
+        <ul role="list">
+          {groups.map((g) => <li><a href={`#${g.id}`}><span class="jl">{g.letter}</span> {g.title}</a></li>)}
+          <li><a href="#packages">Packages</a></li>
+          <li><a href="#faq">Questions</a></li>
+        </ul>
+      </nav>
+    </div>
+  </section>
+
+  {
+    groups.map((g) => (
+      <section class:list={['section', 'group', { 'section--alt': g.letter === 'B' }]} id={g.id} aria-labelledby={`g-${g.id}`}>
+        <div class="container">
+          <header class="group-head">
+            <p class="letter" aria-hidden="true">{g.letter}</p>
+            <div class="stack" style="--stack: var(--space-xs)">
+              <p class="verb">{g.verb}</p>
+              <h2 id={`g-${g.id}`}>{g.title}</h2>
+              <p class="lead measure">{g.intro}</p>
+            </div>
+          </header>
+
+          <div class="services">
+            {servicesInGroup(g.id).map((s) => (
+              <article class="service" id={s.id} aria-labelledby={`s-${s.id}`} data-reveal>
+                <div class="s-main">
+                  <h3 id={`s-${s.id}`}>{s.name}</h3>
+                  <p class="summary">{s.summary}</p>
+                  <p class="problem">
+                    <span class="tag">Sounds familiar?</span> {s.problem}
+                  </p>
+                  {s.terms && (
+                    <dl class="terms">
+                      {s.terms.map((t) => (
+                        <div>
+                          <dt>{t.term}</dt>
+                          <dd>{t.plain}</dd>
+                        </div>
+                      ))}
+                    </dl>
+                  )}
+                </div>
+                <div class="s-detail">
+                  <h4>What you get</h4>
+                  <ul class="ticks" role="list">
+                    {s.deliverables.map((d) => <li>{d}</li>)}
+                  </ul>
+                  <details>
+                    <summary>What I need, what’s not included, handover</summary>
+                    <div class="more">
+                      <h4>What I need from you</h4>
+                      <ul>{s.inputs.map((i) => <li>{i}</li>)}</ul>
+                      <h4>Not included</h4>
+                      <ul class="crosses">{s.exclusions.map((x) => <li>{x}</li>)}</ul>
+                      <h4>Handover</h4>
+                      <p>{s.handover}</p>
+                    </div>
+                  </details>
+                  <p class="next">
+                    <span class="muted small">{s.nextStep}</span>
+                    <a class="btn btn--secondary btn-sm" href={`/contact/?service=${s.id}#brief`}>
+                      Request a quote<span class="visually-hidden">: {s.name}</span>
+                    </a>
+                  </p>
+                </div>
+              </article>
+            ))}
+          </div>
+        </div>
+      </section>
+    ))
+  }
+
+  <section class="section on-night" id="packages" aria-labelledby="pk-title">
+    <div class="container">
+      <div class="section-head">
+        <p class="label">Packages</p>
+        <h2 id="pk-title">Common starting points.</h2>
+        <p class="muted">
+          Packages bundle the services that usually go together. Every one is scoped and quoted in writing; nothing is
+          fixed until you’ve seen it.
+        </p>
+      </div>
+      <div class="packages">
+        {
+          allPackages.map((p) => (
+            <article class:list={['pkg', { featured: p.featured, small: p.id === 'check-up' }]} aria-labelledby={`pk-${p.id}`}>
+              {p.featured && <p class="chip flag">Most common</p>}
+              <h3 id={`pk-${p.id}`}>{p.name}</h3>
+              <p class="for">{p.forWho}</p>
+              <h4>Includes</h4>
+              <ul class="ticks" role="list">{p.includes.map((i) => <li>{i}</li>)}</ul>
+              <h4>Not included</h4>
+              <ul class="crosses" role="list">{p.notIncluded.map((i) => <li>{i}</li>)}</ul>
+              <h4>You provide</h4>
+              <p class="small">{p.youProvide.join(' · ')}</p>
+              <a class="btn" href={`/contact/?package=${p.id}&services=${p.serviceIds.join(',')}#brief`}>
+                Request a quote<span class="visually-hidden">: {p.name}</span>
+              </a>
+            </article>
+          ))
+        }
+      </div>
+      <div class="terms-box">
+        <h3>In every written scope</h3>
+        <ul role="list">
+          <li><strong>Two rounds of changes</strong> per deliverable are included. More are quoted.</li>
+          <li><strong>Third-party fees</strong> (domain, email subscription, hosting, paid tools, printing) are billed to you by the provider, in your name.</li>
+          <li><strong>Ownership:</strong> your domain, accounts, content and final files are yours. I only show your project in my portfolio with your written permission.</li>
+          <li><strong>One-time vs ongoing:</strong> setup is a one-time fee. Content, monitoring and maintenance are separate, so you can stop any of them.</li>
+        </ul>
+      </div>
+    </div>
+  </section>
+
+  <section class="section" aria-labelledby="process-title">
+    <div class="container">
+      <div class="section-head">
+        <p class="label">Process</p>
+        <h2 id="process-title">How every project runs.</h2>
+      </div>
+      <ProcessSteps />
+    </div>
+  </section>
+
+  <section class="section section--alt" id="faq" aria-labelledby="faq-title">
+    <div class="container faq-wrap">
+      <div class="section-head">
+        <p class="label">Questions</p>
+        <h2 id="faq-title">Straight answers.</h2>
+      </div>
+      <div class="faqs">
+        {
+          faqs.map((f) => (
+            <details class="faq">
+              <summary>{f.q}</summary>
+              <p>{f.a}</p>
+              {f.confirm && <Confirm note={f.confirm} />}
+            </details>
+          ))
+        }
+      </div>
+    </div>
+  </section>
+
+  <CtaBand title="Not sure which service you need?" text="Describe the problem in your own words. I’ll suggest a starting point, and I’ll tell you if it isn’t something I do." />
+</BaseLayout>
+
+<style>
+  .head {
+    display: grid;
+    gap: var(--space-m);
+  }
+  .page-head {
+    padding-bottom: var(--space-xl);
+  }
+  .jump ul {
+    display: flex;
+    flex-wrap: wrap;
+    gap: var(--space-2xs);
+    list-style: none;
+    padding: 0;
+  }
+  .jump a {
+    display: inline-flex;
+    align-items: center;
+    gap: var(--space-2xs);
+    min-height: var(--tap);
+    padding: 0.3em 1em;
+    border: 1.5px solid var(--ink);
+    border-radius: var(--radius-pill);
+    text-decoration: none;
+    font-weight: 600;
+  }
+  .jump a:hover {
+    background: var(--card);
+  }
+  .jl {
+    font-family: var(--font-display);
+    font-weight: 800;
+    color: var(--accent-text);
+  }
+  .group-head {
+    display: grid;
+    grid-template-columns: auto 1fr;
+    gap: var(--space-m);
+    align-items: start;
+    margin-bottom: var(--space-xl);
+  }
+  .letter {
+    font-family: var(--font-display);
+    font-weight: 800;
+    font-size: clamp(4rem, 2rem + 8vw, 8rem);
+    line-height: 0.8;
+    color: var(--accent);
+  }
+  .verb {
+    font-family: var(--font-mono);
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: var(--tracking-label);
+    color: var(--accent-text);
+    font-size: var(--step--1);
+  }
+  .services {
+    border-top: 2px solid var(--ink);
+  }
+  .service {
+    display: grid;
+    gap: var(--space-l);
+    padding-block: var(--space-xl);
+    border-bottom: 1px solid var(--line);
+    scroll-margin-top: 6rem;
+  }
+  @media (min-width: 60em) {
+    .service {
+      grid-template-columns: minmax(0, 1fr) minmax(0, 1.15fr);
+      gap: var(--space-2xl);
+    }
+  }
+  .s-main {
+    display: grid;
+    gap: var(--space-s);
+    align-content: start;
+  }
+  .s-main h3 {
+    font-size: var(--step-2);
+  }
+  .summary {
+    font-size: var(--step-1);
+    line-height: 1.45;
+  }
+  .problem {
+    color: var(--ink-2);
+  }
+  .tag {
+    font-family: var(--font-mono);
+    font-weight: 700;
+    font-size: var(--step--1);
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+    color: var(--ink);
+    background: var(--accent-wash);
+    padding: 0.1em 0.4em;
+    border-radius: 4px;
+  }
+  .terms {
+    display: grid;
+    gap: var(--space-2xs);
+    padding: var(--space-s);
+    border-left: 3px solid var(--accent);
+    background: var(--card);
+    font-size: var(--step--1);
+  }
+  .terms dt {
+    font-weight: 700;
+  }
+  .terms dd {
+    margin: 0;
+    color: var(--ink-2);
+  }
+  .s-detail {
+    display: grid;
+    gap: var(--space-s);
+    align-content: start;
+  }
+  h4 {
+    font-family: var(--font-mono);
+    font-size: var(--step--1);
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: 0.06em;
+    color: var(--ink-2);
+  }
+  .on-night h4 {
+    color: var(--night-ink-2);
+  }
+  .ticks,
+  .crosses {
+    list-style: none;
+    padding: 0;
+    display: grid;
+    gap: var(--space-2xs);
+  }
+  .ticks li,
+  .crosses li {
+    position: relative;
+    padding-left: 1.6em;
+  }
+  .ticks li::before {
+    content: '✓';
+    position: absolute;
+    left: 0;
+    font-weight: 800;
+    color: var(--ok);
+  }
+  .crosses li::before {
+    content: '–';
+    position: absolute;
+    left: 0.2em;
+    font-weight: 800;
+    color: var(--ink-3);
+  }
+  .on-night .ticks li::before {
+    color: #7fd3ac;
+  }
+  .on-night .crosses li::before {
+    color: var(--night-ink-2);
+  }
+  details summary {
+    cursor: pointer;
+    font-weight: 700;
+    min-height: var(--tap);
+    display: flex;
+    align-items: center;
+  }
+  .more {
+    display: grid;
+    gap: var(--space-xs);
+    padding: var(--space-s) 0 0;
+  }
+  .more ul {
+    padding-left: 1.2em;
+    display: grid;
+    gap: var(--space-3xs);
+  }
+  .more h4 {
+    margin-top: var(--space-xs);
+  }
+  .next {
+    display: flex;
+    flex-wrap: wrap;
+    gap: var(--space-s);
+    align-items: center;
+    justify-content: space-between;
+    padding-top: var(--space-s);
+    border-top: 1px dashed var(--line);
+  }
+  .btn-sm {
+    font-size: var(--step--1);
+    padding: 0.5em 1em;
+  }
+
+  .packages {
+    display: grid;
+    gap: var(--space-m);
+    grid-template-columns: repeat(auto-fit, minmax(min(100%, 17rem), 1fr));
+  }
+  .pkg {
+    position: relative;
+    display: grid;
+    gap: var(--space-s);
+    align-content: start;
+    padding: var(--space-l) var(--space-m);
+    border: 1.5px solid var(--night-line);
+    border-radius: var(--radius-l);
+    background: var(--night-2);
+  }
+  .pkg.featured {
+    border-color: var(--accent-on-night);
+  }
+  .pkg h3 {
+    font-size: var(--step-2);
+  }
+  .pkg .for {
+    color: var(--night-ink-2);
+  }
+  .pkg .btn {
+    margin-top: var(--space-s);
+    justify-self: start;
+  }
+  .flag {
+    justify-self: start;
+    color: var(--accent-on-night);
+  }
+  .terms-box {
+    margin-top: var(--space-xl);
+    padding: var(--space-l);
+    border: 1.5px dashed var(--night-line);
+    border-radius: var(--radius-l);
+    display: grid;
+    gap: var(--space-s);
+  }
+  .terms-box ul {
+    display: grid;
+    gap: var(--space-xs);
+    padding-left: 1.2em;
+  }
+  .faq-wrap {
+    display: grid;
+    gap: var(--space-l);
+  }
+  @media (min-width: 64em) {
+    .faq-wrap {
+      grid-template-columns: minmax(0, 0.8fr) minmax(0, 1.5fr);
+    }
+  }
+  .faqs {
+    border-top: 2px solid var(--ink);
+  }
+  .faq {
+    border-bottom: 1px solid var(--line);
+    padding-block: var(--space-2xs);
+  }
+  .faq summary {
+    font-family: var(--font-display);
+    font-size: var(--step-1);
+    letter-spacing: -0.01em;
+    padding-block: var(--space-xs);
+    list-style: none;
+    justify-content: space-between;
+    gap: var(--space-s);
+  }
+  .faq summary::-webkit-details-marker {
+    display: none;
+  }
+  .faq summary::after {
+    content: '+';
+    font-family: var(--font-mono);
+    font-size: var(--step-1);
+    color: var(--accent-text);
+    transition: transform var(--dur-fast) var(--ease-out);
+  }
+  .faq[open] summary::after {
+    transform: rotate(45deg);
+  }
+  .faq p {
+    padding-bottom: var(--space-s);
+    color: var(--ink-2);
+    max-width: 62ch;
+  }
+</style>

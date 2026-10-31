@@ -1,0 +1,265 @@
+---
+import BaseLayout from '../layouts/BaseLayout.astro';
+import CtaBand from '../components/CtaBand.astro';
+import Confirm from '../components/Confirm.astro';
+import PreviewNote from '../components/PreviewNote.astro';
+import { profile, businesses } from '../data/site';
+import { personJsonLd } from '../lib/seo';
+
+const principles = [
+  {
+    title: 'Plain language, written down.',
+    text: 'Every proposal lists the deliverables, what you provide, what’s excluded and who pays any third-party fees. Technical terms come with a one-line explanation.',
+  },
+  {
+    title: 'You own it.',
+    text: 'Domains, accounts, files and logins are created in your name. I’m added as a user, not the owner, and removed at handover if you prefer.',
+  },
+  {
+    title: 'Foundations first.',
+    text: 'Launch a small, working version, check it with real enquiries, then improve, instead of a big project that never ships.',
+  },
+  {
+    title: 'Honest about limits.',
+    text: 'No guaranteed rankings, followers, leads or inbox placement. I’ll tell you what I control, what Google or Meta control, and what you’ll need to keep doing.',
+  },
+];
+const nest = businesses[0];
+const jsonLd = { '@context': 'https://schema.org', '@type': 'AboutPage', mainEntity: personJsonLd() };
+---
+
+<BaseLayout
+  title="About"
+  description="Mann Patel is the founder of Nest & Rest Cleaning in Scarborough and North York, and helps Toronto small businesses with websites, Google visibility, business email, follow-up and content."
+  jsonLd={jsonLd}
+>
+  <section class="section page-head">
+    <div class="container intro-grid">
+      <div class="stack" style="--stack: var(--space-m)">
+        <p class="label">About</p>
+        <h1>I’m Mann Patel. I’m building a small business, and I help other owners with theirs.</h1>
+        <p class="lead measure">
+          I run {nest.name} in {nest.area}. I also help small-business owners in {profile.serviceArea} set up the
+          website, Google presence, email and simple routines that make a business easier to find and easier to reach.
+        </p>
+      </div>
+      <figure class="portrait">
+        {
+          profile.portrait ? (
+            <img src={profile.portrait.src} alt={profile.portrait.alt} width="480" height="600" />
+          ) : (
+            <div class="mark" aria-hidden="true">
+              <span>MP</span>
+            </div>
+          )
+        }
+        {!profile.portrait && <PreviewNote note="add a real portrait when you have one (never generated). Until then this typographic mark is used." />}
+      </figure>
+    </div>
+  </section>
+
+  <section class="section section--tight" aria-labelledby="story-title">
+    <div class="container story">
+      <h2 id="story-title">Why I do this</h2>
+      <div class="prose stack" style="--stack: var(--space-m)">
+        <p>
+          When I started {nest.name}, I had to set up everything a new service business needs at the same time: what to
+          offer and how to price it, a website people could understand on their phone, a way to request a booking, an
+          email address, and a habit of replying to every enquiry quickly. I still clean every home myself, so each of
+          those systems had to save me time, not create more work.
+        </p>
+        <p>
+          Doing it for my own business showed me how much those basics matter, and how many owners are stuck with a
+          page they can’t update, enquiries spread across DMs and voicemail, and no idea whether anyone finds them on
+          Google. That’s the work I now offer other owners: the digital foundations and simple routines that help a
+          small business look professional, get found, and follow up.
+        </p>
+        <Confirm note="this story is drafted from your Nest & Rest site; edit it into your own words" />
+      </div>
+    </div>
+  </section>
+
+  <section class="section section--alt" aria-labelledby="principles-title">
+    <div class="container">
+      <div class="section-head">
+        <p class="label">How I work</p>
+        <h2 id="principles-title">Four house rules.</h2>
+      </div>
+      <ol class="principles" role="list">
+        {
+          principles.map((p, i) => (
+            <li data-reveal data-reveal-delay={i * 60}>
+              <p class="no" aria-hidden="true">{String(i + 1).padStart(2, '0')}</p>
+              <h3>{p.title}</h3>
+              <p class="muted">{p.text}</p>
+            </li>
+          ))
+        }
+      </ol>
+    </div>
+  </section>
+
+  <section class="section" aria-labelledby="vision-title">
+    <div class="container vision">
+      <div class="stack" style="--stack: var(--space-m)">
+        <p class="label">Where I’m going</p>
+        <h2 id="vision-title">Foundations done properly, explained clearly.</h2>
+        <p class="lead measure">
+          My aim is to be the person Toronto’s small-business owners call when they want their website, Google
+          presence, email and follow-up set up properly and explained in plain language, while I grow {nest.name} into
+          a business that proves those foundations work.
+        </p>
+      </div>
+    </div>
+  </section>
+
+  <section class="section section--alt" id="businesses" aria-labelledby="biz-title">
+    <div class="container">
+      <div class="section-head">
+        <p class="label">My businesses</p>
+        <h2 id="biz-title">What I’m building.</h2>
+      </div>
+      <div class="biz">
+        {
+          businesses.map((b) => (
+            <article class="biz-card">
+              <p class="chip chip--launched">{b.role}</p>
+              <h3>{b.name}</h3>
+              <p class="muted small">{b.area}</p>
+              <p>{b.description}</p>
+              <p class="btn-row">
+                <a class="btn btn--secondary" href={b.url} rel="noopener">
+                  Visit {b.name} <span aria-hidden="true">↗</span>
+                </a>
+                <a class="link-accent" href="/work/nest-and-rest-cleaning/">Read the case study →</a>
+              </p>
+            </article>
+          ))
+        }
+        <article class="biz-card alt">
+          <p class="chip chip--in-progress">Starting now</p>
+          <h3>Digital services for small businesses</h3>
+          <p class="muted small">{profile.serviceArea}</p>
+          <p>Websites, Google visibility, professional email, enquiry follow-up and content: the work this site is for.</p>
+          <p><a class="link-accent" href="/services/">See the services →</a></p>
+        </article>
+      </div>
+    </div>
+  </section>
+
+  <CtaBand title="Want to work together?" text="Whether you’re an owner who needs help or someone I could collaborate with, send a short note through the brief form." />
+</BaseLayout>
+
+<style>
+  .intro-grid {
+    display: grid;
+    gap: var(--space-xl);
+    align-items: center;
+  }
+  @media (min-width: 60em) {
+    .intro-grid {
+      grid-template-columns: minmax(0, 1.6fr) minmax(0, 1fr);
+    }
+  }
+  h1 {
+    max-width: 20ch;
+  }
+  .portrait {
+    display: grid;
+    gap: var(--space-s);
+    justify-items: center;
+  }
+  .portrait img {
+    border-radius: var(--radius-l);
+  }
+  .mark {
+    width: min(100%, 20rem);
+    aspect-ratio: 4 / 5;
+    display: grid;
+    place-items: center;
+    background: var(--card);
+    border: 1px solid var(--line);
+    border-radius: var(--radius-l);
+    box-shadow: var(--shadow-card);
+  }
+  .mark span {
+    display: grid;
+    place-items: center;
+    width: 62%;
+    aspect-ratio: 1;
+    border: 6px double var(--accent);
+    border-radius: var(--radius-l);
+    color: var(--accent);
+    font-family: var(--font-display);
+    font-weight: 800;
+    font-size: clamp(3rem, 2rem + 4vw, 5rem);
+    letter-spacing: -0.04em;
+    transform: rotate(-4deg);
+  }
+  .story {
+    display: grid;
+    gap: var(--space-l);
+  }
+  @media (min-width: 60em) {
+    .story {
+      grid-template-columns: minmax(0, 0.8fr) minmax(0, 1.6fr);
+    }
+  }
+  .prose {
+    max-width: var(--container-text);
+    font-size: var(--step-1);
+    line-height: 1.55;
+  }
+  .principles {
+    list-style: none;
+    padding: 0;
+    display: grid;
+    gap: var(--space-m);
+    grid-template-columns: repeat(auto-fit, minmax(min(100%, 15rem), 1fr));
+  }
+  .principles li {
+    display: grid;
+    gap: var(--space-s);
+    align-content: start;
+    padding: var(--space-m);
+    background: var(--card);
+    border-radius: var(--radius-m);
+    border-top: 3px solid var(--ink);
+  }
+  .principles .no {
+    font-family: var(--font-mono);
+    font-weight: 700;
+    color: var(--accent-text);
+  }
+  .principles h3 {
+    font-size: var(--step-1);
+  }
+  .biz {
+    display: grid;
+    gap: var(--space-m);
+  }
+  @media (min-width: 52em) {
+    .biz {
+      grid-template-columns: 1.3fr 1fr;
+    }
+  }
+  .biz-card {
+    display: grid;
+    gap: var(--space-s);
+    align-content: start;
+    padding: var(--space-l);
+    background: var(--card);
+    border: 1px solid var(--line);
+    border-radius: var(--radius-l);
+  }
+  .biz-card .chip {
+    justify-self: start;
+  }
+  .biz-card h3 {
+    font-size: var(--step-2);
+  }
+  .biz-card.alt {
+    background: transparent;
+    border-style: dashed;
+  }
+</style>

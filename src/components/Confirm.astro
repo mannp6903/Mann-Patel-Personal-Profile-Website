@@ -1,0 +1,19 @@
+---
+/**
+ * Marks content that Mann has not confirmed yet.
+ * Preview builds: shows a visible yellow note.
+ * Production builds (SITE_MODE=production): the build FAILS, so unverified
+ * claims and placeholders can never reach the public site.
+ */
+import { isProduction } from '../lib/mode';
+
+interface Props {
+  note: string;
+}
+const { note } = Astro.props;
+if (isProduction) {
+  throw new Error(`Unresolved "To confirm" item on ${Astro.url.pathname}: ${note}`);
+}
+---
+
+<span class="confirm-flag" data-confirm>To confirm: {note}</span>

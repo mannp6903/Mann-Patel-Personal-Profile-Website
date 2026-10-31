@@ -1,0 +1,20 @@
+---
+/**
+ * Non-blocking reminder about missing OPTIONAL information (portrait, extra contact methods).
+ * Visible in previews only; renders nothing in production.
+ * For anything that states a fact which may be untrue, use <Confirm> instead (it blocks production).
+ */
+import { isProduction } from '../lib/mode';
+interface Props {
+  note: string;
+}
+const { note } = Astro.props;
+---
+
+{!isProduction && <span class="confirm-flag preview-note" data-preview-note>Preview note: {note}</span>}
+
+<style>
+  .preview-note {
+    border-style: dotted;
+  }
+</style>

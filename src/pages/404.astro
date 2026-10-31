@@ -1,0 +1,56 @@
+---
+import BaseLayout from '../layouts/BaseLayout.astro';
+import { businesses } from '../data/site';
+const nest = businesses[0];
+---
+
+<BaseLayout title="Page not found" description="This page doesn’t exist." noindex>
+  <section class="section">
+    <div class="container nf">
+      <p class="stamp" aria-hidden="true">Return to sender</p>
+      <h1>This page doesn’t exist.</h1>
+      <p class="lead measure">The link may be old, or the address mistyped. These pages do exist:</p>
+      <ul class="links" role="list">
+        <li><a href="/">Home</a></li>
+        <li><a href="/services/">Services</a></li>
+        <li><a href="/work/">Work</a></li>
+        <li><a href="/about/">About</a></li>
+        <li><a href="/contact/">Start a project</a></li>
+      </ul>
+      <p class="small muted">Looking for home cleaning? <a href={nest.url} rel="noopener">Visit {nest.name}&nbsp;↗</a></p>
+      <p><a class="btn" href="/">Go to the home page</a></p>
+    </div>
+  </section>
+</BaseLayout>
+
+<style>
+  .nf {
+    display: grid;
+    gap: var(--space-m);
+    justify-items: start;
+  }
+  .stamp {
+    font-family: var(--font-display);
+    font-weight: 800;
+    text-transform: uppercase;
+    letter-spacing: 0.06em;
+    color: var(--accent-text);
+    border: 4px double var(--accent-text);
+    border-radius: var(--radius-s);
+    padding: 0.15em 0.7em;
+    transform: rotate(-5deg);
+  }
+  .links {
+    display: flex;
+    flex-wrap: wrap;
+    gap: var(--space-2xs) var(--space-m);
+    list-style: none;
+    padding: 0;
+    font-weight: 700;
+  }
+  .links a {
+    display: inline-flex;
+    min-height: var(--tap);
+    align-items: center;
+  }
+</style>

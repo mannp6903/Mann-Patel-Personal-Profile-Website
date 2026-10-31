@@ -1,0 +1,382 @@
+---
+/**
+ * Enquiry workflow demonstration — fictional sample data, nothing is sent.
+ * No JS: all four steps render as an ordered list (also the crawlable order).
+ * With JS: ARIA tabs (Left/Right/Home/End) plus Back/Next buttons.
+ */
+const steps = [
+  {
+    id: 'enquiry',
+    tab: 'Enquiry',
+    title: 'A customer sends the form',
+    text: 'At 9:42 on a Saturday, Priya asks about a grooming appointment. The form asks only what the owner needs to reply.',
+  },
+  {
+    id: 'ack',
+    tab: 'Auto-reply',
+    title: 'She gets an honest reply, instantly',
+    text: 'An automatic email confirms the request arrived and says exactly what happens next. It never pretends the appointment is booked.',
+  },
+  {
+    id: 'notify',
+    tab: 'Notification',
+    title: 'The owner is told, in one consistent format',
+    text: 'The details land in the owner’s inbox and on a lead list with a status, not buried in DMs or voicemail.',
+  },
+  {
+    id: 'follow',
+    tab: 'Follow-up',
+    title: 'Nothing waits unseen',
+    text: 'If the request is still “New” on Monday morning, the owner gets a reminder. The list shows who still needs an answer.',
+  },
+];
+---
+
+<div class="demo" data-demo>
+  <p class="demo-label"><span class="chip chip--neutral">Demonstration</span> Fictional sample data. No emails are sent.</p>
+
+  <div class="tablist" role="tablist" aria-label="Enquiry workflow steps" data-tablist hidden>
+    {
+      steps.map((s, i) => (
+        <button
+          class="tab"
+          type="button"
+          role="tab"
+          id={`tab-${s.id}`}
+          aria-controls={`panel-${s.id}`}
+          aria-selected={i === 0 ? 'true' : 'false'}
+          tabindex={i === 0 ? 0 : -1}
+          data-tab={i}
+        >
+          <span class="tab-no">{i + 1}</span>
+          <span>{s.tab}</span>
+        </button>
+      ))
+    }
+  </div>
+
+  <ol class="panels" role="list">
+    {
+      steps.map((s, i) => (
+        <li class="panel" id={`panel-${s.id}`} data-panel={i} aria-labelledby={`tab-${s.id}`}>
+          <div class="panel-copy">
+            <p class="step-no">Step {i + 1} of 4</p>
+            <h3>{s.title}</h3>
+            <p class="muted">{s.text}</p>
+          </div>
+          <div class="panel-visual" aria-hidden="true">
+            {s.id === 'enquiry' && (
+              <div class="mock form-mock">
+                <p class="m-title">Request an appointment</p>
+                <p class="m-label">Name</p>
+                <p class="m-field">Priya S.</p>
+                <p class="m-label">Dog’s size</p>
+                <p class="m-field">Large (34 kg)</p>
+                <p class="m-label">Message</p>
+                <p class="m-field tall">Do you have Saturday openings for a large dog?</p>
+                <p class="m-btn">Send request</p>
+              </div>
+            )}
+            {s.id === 'ack' && (
+              <div class="mock mail-mock">
+                <p class="m-meta">To: Priya S. · Sat 9:42 a.m.</p>
+                <p class="m-title">We’ve got your request</p>
+                <p>Hi Priya, thanks for getting in touch with Bloom &amp; Bark.</p>
+                <p>
+                  This is a <strong>request</strong>, not a confirmed booking. We reply to every request within one working day, with available times for a large dog.
+                </p>
+              </div>
+            )}
+            {s.id === 'notify' && (
+              <div class="mock notify-mock">
+                <p class="m-meta">New enquiry · 9:42 a.m.</p>
+                <p class="m-title">Priya S. · Grooming, large dog</p>
+                <p>“Do you have Saturday openings for a large dog?”</p>
+                <p class="m-row">
+                  <span>Added to lead list</span>
+                  <span class="st new">New</span>
+                </p>
+              </div>
+            )}
+            {s.id === 'follow' && (
+              <div class="mock list-mock">
+                <p class="m-meta">Lead list · Monday 9:00 a.m.</p>
+                <p class="m-row">
+                  <span>Priya S.</span>
+                  <span class="st new">New · reminder sent</span>
+                </p>
+                <p class="m-row">
+                  <span>Marcus T.</span>
+                  <span class="st replied">Replied</span>
+                </p>
+                <p class="m-row">
+                  <span>Jen L.</span>
+                  <span class="st booked">Booked</span>
+                </p>
+              </div>
+            )}
+          </div>
+        </li>
+      ))
+    }
+  </ol>
+
+  <div class="nav-btns" data-nav hidden>
+    <button class="btn btn--secondary" type="button" data-prev>← Back</button>
+    <button class="btn" type="button" data-next>Next step →</button>
+  </div>
+</div>
+
+<script>
+  import { track } from '../scripts/analytics';
+
+  document.querySelectorAll<HTMLElement>('[data-demo]').forEach((root) => {
+    const tablist = root.querySelector<HTMLElement>('[data-tablist]')!;
+    const tabs = [...root.querySelectorAll<HTMLButtonElement>('[role="tab"]')];
+    const panels = [...root.querySelectorAll<HTMLElement>('[data-panel]')];
+    const nav = root.querySelector<HTMLElement>('[data-nav]')!;
+    const prev = root.querySelector<HTMLButtonElement>('[data-prev]')!;
+    const next = root.querySelector<HTMLButtonElement>('[data-next]')!;
+    let current = 0;
+    let engaged = false;
+
+    root.classList.add('is-enhanced');
+    tablist.hidden = false;
+    nav.hidden = false;
+    root.querySelector('.panels')?.setAttribute('role', 'presentation');
+    panels.forEach((p) => {
+      p.setAttribute('role', 'tabpanel');
+      p.tabIndex = 0;
+    });
+
+    const show = (i: number, focusTab = false) => {
+      current = Math.max(0, Math.min(tabs.length - 1, i));
+      tabs.forEach((t, ti) => {
+        const on = ti === current;
+        t.setAttribute('aria-selected', String(on));
+        t.tabIndex = on ? 0 : -1;
+      });
+      panels.forEach((p, pi) => {
+        p.hidden = pi !== current;
+        p.classList.toggle('is-active', pi === current);
+      });
+      prev.disabled = current === 0;
+      next.textContent = current === tabs.length - 1 ? 'Start again ↺' : 'Next step →';
+      if (focusTab) tabs[current].focus();
+      if (!engaged) {
+        engaged = true;
+        track('select_content', { content_type: 'workflow_demo', content_id: 'started' });
+      }
+    };
+
+    tabs.forEach((t, i) => t.addEventListener('click', () => show(i)));
+    tablist.addEventListener('keydown', (e) => {
+      const map: Record<string, number> = { ArrowRight: current + 1, ArrowLeft: current - 1, Home: 0, End: tabs.length - 1 };
+      if (e.key in map) {
+        e.preventDefault();
+        let target = map[e.key];
+        if (target >= tabs.length) target = 0;
+        if (target < 0) target = tabs.length - 1;
+        show(target, true);
+      }
+    });
+    prev.addEventListener('click', () => show(current - 1));
+    next.addEventListener('click', () => show(current === tabs.length - 1 ? 0 : current + 1));
+
+    // initial state without counting as engagement
+    engaged = true;
+    show(0);
+    engaged = false;
+  });
+</script>
+
+<style>
+  .demo {
+    display: grid;
+    gap: var(--space-l);
+  }
+  .demo-label {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    gap: var(--space-xs);
+    font-size: var(--step--1);
+    color: var(--night-ink-2);
+  }
+  .demo-label .chip {
+    color: var(--night-ink);
+  }
+  .tablist {
+    display: grid;
+    grid-template-columns: repeat(4, minmax(0, 1fr));
+    gap: var(--space-2xs);
+  }
+  .tab {
+    display: flex;
+    align-items: center;
+    gap: var(--space-xs);
+    min-height: 3.25rem;
+    padding: var(--space-xs) var(--space-s);
+    background: var(--night-2);
+    color: var(--night-ink-2);
+    border: 1.5px solid var(--night-line);
+    border-radius: var(--radius-m);
+    font-weight: 700;
+    text-align: left;
+    transition: background-color var(--dur-fast) var(--ease-out), color var(--dur-fast) var(--ease-out),
+      border-color var(--dur-fast) var(--ease-out);
+  }
+  .tab:hover {
+    color: var(--night-ink);
+    border-color: var(--night-ink-2);
+  }
+  .tab[aria-selected='true'] {
+    background: var(--night-ink);
+    color: var(--night);
+    border-color: var(--night-ink);
+  }
+  .tab > span:last-child {
+    min-width: 0;
+    overflow-wrap: anywhere;
+  }
+  .tab-no {
+    display: grid;
+    place-items: center;
+    width: 1.75rem;
+    height: 1.75rem;
+    flex: none;
+    border-radius: 50%;
+    border: 2px solid currentColor;
+    font-family: var(--font-mono);
+    font-size: var(--step--1);
+  }
+  .tab[aria-selected='true'] .tab-no {
+    border-color: var(--accent);
+    color: var(--accent);
+  }
+  @media (max-width: 47.99em) {
+    .tablist {
+      grid-template-columns: repeat(2, minmax(0, 1fr));
+    }
+  }
+  .panels {
+    list-style: none;
+    padding: 0;
+    display: grid;
+    gap: var(--space-xl);
+  }
+  .panel {
+    display: grid;
+    gap: var(--space-l);
+    align-items: center;
+    grid-template-columns: minmax(0, 1fr);
+  }
+  @media (min-width: 52em) {
+    .panel {
+      grid-template-columns: 1fr 1.1fr;
+      gap: var(--space-2xl);
+    }
+  }
+  .panel h3 {
+    font-size: var(--step-2);
+  }
+  .panel-copy {
+    display: grid;
+    gap: var(--space-s);
+  }
+  .step-no {
+    font-family: var(--font-mono);
+    font-size: var(--step--1);
+    color: var(--accent-on-night);
+    letter-spacing: 0.06em;
+    text-transform: uppercase;
+  }
+  .is-enhanced .panel {
+    min-height: 19rem;
+  }
+  :global(.js-motion) .is-enhanced .panel.is-active .mock {
+    animation: panel-in 240ms var(--ease-out);
+  }
+  @keyframes panel-in {
+    from {
+      opacity: 0;
+      transform: translateY(8px) rotate(-0.5deg);
+    }
+  }
+  .mock {
+    background: var(--card);
+    color: var(--ink);
+    border-radius: var(--radius-m);
+    padding: var(--space-m);
+    display: grid;
+    gap: var(--space-2xs);
+    box-shadow: 0 20px 40px -24px rgb(0 0 0 / 0.7);
+    font-size: var(--step--1);
+    max-width: 30rem;
+    transform: rotate(0.6deg);
+  }
+  .m-title {
+    font-family: var(--font-display);
+    font-weight: 700;
+    font-size: var(--step-1);
+  }
+  .m-meta {
+    font-family: var(--font-mono);
+    color: var(--ink-3);
+    font-size: 0.85em;
+  }
+  .m-label {
+    font-weight: 700;
+    margin-top: var(--space-3xs);
+  }
+  .m-field {
+    border: 1.5px solid var(--control);
+    border-radius: var(--radius-s);
+    padding: 0.4em 0.6em;
+    background: #fff;
+  }
+  .m-field.tall {
+    min-height: 3.5em;
+  }
+  .m-btn {
+    justify-self: start;
+    margin-top: var(--space-2xs);
+    background: var(--ink);
+    color: var(--paper);
+    border-radius: var(--radius-pill);
+    padding: 0.4em 1em;
+    font-weight: 700;
+  }
+  .m-row {
+    display: flex;
+    justify-content: space-between;
+    gap: var(--space-s);
+    padding-block: var(--space-2xs);
+    border-top: 1px solid var(--line);
+  }
+  .st {
+    padding: 0.05em 0.6em;
+    border-radius: var(--radius-pill);
+    font-weight: 700;
+    white-space: nowrap;
+  }
+  .st.new {
+    background: var(--accent-wash);
+    color: var(--accent-text);
+  }
+  .st.replied {
+    background: var(--paper-2);
+  }
+  .st.booked {
+    background: var(--ok-wash);
+    color: var(--ok);
+  }
+  .nav-btns {
+    display: flex;
+    gap: var(--space-s);
+    flex-wrap: wrap;
+  }
+  .nav-btns .btn[disabled] {
+    opacity: 0.4;
+  }
+</style>

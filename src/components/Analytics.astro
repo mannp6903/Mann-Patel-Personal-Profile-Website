@@ -1,0 +1,69 @@
+---
+/**
+ * Renders nothing unless PUBLIC_GA4_ID is configured.
+ * When configured: a small, non-blocking consent prompt; GA loads only after "Allow".
+ */
+import { PUBLIC_GA4_ID } from 'astro:env/client';
+---
+
+{
+  PUBLIC_GA4_ID && (
+    <div class="consent" data-consent hidden>
+      <p>
+        May I count visits? It shows me which pages are useful. No ads, and nothing you type into forms.{' '}
+        <a href="/privacy/#analytics">Details</a>
+      </p>
+      <div class="btn-row">
+        <button class="btn" type="button" data-consent-allow>
+          Allow
+        </button>
+        <button class="btn btn--secondary" type="button" data-consent-deny>
+          No thanks
+        </button>
+      </div>
+    </div>
+  )
+}
+
+<script>
+  import { analyticsConfigured, getConsent, setConsent, loadGa } from '../scripts/analytics';
+
+  if (analyticsConfigured()) {
+    const box = document.querySelector<HTMLElement>('[data-consent]');
+    const choice = getConsent();
+    if (choice === 'granted') loadGa();
+    if (box && choice === null) {
+      box.hidden = false;
+      box.querySelector('[data-consent-allow]')?.addEventListener('click', () => {
+        setConsent('granted');
+        box.hidden = true;
+      });
+      box.querySelector('[data-consent-deny]')?.addEventListener('click', () => {
+        setConsent('denied');
+        box.hidden = true;
+      });
+    }
+  }
+</script>
+
+<style>
+  .consent {
+    position: fixed;
+    z-index: 60;
+    inset: auto var(--space-s) var(--space-s) auto;
+    max-width: 24rem;
+    padding: var(--space-m);
+    background: var(--card);
+    border: 1.5px solid var(--ink);
+    border-radius: var(--radius-m);
+    box-shadow: var(--shadow-ticket);
+    font-size: var(--step--1);
+    display: grid;
+    gap: var(--space-s);
+  }
+  @media (max-width: 30em) {
+    .consent {
+      inset: auto var(--space-2xs) var(--space-2xs) var(--space-2xs);
+    }
+  }
+</style>

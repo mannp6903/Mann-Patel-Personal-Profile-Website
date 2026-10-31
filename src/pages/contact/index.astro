@@ -1,0 +1,164 @@
+---
+import BaseLayout from '../../layouts/BaseLayout.astro';
+import ContactForm from '../../components/ContactForm.astro';
+import PreviewNote from '../../components/PreviewNote.astro';
+import { profile, businesses } from '../../data/site';
+
+const nest = businesses[0];
+const { email, phone, whatsapp } = profile.contact;
+const hasDirect = Boolean(email || phone || whatsapp);
+const waNumber = whatsapp?.replace(/[^\d]/g, '');
+---
+
+<BaseLayout
+  title="Start a project"
+  description="Send Mann Patel a short brief about your business. Websites, Google visibility, professional email, enquiry follow-up and content for Toronto small businesses."
+>
+  <section class="section page-head">
+    <div class="container head">
+      <p class="label">Start a project</p>
+      <h1>Tell me about your business.</h1>
+      <p class="lead measure">
+        A short brief is enough. I’ll reply by email with questions or a suggested next step. If I’m not the right
+        fit, I’ll say so.
+      </p>
+    </div>
+  </section>
+
+  <section class="section body-section">
+    <div class="container layout">
+      <div class="form-col">
+        <ContactForm />
+      </div>
+
+      <aside class="aside" aria-label="About this form">
+        <div class="card">
+          <h2>What happens next</h2>
+          <ol class="steps">
+            <li><strong>I read your brief</strong> and reply by email.</li>
+            <li><strong>We talk it through,</strong> on a call or by email.</li>
+            <li><strong>You get a written scope</strong> with deliverables, exclusions and a quote. Nothing starts without it.</li>
+          </ol>
+        </div>
+
+        <div class="card">
+          <h2>Other ways to reach me</h2>
+          {
+            hasDirect ? (
+              <ul class="direct" role="list">
+                {email && (
+                  <li>
+                    <a href={`mailto:${email}`} data-contact="email">{email}</a>
+                  </li>
+                )}
+                {phone && (
+                  <li>
+                    <a href={`tel:${phone}`} data-contact="phone">{phone}</a>
+                  </li>
+                )}
+                {waNumber && (
+                  <li>
+                    <a href={`https://wa.me/${waNumber}`} rel="noopener" data-contact="whatsapp">
+                      WhatsApp
+                    </a>
+                  </li>
+                )}
+              </ul>
+            ) : (
+              <>
+                <p class="muted small">For now, the form is the way to reach me.</p>
+                <PreviewNote note="add a verified business email (and phone/WhatsApp if you want them public) in src/data/site.ts" />
+              </>
+            )
+          }
+        </div>
+
+        <div class="card cleaning">
+          <h2>Looking for home cleaning?</h2>
+          <p class="small">
+            This form is for websites and digital services. To book a clean, go to {nest.name}.
+          </p>
+          <a class="btn btn--secondary" href={nest.url} rel="noopener">Visit {nest.name} <span aria-hidden="true">↗</span></a>
+        </div>
+      </aside>
+    </div>
+  </section>
+</BaseLayout>
+
+<script>
+  import { track } from '../../scripts/analytics';
+  document.querySelectorAll<HTMLAnchorElement>('[data-contact]').forEach((a) =>
+    a.addEventListener('click', () => track('contact_click', { method: a.dataset.contact ?? 'unknown' })),
+  );
+</script>
+
+<style>
+  .page-head {
+    padding-bottom: var(--space-l);
+  }
+  .head {
+    display: grid;
+    gap: var(--space-m);
+  }
+  .body-section {
+    padding-top: var(--space-m);
+  }
+  .layout {
+    display: grid;
+    gap: var(--space-2xl);
+  }
+  @media (min-width: 64em) {
+    .layout {
+      grid-template-columns: minmax(0, 1.7fr) minmax(0, 1fr);
+      align-items: start;
+    }
+    .aside {
+      position: sticky;
+      top: 6rem;
+    }
+  }
+  .form-col {
+    background: var(--card);
+    border: 1px solid var(--line);
+    border-top: 4px solid var(--ink);
+    border-radius: 0 0 var(--radius-l) var(--radius-l);
+    padding: clamp(var(--space-m), 4vw, var(--space-xl));
+  }
+  .aside {
+    display: grid;
+    gap: var(--space-m);
+  }
+  .card {
+    display: grid;
+    gap: var(--space-s);
+    padding: var(--space-m);
+    border: 1px solid var(--line);
+    border-radius: var(--radius-m);
+  }
+  .card h2 {
+    font-size: var(--step-1);
+  }
+  .steps {
+    padding-left: 1.3em;
+    display: grid;
+    gap: var(--space-xs);
+    font-size: var(--step--1);
+  }
+  .direct {
+    list-style: none;
+    padding: 0;
+  }
+  .direct a {
+    display: inline-flex;
+    min-height: var(--tap);
+    align-items: center;
+    font-weight: 700;
+  }
+  .cleaning {
+    background: var(--paper-2);
+  }
+  .cleaning .btn {
+    justify-self: start;
+    font-size: var(--step--1);
+  }
+</style>

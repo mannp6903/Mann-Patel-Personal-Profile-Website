@@ -1,0 +1,251 @@
+---
+import { getCollection, render, type CollectionEntry } from 'astro:content';
+import BaseLayout from '../../layouts/BaseLayout.astro';
+import Scene from '../../components/mocks/Scene.astro';
+import StatusChip from '../../components/StatusChip.astro';
+import Confirm from '../../components/Confirm.astro';
+import CtaBand from '../../components/CtaBand.astro';
+import { serviceById } from '../../data/services';
+import { breadcrumbJsonLd } from '../../lib/seo';
+
+export async function getStaticPaths() {
+  const work = await getCollection('work');
+  return work.map((entry) => ({ params: { id: entry.id }, props: { entry } }));
+}
+
+interface Props {
+  entry: CollectionEntry<'work'>;
+}
+const { entry } = Astro.props;
+const { Content } = await render(entry);
+const d = entry.data;
+const services = d.serviceIds.map((id) => serviceById(id)).filter((s) => s !== undefined);
+const isConcept = d.status === 'concept';
+const crumbs = breadcrumbJsonLd([
+  { name: 'Home', path: '/' },
+  { name: 'Work', path: '/work/' },
+  { name: d.title, path: `/work/${entry.id}/` },
+]);
+---
+
+<BaseLayout title={isConcept ? `${d.title} (concept)` : d.title} description={d.description} jsonLd={crumbs ?? undefined}>
+  <article>
+    <header class="section page-head">
+      <div class="container head">
+        <nav class="crumbs" aria-label="Breadcrumb">
+          <ol role="list">
+            <li><a href="/work/">Work</a></li>
+            <li aria-current="page">{d.title}</li>
+          </ol>
+        </nav>
+        <div class="meta">
+          <StatusChip status={d.status} />
+          <span class="muted">{d.kind} · {d.year}</span>
+        </div>
+        {d.statusConfirm && <Confirm note={d.statusConfirm} />}
+        <h1>{d.title}</h1>
+        <p class="lead measure">{d.summary}</p>
+        {
+          d.disclaimer && (
+            <p class="disclaimer" role="note">
+              <strong>Concept, not a client project.</strong> {d.disclaimer}
+            </p>
+          )
+        }
+      </div>
+    </header>
+
+    <section class="section section--tight visuals" aria-label={isConcept ? 'Concept artwork' : 'Captures'}>
+      <div class="container">
+        <Scene scene={d.scene} variant="full" eager />
+      </div>
+    </section>
+
+    <section class="section section--tight">
+      <div class="container body-grid">
+        <aside class="facts" aria-label="Project facts">
+          <dl>
+            <div>
+              <dt>Role</dt>
+              <dd>
+                {d.role}
+                {d.roleConfirm && <Confirm note={d.roleConfirm} />}
+              </dd>
+            </div>
+            <div>
+              <dt>Services shown</dt>
+              <dd>
+                <ul role="list">
+                  {services.map((s) => (
+                    <li>
+                      <a href={`/services/#${s.id}`}>{s.name}</a>
+                    </li>
+                  ))}
+                </ul>
+              </dd>
+            </div>
+            <div>
+              <dt>Highlights</dt>
+              <dd>
+                <ul role="list" class="hl">
+                  {d.highlights.map((h) => <li>{h}</li>)}
+                </ul>
+              </dd>
+            </div>
+            {
+              d.links.length > 0 && (
+                <div>
+                  <dt>Links</dt>
+                  <dd>
+                    {d.links.map((l) => (
+                      <a class="link-accent" href={l.url} rel="noopener">
+                        {l.label}&nbsp;<span aria-hidden="true">↗</span>
+                      </a>
+                    ))}
+                  </dd>
+                </div>
+              )
+            }
+          </dl>
+        </aside>
+        <div class="prose">
+          <Content />
+        </div>
+      </div>
+    </section>
+  </article>
+
+  <CtaBand
+    title={isConcept ? 'Want something like this, for real?' : 'Want foundations like these?'}
+    text="Send a short brief. I’ll reply by email with questions or a suggested next step."
+    href={`/contact/?services=${d.serviceIds.join(',')}#brief`}
+    label="Start a similar project"
+  />
+</BaseLayout>
+
+<style>
+  .page-head {
+    padding-bottom: var(--space-l);
+  }
+  .head {
+    display: grid;
+    gap: var(--space-m);
+  }
+  .crumbs ol {
+    display: flex;
+    flex-wrap: wrap;
+    gap: var(--space-2xs);
+    list-style: none;
+    padding: 0;
+    font-size: var(--step--1);
+  }
+  .crumbs li + li::before {
+    content: '/';
+    margin-right: var(--space-2xs);
+    color: var(--ink-3);
+  }
+  .crumbs [aria-current] {
+    color: var(--ink-2);
+  }
+  .meta {
+    display: flex;
+    flex-wrap: wrap;
+    gap: var(--space-xs) var(--space-s);
+    align-items: center;
+    font-size: var(--step--1);
+  }
+  .disclaimer {
+    max-width: 62ch;
+    padding: var(--space-s) var(--space-m);
+    border-left: 4px solid var(--accent);
+    background: var(--accent-wash);
+    border-radius: 0 var(--radius-s) var(--radius-s) 0;
+  }
+  .visuals {
+    padding-top: 0;
+  }
+  .body-grid {
+    display: grid;
+    gap: var(--space-2xl);
+    grid-template-columns: minmax(0, 1fr);
+  }
+  @media (min-width: 60em) {
+    .body-grid {
+      grid-template-columns: minmax(0, 0.75fr) minmax(0, 1.6fr);
+      align-items: start;
+    }
+    .facts {
+      position: sticky;
+      top: 6rem;
+    }
+  }
+  .facts dl {
+    display: grid;
+    gap: var(--space-m);
+    padding: var(--space-m);
+    border: 1px solid var(--line);
+    border-top: 3px solid var(--ink);
+    border-radius: 0 0 var(--radius-m) var(--radius-m);
+    background: var(--card);
+  }
+  .facts dt {
+    font-family: var(--font-mono);
+    font-size: var(--step--1);
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: 0.06em;
+    color: var(--ink-3);
+    margin-bottom: var(--space-3xs);
+  }
+  .facts dd {
+    margin: 0;
+  }
+  .facts ul {
+    list-style: none;
+    padding: 0;
+    display: grid;
+    gap: var(--space-3xs);
+  }
+  .facts .hl {
+    list-style: disc;
+    padding-left: 1.2em;
+  }
+  .prose {
+    max-width: var(--container-text);
+    min-width: 0;
+  }
+  .prose :global(h2) {
+    font-size: var(--step-2);
+    margin-top: var(--space-xl);
+    margin-bottom: var(--space-s);
+  }
+  .prose :global(h2:first-child) {
+    margin-top: 0;
+  }
+  .prose :global(p),
+  .prose :global(ul),
+  .prose :global(ol) {
+    margin-bottom: var(--space-s);
+  }
+  .prose :global(ul),
+  .prose :global(ol) {
+    padding-left: 1.3em;
+    display: grid;
+    gap: var(--space-2xs);
+  }
+  .prose :global(li::marker) {
+    color: var(--accent-text);
+  }
+  .prose :global(table) {
+    width: 100%;
+    border-collapse: collapse;
+    font-size: var(--step--1);
+  }
+  .prose :global(th),
+  .prose :global(td) {
+    text-align: left;
+    padding: var(--space-2xs) var(--space-s) var(--space-2xs) 0;
+    border-bottom: 1px solid var(--line);
+    vertical-align: top;
+  }
+</style>

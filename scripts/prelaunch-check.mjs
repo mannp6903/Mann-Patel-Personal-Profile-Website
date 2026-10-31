@@ -1,0 +1,95 @@
+// Pre-launch gate. Run after a production build:
+//   SITE_MODE=production npm run build && npm run prelaunch
+// Netlify's production context runs this automatically (see netlify.toml).
+// Errors block the deploy; warnings are printed for a human decision.
+import { readFile, readdir, stat } from 'node:fs/promises';
+import { join, relative } from 'node:path';
+
+const env = process.env;
+const errors = [];
+const warnings = [];
+const ok = [];
+const check = (cond, okMsg, failMsg, level = 'error') => {
+  if (cond) ok.push(okMsg);
+  else (level === 'error' ? errors : warnings).push(failMsg);
+};
+
+// ── Environment ─────────────────────────────────────────────
+const site = (env.PUBLIC_SITE_URL || '').replace(/\/$/, '');
+check(env.SITE_MODE === 'production', 'SITE_MODE=production', 'SITE_MODE must be "production" for a launch build');
+check(/^https:\/\/[^/]+$/.test(site) && !/example\.(com|ca|org)|localhost/.test(site), `PUBLIC_SITE_URL=${site}`, 'PUBLIC_SITE_URL must be the real https origin (no trailing slash)');
+check(env.SITE_INDEXING === 'true', 'SITE_INDEXING=true (search engines allowed)', 'SITE_INDEXING is not "true": the site will be live but hidden from search engines', 'warning');
+
+const delivery = env.ENQUIRY_DELIVERY;
+check(delivery === 'resend' || delivery === 'webhook', `ENQUIRY_DELIVERY=${delivery}`, 'ENQUIRY_DELIVERY must be "resend" or "webhook" in production (the form would otherwise say it is not connected)');
+if (delivery === 'resend') {
+  check(Boolean(env.RESEND_API_KEY), 'RESEND_API_KEY set', 'RESEND_API_KEY is missing');
+  check(/@/.test(env.ENQUIRY_TO_EMAIL || ''), 'ENQUIRY_TO_EMAIL set', 'ENQUIRY_TO_EMAIL is missing');
+  check(/@/.test(env.ENQUIRY_FROM_EMAIL || ''), 'ENQUIRY_FROM_EMAIL set', 'ENQUIRY_FROM_EMAIL is missing (must be on a domain verified in Resend)');
+}
+if (delivery === 'webhook' || env.ENQUIRY_WEBHOOK_URL) {
+  check(/^https:\/\//.test(env.ENQUIRY_WEBHOOK_URL || ''), 'ENQUIRY_WEBHOOK_URL is https', 'ENQUIRY_WEBHOOK_URL must be an https URL');
+  check((env.ENQUIRY_WEBHOOK_SECRET || '').length >= 24, 'ENQUIRY_WEBHOOK_SECRET set', 'ENQUIRY_WEBHOOK_SECRET should be a long random string', 'warning');
+}
+check((env.FORM_TOKEN_SECRET || '').length >= 32, 'FORM_TOKEN_SECRET set', 'FORM_TOKEN_SECRET must be a random string of at least 32 characters');
+if (env.PUBLIC_TURNSTILE_SITE_KEY || env.TURNSTILE_SECRET_KEY) {
+  check(Boolean(env.PUBLIC_TURNSTILE_SITE_KEY && env.TURNSTILE_SECRET_KEY), 'Turnstile keys paired', 'Set both PUBLIC_TURNSTILE_SITE_KEY and TURNSTILE_SECRET_KEY, or neither');
+}
+
+// ── Built output ────────────────────────────────────────────
+const outDir = ['dist/client', 'dist'].find(Boolean);
+async function htmlFiles(dir) {
+  const out = [];
+  for (const e of await readdir(dir, { withFileTypes: true })) {
+    const p = join(dir, e.name);
+    if (e.isDirectory()) out.push(...(await htmlFiles(p)));
+    else if (e.name.endsWith('.html')) out.push(p);
+  }
+  return out;
+}
+let root = 'dist/client';
+try {
+  await stat(root);
+} catch {
+  root = 'dist';
+}
+const files = await htmlFiles(root).catch(() => []);
+check(files.length > 0, `${files.length} HTML pages built`, `No built pages found in ${outDir}. Run the build first.`);
+
+const exists = async (p) => stat(p).then(() => true, () => false);
+const brokenLinks = new Set();
+for (const f of files) {
+  const html = await readFile(f, 'utf8');
+  const rel = '/' + relative(root, f).replace(/index\.html$/, '').replace(/\.html$/, '');
+  if (/data-confirm|data-preview-note|Private preview\./.test(html)) errors.push(`${rel}: contains a preview marker or "To confirm" note`);
+  if (/@example\.|\(000\)|555-01|lorem ipsum/i.test(html.replace(/kettleandcrumb\.example|example@|yourbusiness\.ca/g, ''))) {
+    warnings.push(`${rel}: contains placeholder-looking contact text; check it`);
+  }
+  if (!rel.startsWith('/404') && !rel.startsWith('/contact/received')) {
+    if (!html.includes(`<link rel="canonical" href="${site}${rel}"`)) errors.push(`${rel}: canonical URL missing or not ${site}${rel}`);
+    if (env.SITE_INDEXING === 'true' && !html.includes('content="index, follow"')) errors.push(`${rel}: robots meta is not "index, follow"`);
+  }
+  for (const m of html.matchAll(/href="(\/[^"#?]*)/g)) {
+    const href = m[1];
+    if (href.startsWith('/api/') || href.startsWith('/_astro/')) continue;
+    const target = href.endsWith('/') ? join(root, href, 'index.html') : join(root, href);
+    if (!(await exists(target))) brokenLinks.add(`${rel} → ${href}`);
+  }
+}
+check(brokenLinks.size === 0, 'All internal links resolve', `Broken internal links:\n    ${[...brokenLinks].join('\n    ')}`);
+
+const robots = await readFile(join(root, 'robots.txt'), 'utf8').catch(() => '');
+if (env.SITE_INDEXING === 'true') {
+  check(robots.includes('Allow: /') && robots.includes(`Sitemap: ${site}/sitemap-index.xml`), 'robots.txt allows crawling and lists the sitemap', 'robots.txt is not in production form');
+  check(await exists(join(root, 'sitemap-index.xml')), 'sitemap-index.xml generated', 'sitemap-index.xml missing');
+}
+
+// ── Report ──────────────────────────────────────────────────
+for (const m of ok) console.log(`  ✓ ${m}`);
+for (const m of warnings) console.log(`  ! ${m}`);
+for (const m of errors) console.log(`  ✗ ${m}`);
+console.log(`\nPre-launch check: ${errors.length} error(s), ${warnings.length} warning(s).`);
+if (errors.length) {
+  console.log('Not ready for production. See docs/05-launch-and-integrations.md and docs/OWNER-INPUTS.md.');
+  process.exit(1);
+}

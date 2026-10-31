@@ -1,0 +1,131 @@
+---
+/**
+ * Privacy notice. It describes what the code actually does, and the text adapts to the
+ * configuration: analytics appear only if PUBLIC_GA4_ID is set. Processor names for the
+ * enquiry form must match the production setup; see the "To confirm" notes.
+ */
+import BaseLayout from '../layouts/BaseLayout.astro';
+import Confirm from '../components/Confirm.astro';
+import PreviewNote from '../components/PreviewNote.astro';
+import { profile } from '../data/site';
+import { PUBLIC_GA4_ID, PUBLIC_TURNSTILE_SITE_KEY } from 'astro:env/client';
+
+const updated = '31 October 2026';
+const contactEmail = profile.contact.email;
+---
+
+<BaseLayout
+  title="Privacy"
+  description="What information this website collects through the project brief form, why, where it goes, how long it is kept, and your choices."
+>
+  <section class="section">
+    <div class="container prose">
+      <p class="label">Privacy</p>
+      <h1>How your information is handled</h1>
+      <p class="muted">Last updated {updated}.</p>
+
+      <h2>The short version</h2>
+      <ul>
+        <li>The only personal information this site collects is what you type into the project brief form.</li>
+        <li>I use it only to reply to you and, if we work together, to run the project.</li>
+        <li>I don’t sell it, rent it or add you to a mailing list.</li>
+        <li>
+          {PUBLIC_GA4_ID
+            ? 'Visit statistics are collected only if you allow them, and never include what you type into forms.'
+            : 'This site does not use analytics or advertising cookies.'}
+        </li>
+      </ul>
+
+      <h2>What the brief form collects</h2>
+      <p>
+        Your name and email (required); optionally your business name, website, phone number, budget range and
+        timeframe; the services you tick; and your message. The server also uses your IP address briefly, in memory, to
+        limit repeated submissions, and keeps only a one-way hash of it, in memory, for that purpose. Like most websites, the hosting provider’s standard logs may also record IP addresses for security and troubleshooting. Hidden fields record a time
+        check and a random submission number, used to block spam and prevent duplicate messages.
+      </p>
+
+      <h2>Where it goes</h2>
+      <p>
+        When you send the form, the website’s server checks it and passes it to the service that delivers it to my
+        inbox or my enquiry list. The website host and that delivery service process the information on my behalf, only
+        to deliver it.
+      </p>
+      <Confirm note="name the actual host and delivery service before launch (planned: Netlify for hosting; Resend for email delivery and/or a Google Sheet via webhook) and where they store data" />
+      {
+        PUBLIC_TURNSTILE_SITE_KEY && (
+          <p>
+            The form uses Cloudflare Turnstile to check that a person, not a bot, is sending it. Cloudflare processes
+            technical information about your browser for that check.
+          </p>
+        )
+      }
+      <p>
+        If an automatic acknowledgement is switched on, you receive one email confirming your message arrived. It is a
+        reply to your request, not marketing.
+      </p>
+
+      <h2>How long it’s kept</h2>
+      <p>
+        Enquiries that don’t become projects are deleted within 12 months. If we work together, project records are kept
+        for as long as needed for the work and for tax and legal requirements.
+      </p>
+      <Confirm note="confirm the 12-month retention period and that you will actually follow it" />
+
+      <h2 id="analytics">Analytics and cookies</h2>
+      {
+        PUBLIC_GA4_ID ? (
+          <p>
+            If you choose “Allow”, Google Analytics 4 records usage statistics, such as pages viewed and whether a brief
+            was sent (counted as an event, without its contents), using a cookie that recognises your browser but not
+            your name or email. Advertising features are off. Your choice is stored in
+            your browser’s local storage; clear it to be asked again. If you choose “No thanks”, Analytics doesn’t load.
+          </p>
+        ) : (
+          <p>
+            This site currently uses no analytics, advertising or tracking cookies. If that changes, this page will be
+            updated and you will be asked before anything loads.
+          </p>
+        )
+      }
+
+      <h2>Your choices</h2>
+      <p>
+        You can ask to see, correct or delete the information you sent. Canadian privacy law (PIPEDA) gives you these
+        rights.
+        {contactEmail ? (
+          <>
+            {' '}Email <a href={`mailto:${contactEmail}`}>{contactEmail}</a>.
+          </>
+        ) : (
+          ' Reply to any email from me, or send a brief saying what you need.'
+        )}
+      </p>
+      {!contactEmail && <PreviewNote note="a privacy contact email is recommended" />}
+
+      <h2>Links to other sites</h2>
+      <p>
+        Links to other websites, including Nest &amp; Rest Cleaning, have their own privacy notices.
+      </p>
+    </div>
+  </section>
+</BaseLayout>
+
+<style>
+  .prose {
+    max-width: calc(var(--container-text) + 2 * var(--gutter));
+    display: grid;
+    gap: var(--space-s);
+  }
+  h1 {
+    margin-bottom: var(--space-2xs);
+  }
+  h2 {
+    font-size: var(--step-2);
+    margin-top: var(--space-l);
+  }
+  ul {
+    padding-left: 1.3em;
+    display: grid;
+    gap: var(--space-2xs);
+  }
+</style>

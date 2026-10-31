@@ -1,0 +1,22 @@
+# dependencies & build output
+node_modules/
+dist/
+.astro/
+.netlify/
+
+# local enquiry store, secrets and private notes (repo is public)
+.data/
+.env
+.env.*
+!.env.example
+private/
+
+# test output
+test-results/
+playwright-report/
+qa-output/
+coverage/
+
+# OS / editor
+.DS_Store
+*.log
