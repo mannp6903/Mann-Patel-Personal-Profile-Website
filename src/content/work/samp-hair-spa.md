@@ -2,7 +2,6 @@
 title: Samp Hair & Spa
 order: 2
 status: in-progress
-statusConfirm: "Confirm that Samp Hair & Spa has agreed to appear in your portfolio (ideally in writing)."
 kind: Client website · Scarborough salon & spa
 year: '2026'
 summary: A new website for a neighbourhood hair salon and spa on Painted Post Drive in Scarborough, currently in progress.

@@ -76,19 +76,21 @@ All sizes use `clamp()` with a rem floor, so browser zoom and user font size are
 
 ### Logo
 
-Custom **MP ligature monogram** (stroke geometry, 20-unit strokes, miter joins) + **MANN PATEL** wordmark outlined from Archivo Expanded Bold (wdth 125, wght 760, +0.16em tracking). `src/components/Logo.astro` renders the lockup or the mark from `src/data/logo.json`; letters use `currentColor`, the square uses `--logo-dot`. Regenerate with `scripts/make-logo.py`.
+**Name-only wordmark: "Mann Patel."** outlined from **Fraunces** (SIL OFL 1.1) with HarfBuzz kerning, SOFT 50, WONK 0, one path per letter. Two optical masters: **display** (opsz 144, wght 470, −0.022em tracking) for large uses and **text** (opsz 32, wght 560, −0.008em) for the header. A **stacked** version (opsz 72) fills square spaces; the app icon is "M." on an ink tile. `src/components/Logo.astro` renders them from `src/data/logo.json` (`variant`, `master`, `motion` props); letters use `currentColor`, the full stop and the glint use `--logo-dot`. Regenerate with `scripts/make-logo.py`.
 
 ### Motion graphics (added 31 Oct 2026)
 
 | Where | What | Timing | Reduced motion |
 | --- | --- | --- | --- |
-| Header logo | Monogram strokes draw in (M, then P), square stamps on, wordmark slides in. Once per visit (sessionStorage) | 0.12–1.6 s | Static |
-| Logo hover | Square nudges up-right | 220 ms | Instant |
+| Header logo | Letters rise out of the baseline one by one (55 ms stagger), the orange full stop drops in with a squash, then an orange glint sweeps across the name. First page of a visit only (decided in `<head>` so nothing flashes) | 0.16–2.2 s | Static |
+| Logo hover / focus | The glint sweeps again and the full stop hops | 0.6–1.15 s | Static |
+| Footer signature | Full-width wordmark plays the same sequence when scrolled into view | ~2 s | Static |
+| Founder stamp (home) | The stamped "Mann / Patel." lands with a small thud, then its letters rise | ~2 s | Static |
 | Home headline | Words rise in sequence, then the three verb underlines draw left to right | 0.06–1.4 s | Static |
 | Services marquee | Slow band of service names under the hero; pauses on hover; hidden from screen readers (services are listed right below) | 48 s loop | Not animated |
 | Hero ticket, workflow demo, guide, reveals | As before | — | Static |
 
-Only `transform`, `opacity`, `stroke-dashoffset` and `background-size` are animated. Lab CLS stays ≤ 0.013.
+Only `transform`, `opacity`, `stroke-dashoffset`, `background-size` and one SVG gradient position (the glint) are animated. Lab CLS stays ≤ 0.013.
 
 ### Space, size, shape
 

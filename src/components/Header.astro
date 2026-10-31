@@ -10,7 +10,7 @@ const nestAndRest = businesses[0];
 <header class="site-header">
   <div class="container bar">
     <a class="wordmark" href="/" aria-label="Mann Patel, home">
-      <Logo />
+      <Logo master="text" motion="intro" />
     </a>
 
     <button
@@ -47,19 +47,6 @@ const nestAndRest = businesses[0];
 </header>
 
 <script>
-  // Logo intro: once per visit (sessionStorage), skipped when motion is reduced.
-  const logo = document.querySelector<SVGElement>('.site-header .logo');
-  if (logo && document.documentElement.classList.contains('js-motion')) {
-    let seen = false;
-    try {
-      seen = sessionStorage.getItem('mp-logo-intro') === '1';
-      sessionStorage.setItem('mp-logo-intro', '1');
-    } catch {
-      /* storage blocked: play it */
-    }
-    if (!seen) logo.classList.add('is-intro');
-  }
-
   const toggle = document.querySelector<HTMLButtonElement>('[data-menu-toggle]');
   const menu = document.querySelector<HTMLElement>('[data-menu]');
   if (toggle && menu) {
@@ -106,7 +93,7 @@ const nestAndRest = businesses[0];
     display: inline-flex;
     align-items: center;
     min-height: var(--tap);
-    font-size: clamp(1.7rem, 1.5rem + 0.6vw, 2.05rem);
+    font-size: clamp(1.4rem, 1.25rem + 0.45vw, 1.65rem);
     color: var(--ink);
     text-decoration: none;
   }

@@ -202,6 +202,46 @@ test.describe('interactions', () => {
   });
 });
 
+test.describe('logo', () => {
+  test('is the name only, with unique glint ids, and plays its intro once per visit', async ({ page }) => {
+    await page.goto('/');
+    const home = page.getByRole('link', { name: 'Mann Patel, home' }).first();
+    await expect(home).toBeVisible();
+    // Header: 9 letters (M a n n P a t e l) + the full stop. No monogram.
+    await expect(page.locator('.site-header .logo .logo-l')).toHaveCount(9);
+    await expect(page.locator('.site-header .logo .logo-stop')).toHaveCount(1);
+    const ids = await page.locator('svg[data-logo] linearGradient').evaluateAll((els) => els.map((e) => e.id));
+    expect(ids.length).toBeGreaterThanOrEqual(2);
+    expect(new Set(ids).size).toBe(ids.length);
+    expect(await page.evaluate(() => sessionStorage.getItem('mp-logo-intro'))).toBe('1');
+    // Second page of the visit: no intro.
+    await page.goto('/work/');
+    expect(await page.evaluate(() => document.documentElement.classList.contains('logo-intro'))).toBe(false);
+  });
+
+  test('footer signature reveals when scrolled into view', async ({ page }) => {
+    await page.goto('/about/');
+    const sig = page.locator('.signature .logo');
+    await sig.scrollIntoViewIfNeeded();
+    await expect(sig).toHaveClass(/is-played/, { timeout: 4000 });
+    const t = await sig.locator('.logo-l').first().evaluate((el) => getComputedStyle(el).transform);
+    expect(t === 'none' || t === 'matrix(1, 0, 0, 1, 0, 0)').toBe(true);
+  });
+
+  test('reduced motion: the logo is static and fully visible', async ({ browser }) => {
+    const ctx = await browser.newContext({ reducedMotion: 'reduce' });
+    const page = await ctx.newPage();
+    await page.goto('/');
+    for (const sel of ['.site-header .logo .logo-l', '.signature .logo .logo-l', '.signature .logo .logo-stop']) {
+      const el = page.locator(sel).first();
+      expect(await el.evaluate((e) => getComputedStyle(e).animationName)).toBe('none');
+      expect(await el.evaluate((e) => getComputedStyle(e).transform)).toBe('none');
+      expect(await el.evaluate((e) => getComputedStyle(e).opacity)).toBe('1');
+    }
+    await ctx.close();
+  });
+});
+
 test.describe('enquiry form', () => {
   const fill = async (page: Page, msg = 'I run a two-chair salon in Scarborough and need a site that takes booking requests.') => {
     await page.locator('#f-name').fill('Test Owner');

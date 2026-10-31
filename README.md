@@ -1,6 +1,6 @@
 # Mann Patel: personal site
 
-Personal profile and digital-services site for Mann Patel (production domain: **mannpatel.ca**), founder of Nest & Rest Cleaning, who helps Toronto small businesses **look professional, get found, and follow up**.
+Personal profile and digital-services site for Mann Patel (production domain: **mannpatel.me**), founder of Nest & Rest Cleaning, who helps Toronto small businesses **look professional, get found, and follow up**.
 
 Built with **Astro 7** (static pages + one server endpoint for the project-brief form), vanilla TypeScript islands, and self-hosted OFL fonts. No CMS, no client framework, no tracking unless configured.
 
@@ -35,7 +35,7 @@ npm run preview             # node ./dist/server/entry.mjs → http://localhost:
 | `npm run qa:lighthouse` | Lighthouse mobile run (`npm i --no-save lighthouse` first) |
 | `npm run images` | Regenerate favicons and the Open Graph image (uses the portrait and logo) |
 | `npm run preview:static` | Export a server-less copy with relative links to `preview-static/` (for private previews; the form shows "not connected") |
-| `python scripts/make-logo.py` | Regenerate the MP monogram + Archivo wordmark logo files (needs `fonttools brotli uharfbuzz`) |
+| `python scripts/make-logo.py` | Regenerate the Fraunces wordmark logo files and favicon (needs `fonttools brotli uharfbuzz`) |
 | `npm run prelaunch` | Production gate: env, preview markers, canonicals, robots/sitemap, internal links |
 
 ## Editing content
@@ -74,4 +74,4 @@ Netlify: import the repo; settings come from `netlify.toml`. Branch and preview 
 
 ## Licences
 
-Fonts: Bricolage Grotesque and Atkinson Hyperlegible Next/Mono, SIL Open Font License 1.1 (`public/fonts/LICENSES.txt`). The logo wordmark is outlined from Archivo (SIL OFL 1.1); the MP monogram is original geometry. The portrait is Mann's own photo. Nest & Rest captures are archived screenshots of Mann's own website (Internet Archive, 19 Oct 2026).
+Fonts: Bricolage Grotesque and Atkinson Hyperlegible Next/Mono, SIL Open Font License 1.1 (`public/fonts/LICENSES.txt`). The logo wordmark is outlined from Fraunces (SIL OFL 1.1). The portrait is Mann's own photo. Nest & Rest captures are archived screenshots of Mann's own website (Internet Archive, 19 Oct 2026).

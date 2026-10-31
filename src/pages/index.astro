@@ -180,7 +180,7 @@ const jsonLd = {
   <!-- ── Founder note ─────────────────────────────────── -->
   <section class="section section--alt" aria-labelledby="founder-title">
     <div class="container founder">
-      <div class="stamp-mark" aria-hidden="true"><Logo variant="mark" /></div>
+      <div class="stamp-mark" aria-hidden="true" data-reveal><Logo variant="stacked" motion="reveal" /></div>
       <div class="stack" style="--stack: var(--space-m)">
         <p class="label">Why me</p>
         <h2 id="founder-title">I’m building a small business too.</h2>
@@ -378,12 +378,22 @@ const jsonLd = {
   .stamp-mark {
     display: grid;
     place-items: center;
-    width: clamp(7rem, 4rem + 10vw, 11rem);
+    width: clamp(9rem, 6rem + 10vw, 13rem);
     aspect-ratio: 1;
-    padding: 18%;
+    padding: 14%;
     border: 6px double var(--accent);
     border-radius: var(--radius-l);
     color: var(--ink);
+    transform: rotate(-4deg);
+  }
+  /* Motion: the stamp lands with a small thud when it scrolls into view. */
+  :global(.js-motion) .stamp-mark[data-reveal] {
+    transform: rotate(-13deg) scale(1.22);
+    transition:
+      opacity 260ms var(--ease-out),
+      transform 520ms var(--ease-stamp);
+  }
+  :global(.js-motion) .stamp-mark[data-reveal]:global(.is-revealed) {
     transform: rotate(-4deg);
   }
 </style>

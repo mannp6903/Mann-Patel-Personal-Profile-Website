@@ -77,8 +77,8 @@ Browser form ──► GET /api/enquiry/  → { connected, token }      (status 
 
 ### Search Console plan (Owner action)
 
-1. Add a **Domain property** for `mannpatel.ca` and verify it with the DNS TXT record (covers http/https and all subdomains). Keep the record in place permanently.
-2. Submit `https://mannpatel.ca/sitemap-index.xml`.
+1. Add a **Domain property** for `mannpatel.me` and verify it with the DNS TXT record (covers http/https and all subdomains). Keep the record in place permanently.
+2. Submit `https://mannpatel.me/sitemap-index.xml`.
 3. After a few days, check Pages (indexing) and Performance. Don't claim verification is done until Search Console shows "Ownership verified".
 
 ### Google Business Profile
@@ -92,7 +92,7 @@ Mann's digital-services work probably **doesn't qualify** for a Business Profile
 1. **Owner action:** Netlify → Add new site → Import from GitHub → this repository. Build settings come from `netlify.toml`.
 2. Branch deploys and deploy previews are always `noindex` and show the preview banner.
 3. Production deploys run `npm run build && npm run prelaunch`. They **fail on purpose** until every "To confirm" item is resolved and the delivery and secret variables are set. That's the guard against unverified claims or a dead form going live.
-4. **Domain: mannpatel.ca (Owner action; decided 31 Oct 2026).** `PUBLIC_SITE_URL=https://mannpatel.ca` and `SITE_INDEXING=true` are already set for production in `netlify.toml`. mannpatel.ca was available on 31 Oct 2026 (mannpatel.com is registered to someone else). Register it in your own name with a CIRA-accredited registrar (.ca requires Canadian presence, which you meet as a Toronto resident), turn on auto-renew, then in Netlify → Domain management → Add domain `mannpatel.ca` (and `www.mannpatel.ca`) and either point the registrar's DNS at Netlify or use Netlify DNS. Netlify issues the HTTPS certificate automatically. Set up `hello@mannpatel.ca` (or similar) and use it as the Resend sender once the domain is verified there.
+4. **Domain: mannpatel.me (Mann's domain, 31 Oct 2026).** `PUBLIC_SITE_URL=https://mannpatel.me` and `SITE_INDEXING=true` are already set for production in `netlify.toml`. (It replaces the earlier mannpatel.ca plan; mannpatel.com belongs to someone else.) **Owner action:** turn on auto-renew and registrar lock at your registrar, then in Netlify → Domain management → Add domain `mannpatel.me` (and `www.mannpatel.me`). Either switch the domain's nameservers to Netlify DNS, or add the A/ALIAS (apex) and CNAME (`www`) records Netlify shows you at your registrar. Netlify issues the HTTPS certificate automatically. Set up `hello@mannpatel.me` (or similar) and use it as the Resend sender once the domain is verified there.
 
 **Rollback:** Netlify → Deploys → choose the last good deploy → "Publish deploy" (instant). In git, `git revert <commit>` and push. Environment-variable changes need a redeploy to take effect.
 
