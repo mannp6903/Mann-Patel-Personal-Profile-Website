@@ -4,7 +4,7 @@ Personal profile and digital-services site for Mann Patel (production domain: **
 
 Built with **Astro 7** (static pages + one server endpoint for the project-brief form), vanilla TypeScript islands, and self-hosted OFL fonts. No CMS, no client framework, no tracking unless configured.
 
-> **Status: content confirmed (31 Oct 2026).** All "To confirm" items are answered. Production deploys still run the pre-launch check, which fails until email delivery (Resend) and the form secret are set in Netlify. See [`docs/OWNER-INPUTS.md`](docs/OWNER-INPUTS.md).
+> **Status: content confirmed (31 Oct 2026).** All "To confirm" items are answered. Production deploys still run the pre-launch check, and the form's secrets (Resend, form token) are added in Cloudflare. See [`docs/OWNER-INPUTS.md`](docs/OWNER-INPUTS.md).
 
 ## Quick start
 
@@ -26,7 +26,9 @@ npm run preview             # node ./dist/server/entry.mjs → http://localhost:
 | Command | What it does |
 | --- | --- |
 | `npm run dev` | Dev server with hot reload |
-| `npm run build` | Build to `dist/` (Node adapter by default; Netlify when `DEPLOY_TARGET=netlify`) |
+| `npm run build` | Build to `dist/` with the Node adapter (local preview and tests) |
+| `npm run build:cloudflare` | Production build for Cloudflare Workers (mannpatel.me) + pre-launch check |
+| `npm run deploy:cloudflare` | Build and deploy from your computer (`npx wrangler login` first) |
 | `npm run preview` | Serve the built site, including the enquiry endpoint |
 | `npm run check` | Astro + TypeScript diagnostics |
 | `npm test` | Unit tests (Vitest): validation, guide logic, spam, limits, delivery, handler |
@@ -57,7 +59,7 @@ Setup steps, monitoring, deploy, rollback and recurring costs: [`docs/05-launch-
 
 ## Deploy (summary)
 
-Netlify: import the repo; settings come from `netlify.toml`. Branch and preview deploys are `noindex`. Production deploys run the pre-launch gate and fail until content is confirmed and delivery and secrets are configured. Rollback: Netlify → Deploys → publish a previous deploy.
+Cloudflare Workers, connected to GitHub: build command `npm run build:cloudflare`, deploy command `npx wrangler deploy`, project name `mann-patel-website`. `wrangler.jsonc` connects mannpatel.me and www.mannpatel.me. Form secrets are added in the Cloudflare dashboard. Full steps, secrets and rollback: [`docs/05-launch-and-integrations.md`](docs/05-launch-and-integrations.md) §4.
 
 ## Documentation
 

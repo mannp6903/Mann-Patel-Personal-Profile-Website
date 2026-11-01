@@ -1,18 +1,19 @@
 // @ts-check
 import { defineConfig, envField } from 'astro/config';
 import node from '@astrojs/node';
-import netlify from '@astrojs/netlify';
+import cloudflare from '@astrojs/cloudflare';
 import sitemap from '@astrojs/sitemap';
 
 /**
  * Domain-dependent values come from the environment (see .env.example).
  * - PUBLIC_SITE_URL: the real production origin, e.g. https://example.ca (no trailing slash)
  * - SITE_INDEXING=true: allow search engines. Only honoured when PUBLIC_SITE_URL is set.
- * - DEPLOY_TARGET=netlify: build for Netlify; otherwise a standalone Node server (local preview).
+ * - DEPLOY_TARGET=cloudflare: build for Cloudflare Workers (production, see wrangler.jsonc);
+ *   otherwise a standalone Node server (local preview and tests).
  */
 const SITE_URL = process.env.PUBLIC_SITE_URL?.replace(/\/$/, '') || undefined;
 const INDEXING = process.env.SITE_INDEXING === 'true' && Boolean(SITE_URL);
-const TARGET = process.env.DEPLOY_TARGET === 'netlify' ? 'netlify' : 'node';
+const TARGET = process.env.DEPLOY_TARGET === 'cloudflare' ? 'cloudflare' : 'node';
 
 export default defineConfig({
   site: SITE_URL ?? 'http://localhost:4321',
@@ -20,7 +21,14 @@ export default defineConfig({
   // Keep HTML-aware whitespace (Astro 7 defaults to JSX rules, which drop spaces between inline elements).
   compressHTML: true,
   output: 'static',
-  adapter: TARGET === 'netlify' ? netlify() : node({ mode: 'standalone', bodySizeLimit: 64 * 1024 }),
+  adapter:
+    TARGET === 'cloudflare'
+      ? // Images are resized at build time (no Cloudflare Images subscription needed);
+        // static pages are prerendered with Node, only /api/enquiry/ runs as a Worker.
+        cloudflare({ imageService: 'compile', prerenderEnvironment: 'node' })
+      : node({ mode: 'standalone', bodySizeLimit: 64 * 1024 }),
+  // No logins or carts, so no session storage (stops the Cloudflare adapter adding a KV namespace).
+  session: false,
   integrations: INDEXING ? [sitemap({ filter: (page) => !page.includes('/api/') && !page.includes('/contact/received/') })] : [],
   prefetch: false,
   devToolbar: { enabled: false },

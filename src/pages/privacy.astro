@@ -2,7 +2,7 @@
 /**
  * Privacy notice. It describes what the code actually does, and the text adapts to the
  * configuration: analytics appear only if PUBLIC_GA4_ID is set. The processors named below
- * (Netlify for hosting, Resend for email delivery) must match the production setup
+ * (Cloudflare for hosting, Resend for email delivery) must match the production setup
  * (ENQUIRY_DELIVERY=resend); update this page if that ever changes.
  */
 import BaseLayout from '../layouts/BaseLayout.astro';
@@ -50,12 +50,13 @@ const contactEmail = profile.contact.email;
         behalf, only to do that job:
       </p>
       <ul>
-        <li><strong>Netlify</strong> hosts this website and runs the server that checks the form.</li>
+        <li><strong>Cloudflare</strong> hosts this website and runs the code that checks the form.</li>
         <li><strong>Resend</strong> delivers the email with your brief to my inbox.</li>
       </ul>
       <p>
-        Both companies are based in the United States, so your information may be processed and stored there, where
-        it is subject to that country’s laws. Neither service may use it for its own purposes.
+        Both companies are based in the United States, and Cloudflare runs its network worldwide. Your information
+        may be processed and stored outside Canada, including in the United States, where it is subject to local laws.
+        Neither service may use it for its own purposes.
       </p>
       {
         PUBLIC_TURNSTILE_SITE_KEY && (

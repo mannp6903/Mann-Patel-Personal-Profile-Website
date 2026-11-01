@@ -1,11 +1,25 @@
 // Pre-launch gate. Run after a production build:
-//   SITE_MODE=production npm run build && npm run prelaunch
-// Netlify's production context runs this automatically (see netlify.toml).
+//   npm run build:cloudflare      (builds for mannpatel.me and runs this check)
 // Errors block the deploy; warnings are printed for a human decision.
+// On Cloudflare, the form's runtime settings live in wrangler.jsonc "vars" and in Worker
+// secrets set in the dashboard. A build can't read secrets, so those checks are warnings.
 import { readFile, readdir, stat } from 'node:fs/promises';
 import { join, relative } from 'node:path';
 
 const env = process.env;
+const cloudflare = env.DEPLOY_TARGET === 'cloudflare';
+let runtime = env;
+if (cloudflare) {
+  try {
+    const jsonc = await readFile('wrangler.jsonc', 'utf8');
+    const vars = JSON.parse(jsonc.split('\n').filter((l) => !l.trim().startsWith('//')).join('\n')).vars ?? {};
+    runtime = { ...vars, ...env };
+  } catch {
+    /* no wrangler.jsonc: fall back to the build environment */
+  }
+}
+const secretLevel = cloudflare ? 'warning' : 'error';
+const where = cloudflare ? ' (set it in Cloudflare → Worker → Settings → Variables and Secrets; a build cannot see it)' : '';
 const errors = [];
 const warnings = [];
 const ok = [];
@@ -20,18 +34,18 @@ check(env.SITE_MODE === 'production', 'SITE_MODE=production', 'SITE_MODE must be
 check(/^https:\/\/[^/]+$/.test(site) && !/example\.(com|ca|org)|localhost/.test(site), `PUBLIC_SITE_URL=${site}`, 'PUBLIC_SITE_URL must be the real https origin (no trailing slash)');
 check(env.SITE_INDEXING === 'true', 'SITE_INDEXING=true (search engines allowed)', 'SITE_INDEXING is not "true": the site will be live but hidden from search engines', 'warning');
 
-const delivery = env.ENQUIRY_DELIVERY;
+const delivery = runtime.ENQUIRY_DELIVERY;
 check(delivery === 'resend' || delivery === 'webhook', `ENQUIRY_DELIVERY=${delivery}`, 'ENQUIRY_DELIVERY must be "resend" or "webhook" in production (the form would otherwise say it is not connected)');
 if (delivery === 'resend') {
-  check(Boolean(env.RESEND_API_KEY), 'RESEND_API_KEY set', 'RESEND_API_KEY is missing');
-  check(/@/.test(env.ENQUIRY_TO_EMAIL || ''), 'ENQUIRY_TO_EMAIL set', 'ENQUIRY_TO_EMAIL is missing');
-  check(/@/.test(env.ENQUIRY_FROM_EMAIL || ''), 'ENQUIRY_FROM_EMAIL set', 'ENQUIRY_FROM_EMAIL is missing (must be on a domain verified in Resend)');
+  check(Boolean(runtime.RESEND_API_KEY), 'RESEND_API_KEY set', `RESEND_API_KEY is missing${where}`, secretLevel);
+  check(/@/.test(runtime.ENQUIRY_TO_EMAIL || ''), 'ENQUIRY_TO_EMAIL set', `ENQUIRY_TO_EMAIL is missing${where}`, secretLevel);
+  check(/@/.test(runtime.ENQUIRY_FROM_EMAIL || ''), 'ENQUIRY_FROM_EMAIL set', `ENQUIRY_FROM_EMAIL is missing (must be on a domain verified in Resend)${where}`, secretLevel);
 }
-if (delivery === 'webhook' || env.ENQUIRY_WEBHOOK_URL) {
-  check(/^https:\/\//.test(env.ENQUIRY_WEBHOOK_URL || ''), 'ENQUIRY_WEBHOOK_URL is https', 'ENQUIRY_WEBHOOK_URL must be an https URL');
-  check((env.ENQUIRY_WEBHOOK_SECRET || '').length >= 24, 'ENQUIRY_WEBHOOK_SECRET set', 'ENQUIRY_WEBHOOK_SECRET should be a long random string', 'warning');
+if (delivery === 'webhook' || runtime.ENQUIRY_WEBHOOK_URL) {
+  check(/^https:\/\//.test(runtime.ENQUIRY_WEBHOOK_URL || ''), 'ENQUIRY_WEBHOOK_URL is https', `ENQUIRY_WEBHOOK_URL must be an https URL${where}`, secretLevel);
+  check((runtime.ENQUIRY_WEBHOOK_SECRET || '').length >= 24, 'ENQUIRY_WEBHOOK_SECRET set', 'ENQUIRY_WEBHOOK_SECRET should be a long random string', 'warning');
 }
-check((env.FORM_TOKEN_SECRET || '').length >= 32, 'FORM_TOKEN_SECRET set', 'FORM_TOKEN_SECRET must be a random string of at least 32 characters');
+check((runtime.FORM_TOKEN_SECRET || '').length >= 32, 'FORM_TOKEN_SECRET set', `FORM_TOKEN_SECRET must be a random string of at least 32 characters${where}`, secretLevel);
 if (env.PUBLIC_TURNSTILE_SITE_KEY || env.TURNSTILE_SECRET_KEY) {
   check(Boolean(env.PUBLIC_TURNSTILE_SITE_KEY && env.TURNSTILE_SECRET_KEY), 'Turnstile keys paired', 'Set both PUBLIC_TURNSTILE_SITE_KEY and TURNSTILE_SECRET_KEY, or neither');
 }

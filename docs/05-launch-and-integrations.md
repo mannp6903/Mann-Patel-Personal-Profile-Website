@@ -38,9 +38,8 @@ Browser form ──► GET /api/enquiry/  → { connected, token }      (status 
 **Decision (31 Oct 2026):** Resend email delivery (`ENQUIRY_DELIVERY=resend`), as named on the Privacy page. Verify `mannpatel.me` as the sending domain.
 
 1. Create a Resend account in Mann's name. Add and verify the sending domain (DNS records shown by Resend; follow its current docs). Until a domain is verified, Resend only allows test sends.
-2. In Netlify → Site configuration → Environment variables, set:
-   `ENQUIRY_DELIVERY=resend`, `RESEND_API_KEY`, `ENQUIRY_TO_EMAIL` (Mann's inbox), `ENQUIRY_FROM_EMAIL` (e.g. `Mann Patel <hello@yourdomain>`), `ENQUIRY_ACKNOWLEDGE=true` (optional), `FORM_TOKEN_SECRET` (`openssl rand -hex 32`).
-3. **Live test with sample data:** set `ENQUIRY_TO_EMAIL` to your own inbox, deploy a branch deploy, submit the form with the name "Test Owner", and confirm: (a) success screen shows a reference id; (b) the owner email arrives, Reply-To is the visitor's address (this also confirms the API's `reply_to` field); (c) the acknowledgement arrives if enabled. Resend's dashboard shows each email's status.
+2. In Cloudflare, add the secrets listed in §4 step 4 (`RESEND_API_KEY`, `ENQUIRY_TO_EMAIL`, `ENQUIRY_FROM_EMAIL`, `FORM_TOKEN_SECRET`). `ENQUIRY_DELIVERY=resend` is already in `wrangler.jsonc`. Resend can add its DNS records to Cloudflare for you when you verify `mannpatel.me`.
+3. **Live test with sample data:** set `ENQUIRY_TO_EMAIL` to your own inbox, deploy, submit the form with the name "Test Owner", and confirm: (a) success screen shows a reference id; (b) the owner email arrives, Reply-To is the visitor's address (this also confirms the API's `reply_to` field); (c) the acknowledgement arrives if enabled. Resend's dashboard shows each email's status.
 4. Optional durable record (not used at launch; if you add it, update the Privacy page to name Google as a processor): create a Google Sheet + Apps Script web app that appends rows, set `ENQUIRY_WEBHOOK_URL` and `ENQUIRY_WEBHOOK_SECRET`; verify the `X-Signature` HMAC in the script. With both set, an enquiry is accepted if *either* channel accepts it.
 
 **Monitoring:** each week, compare Resend's log with the inbox; check spam folders after DNS changes; submit one test enquiry a month (maintenance checklist). If a send fails, the visitor sees an error and can retry. Nothing is silently lost.
@@ -87,23 +86,47 @@ Browser form ──► GET /api/enquiry/  → { connected, token }      (status 
 
 Mann's digital-services work probably **doesn't qualify** for a Business Profile. Google's guidelines require in-person contact with customers during stated hours (a storefront, or travelling to customers), and they exclude virtual offices. Remote digital services usually don't meet that. Do **not** reuse Nest & Rest's profile or identity for this work. Nest & Rest itself (a service-area business) *is* a good candidate for its own profile, with the home address hidden.
 
-## 4 · Hosting and deployment
+## 4 · Hosting and deployment: Cloudflare Workers (decided 1 Nov 2026)
 
-**Recommended host: Netlify** (free plan allows functions and custom domains; Vercel's free Hobby plan is restricted to non-commercial use, which this site is not). `@astrojs/netlify` is already configured via `DEPLOY_TARGET=netlify` in `netlify.toml`. Cloudflare is a reasonable alternative (switch adapter).
+The site runs on **Cloudflare Workers** (free plan): the pages are static files, and only the project-brief form (`/api/enquiry/`) runs as Worker code. Settings live in `wrangler.jsonc`; the production build is `npm run build:cloudflare` (it sets `SITE_MODE=production`, `PUBLIC_SITE_URL=https://mannpatel.me`, `SITE_INDEXING=true`, builds, then runs the pre-launch check). Response headers are in `public/_headers`.
 
-1. **Owner action:** Netlify → Add new site → Import from GitHub → this repository. Build settings come from `netlify.toml`.
-2. Branch deploys and deploy previews are always `noindex`. (The yellow "Private preview" banner was removed at Mann's request on 31 Oct 2026; previews now look like the live site.)
-3. Production deploys run `npm run build && npm run prelaunch`. They **fail on purpose** until every "To confirm" item is resolved and the delivery and secret variables are set. That's the guard against unverified claims or a dead form going live.
-4. **Domain: mannpatel.me (Mann's domain, 31 Oct 2026).** `PUBLIC_SITE_URL=https://mannpatel.me` and `SITE_INDEXING=true` are already set for production in `netlify.toml`. (It replaces the earlier mannpatel.ca plan; mannpatel.com belongs to someone else.) **Owner action:** turn on auto-renew and registrar lock at your registrar, then in Netlify → Domain management → Add domain `mannpatel.me` (and `www.mannpatel.me`). Either switch the domain's nameservers to Netlify DNS, or add the A/ALIAS (apex) and CNAME (`www`) records Netlify shows you at your registrar. Netlify issues the HTTPS certificate automatically. Set up `hello@mannpatel.me` (or similar) and use it as the Resend sender once the domain is verified there.
+**Owner actions, in this order** (dashboard names as of Nov 2026; Cloudflare renames things now and then):
 
-**Rollback:** Netlify → Deploys → choose the last good deploy → "Publish deploy" (instant). In git, `git revert <commit>` and push. Environment-variable changes need a redeploy to take effect.
+1. **Put mannpatel.me on Cloudflare.** If you bought it through Cloudflare Registrar, it's already there. Otherwise: Cloudflare dashboard → *Add a domain* → `mannpatel.me` → Free plan → Cloudflare shows two nameservers → at the company you bought the domain from, replace its nameservers with those two. Wait until Cloudflare shows the domain as **Active** (usually minutes, up to 24 hours). Turn on auto-renew at your registrar.
+2. **Merge pull request #1** on GitHub, so your main branch has the Cloudflare setup.
+3. **Create the Worker from GitHub:** *Workers & Pages* → *Create* → *Import a repository* → connect GitHub → pick `Mann-Patel-Personal-Profile-Website`. Use:
+   - Project name: **`mann-patel-website`** (must match `name` in `wrangler.jsonc`)
+   - Production branch: your main branch (`ccr-96e3375f-xynmc5`)
+   - Build command: **`npm run build:cloudflare`**
+   - Deploy command: **`npx wrangler deploy`**
+   - No build variables are needed.
+
+   Save and deploy. The first deploy also connects **mannpatel.me** and **www.mannpatel.me** (from `routes` in `wrangler.jsonc`); Cloudflare creates the DNS records and HTTPS certificates. If the deploy says the domain can't be found, step 1 isn't finished yet: wait for **Active** and retry.
+4. **Add the form's secrets:** *Workers & Pages* → `mann-patel-website` → *Settings* → *Variables and Secrets* → *Add*, choosing type **Secret** for each (secrets survive every deploy; plain-text variables added in the dashboard are replaced by `wrangler.jsonc` on the next deploy):
+   - `RESEND_API_KEY`: from Resend (§1)
+   - `ENQUIRY_TO_EMAIL`: the inbox that receives enquiries
+   - `ENQUIRY_FROM_EMAIL`: e.g. `Mann Patel <hello@mannpatel.me>` (domain verified in Resend)
+   - `FORM_TOKEN_SECRET`: a random string of 32+ characters (e.g. from a password manager's generator)
+
+   `ENQUIRY_DELIVERY=resend` is already set in `wrangler.jsonc`. To send visitors an automatic "we got your brief" email, change `ENQUIRY_ACKNOWLEDGE` there to `"true"`.
+5. **Test:** open https://mannpatel.me/contact/, send a brief with the name "Test Owner", and check it arrives (and that Reply goes to the visitor's address).
+6. *(Recommended)* *Settings* → *Build* → turn off builds for non-production branches, so only your main branch is published.
+7. *(Optional)* Redirect `www` to the bare domain: domain → *Rules* → *Redirect Rules* → template "Redirect from WWW to root". Canonical tags already point to `https://mannpatel.me`.
+8. *(Optional, free)* Receive mail at `hello@mannpatel.me`: domain → *Email* → *Email Routing* → forward it to your Gmail.
+
+Every later push to the main branch rebuilds and redeploys automatically. Production builds **fail on purpose** if a "To confirm" note reappears or a page breaks (see `scripts/prelaunch-check.mjs`); the secrets can't be seen during a build, so the check lists them as warnings.
+
+**Deploy from your own computer instead (optional):** `npx wrangler login`, then `npm run deploy:cloudflare`.
+
+**Rollback:** *Workers & Pages* → `mann-patel-website` → *Deployments* → pick the last good version → *Rollback* (instant). In git, `git revert <commit>` and push.
 
 ## 5 · Recurring costs (estimates; verify current pricing)
 
 | Item | Cost | Needed? |
 | --- | --- | --- |
-| Domain (.ca or .com) | roughly CAD 15–30 / year, set by the registrar | Yes, for launch |
-| Netlify Free | $0 (300 credits/month; sites pause if exceeded) | Yes. Upgrade (Personal $9/mo) only if traffic needs it |
+| Domain (mannpatel.me) | yearly renewal, set by your registrar | Yes (already owned) |
+| Cloudflare Workers Free | $0 (100,000 form/Worker requests a day; static pages don't count) | Yes |
+| Cloudflare Email Routing | free | Optional, to receive mail at `hello@mannpatel.me` |
 | Resend Free | $0 for 3,000 emails/month, 100/day; Pro $20/mo | Yes, for email delivery |
 | Business email (e.g. Google Workspace) | per user per month, set by Google | Recommended for a professional address |
 | Cloudflare Turnstile | free tier | Optional |
