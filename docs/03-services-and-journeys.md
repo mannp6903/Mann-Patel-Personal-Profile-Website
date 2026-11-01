@@ -21,7 +21,7 @@ Mann wants to offer these services; the brief says not to assume they are proven
 | SEO / Search Console / GA4 | This site is built to the checklist; setup is documented | Complete Search Console + GA4 for this site and Nest & Rest, and keep notes |
 | Business Profile | Eligibility rules researched | Set up Nest & Rest's profile properly (owner action) |
 | Professional email | — | Set up Mann's own domain email with SPF/DKIM/DMARC and record the checks |
-| Content, branding, print | Concept samples on this site | Nest & Rest social templates; permissioned client pieces |
+| Content, branding, print | — (concept samples removed 31 Oct 2026) | Nest & Rest social templates; permissioned client pieces |
 
 ## Packages (internal drafts)
 
@@ -63,10 +63,9 @@ Prices and hour estimates: see the private worksheet (`private/pricing-worksheet
 ```
 /                Home — who I help, the offer, evidence, service overview, guide, primary action
 /services/       All three groups, every service in detail, process, packages, FAQ
-/work/           Nest & Rest (self-owned, launched) + two clearly labelled concepts
+/work/           Real projects only: Nest & Rest (self-owned, launched) + Samp Hair & Spa (in progress)
 /work/nest-and-rest-cleaning/
-/work/concept-kettle-and-crumb/      (concept)
-/work/concept-northline-plumbing/    (concept)
+/work/samp-hair-spa/
 /about/          Story, principles, vision, "My businesses"
 /contact/        Project brief form, what happens next, other contact methods (when supplied)
 /privacy/        What the form collects, where it goes, retention, analytics status
@@ -92,7 +91,7 @@ Cleaning visitors: a "Looking for home cleaning?" link to Nest & Rest appears in
 
 **1 · New owner needs a professional launch**
 Home hero ("look professional, get found, follow up") → guide: *Just starting* → recommendation **Business Launch** with reasons → "Start a brief with this" → Contact with package + services pre-selected → sends brief → sees "Received. Here's what happens next".
-*Supporting evidence on the way:* the concept sample for a new bakery-café (labelled concept) shows what a launch kit contains.
+*Supporting evidence on the way:* the Nest & Rest case study shows a launch built from scratch.
 
 **2 · Established owner with a weak website or missed enquiries**
 Search or referral → Home → "Follow up" verb or workflow demo (sees enquiry → acknowledgement → notification → follow-up with sample data) → Services › Enquiry follow-up workflows (deliverables, exclusions, process) → "Request a quote" (service pre-selected) → brief.

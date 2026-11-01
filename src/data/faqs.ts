@@ -36,11 +36,9 @@ export const faqs: Faq[] = [
   {
     q: 'Do you use AI tools?',
     a: 'Yes, for some drafting, design exploration and coding. I review and test everything myself, and I do not paste your private customer information into AI tools without your agreement.',
-    confirm: 'Confirm this describes how you actually work and what you are comfortable stating.',
   },
   {
     q: 'Where do you work?',
-    a: 'I work with small businesses in Toronto and the GTA.',
-    confirm: 'Confirm the public service area and whether you also take remote clients.',
+    a: 'I’m based in Toronto and work with small businesses across the Greater Toronto Area (GTA).',
   },
 ];

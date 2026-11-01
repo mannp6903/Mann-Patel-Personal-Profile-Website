@@ -1,7 +1,6 @@
 ---
 import BaseLayout from '../layouts/BaseLayout.astro';
 import CtaBand from '../components/CtaBand.astro';
-import Confirm from '../components/Confirm.astro';
 import PreviewNote from '../components/PreviewNote.astro';
 import { profile, businesses } from '../data/site';
 import { personJsonLd } from '../lib/seo';
@@ -33,7 +32,7 @@ const jsonLd = { '@context': 'https://schema.org', '@type': 'AboutPage', mainEnt
 
 <BaseLayout
   title="About"
-  description="Mann Patel is the founder of Nest & Rest Cleaning in Scarborough and North York, and helps Toronto small businesses with websites, Google visibility, business email, follow-up and content."
+  description="Mann Patel’s story, from Palana in Gujarat to Toronto: founder of Nest & Rest Cleaning, helping small businesses in Toronto and the GTA with websites, Google visibility, business email, follow-up and content."
   jsonLd={jsonLd}
 >
   <section class="section page-head">
@@ -42,14 +41,15 @@ const jsonLd = { '@context': 'https://schema.org', '@type': 'AboutPage', mainEnt
         <p class="label">About</p>
         <h1>I’m Mann Patel. I’m building a small business, and I help other owners with theirs.</h1>
         <p class="lead measure">
-          I run {nest.name} in {nest.area}. I also help small-business owners in {profile.serviceArea} set up the
-          website, Google presence, email and simple routines that make a business easier to find and easier to reach.
+          I’m starting {nest.name}, a home-cleaning business in {nest.area}, which opens for bookings in summer 2027.
+          I also help small-business owners in {profile.serviceArea} set up the website, Google presence, email and
+          simple routines that make a business easier to find and easier to reach.
         </p>
         <div class="reach">
           {profile.contact.email && (
             <a class="link-accent" href={`mailto:${profile.contact.email}`} data-contact="email">{profile.contact.email}</a>
           )}
-          <SocialLinks note />
+          <SocialLinks />
         </div>
       </div>
       <figure class="portrait">
@@ -68,7 +68,7 @@ const jsonLd = { '@context': 'https://schema.org', '@type': 'AboutPage', mainEnt
             />
           ) : (
             <div class="mark" aria-hidden="true">
-              <span><Logo variant="mark" /></span>
+              <span><Logo variant="stacked" /></span>
             </div>
           )
         }
@@ -79,21 +79,45 @@ const jsonLd = { '@context': 'https://schema.org', '@type': 'AboutPage', mainEnt
 
   <section class="section section--tight" aria-labelledby="story-title">
     <div class="container story">
-      <h2 id="story-title">Why I do this</h2>
+      <h2 id="story-title">My story</h2>
       <div class="prose stack" style="--stack: var(--space-m)">
         <p>
-          When I started {nest.name}, I had to set up everything a new service business needs at the same time: what to
-          offer and how to price it, a website people could understand on their phone, a way to request a booking, an
-          email address, and a habit of replying to every enquiry quickly. I still clean every home myself, so each of
-          those systems had to save me time, not create more work.
+          I grew up in Palana, a very small rural village in Gujarat, India. After immigrating to Canada, I studied
+          computer programming at Seneca College and paid my way with low-wage jobs: first at Subway in North York,
+          then as a security guard at the Pan Am Sports Centre in Scarborough.
         </p>
         <p>
-          Doing it for my own business showed me how much those basics matter, and how many owners are stuck with a
-          page they can’t update, enquiries spread across DMs and voicemail, and no idea whether anyone finds them on
-          Google. That’s the work I now offer other owners: the digital foundations and simple routines that help a
-          small business look professional, get found, and follow up.
+          I failed C++ three times, and it pushed me into a very dark phase. I kept going and finished my studies,
+          then moved to Saint John, New Brunswick, where I worked at a burrito restaurant and at a bubble tea shop in
+          Rothesay.
         </p>
-        <Confirm note="this story is drafted from your Nest & Rest site; edit it into your own words" />
+        <p>
+          Next I moved back to Thunder Bay with no job lined up. I worked at Dairy Queen, then got a job as a
+          housekeeper at a casino. That winter I fell into depression. I lost the job after missing shifts while I was
+          unwell, and for about six months after that I was in a very bad place.
+        </p>
+        <p>
+          I moved back to North York and struggled to find work. I took jobs at a few gas stations, but none of them
+          lasted long. Slowly I came out of the depression and started learning new skills.
+        </p>
+        <p>
+          Today I work overnight at Walmart Canada, with a second role as a modular associate. I was trained on power
+          equipment within my first 45 days, and I’ve been trusted as acting lead for the dairy and frozen department.
+          I still learn something new every day.
+        </p>
+        <p>
+          I also built <a href={nest.url} rel="noopener">nestnrestcleaning.com</a> from scratch for my own
+          home-cleaning business, {nest.name}. It starts taking clients in summer 2027, and I’ll clean every home
+          myself.
+        </p>
+        <h3 class="story-sub">Why I do this</h3>
+        <p>
+          Building {nest.name} showed me how much the basics matter: a clear offer, a website people understand on
+          their phone, a simple way to ask for a booking, and a habit of answering every message. Many owners are stuck
+          with a page they can’t update, enquiries spread across DMs and voicemail, and no idea whether anyone finds
+          them on Google. That’s the work I offer: the digital foundations and simple routines that help a small
+          business look professional, get found, and follow up.
+        </p>
       </div>
     </div>
   </section>
@@ -246,6 +270,10 @@ const jsonLd = { '@context': 'https://schema.org', '@type': 'AboutPage', mainEnt
     max-width: var(--container-text);
     font-size: var(--step-1);
     line-height: 1.55;
+  }
+  .story-sub {
+    font-size: var(--step-2);
+    margin-top: var(--space-s);
   }
   .principles {
     list-style: none;

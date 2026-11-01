@@ -1,11 +1,9 @@
 ---
 import NestScene from './NestScene.astro';
-import KettleScene from './KettleScene.astro';
-import NorthlineScene from './NorthlineScene.astro';
 import SampScene from './SampScene.astro';
 
 interface Props {
-  scene: 'nest-and-rest' | 'samp' | 'kettle' | 'northline';
+  scene: 'nest-and-rest' | 'samp';
   variant?: 'thumb' | 'full';
   eager?: boolean;
 }
@@ -14,5 +12,3 @@ const { scene, variant = 'thumb', eager = false } = Astro.props;
 
 {scene === 'nest-and-rest' && <NestScene variant={variant} eager={eager} />}
 {scene === 'samp' && <SampScene variant={variant} eager={eager} />}
-{scene === 'kettle' && <KettleScene variant={variant} />}
-{scene === 'northline' && <NorthlineScene variant={variant} />}

@@ -20,7 +20,6 @@ const { entry } = Astro.props;
 const { Content } = await render(entry);
 const d = entry.data;
 const services = d.serviceIds.map((id) => serviceById(id)).filter((s) => s !== undefined);
-const isConcept = d.status === 'concept';
 const crumbs = breadcrumbJsonLd([
   { name: 'Home', path: '/' },
   { name: 'Work', path: '/work/' },
@@ -28,7 +27,7 @@ const crumbs = breadcrumbJsonLd([
 ]);
 ---
 
-<BaseLayout title={isConcept ? `${d.title} (concept)` : d.title} description={d.description} jsonLd={crumbs ?? undefined}>
+<BaseLayout title={d.title} description={d.description} jsonLd={crumbs ?? undefined}>
   <article>
     <header class="section page-head">
       <div class="container head">
@@ -45,17 +44,10 @@ const crumbs = breadcrumbJsonLd([
         {d.statusConfirm && <Confirm note={d.statusConfirm} />}
         <h1>{d.title}</h1>
         <p class="lead measure">{d.summary}</p>
-        {
-          d.disclaimer && (
-            <p class="disclaimer" role="note">
-              <strong>Concept, not a client project.</strong> {d.disclaimer}
-            </p>
-          )
-        }
       </div>
     </header>
 
-    <section class="section section--tight visuals" aria-label={isConcept ? 'Concept artwork' : 'Captures'}>
+    <section class="section section--tight visuals" aria-label="Captures">
       <div class="container">
         <Scene scene={d.scene} variant="full" eager />
       </div>
@@ -116,7 +108,7 @@ const crumbs = breadcrumbJsonLd([
   </article>
 
   <CtaBand
-    title={isConcept ? 'Want something like this, for real?' : 'Want foundations like these?'}
+    title="Want foundations like these?"
     text="Send a short brief. I’ll reply by email with questions or a suggested next step."
     href={`/contact/?services=${d.serviceIds.join(',')}#brief`}
     label="Start a similar project"
@@ -153,13 +145,6 @@ const crumbs = breadcrumbJsonLd([
     gap: var(--space-xs) var(--space-s);
     align-items: center;
     font-size: var(--step--1);
-  }
-  .disclaimer {
-    max-width: 62ch;
-    padding: var(--space-s) var(--space-m);
-    border-left: 4px solid var(--accent);
-    background: var(--accent-wash);
-    border-radius: 0 var(--radius-s) var(--radius-s) 0;
   }
   .visuals {
     padding-top: 0;

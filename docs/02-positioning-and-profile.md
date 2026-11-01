@@ -7,12 +7,14 @@
 | Fact | Source |
 | --- | --- |
 | Public brand: **Mann Patel** (no studio name) | Mann, 31 Oct 2026 |
-| Website: **mannpatel.ca** (to be registered) | Mann, 31 Oct 2026 |
+| Website: **mannpatel.me** (Mann's domain; replaces the earlier mannpatel.ca plan) | Mann, 31 Oct 2026 |
 | Founder & Owner of Nest & Rest Cleaning | Nest & Rest `/vision/` page, signed "Mann Patel, Founder & Owner" (cached 24 Oct 2026) |
 | Nest & Rest serves Scarborough and North York, Toronto | Brief; Nest & Rest site |
-| "Today, I clean every home myself." | Nest & Rest `/vision/` |
+| "Today, I clean every home myself." | Nest & Rest `/vision/` (a plan: Nest & Rest takes its first clients in summer 2027; no paying clients yet, Mann 31 Oct 2026) |
+| nestnrestcleaning.com built from scratch by Mann | Mann, 31 Oct 2026 |
+| Story: grew up in Palana (rural Gujarat, India); computer programming at Seneca College; Subway (North York), security guard at the Pan Am Sports Centre; failed C++ three times; Saint John and Rothesay, NB; Thunder Bay (Dairy Queen, casino housekeeping, depression, lost the job after missing shifts while unwell); back to North York, gas-station jobs; now overnight associate and modular associate at Walmart Canada, power-equipment trained within 45 days, acting lead for dairy and frozen | Mann, 31 Oct 2026 |
 | Nest & Rest website: nestnrestcleaning.com (launched by 19 Oct 2026, **returning 404 on 31 Oct 2026**) | Wayback capture; live check |
-| Initial market for digital services: Toronto/GTA | Brief |
+| Based in Toronto; serves clients across the GTA | Mann, 31 Oct 2026 |
 
 Everything else (education, background, portrait, contact details, domain, prices, client work) is **unconfirmed** and tracked in `docs/OWNER-INPUTS.md`.
 
@@ -174,8 +176,8 @@ Plain text only. No images (they get blocked, or attached as files), no quotes, 
 | Asset | Direction |
 | --- | --- |
 | **Portrait** | **Supplied 31 Oct 2026** (smiling, dark green sweatshirt, tree-lined street at dusk) and used across the site. Future shoots: a real photo, never generated. Natural light, at work rather than studio-posed: at a laptop with a notebook, or in a neutral Nest & Rest setting. Chest-up, eye-level, plain warm background (paper/off-white) so it sits on the site's palette. Shoot one landscape (site hero/About) and one square (profiles). Until then the site uses a typographic mark and a clearly labelled empty slot (preview only). |
-| **Logo (v3, implemented 31 Oct 2026)** | A custom **MP ligature monogram**: the M's last stroke is also the P's stem, finished with a stamp-orange square (the brand's full stop). Paired with **MANN PATEL** in Archivo Expanded Bold, tracked wide (SIL OFL 1.1, converted to outlines). Bold enough for a 32 px app icon, calm enough for a business card. Files: `public/brand/mann-patel-lockup.svg` (+ `-light`), `mann-patel-monogram.svg`, `mann-patel-wordmark.svg`; generator `scripts/make-logo.py`. Earlier Bodoni Moda wordmark retired at Mann's request. |
-| **Motion** | The monogram draws itself in once per visit, the square stamps on, the name slides in; on hover the square nudges. |
-| **Profile image** | Real portrait cropped to a circle-safe square on paper background. Fallback: the MP stamp, ink on paper. |
+| **Logo (v4, implemented 31 Oct 2026)** | **The name only: "Mann Patel."** set in **Fraunces** (Undercase Type, SIL OFL 1.1), a soft display serif, converted to outlines with real kerning. The full stop is the only colour (stamp orange). Two optical cuts: *display* (opsz 144, finer) for large uses and *text* (opsz 32, sturdier) for the header, so the hairlines never break up on screen. Also a stacked version ("Mann / Patel.") for square spaces and an "M." app icon. Files in `public/brand/`: `mann-patel-wordmark.svg` (+ `-light`, `-small`, `-stacked`, `-animated`), `mann-patel-icon.svg`; generator `scripts/make-logo.py`. Replaces the MP monogram (v3) and the Bodoni Moda wordmark (v2), both retired at Mann's request. |
+| **Motion** | On the first page of a visit the letters rise into place one by one, the orange full stop drops in and settles, and an orange glint sweeps across the name. Hovering the logo replays the glint and the stop hops. The footer signature and the founder stamp play the same sequence when scrolled into view. All static under reduced motion. |
+| **Profile image** | Real portrait cropped to a circle-safe square on paper background. Fallback: the stacked wordmark, ink on paper. |
 | **Social cover (LinkedIn 1584×396, Facebook 1640×624 safe area)** | Paper background, the three verbs as a stacked display line ("Look professional. Get found. Follow up.") on the left, a small "enquiry ticket" graphic on the right, wordmark bottom-left. Keep text out of the area covered by the avatar (left on LinkedIn). |
 | **Separation from Nest & Rest** | Nest & Rest uses navy/blue/green with a house icon. The personal brand uses ink/paper/stamp-orange and no house imagery, so the two brands are never confused. |

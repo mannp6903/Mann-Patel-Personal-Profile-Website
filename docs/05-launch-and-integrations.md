@@ -35,11 +35,13 @@ Browser form ──► GET /api/enquiry/  → { connected, token }      (status 
 
 ### Connecting email delivery (Owner action, about 30 minutes)
 
+**Decision (31 Oct 2026):** Resend email delivery (`ENQUIRY_DELIVERY=resend`), as named on the Privacy page. Verify `mannpatel.me` as the sending domain.
+
 1. Create a Resend account in Mann's name. Add and verify the sending domain (DNS records shown by Resend; follow its current docs). Until a domain is verified, Resend only allows test sends.
 2. In Netlify → Site configuration → Environment variables, set:
    `ENQUIRY_DELIVERY=resend`, `RESEND_API_KEY`, `ENQUIRY_TO_EMAIL` (Mann's inbox), `ENQUIRY_FROM_EMAIL` (e.g. `Mann Patel <hello@yourdomain>`), `ENQUIRY_ACKNOWLEDGE=true` (optional), `FORM_TOKEN_SECRET` (`openssl rand -hex 32`).
 3. **Live test with sample data:** set `ENQUIRY_TO_EMAIL` to your own inbox, deploy a branch deploy, submit the form with the name "Test Owner", and confirm: (a) success screen shows a reference id; (b) the owner email arrives, Reply-To is the visitor's address (this also confirms the API's `reply_to` field); (c) the acknowledgement arrives if enabled. Resend's dashboard shows each email's status.
-4. Optional durable record: create a Google Sheet + Apps Script web app that appends rows, set `ENQUIRY_WEBHOOK_URL` and `ENQUIRY_WEBHOOK_SECRET`; verify the `X-Signature` HMAC in the script. With both set, an enquiry is accepted if *either* channel accepts it.
+4. Optional durable record (not used at launch; if you add it, update the Privacy page to name Google as a processor): create a Google Sheet + Apps Script web app that appends rows, set `ENQUIRY_WEBHOOK_URL` and `ENQUIRY_WEBHOOK_SECRET`; verify the `X-Signature` HMAC in the script. With both set, an enquiry is accepted if *either* channel accepts it.
 
 **Monitoring:** each week, compare Resend's log with the inbox; check spam folders after DNS changes; submit one test enquiry a month (maintenance checklist). If a send fails, the visitor sees an error and can retry. Nothing is silently lost.
 
@@ -77,8 +79,8 @@ Browser form ──► GET /api/enquiry/  → { connected, token }      (status 
 
 ### Search Console plan (Owner action)
 
-1. Add a **Domain property** for `mannpatel.ca` and verify it with the DNS TXT record (covers http/https and all subdomains). Keep the record in place permanently.
-2. Submit `https://mannpatel.ca/sitemap-index.xml`.
+1. Add a **Domain property** for `mannpatel.me` and verify it with the DNS TXT record (covers http/https and all subdomains). Keep the record in place permanently.
+2. Submit `https://mannpatel.me/sitemap-index.xml`.
 3. After a few days, check Pages (indexing) and Performance. Don't claim verification is done until Search Console shows "Ownership verified".
 
 ### Google Business Profile
@@ -90,9 +92,9 @@ Mann's digital-services work probably **doesn't qualify** for a Business Profile
 **Recommended host: Netlify** (free plan allows functions and custom domains; Vercel's free Hobby plan is restricted to non-commercial use, which this site is not). `@astrojs/netlify` is already configured via `DEPLOY_TARGET=netlify` in `netlify.toml`. Cloudflare is a reasonable alternative (switch adapter).
 
 1. **Owner action:** Netlify → Add new site → Import from GitHub → this repository. Build settings come from `netlify.toml`.
-2. Branch deploys and deploy previews are always `noindex` and show the preview banner.
+2. Branch deploys and deploy previews are always `noindex`. (The yellow "Private preview" banner was removed at Mann's request on 31 Oct 2026; previews now look like the live site.)
 3. Production deploys run `npm run build && npm run prelaunch`. They **fail on purpose** until every "To confirm" item is resolved and the delivery and secret variables are set. That's the guard against unverified claims or a dead form going live.
-4. **Domain: mannpatel.ca (Owner action; decided 31 Oct 2026).** `PUBLIC_SITE_URL=https://mannpatel.ca` and `SITE_INDEXING=true` are already set for production in `netlify.toml`. mannpatel.ca was available on 31 Oct 2026 (mannpatel.com is registered to someone else). Register it in your own name with a CIRA-accredited registrar (.ca requires Canadian presence, which you meet as a Toronto resident), turn on auto-renew, then in Netlify → Domain management → Add domain `mannpatel.ca` (and `www.mannpatel.ca`) and either point the registrar's DNS at Netlify or use Netlify DNS. Netlify issues the HTTPS certificate automatically. Set up `hello@mannpatel.ca` (or similar) and use it as the Resend sender once the domain is verified there.
+4. **Domain: mannpatel.me (Mann's domain, 31 Oct 2026).** `PUBLIC_SITE_URL=https://mannpatel.me` and `SITE_INDEXING=true` are already set for production in `netlify.toml`. (It replaces the earlier mannpatel.ca plan; mannpatel.com belongs to someone else.) **Owner action:** turn on auto-renew and registrar lock at your registrar, then in Netlify → Domain management → Add domain `mannpatel.me` (and `www.mannpatel.me`). Either switch the domain's nameservers to Netlify DNS, or add the A/ALIAS (apex) and CNAME (`www`) records Netlify shows you at your registrar. Netlify issues the HTTPS certificate automatically. Set up `hello@mannpatel.me` (or similar) and use it as the Resend sender once the domain is verified there.
 
 **Rollback:** Netlify → Deploys → choose the last good deploy → "Publish deploy" (instant). In git, `git revert <commit>` and push. Environment-variable changes need a redeploy to take effect.
 

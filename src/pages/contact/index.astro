@@ -75,7 +75,7 @@ const waNumber = whatsapp?.replace(/[^\d]/g, '');
                   </li>
                 )}
               </ul>
-              <SocialLinks note />
+              <SocialLinks />
               </>
             ) : (
               <>
@@ -89,7 +89,7 @@ const waNumber = whatsapp?.replace(/[^\d]/g, '');
         <div class="card cleaning">
           <h2>Looking for home cleaning?</h2>
           <p class="small">
-            This form is for websites and digital services. To book a clean, go to {nest.name}.
+            This form is for websites and digital services. For home cleaning, see {nest.name} (bookings open in summer 2027).
           </p>
           <a class="btn btn--secondary" href={nest.url} rel="noopener">Visit {nest.name} <span aria-hidden="true">↗</span></a>
         </div>

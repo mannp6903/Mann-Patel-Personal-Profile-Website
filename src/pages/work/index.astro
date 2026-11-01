@@ -5,13 +5,11 @@ import WorkCard from '../../components/WorkCard.astro';
 import CtaBand from '../../components/CtaBand.astro';
 
 const work = (await getCollection('work')).sort((a, b) => a.data.order - b.data.order);
-const real = work.filter((w) => w.data.status !== 'concept');
-const concepts = work.filter((w) => w.data.status === 'concept');
 ---
 
 <BaseLayout
   title="Work"
-  description="Nest & Rest Cleaning, Mann Patel’s own home-cleaning business, plus clearly labelled concept samples of websites, branding and enquiry follow-up for small businesses."
+  description="Real projects by Mann Patel: the Nest & Rest Cleaning business and website, and Samp Hair & Spa, a salon website in progress in Scarborough."
 >
   <section class="section page-head">
     <div class="container head">
@@ -23,7 +21,6 @@ const concepts = work.filter((w) => w.data.status === 'concept');
       </p>
       <dl class="legend">
         <div><dt><span class="chip chip--launched">Launched</span></dt><dd>Real and live.</dd></div>
-        <div><dt><span class="chip chip--concept">Concept</span></dt><dd>An original sample for a fictional business. Not a client project.</dd></div>
         <div><dt><span class="chip chip--in-progress">In progress</span></dt><dd>Real client work that isn’t finished yet.</dd></div>
       </dl>
     </div>
@@ -33,20 +30,7 @@ const concepts = work.filter((w) => w.data.status === 'concept');
     <div class="container">
       <h2 id="own-title" class="sub">Real projects</h2>
       <div class="list">
-        {real.map((w) => <WorkCard entry={w} large headingLevel="h3" />)}
-      </div>
-    </div>
-  </section>
-
-  <section class="section section--tight section--alt" aria-labelledby="concept-title">
-    <div class="container">
-      <h2 id="concept-title" class="sub">Concept samples</h2>
-      <p class="muted measure intro">
-        Made to show the kind of launch kit and follow-up workflow I offer. The businesses, people and data are
-        fictional.
-      </p>
-      <div class="grid">
-        {concepts.map((w) => <WorkCard entry={w} headingLevel="h3" />)}
+        {work.map((w) => <WorkCard entry={w} large headingLevel="h3" />)}
       </div>
     </div>
   </section>
@@ -96,21 +80,8 @@ const concepts = work.filter((w) => w.data.status === 'concept');
     font-size: var(--step-2);
     margin-bottom: var(--space-l);
   }
-  .intro {
-    margin-top: calc(var(--space-m) * -1);
-    margin-bottom: var(--space-l);
-  }
   .list {
     display: grid;
     gap: var(--space-l);
-  }
-  .grid {
-    display: grid;
-    gap: var(--space-l);
-  }
-  @media (min-width: 48em) {
-    .grid {
-      grid-template-columns: repeat(2, minmax(0, 1fr));
-    }
   }
 </style>

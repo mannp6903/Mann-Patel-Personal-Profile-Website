@@ -25,3 +25,6 @@ coverage/
 preview-static/
 .og-template.tmp.html
 preview-artifact/
+
+# logo generator virtualenv
+.venv-logo/

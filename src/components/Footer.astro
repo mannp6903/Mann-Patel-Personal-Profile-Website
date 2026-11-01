@@ -8,7 +8,7 @@ const year = new Date().getFullYear();
 <footer class="site-footer on-night">
   <div class="container grid">
     <div class="brand">
-      <p class="wordmark"><Logo /><span class="visually-hidden">Mann Patel</span></p>
+      <p class="label">{profile.name}</p>
       <p class="muted">{profile.descriptor}.</p>
       {profile.contact.email && (
         <p>
@@ -44,6 +44,9 @@ const year = new Date().getFullYear();
       </ul>
     </div>
   </div>
+  <div class="container signature">
+    <a href="/" aria-label="Mann Patel, home"><Logo master="display" motion="reveal" /></a>
+  </div>
   <div class="container base">
     <p class="small muted">© {year} {profile.name}. All rights reserved.</p>
   </div>
@@ -63,11 +66,23 @@ const year = new Date().getFullYear();
       grid-template-columns: 2fr 1fr 1.4fr;
     }
   }
-  .wordmark {
-    font-size: clamp(2.6rem, 2rem + 2vw, 3.4rem);
+  /* Signature: the wordmark set across the full width of the page. */
+  .signature {
+    margin-top: var(--space-2xl);
+  }
+  .signature a {
+    display: block;
+    width: 100%;
     color: var(--night-ink);
     --logo-dot: var(--accent-on-night);
-    margin-bottom: var(--space-s);
+    border-radius: var(--radius-s);
+  }
+  .signature a:hover {
+    text-decoration: none;
+  }
+  .signature :global(.logo) {
+    width: 100%;
+    height: auto;
   }
   .brand {
     display: grid;
@@ -101,7 +116,7 @@ const year = new Date().getFullYear();
     display: block;
   }
   .base {
-    margin-top: var(--space-2xl);
+    margin-top: var(--space-l);
     padding-top: var(--space-m);
     border-top: 1px solid var(--night-line);
   }

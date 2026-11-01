@@ -9,7 +9,6 @@ import WorkflowDemo from '../components/WorkflowDemo.astro';
 import ProcessSteps from '../components/ProcessSteps.astro';
 import CtaBand from '../components/CtaBand.astro';
 import Marquee from '../components/Marquee.astro';
-import Confirm from '../components/Confirm.astro';
 import Logo from '../components/Logo.astro';
 import { Image } from 'astro:assets';
 import { profile, businesses } from '../data/site';
@@ -17,8 +16,6 @@ import { personJsonLd } from '../lib/seo';
 import { absoluteUrl } from '../lib/mode';
 
 const work = (await getCollection('work')).sort((a, b) => a.data.order - b.data.order);
-const real = work.filter((w) => w.data.status !== 'concept');
-const concepts = work.filter((w) => w.data.status === 'concept');
 const nest = businesses[0];
 
 // Hero headline, split into words for the staggered reveal (reads as plain text without motion).
@@ -60,7 +57,6 @@ const jsonLd = {
       <div class="hero-copy">
         <p class="label eyebrow">
           {profile.name} · {profile.location}
-          {!profile.locationConfirmed && <Confirm note="preferred public location (Toronto, Scarborough or GTA?)" />}
         </p>
         <h1 class="hero-title" set:html={heroHtml} />
         <p class="lead intro">{profile.intro}</p>
@@ -124,13 +120,12 @@ const jsonLd = {
         <p class="label">Evidence, not promises</p>
         <h2 id="work-title">Real work, clearly labelled.</h2>
         <p class="muted measure">
-          The business I run, a client website I’m building now, and two concept samples. Every card says which is
-          which, and no results are invented.
+          The business I’m launching and a client website I’m building now. Every card says which is which, and no
+          results are invented.
         </p>
       </div>
       <div class="work-grid">
-        {real.map((r) => <div class="featured"><WorkCard entry={r} headingLevel="h3" large /></div>)}
-        {concepts.map((c) => <WorkCard entry={c} headingLevel="h3" />)}
+        {work.map((r) => <WorkCard entry={r} headingLevel="h3" large />)}
       </div>
       <p class="more-link"><a class="link-accent" href="/work/">All work and how it’s labelled →</a></p>
     </div>
@@ -180,13 +175,14 @@ const jsonLd = {
   <!-- ── Founder note ─────────────────────────────────── -->
   <section class="section section--alt" aria-labelledby="founder-title">
     <div class="container founder">
-      <div class="stamp-mark" aria-hidden="true"><Logo variant="mark" /></div>
+      <div class="stamp-mark" aria-hidden="true" data-reveal><Logo variant="stacked" motion="reveal" /></div>
       <div class="stack" style="--stack: var(--space-m)">
         <p class="label">Why me</p>
         <h2 id="founder-title">I’m building a small business too.</h2>
         <p class="lead">
-          I run {nest.name} in {nest.area}, and I still clean every home myself. Setting it up meant doing what my
-          clients need: a clear offer, a website people understand on their phone, booking requests, email, and a
+          I built the website for {nest.name}, my home-cleaning business in {nest.area}, from scratch. It opens for
+          bookings in summer 2027. Setting it up meant doing what my clients need: a clear offer, a website people
+          understand on their phone, booking requests, email, and a
           habit of answering every enquiry.
         </p>
         <p class="btn-row">
@@ -330,14 +326,6 @@ const jsonLd = {
     gap: var(--space-l);
     grid-template-columns: minmax(0, 1fr);
   }
-  @media (min-width: 48em) {
-    .work-grid {
-      grid-template-columns: repeat(2, minmax(0, 1fr));
-    }
-  }
-  .featured {
-    grid-column: 1 / -1;
-  }
   .more-link {
     margin-top: var(--space-l);
   }
@@ -378,12 +366,22 @@ const jsonLd = {
   .stamp-mark {
     display: grid;
     place-items: center;
-    width: clamp(7rem, 4rem + 10vw, 11rem);
+    width: clamp(9rem, 6rem + 10vw, 13rem);
     aspect-ratio: 1;
-    padding: 18%;
+    padding: 14%;
     border: 6px double var(--accent);
     border-radius: var(--radius-l);
     color: var(--ink);
+    transform: rotate(-4deg);
+  }
+  /* Motion: the stamp lands with a small thud when it scrolls into view. */
+  :global(.js-motion) .stamp-mark[data-reveal] {
+    transform: rotate(-13deg) scale(1.22);
+    transition:
+      opacity 260ms var(--ease-out),
+      transform 520ms var(--ease-stamp);
+  }
+  :global(.js-motion) .stamp-mark[data-reveal]:global(.is-revealed) {
     transform: rotate(-4deg);
   }
 </style>

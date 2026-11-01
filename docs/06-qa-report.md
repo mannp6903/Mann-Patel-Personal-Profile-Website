@@ -49,7 +49,6 @@ Done: semantic landmarks, one H1 per page, skip link, visible 3 px focus rings, 
 | `docs/captures/services-mobile-390.jpg` | Services, 390 px |
 | `docs/captures/contact-mobile-390.jpg` | Contact form, 390 px |
 | `docs/captures/case-study-desktop-1440.jpg` | Nest & Rest case study, 1440 px |
-| `docs/captures/concept-desktop-1440.jpg` | Kettle & Crumb concept, 1440 px |
 | `docs/captures/404-mobile-390.jpg` | 404, 390 px |
 
 ## 5 · Issues found during QA and fixed
@@ -93,6 +92,17 @@ Done: semantic landmarks, one H1 per page, skip link, visible 3 px focus rings, 
 | Motion | Logo draw-in, headline word rise + underline draw, services marquee: verified frame by frame; disabled under reduced motion |
 | Work | Nest & Rest now uses live captures (31 Oct) plus the 19 Oct archive; Samp Hair & Spa added as *In progress*, gated on client permission |
 
+## 6d · Round 4 (31 Oct 2026): name-only logo, logo motion, mannpatel.me, Samp approved
+
+| Check | Result |
+| --- | --- |
+| Logo | "Mann Patel." in Fraunces, two optical cuts (text for the header, display for large uses), stacked version and "M." icon; 13 typefaces compared at real header size before choosing (high-contrast faces such as Bodoni lose their hairlines at ~24 px) |
+| Motion | Header intro (letters rise, stop drops, glint), hover glint + hop, footer signature and founder stamp on scroll: verified frame by frame at 1440 and 360 px; static under reduced motion, without JS and in print |
+| Unit / E2E | 30/30 and 39/39 passed (3 new logo tests: name only, unique gradient ids, intro once per visit, reveal, reduced motion; axe: 0 violations on all 11 pages) |
+| Horizontal overflow | None at 390, 768, 1440 px on 10 pages |
+| Domain | Production URL is now `https://mannpatel.me` (`netlify.toml`) |
+| Samp Hair & Spa | Permission given by Mann; the "To confirm" gate is removed, so it no longer blocks a production build |
+
 ## 7 · Internal design review (subjective)
 
 This is a self-assessment against the brief's rubric, **not** a test result or an outcome measure.
@@ -101,7 +111,7 @@ This is a self-assessment against the brief's rubric, **not** a test result or a
 | --- | --- | --- | --- | --- |
 | Positioning, profile, service clarity | 20 | 17 | Plain three-verb H1; every service has problem, deliverables, inputs, exclusions, handover; packages; honest FAQ | Copy isn't yet in Mann's own voice; no client proof |
 | Navigation and hierarchy | 15 | 13 | 3 nav items + one CTA; one primary action per page; Services jump links; cleaning exit on every page | Services and Home are long; a returning visitor may want shorter paths |
-| Art direction, typography, consistency | 20 | 17 | Distinct "front desk" ticket language, consistent tokens, coded concept artwork, real portrait, premium Bodoni Moda wordmark | Some text-only sections feel plain; the warm paper + orange palette is a common look |
+| Art direction, typography, consistency | 20 | 17 | Distinct "front desk" ticket language, consistent tokens, coded concept artwork, real portrait, name-only Fraunces wordmark with optical cuts and motion | Some text-only sections feel plain; the warm paper + orange palette is a common look |
 | Useful interaction and motion | 10 | 9 | Guide + workflow demo with full fallbacks; restrained stamps; reduced-motion support | Brand-preview interaction not built |
 | Mobile usability and accessibility | 15 | 13 | 0 axe violations, Lighthouse a11y 100, 320–1440 px and 200% text pass, keyboard tests | No manual screen-reader or real-device testing |
 | Performance and technical SEO | 10 | 9 | Perf 99–100, CLS ≤ 0.013; SEO 100 on indexing build; sitemap, canonicals, JSON-LD | Lab data only; no domain yet |
