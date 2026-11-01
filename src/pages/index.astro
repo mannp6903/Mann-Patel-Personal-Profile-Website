@@ -1,23 +1,13 @@
 ---
-import { getCollection } from 'astro:content';
 import BaseLayout from '../layouts/BaseLayout.astro';
-import Ticket from '../components/Ticket.astro';
+import Hero from '../components/home/Hero.astro';
+import Intro from '../components/home/Intro.astro';
+import WorkList from '../components/home/WorkList.astro';
+import Rails from '../components/home/Rails.astro';
 import ServiceOverview from '../components/ServiceOverview.astro';
-import WorkCard from '../components/WorkCard.astro';
 import Guide from '../components/Guide.astro';
-import WorkflowDemo from '../components/WorkflowDemo.astro';
-import ProcessSteps from '../components/ProcessSteps.astro';
-import CtaBand from '../components/CtaBand.astro';
-import Marquee from '../components/Marquee.astro';
-import Logo from '../components/Logo.astro';
-import { Image } from 'astro:assets';
-import { profile, businesses } from '../data/site';
 import { personJsonLd } from '../lib/seo';
 import { absoluteUrl } from '../lib/mode';
-
-const work = (await getCollection('work')).sort((a, b) => a.data.order - b.data.order);
-const nest = businesses[0];
-
 
 const jsonLd = {
   '@context': 'https://schema.org',
@@ -30,81 +20,21 @@ const jsonLd = {
 <BaseLayout
   title="Home"
   fullTitle="Mann Patel · Websites, Google visibility & follow-up for Toronto small businesses"
-  description="I help small businesses in Toronto look professional, get found and follow up: websites, Google Search Console and Business Profile support, professional email, enquiry follow-up and social content."
+  description="Websites and simpler systems for small businesses in Toronto and the GTA: websites, Google visibility, professional email, enquiry follow-up and content, from Mann Patel."
   jsonLd={jsonLd}
+  overlayHeader
 >
-  <!-- ── Hero ─────────────────────────────────────────── -->
-  <section class="hero">
-    <div class="container hero-grid">
-      <div class="hero-copy">
-        <p class="label eyebrow">
-          {profile.name} · {profile.location} &amp; the GTA
-        </p>
-        <h1 class="hero-title">Websites and simpler systems for <span class="hl">small businesses</span>.</h1>
-        <p class="lead intro">{profile.intro}</p>
-        <div class="btn-row">
-          <a class="btn" href="/contact/">Start a project <span class="arrow" aria-hidden="true">→</span></a>
-          <a class="btn btn--secondary" href="#work">See my work</a>
-        </div>
-        <p class="guide-link">
-          Not sure where to start? <a class="link-accent" href="#guide">Answer three quick questions</a>
-        </p>
-        <p class="cleaning small">
-          Looking for home cleaning? <a href={nest.url} rel="noopener">Visit {nest.name}&nbsp;↗</a>
-        </p>
-      </div>
-      <div class="hero-visual">
-        {
-          profile.portrait && (
-            <figure class="portrait-card">
-              <Image
-                src={profile.portrait.src}
-                alt={profile.portrait.alt}
-                widths={[320, 480, 640, 860]}
-                sizes="(min-width: 64em) 27rem, 78vw"
-                width={860}
-                height={1032}
-                loading="eager"
-                fetchpriority="high"
-                class="portrait-img"
-              />
-              <figcaption class="portrait-tag">Mann Patel</figcaption>
-            </figure>
-          )
-        }
-        <div class="ticket-slot">
-          <Ticket />
-        </div>
-      </div>
-    </div>
-  </section>
-
-  <Marquee />
-
-  <!-- ── Evidence ─────────────────────────────────────── -->
-  <section class="section section--alt" id="work" aria-labelledby="work-title">
-    <div class="container">
-      <div class="section-head">
-        <p class="label">Selected work</p>
-        <h2 id="work-title">Real work, clearly labelled.</h2>
-        <p class="muted measure">
-          The business I’m launching and a client website I’m building now. Every card says which is which, and no
-          results are invented.
-        </p>
-      </div>
-      <div class="work-grid">
-        {work.map((r) => <WorkCard entry={r} headingLevel="h3" large />)}
-      </div>
-      <p class="more-link"><a class="link-accent" href="/work/">All work and how it’s labelled →</a></p>
-    </div>
-  </section>
+  <Hero />
+  <Intro />
+  <WorkList />
+  <Rails />
 
   <!-- ── What I do ────────────────────────────────────── -->
-  <section class="section section--tight" aria-labelledby="what-title">
+  <section class="section section--alt" aria-labelledby="what-title">
     <div class="container">
       <div class="section-head">
         <p class="label">What I do</p>
-        <h2 id="what-title">Three kinds of help, one goal: a business that’s easy to choose.</h2>
+        <h2 id="what-title" class="big">Three kinds of help, one goal: a business that’s easy to choose.</h2>
         <p class="muted measure">
           Every service has written deliverables, a list of what I need from you, and what isn’t included. <a
             class="link-accent"
@@ -121,7 +51,7 @@ const jsonLd = {
     <div class="container guide-grid">
       <div class="section-head sticky">
         <p class="label">Not sure where to start?</p>
-        <h2 id="guide-title">What does your business need?</h2>
+        <h2 id="guide-title" class="big">What does your business need?</h2>
         <p class="muted">
           Three quick questions. You’ll get a suggested starting point with the reasons, and you can pass it straight
           into a brief.
@@ -130,177 +60,16 @@ const jsonLd = {
       <Guide />
     </div>
   </section>
-
-  <!-- ── Workflow demo ────────────────────────────────── -->
-  <section class="section on-night" id="follow-up" aria-labelledby="demo-title">
-    <div class="container">
-      <div class="section-head">
-        <p class="label">What “follow up” looks like</p>
-        <h2 id="demo-title">From enquiry to answer, without anything slipping through.</h2>
-        <p class="muted measure">
-          This is the kind of simple routine I set up for owners: an honest acknowledgement, one place to see every
-          enquiry, and a reminder before anyone is forgotten.
-        </p>
-      </div>
-      <WorkflowDemo />
-    </div>
-  </section>
-
-  <!-- ── Process ──────────────────────────────────────── -->
-  <section class="section" aria-labelledby="process-title">
-    <div class="container">
-      <div class="section-head">
-        <p class="label">How a project works</p>
-        <h2 id="process-title">Written down, built with you, handed over.</h2>
-      </div>
-      <ProcessSteps />
-    </div>
-  </section>
-
-  <!-- ── Founder note ─────────────────────────────────── -->
-  <section class="section section--alt" aria-labelledby="founder-title">
-    <div class="container founder">
-      <div class="stamp-mark" aria-hidden="true" data-reveal><Logo variant="stacked" motion="reveal" /></div>
-      <div class="stack" style="--stack: var(--space-m)">
-        <p class="label">Why me</p>
-        <h2 id="founder-title">I’m building a small business too.</h2>
-        <p class="lead">
-          I built the website for {nest.name}, my home-cleaning business in {nest.area}, from scratch. It opens for
-          bookings in summer 2027. Setting it up meant doing what my clients need: a clear offer, a website people
-          understand on their phone, booking requests, email, and a
-          habit of answering every enquiry.
-        </p>
-        <p class="btn-row">
-          <a class="btn btn--secondary" href="/about/">More about me</a>
-          <a class="link-accent" href="/work/nest-and-rest-cleaning/">Read the Nest &amp; Rest case study →</a>
-        </p>
-      </div>
-    </div>
-  </section>
-
-  <CtaBand />
 </BaseLayout>
 
 <style>
-  .hero {
-    overflow-x: clip;
-    padding-block: clamp(2.5rem, 1rem + 6vw, 6rem) clamp(3rem, 1rem + 6vw, 6rem);
+  .big {
+    font-size: clamp(2rem, 1.4rem + 2.4vw, 3.5rem);
+    font-weight: 600;
+    letter-spacing: -0.035em;
+    line-height: 1.05;
+    max-width: 18ch;
   }
-  .hero-grid {
-    display: grid;
-    gap: var(--space-2xl);
-    align-items: center;
-  }
-  @media (min-width: 64em) {
-    .hero-grid {
-      grid-template-columns: minmax(0, 1.55fr) minmax(0, 1fr);
-      gap: var(--space-xl);
-    }
-  }
-  .hero-copy {
-    display: grid;
-    gap: var(--space-m);
-  }
-  .eyebrow {
-    display: flex;
-    flex-wrap: wrap;
-    gap: var(--space-2xs) var(--space-s);
-    align-items: center;
-  }
-  /* Hero: readable at once (36 px on a 360 px phone, 72 px on desktop). Only the underline moves. */
-  h1 {
-    font-size: clamp(2.25rem, 1.4rem + 3.6vw, 4.5rem);
-    line-height: 1.04;
-    letter-spacing: -0.03em;
-    max-width: 17ch;
-    text-wrap: balance;
-  }
-  .hero-title .hl {
-    background-image: linear-gradient(var(--accent), var(--accent));
-    background-repeat: no-repeat;
-    background-size: 100% 0.11em;
-    background-position: 0 94%;
-    -webkit-box-decoration-break: clone;
-    box-decoration-break: clone;
-  }
-  :global(.js-motion) .hero-title .hl {
-    animation: underline-draw 560ms cubic-bezier(0.65, 0, 0.35, 1) 180ms backwards;
-  }
-  @keyframes underline-draw {
-    from {
-      background-size: 0% 0.11em;
-    }
-  }
-  .intro {
-    max-width: 46ch;
-  }
-  .guide-link {
-    color: var(--ink-2);
-  }
-  .cleaning {
-    color: var(--ink-2);
-  }
-  .hero-visual {
-    display: grid;
-    justify-items: center;
-    position: relative;
-  }
-  .portrait-card {
-    position: relative;
-    width: min(78%, 27rem);
-    justify-self: end;
-    margin: 0;
-    padding: 0.6rem 0.6rem 2.6rem;
-    background: var(--card);
-    border-radius: var(--radius-m);
-    box-shadow: var(--shadow-ticket);
-    transform: rotate(1.6deg);
-  }
-  .portrait-img {
-    width: 100%;
-    height: auto;
-    aspect-ratio: 5 / 6;
-    object-fit: cover;
-    object-position: 50% 30%;
-    border-radius: 8px;
-  }
-  .portrait-tag {
-    position: absolute;
-    left: 0.9rem;
-    bottom: 0.7rem;
-    font-family: var(--font-mono);
-    font-size: var(--step--1);
-    font-weight: 700;
-    letter-spacing: 0.06em;
-    text-transform: uppercase;
-    color: var(--ink-2);
-  }
-  .ticket-slot {
-    position: relative;
-    z-index: 1;
-    width: min(88%, 24rem);
-    justify-self: start;
-    margin-top: -24%;
-  }
-  .ticket-slot :global(.ticket) {
-    width: 100%;
-  }
-  @media (min-width: 64em) {
-    .ticket-slot {
-      margin-top: -34%;
-      margin-left: -6%;
-    }
-  }
-
-  .work-grid {
-    display: grid;
-    gap: var(--space-l);
-    grid-template-columns: minmax(0, 1fr);
-  }
-  .more-link {
-    margin-top: var(--space-l);
-  }
-
   .guide-grid {
     display: grid;
     gap: var(--space-xl);
@@ -314,45 +83,5 @@ const jsonLd = {
       position: sticky;
       top: 6rem;
     }
-  }
-
-  .founder {
-    display: grid;
-    gap: var(--space-xl);
-    align-items: center;
-  }
-  @media (min-width: 56em) {
-    .founder {
-      grid-template-columns: auto 1fr;
-      gap: var(--space-2xl);
-    }
-  }
-  .founder .lead {
-    max-width: 52ch;
-  }
-  .stamp-mark :global(.logo) {
-    width: 100%;
-    height: auto;
-  }
-  .stamp-mark {
-    display: grid;
-    place-items: center;
-    width: clamp(9rem, 6rem + 10vw, 13rem);
-    aspect-ratio: 1;
-    padding: 14%;
-    border: 6px double var(--accent);
-    border-radius: var(--radius-l);
-    color: var(--ink);
-    transform: rotate(-4deg);
-  }
-  /* Motion: the stamp lands with a small thud when it scrolls into view. */
-  :global(.js-motion) .stamp-mark[data-reveal] {
-    transform: rotate(-13deg) scale(1.22);
-    transition:
-      opacity 260ms var(--ease-out),
-      transform 520ms var(--ease-stamp);
-  }
-  :global(.js-motion) .stamp-mark[data-reveal]:global(.is-revealed) {
-    transform: rotate(-4deg);
   }
 </style>

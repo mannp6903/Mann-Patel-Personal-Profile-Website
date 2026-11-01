@@ -2,6 +2,7 @@
 import BaseLayout from '../layouts/BaseLayout.astro';
 import ServiceOverview from '../components/ServiceOverview.astro';
 import ProcessSteps from '../components/ProcessSteps.astro';
+import WorkflowDemo from '../components/WorkflowDemo.astro';
 import CtaBand from '../components/CtaBand.astro';
 import Confirm from '../components/Confirm.astro';
 import { groups, servicesInGroup } from '../data/services';
@@ -166,6 +167,20 @@ const faqLd = {
       </section>
     ))
   }
+
+  <section class="section on-night" id="follow-up" aria-labelledby="demo-title">
+    <div class="container">
+      <div class="section-head">
+        <p class="label">What “follow up” looks like</p>
+        <h2 id="demo-title">From enquiry to answer, without anything slipping through.</h2>
+        <p class="muted measure">
+          This is the kind of simple routine I set up for owners: an honest acknowledgement, one place to see every
+          enquiry, and a reminder before anyone is forgotten.
+        </p>
+      </div>
+      <WorkflowDemo />
+    </div>
+  </section>
 
   <section class="section" aria-labelledby="process-title">
     <div class="container">

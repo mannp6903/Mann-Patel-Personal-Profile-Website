@@ -1,123 +1,222 @@
 ---
+/**
+ * Footer: a closing invitation ("Let's work together") with a magnetic round button,
+ * the email address (copyable), live Toronto time, and the small print.
+ */
+import { Image } from 'astro:assets';
 import { profile, businesses, nav } from '../data/site';
-import Logo from './Logo.astro';
 import SocialLinks from './SocialLinks.astro';
+import cutout from '../assets/mann-patel-portrait-cutout.png';
+
 const year = new Date().getFullYear();
+const email = profile.contact.email;
+const nest = businesses[0];
 ---
 
 <footer class="site-footer on-night">
-  <div class="container grid">
-    <div class="brand">
-      <p class="label">{profile.name}</p>
-      <p class="muted">{profile.descriptor}.</p>
-      {profile.contact.email && (
+  <div class="container">
+    <div class="ft-head">
+      <h2 class="ft-title">
+        <span class="ft-avatar" aria-hidden="true">
+          <Image src={cutout} alt="" width={160} height={160} loading="lazy" decoding="async" />
+        </span>
+        <span>Let’s work<br />together</span>
+      </h2>
+    </div>
+
+    <div class="ft-line">
+      <span class="ft-rule" aria-hidden="true"></span>
+      <a class="round-btn round-btn--accent" href="/contact/" data-magnetic>
+        <span class="rb-label" data-magnetic-label>Get in touch</span>
+      </a>
+    </div>
+
+    <div class="ft-pills">
+      {
+        email && (
+          <>
+            <a class="pill" href={`mailto:${email}`} data-contact="email" data-magnetic>
+              <span data-magnetic-label>{email}</span>
+            </a>
+            <button class="pill pill--quiet" type="button" data-copy-email={email}>
+              Copy email
+            </button>
+            <span class="small ft-copied" role="status" data-copy-email-status></span>
+          </>
+        )
+      }
+    </div>
+
+    <div class="ft-bottom">
+      <div>
+        <p class="ft-label">Version</p>
+        <p>{year} © {profile.name}</p>
+      </div>
+      <div>
+        <p class="ft-label">Local time</p>
+        <p data-local-time>Toronto</p>
+      </div>
+      <nav aria-label="Footer">
+        <p class="ft-label">Pages</p>
+        <ul role="list">
+          <li><a href="/">Home</a></li>
+          {nav.map((item) => <li><a href={item.href}>{item.label}</a></li>)}
+          <li><a href="/contact/">Contact</a></li>
+          <li><a href="/privacy/">Privacy</a></li>
+        </ul>
+      </nav>
+      <div>
+        <p class="ft-label">Socials</p>
+        <SocialLinks />
+      </div>
+      <div>
+        <p class="ft-label">My business</p>
         <p>
-          <a class="email" href={`mailto:${profile.contact.email}`} data-contact="email">{profile.contact.email}</a>
+          <a href={nest.url} rel="noopener" data-track="nest_and_rest">{nest.name}&nbsp;<span aria-hidden="true">↗</span></a>
         </p>
-      )}
-      <SocialLinks />
+        <p class="small muted">Home cleaning · bookings open summer 2027</p>
+      </div>
     </div>
-
-    <nav aria-label="Footer">
-      <p class="label">Site</p>
-      <ul role="list">
-        <li><a href="/">Home</a></li>
-        {nav.map((item) => <li><a href={item.href}>{item.label}</a></li>)}
-        <li><a href="/contact/">Start a project</a></li>
-        <li><a href="/privacy/">Privacy</a></li>
-      </ul>
-    </nav>
-
-    <div>
-      <p class="label">My businesses</p>
-      <ul role="list">
-        {
-          businesses.map((b) => (
-            <li>
-              <a href={b.url} rel="noopener" data-track="nest_and_rest">
-                {b.name}&nbsp;<span aria-hidden="true">↗</span>
-              </a>
-              <span class="muted small block">Home cleaning · {b.area}</span>
-            </li>
-          ))
-        }
-      </ul>
-    </div>
-  </div>
-  <div class="container signature">
-    <a href="/" aria-label="Mann Patel, home"><Logo master="display" motion="reveal" /></a>
-  </div>
-  <div class="container base">
-    <p class="small muted">© {year} {profile.name}. All rights reserved.</p>
   </div>
 </footer>
 
+<script>
+  // Live local time in Toronto, e.g. "9:41 PM EDT".
+  const out = document.querySelector<HTMLElement>('[data-local-time]');
+  if (out) {
+    const fmt = new Intl.DateTimeFormat('en-US', {
+      timeZone: 'America/Toronto',
+      hour: 'numeric',
+      minute: '2-digit',
+      timeZoneName: 'short',
+    });
+    const tick = () => (out.textContent = `${fmt.format(new Date())} · Toronto`);
+    tick();
+    window.setInterval(tick, 30_000);
+  }
+
+  const copy = document.querySelector<HTMLButtonElement>('[data-copy-email]');
+  const status = document.querySelector<HTMLElement>('[data-copy-email-status]');
+  copy?.addEventListener('click', async () => {
+    try {
+      await navigator.clipboard.writeText(copy.dataset.copyEmail ?? '');
+      if (status) status.textContent = 'Copied';
+    } catch {
+      if (status) status.textContent = copy.dataset.copyEmail ?? '';
+    }
+  });
+</script>
+
 <style>
   .site-footer {
-    padding-block: var(--space-2xl) var(--space-l);
+    padding-block: clamp(4rem, 3rem + 5vw, 8rem) var(--space-l);
+    overflow: hidden;
   }
-  .grid {
-    display: grid;
-    gap: var(--space-xl);
-    grid-template-columns: minmax(0, 1fr);
-  }
-  @media (min-width: 48em) {
-    .grid {
-      grid-template-columns: 2fr 1fr 1.4fr;
-    }
-  }
-  /* Signature: the wordmark set across the full width of the page. */
-  .signature {
-    margin-top: var(--space-2xl);
-  }
-  .signature a {
-    display: block;
-    width: 100%;
+  .ft-title {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    gap: var(--space-s) var(--space-m);
+    font-size: clamp(2.75rem, 1.6rem + 5.2vw, 6.5rem);
+    font-weight: 600;
+    line-height: 1;
+    letter-spacing: -0.04em;
     color: var(--night-ink);
-    --logo-dot: var(--accent-on-night);
-    border-radius: var(--radius-s);
   }
-  .signature a:hover {
-    text-decoration: none;
+  .ft-avatar {
+    display: inline-block;
+    width: 0.95em;
+    height: 0.95em;
+    border-radius: 50%;
+    overflow: hidden;
+    background: var(--hero-bg, #8e8a82);
+    flex: none;
   }
-  .signature :global(.logo) {
+  .ft-avatar :global(img) {
     width: 100%;
-    height: auto;
+    height: 100%;
+    object-fit: cover;
+    object-position: 50% 20%;
+    transform: scale(1.35) translateY(8%);
   }
-  .brand {
-    display: grid;
+  .ft-line {
+    position: relative;
+    display: flex;
+    align-items: center;
+    margin-block: clamp(2rem, 1rem + 4vw, 4.5rem);
+  }
+  .ft-rule {
+    flex: 1;
+    height: 1px;
+    background: var(--night-line);
+  }
+  .ft-line .round-btn {
+    position: absolute;
+    right: clamp(0rem, 8vw, 8rem);
+  }
+  .ft-pills {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
     gap: var(--space-s);
-    align-content: start;
+    margin-top: clamp(4.5rem, 3rem + 4vw, 7rem);
   }
-  .email {
-    font-weight: 700;
-    overflow-wrap: anywhere;
-  }
-  .brand p.muted {
-    max-width: 30ch;
-  }
-  ul {
-    list-style: none;
-    padding: 0;
-    margin-top: var(--space-s);
-    display: grid;
-    gap: var(--space-2xs);
-  }
-  a {
+  .pill {
     display: inline-flex;
     align-items: center;
-    min-height: 2.25rem;
+    min-height: 3.75rem;
+    padding: 0 var(--space-l);
+    border: 1px solid var(--night-line);
+    border-radius: var(--radius-pill);
+    background: transparent;
+    color: var(--night-ink);
+    font: inherit;
+    font-weight: 600;
     text-decoration: none;
+    cursor: pointer;
+    overflow-wrap: anywhere;
+    transition: border-color var(--dur-base) var(--ease-out), background-color var(--dur-base) var(--ease-out);
   }
-  a:hover {
-    text-decoration: underline;
+  .pill:hover {
+    border-color: var(--night-ink);
+    background: var(--night-2);
   }
-  .block {
-    display: block;
+  .pill--quiet {
+    min-height: var(--tap);
+    padding: 0 var(--space-m);
+    font-size: var(--step--1);
+    color: var(--night-ink-2);
   }
-  .base {
-    margin-top: var(--space-l);
+  .ft-copied {
+    color: var(--night-ink-2);
+  }
+  .ft-bottom {
+    display: grid;
+    gap: var(--space-l);
+    margin-top: clamp(3rem, 2rem + 4vw, 6rem);
     padding-top: var(--space-m);
     border-top: 1px solid var(--night-line);
+    grid-template-columns: repeat(auto-fit, minmax(min(100%, 11rem), 1fr));
+    font-size: var(--step--1);
+  }
+  .ft-label {
+    margin-bottom: var(--space-2xs);
+    font-family: var(--font-mono);
+    letter-spacing: var(--tracking-label);
+    text-transform: uppercase;
+    color: var(--night-ink-2);
+  }
+  .ft-bottom ul {
+    list-style: none;
+    padding: 0;
+    display: grid;
+    gap: var(--space-3xs);
+  }
+  .ft-bottom a {
+    color: var(--night-ink);
+    text-decoration: none;
+  }
+  .ft-bottom a:hover {
+    text-decoration: underline;
   }
 </style>

@@ -108,20 +108,30 @@ test.describe('layout', () => {
 });
 
 test.describe('navigation', () => {
-  test('mobile menu opens, closes with Escape and returns focus', async ({ page }) => {
+  test('menu panel opens, closes with Escape and returns focus', async ({ page }) => {
     await page.setViewportSize({ width: 390, height: 800 });
     await page.goto('/');
     const toggle = page.locator('[data-menu-toggle]');
+    const panel = page.locator('[data-menu-panel]');
     await expect(page.locator('#site-nav')).toBeHidden();
     await toggle.click();
-    await expect(toggle).toHaveAttribute('aria-expanded', 'true');
-    await expect(page.locator('#site-nav')).toBeVisible();
+    await expect(panel).toBeVisible();
     await page.keyboard.press('Escape');
-    await expect(toggle).toHaveAttribute('aria-expanded', 'false');
+    await expect(panel).toBeHidden();
     await expect(toggle).toBeFocused();
     await toggle.click();
-    await page.locator('#site-nav a', { hasText: 'Services' }).click();
+    await panel.getByRole('link', { name: 'Services' }).click();
     await expect(page).toHaveURL(/\/services\/$/);
+  });
+
+  test('a round menu button appears after scrolling past the header', async ({ page }) => {
+    await page.goto('/services/');
+    const fab = page.locator('[data-menu-fab]');
+    await expect(fab).toHaveAttribute('aria-hidden', 'true');
+    await page.mouse.wheel(0, 1200);
+    await expect(fab).toHaveAttribute('aria-hidden', 'false');
+    await fab.click();
+    await expect(page.locator('[data-menu-panel]')).toBeVisible();
   });
 
   test('skip link moves focus to main content', async ({ page }) => {
@@ -161,7 +171,7 @@ test.describe('interactions', () => {
   });
 
   test('workflow demo works with the keyboard (ARIA tabs)', async ({ page }) => {
-    await page.goto('/#follow-up');
+    await page.goto('/services/#follow-up');
     const tabs = page.getByRole('tab');
     await expect(tabs).toHaveCount(4);
     await tabs.first().focus();
@@ -179,7 +189,7 @@ test.describe('interactions', () => {
   test('without JavaScript, the demo shows all four steps and the nav is visible', async ({ browser }) => {
     const ctx = await browser.newContext({ javaScriptEnabled: false, viewport: { width: 390, height: 800 } });
     const page = await ctx.newPage();
-    await page.goto('/');
+    await page.goto('/services/');
     await expect(page.locator('.panel')).toHaveCount(4);
     for (const id of ['enquiry', 'ack', 'notify', 'follow']) await expect(page.locator(`#panel-${id}`)).toBeVisible();
     await expect(page.locator('#site-nav')).toBeVisible();
@@ -187,13 +197,14 @@ test.describe('interactions', () => {
     await ctx.close();
   });
 
-  test('reduced motion: no stamp animation and content visible immediately', async ({ browser }) => {
+  test('reduced motion: the hero name stays still and content is visible immediately', async ({ browser }) => {
     const ctx = await browser.newContext({ reducedMotion: 'reduce' });
     const page = await ctx.newPage();
     await page.goto('/');
     expect(await page.evaluate(() => document.documentElement.classList.contains('js-motion'))).toBe(false);
-    const anim = await page.locator('.stamp').first().evaluate((el) => getComputedStyle(el).animationName);
-    expect(anim).toBe('none');
+    await page.waitForTimeout(400);
+    expect(await page.locator('[data-hero-track]').evaluate((el) => (el as HTMLElement).style.transform)).toBe('');
+    await expect(page.locator('[data-hero-pause]')).toBeHidden();
     const opacity = await page.locator('[data-reveal]').first().evaluate((el) => getComputedStyle(el).opacity);
     expect(opacity).toBe('1');
     await ctx.close();
@@ -209,7 +220,7 @@ test.describe('logo', () => {
     await expect(page.locator('.site-header .logo .logo-l')).toHaveCount(9);
     await expect(page.locator('.site-header .logo .logo-stop')).toHaveCount(1);
     const ids = await page.locator('svg[data-logo] linearGradient').evaluateAll((els) => els.map((e) => e.id));
-    expect(ids.length).toBeGreaterThanOrEqual(2);
+    expect(ids.length).toBeGreaterThanOrEqual(1);
     expect(new Set(ids).size).toBe(ids.length);
     expect(await page.evaluate(() => sessionStorage.getItem('mp-logo-intro'))).toBe('1');
     // Second page of the visit: no intro.
@@ -217,20 +228,11 @@ test.describe('logo', () => {
     expect(await page.evaluate(() => document.documentElement.classList.contains('logo-intro'))).toBe(false);
   });
 
-  test('footer signature reveals when scrolled into view', async ({ page }) => {
-    await page.goto('/about/');
-    const sig = page.locator('.signature .logo');
-    await sig.scrollIntoViewIfNeeded();
-    await expect(sig).toHaveClass(/is-played/, { timeout: 4000 });
-    const t = await sig.locator('.logo-l').first().evaluate((el) => getComputedStyle(el).transform);
-    expect(t === 'none' || t === 'matrix(1, 0, 0, 1, 0, 0)').toBe(true);
-  });
-
   test('reduced motion: the logo is static and fully visible', async ({ browser }) => {
     const ctx = await browser.newContext({ reducedMotion: 'reduce' });
     const page = await ctx.newPage();
     await page.goto('/');
-    for (const sel of ['.site-header .logo .logo-l', '.signature .logo .logo-l', '.signature .logo .logo-stop']) {
+    for (const sel of ['.site-header .logo .logo-l', '.site-header .logo .logo-stop']) {
       const el = page.locator(sel).first();
       expect(await el.evaluate((e) => getComputedStyle(e).animationName)).toBe('none');
       expect(await el.evaluate((e) => getComputedStyle(e).transform)).toBe('none');

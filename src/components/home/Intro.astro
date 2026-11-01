@@ -1,0 +1,64 @@
+---
+/** Home intro: one statement, one supporting line, one round button to About. */
+---
+
+<section class="section ix" aria-label="Introduction">
+  <div class="container ix-grid">
+    <p class="ix-statement" data-reveal>
+      Helping Toronto small businesses look professional, get found and follow up. Plain language, a written scope, and
+      everything handed over in your name.
+    </p>
+    <div class="ix-side" data-reveal data-reveal-delay="120">
+      <p>
+        I’m a small business founder myself. I build websites, set up Google visibility, and connect the tools that make
+        sure no enquiry gets missed.
+      </p>
+      <a class="round-btn" href="/about/" data-magnetic>
+        <span class="rb-label" data-magnetic-label>About me</span>
+      </a>
+    </div>
+  </div>
+</section>
+
+<style>
+  .ix {
+    padding-block: clamp(5rem, 3rem + 7vw, 10rem);
+  }
+  .ix-grid {
+    display: grid;
+    gap: var(--space-xl);
+  }
+  @media (min-width: 56em) {
+    .ix-grid {
+      grid-template-columns: minmax(0, 2fr) minmax(0, 1fr);
+      gap: var(--space-2xl);
+      align-items: start;
+    }
+  }
+  .ix-statement {
+    font-family: var(--font-display);
+    font-size: clamp(1.75rem, 1.2rem + 2.2vw, 3.25rem);
+    font-weight: 500;
+    line-height: 1.18;
+    letter-spacing: -0.025em;
+    text-wrap: pretty;
+    max-width: 24ch;
+  }
+  .ix-side {
+    display: grid;
+    gap: var(--space-xl);
+    justify-items: start;
+    color: var(--ink-2);
+    font-size: var(--step-0);
+    max-width: 34ch;
+  }
+  @media (min-width: 56em) {
+    .ix-side {
+      padding-top: var(--space-s);
+    }
+    .ix-side .round-btn {
+      margin-top: var(--space-xl);
+      margin-left: clamp(0rem, 4vw, 4rem);
+    }
+  }
+</style>
