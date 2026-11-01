@@ -8,16 +8,18 @@ import { profile } from '../data/site';
 const email = profile.contact.email;
 
 const groups = [
-  { id: 'A', title: 'Websites and visibility' },
-  { id: 'B', title: 'Email and follow-up' },
-  { id: 'C', title: 'Content and branding' },
+  { id: 'A', title: 'Get found and chosen' },
+  { id: 'B', title: 'Never miss an enquiry' },
+  { id: 'C', title: 'A website that books work' },
+  { id: 'D', title: 'Add-ons: print and social' },
   { id: 'other', title: 'Other' },
 ];
 // The three outcomes plus "Not sure yet" come first, in owners' words.
 const areaHints: Record<string, string> = {
-  'area-found': 'A clear website, and accurate information on Google.',
-  'area-follow-up': 'A professional email address, and no enquiry left waiting.',
-  'area-professional': 'Posts, a logo, cards and flyers that look like one business.',
+  'area-found': 'Correct details on Google and Maps, and more recent, real reviews.',
+  'area-follow-up': 'Missed calls texted back, every enquiry in one list, booking reminders.',
+  'area-website': 'A page for each service and a book-or-quote button on every page.',
+  'area-content': 'Add-on: flyers, business cards, gift-card artwork, posts, Reels and stories.',
   'not-sure': 'Describe the problem and I’ll suggest where to start.',
 };
 const areas = SERVICE_OPTIONS.filter((o) => o.group === 'area' || o.id === 'not-sure');
@@ -111,7 +113,7 @@ const areas = SERVICE_OPTIONS.filter((o) => o.group === 'area' || o.id === 'not-
     <div class="field">
       <label for="f-message">Tell me about your business and what you’d like to change <span class="req" aria-hidden="true">*</span></label>
       <textarea class="textarea" id="f-message" name="message" required minlength={LIMITS.messageMin} maxlength={LIMITS.message} rows="6" aria-describedby="h-message e-message c-message"></textarea>
-      <p class="hint" id="h-message">For example: what you do, where, what isn’t working, and anything you already have (domain, logo, accounts).</p>
+      <p class="hint" id="h-message">For example: what you do, where, what isn’t working, and what you already have (website, Google profile, booking tool).</p>
       <p class="hint counter" id="c-message" data-counter aria-live="polite"></p>
       <p class="error-text" id="e-message" data-error-for="message"></p>
     </div>
@@ -152,7 +154,7 @@ const areas = SERVICE_OPTIONS.filter((o) => o.group === 'area' || o.id === 'not-
     {PUBLIC_TURNSTILE_SITE_KEY && <div class="cf-turnstile" data-sitekey={PUBLIC_TURNSTILE_SITE_KEY} />}
 
     <p class="small muted privacy">
-      I use these details only to reply to this enquiry. Nothing you type here is sent to analytics. <a href="/privacy/">How your information is handled</a>.
+      I use these details only to reply to this enquiry. Nothing you type here is sent to analytics. Read the <a href="/privacy/">Privacy Policy</a> and <a href="/terms/">Terms of Use</a>.
     </p>
 
     <div class="submit-row">

@@ -35,7 +35,18 @@ check(/^https:\/\/[^/]+$/.test(site) && !/example\.(com|ca|org)|localhost/.test(
 check(env.SITE_INDEXING === 'true', 'SITE_INDEXING=true (search engines allowed)', 'SITE_INDEXING is not "true": the site will be live but hidden from search engines', 'warning');
 
 const delivery = runtime.ENQUIRY_DELIVERY;
-check(delivery === 'resend' || delivery === 'webhook', `ENQUIRY_DELIVERY=${delivery}`, 'ENQUIRY_DELIVERY must be "resend" or "webhook" in production (the form would otherwise say it is not connected)');
+check(['cloudflare', 'resend', 'webhook'].includes(delivery), `ENQUIRY_DELIVERY=${delivery}`, 'ENQUIRY_DELIVERY must be "cloudflare", "resend" or "webhook" in production (the form would otherwise say it is not connected)');
+if (delivery === 'cloudflare') {
+  let binding = false;
+  try {
+    binding = /"send_email"\s*:\s*\[\s*\{\s*"name"\s*:\s*"ENQUIRY_EMAIL"/.test(await readFile('wrangler.jsonc', 'utf8'));
+  } catch {
+    /* checked below */
+  }
+  check(binding, 'send_email binding ENQUIRY_EMAIL in wrangler.jsonc', 'wrangler.jsonc needs "send_email": [{ "name": "ENQUIRY_EMAIL" }]');
+  check(/@mannpatel\.me>?$/.test(runtime.ENQUIRY_FROM_EMAIL || ''), 'ENQUIRY_FROM_EMAIL is on mannpatel.me', 'ENQUIRY_FROM_EMAIL must be an address on mannpatel.me (Cloudflare Email Routing domain)');
+  check(/@/.test(runtime.ENQUIRY_TO_EMAIL || ''), 'ENQUIRY_TO_EMAIL set', `ENQUIRY_TO_EMAIL is missing: add your verified Email Routing destination address${where}`, secretLevel);
+}
 if (delivery === 'resend') {
   check(Boolean(runtime.RESEND_API_KEY), 'RESEND_API_KEY set', `RESEND_API_KEY is missing${where}`, secretLevel);
   check(/@/.test(runtime.ENQUIRY_TO_EMAIL || ''), 'ENQUIRY_TO_EMAIL set', `ENQUIRY_TO_EMAIL is missing${where}`, secretLevel);
@@ -45,7 +56,12 @@ if (delivery === 'webhook' || runtime.ENQUIRY_WEBHOOK_URL) {
   check(/^https:\/\//.test(runtime.ENQUIRY_WEBHOOK_URL || ''), 'ENQUIRY_WEBHOOK_URL is https', `ENQUIRY_WEBHOOK_URL must be an https URL${where}`, secretLevel);
   check((runtime.ENQUIRY_WEBHOOK_SECRET || '').length >= 24, 'ENQUIRY_WEBHOOK_SECRET set', 'ENQUIRY_WEBHOOK_SECRET should be a long random string', 'warning');
 }
-check((runtime.FORM_TOKEN_SECRET || '').length >= 32, 'FORM_TOKEN_SECRET set', `FORM_TOKEN_SECRET must be a random string of at least 32 characters${where}`, secretLevel);
+check(
+  (runtime.FORM_TOKEN_SECRET || '').length >= 32,
+  'FORM_TOKEN_SECRET set',
+  'FORM_TOKEN_SECRET not set: each build uses its own random secret instead (fine; set one to keep tokens valid across deploys)',
+  'warning',
+);
 if (env.PUBLIC_TURNSTILE_SITE_KEY || env.TURNSTILE_SECRET_KEY) {
   check(Boolean(env.PUBLIC_TURNSTILE_SITE_KEY && env.TURNSTILE_SECRET_KEY), 'Turnstile keys paired', 'Set both PUBLIC_TURNSTILE_SITE_KEY and TURNSTILE_SECRET_KEY, or neither');
 }

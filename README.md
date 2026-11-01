@@ -4,7 +4,7 @@ Personal profile and digital-services site for Mann Patel (production domain: **
 
 Built with **Astro 7** (static pages + one server endpoint for the project-brief form), vanilla TypeScript islands, and self-hosted OFL fonts. No CMS, no client framework, no tracking unless configured.
 
-> **Status: content confirmed (31 Oct 2026).** All "To confirm" items are answered. Production deploys still run the pre-launch check, and the form's secrets (Resend, form token) are added in Cloudflare. See [`docs/OWNER-INPUTS.md`](docs/OWNER-INPUTS.md).
+> **Status: content confirmed (31 Oct 2026).** All "To confirm" items are answered. Production deploys still run the pre-launch check, and the form's inbox address (`ENQUIRY_TO_EMAIL`) and phone number (`PUBLIC_CONTACT_PHONE`) are added in Cloudflare. See [`docs/OWNER-INPUTS.md`](docs/OWNER-INPUTS.md).
 
 ## Quick start
 
@@ -59,7 +59,7 @@ Setup steps, monitoring, deploy, rollback and recurring costs: [`docs/05-launch-
 
 ## Deploy (summary)
 
-Cloudflare Workers, connected to GitHub: build command `npm run build:cloudflare`, deploy command `npx wrangler deploy`, project name `mann-patel-website`. `wrangler.jsonc` connects mannpatel.me and www.mannpatel.me. Form secrets are added in the Cloudflare dashboard. Full steps, secrets and rollback: [`docs/05-launch-and-integrations.md`](docs/05-launch-and-integrations.md) §4.
+Cloudflare Workers, connected to GitHub: build command `npm run build:cloudflare`, deploy command `npx wrangler deploy`, project name `mann-patel-website`. `wrangler.jsonc` connects mannpatel.me and www.mannpatel.me. The form emails briefs through Cloudflare Email (Email Routing + Secret `ENQUIRY_TO_EMAIL`); the phone number for the Call/WhatsApp/Text buttons is the build variable `PUBLIC_CONTACT_PHONE`. Full steps, secrets and rollback: [`docs/05-launch-and-integrations.md`](docs/05-launch-and-integrations.md) §4.
 
 ## Documentation
 
@@ -75,6 +75,8 @@ Cloudflare Workers, connected to GitHub: build command `npm run build:cloudflare
 | [`docs/07-audit-round-2.md`](docs/07-audit-round-2.md) | Audit round 2 (1 Nov 2026): contact-form diagnosis, changes, verification, before/after score, SEO plan, handover |
 | [`docs/08-studio-redesign.md`](docs/08-studio-redesign.md) | Studio-style redesign: hero, menu, work list, footer, motion and checks |
 | [`docs/09-audit-round-3.md`](docs/09-audit-round-3.md) | Audit round 3: contact warning diagnosed, hero actions, touch work rows, package comparison |
+| [`docs/10-round-4-original-design.md`](docs/10-round-4-original-design.md) | Round 4: original "front desk" design, Cloudflare Email form delivery, info@ + Call/WhatsApp/Text, zero overlaps, scorecard |
+| [`docs/11-service-areas.md`](docs/11-service-areas.md) | Service areas rebuilt from research: A Get found and chosen, B Never miss an enquiry, C A website that books work |
 | [`docs/OWNER-INPUTS.md`](docs/OWNER-INPUTS.md) | Questions and owner actions |
 
 ## Licences

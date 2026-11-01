@@ -11,6 +11,7 @@ const PAGES = [
   '/about/',
   '/contact/',
   '/privacy/',
+  '/terms/',
   '/contact/received/',
 ];
 
@@ -124,14 +125,27 @@ test.describe('navigation', () => {
     await expect(page).toHaveURL(/\/services\/$/);
   });
 
-  test('a round menu button appears after scrolling past the header', async ({ page }) => {
+  test('the header stays on screen while scrolling, and nothing floats over the footer', async ({ page }) => {
     await page.goto('/services/');
-    const fab = page.locator('[data-menu-fab]');
-    await expect(fab).toHaveAttribute('aria-hidden', 'true');
-    await page.mouse.wheel(0, 1200);
-    await expect(fab).toHaveAttribute('aria-hidden', 'false');
-    await fab.click();
-    await expect(page.locator('[data-menu-panel]')).toBeVisible();
+    await expect(page.locator('[data-menu-fab]')).toHaveCount(0);
+    await page.evaluate(() => window.scrollTo(0, document.body.scrollHeight));
+    const header = page.locator('[data-header]');
+    await expect(header).toHaveClass(/is-scrolled/);
+    expect((await header.boundingBox())!.y).toBe(0);
+    // Every footer control below the header is the top-most element at its own centre: nothing
+    // floats over it. (Controls that have simply scrolled up under the sticky header don't count.)
+    const covered = await page.evaluate(() =>
+      [...document.querySelectorAll<HTMLElement>('footer a, footer button')]
+        .filter((el) => {
+          const r = el.getBoundingClientRect();
+          const headerBottom = document.querySelector('[data-header]')!.getBoundingClientRect().bottom;
+          if (r.width < 2 || r.top < headerBottom || r.top > innerHeight) return false;
+          const hit = document.elementFromPoint(r.left + r.width / 2, r.top + r.height / 2);
+          return !(hit && (el === hit || el.contains(hit)));
+        })
+        .map((el) => el.textContent?.trim()),
+    );
+    expect(covered).toEqual([]);
   });
 
   test('skip link moves focus to main content', async ({ page }) => {
@@ -147,7 +161,7 @@ test.describe('interactions', () => {
   test('guide recommends a starting point and pre-fills the brief', async ({ page }) => {
     await page.goto('/#guide');
     await page.getByLabel('Just starting, or about to launch').check();
-    await page.getByLabel('Not missing or delaying enquiries').check();
+    await page.getByLabel('Not missing calls, messages or enquiries').check();
     await page.getByLabel('No', { exact: true }).check();
     await page.getByRole('button', { name: 'Show my starting point' }).click();
     const result = page.locator('[data-guide-result]');
@@ -160,7 +174,7 @@ test.describe('interactions', () => {
     await expect(page).toHaveURL(/\/contact\/\?package=launch/);
     await expect(page.locator('#f-package')).toHaveValue('launch');
     await expect(page.locator('input[name="services"][value="websites"]')).toBeChecked();
-    await expect(page.locator('input[name="services"][value="business-email"]')).toBeChecked();
+    await expect(page.locator('input[name="services"][value="missed-calls"]')).toBeChecked();
   });
 
   test('guide asks for missing answers instead of guessing', async ({ page }) => {
@@ -197,16 +211,31 @@ test.describe('interactions', () => {
     await ctx.close();
   });
 
-  test('reduced motion: the hero name stays still and content is visible immediately', async ({ browser }) => {
+  test('reduced motion: the hero ticket is complete and still, and content is visible immediately', async ({ browser }) => {
     const ctx = await browser.newContext({ reducedMotion: 'reduce' });
     const page = await ctx.newPage();
     await page.goto('/');
     expect(await page.evaluate(() => document.documentElement.classList.contains('js-motion'))).toBe(false);
-    await page.waitForTimeout(400);
-    expect(await page.locator('[data-hero-track]').evaluate((el) => (el as HTMLElement).style.transform)).toBe('');
-    await expect(page.locator('[data-hero-pause]')).toBeHidden();
+    const ticket = page.locator('[data-ticket]');
+    await expect(ticket).not.toHaveClass(/is-live/);
+    await expect(ticket.locator('.ht-steps li')).toHaveCount(4);
+    for (const li of await ticket.locator('.ht-steps li').all()) expect(await li.evaluate((el) => getComputedStyle(el).opacity)).toBe('1');
+    await expect(page.locator('[data-ticket-replay]')).toBeHidden();
     const opacity = await page.locator('[data-reveal]').first().evaluate((el) => getComputedStyle(el).opacity);
     expect(opacity).toBe('1');
+    await ctx.close();
+  });
+
+  test('the sample enquiry stamps itself through four steps and can be replayed', async ({ browser }) => {
+    const ctx = await browser.newContext({ reducedMotion: 'no-preference' });
+    const page = await ctx.newPage();
+    await page.goto('/');
+    const ticket = page.locator('[data-ticket]');
+    await expect(ticket).toHaveClass(/is-complete/, { timeout: 6000 });
+    await expect(ticket.locator('li.is-done')).toHaveCount(4);
+    await page.getByRole('button', { name: 'Replay the sample enquiry' }).click();
+    await expect(ticket).not.toHaveClass(/is-complete/);
+    await expect(ticket).toHaveClass(/is-complete/, { timeout: 6000 });
     await ctx.close();
   });
 });
@@ -217,11 +246,11 @@ test.describe('home and services (round 3)', () => {
       await page.setViewportSize({ width: w, height: h });
       await page.goto('/');
       await expect(page.locator('h1')).toContainText('Websites & simpler systems for small businesses');
-      const cta = page.locator('.hx-actions a[href="/contact/"]');
+      const cta = page.locator('.hp-actions a[href="/contact/"]');
       await expect(cta).toBeVisible();
       const box = (await cta.boundingBox())!;
       expect(box.y + box.height).toBeLessThanOrEqual(h);
-      await expect(page.locator('.hx-actions a[href="#work"]')).toBeVisible();
+      await expect(page.locator('.hp-actions a[href="#work"]')).toBeVisible();
     });
   }
 
@@ -237,10 +266,79 @@ test.describe('home and services (round 3)', () => {
   test('services compares packages at a glance and links to the follow-up demo', async ({ page }) => {
     await page.goto('/services/');
     const table = page.locator('table.compare');
-    await expect(table.locator('tbody tr')).toHaveCount(4);
+    await expect(table.locator('tbody tr')).toHaveCount(5);
     await expect(table.locator('caption')).toContainText('Compare at a glance');
     await page.getByRole('link', { name: /See what follow-up looks like/ }).click();
     await expect(page).toHaveURL(/#follow-up$/);
+  });
+});
+
+test.describe('hero photo and legal pages', () => {
+  for (const [w, h] of [[320, 640], [390, 844], [1024, 768], [1440, 900]] as const) {
+    test(`nothing covers the face in the hero photo at ${w}px, and the header is solid`, async ({ page }) => {
+      await page.setViewportSize({ width: w, height: h });
+      await page.goto('/');
+      const r = await page.evaluate(() => {
+        const box = (s: string) => document.querySelector(s)!.getBoundingClientRect();
+        const clip = box('.hp-clip');
+        // Hair to chin in the 4:5 crop: x 33-67%, y 11-47% of the photo.
+        const face = { l: clip.left + clip.width * 0.33, r: clip.left + clip.width * 0.67, t: clip.top + clip.height * 0.11, b: clip.top + clip.height * 0.47 };
+        const hit = (s: string) => {
+          const a = box(s);
+          return Math.max(0, Math.min(a.right, face.r) - Math.max(a.left, face.l)) * Math.max(0, Math.min(a.bottom, face.b) - Math.max(a.top, face.t));
+        };
+        return { badge: hit('.hp-badge'), ticket: hit('.hp-ticket'), headerBg: getComputedStyle(document.querySelector('.site-header')!).backgroundColor };
+      });
+      expect(r.badge).toBe(0);
+      expect(r.ticket).toBe(0);
+      expect(r.headerBg).toBe('rgb(244, 241, 234)');
+    });
+  }
+
+  test('Privacy Policy and Terms of Use are linked from the footer, the menu and the form', async ({ page }) => {
+    await page.setViewportSize({ width: 390, height: 844 });
+    await page.goto('/contact/');
+    const legal = page.getByRole('navigation', { name: 'Legal' });
+    await expect(legal.getByRole('link', { name: 'Privacy Policy' })).toHaveAttribute('href', '/privacy/');
+    await expect(legal.getByRole('link', { name: 'Terms of Use' })).toHaveAttribute('href', '/terms/');
+    await expect(page.locator('form .privacy a[href="/privacy/"]')).toHaveText('Privacy Policy');
+    await expect(page.locator('form .privacy a[href="/terms/"]')).toHaveText('Terms of Use');
+    await page.locator('[data-menu-toggle]').click();
+    await expect(page.locator('[data-menu-panel] a[href="/terms/"]')).toBeVisible();
+    await page.keyboard.press('Escape');
+    await legal.getByRole('link', { name: 'Terms of Use' }).click();
+    await expect(page.locator('h1')).toHaveText('Terms of Use');
+    await page.getByRole('link', { name: 'Privacy Policy' }).first().click();
+    await expect(page.locator('h1')).toHaveText('Privacy Policy');
+  });
+});
+
+test.describe('direct contact', () => {
+  test('email, call, WhatsApp and text buttons work, and the full number is not in the HTML', async ({ page, request }) => {
+    await page.goto('/');
+    const hero = page.locator('.hp-reach');
+    await expect(hero.getByRole('link', { name: /Email Mann/ })).toHaveAttribute('href', /^mailto:info@mannpatel\.me\?subject=/);
+    const call = hero.getByRole('link', { name: 'Call Mann' });
+    test.skip((await call.count()) === 0, 'Build with PUBLIC_CONTACT_PHONE (e.g. +16475550142) to test the phone buttons.');
+    const html = await (await request.get('/')).text();
+    const digits = (await call.getAttribute('href'))!.replace(/\D/g, '');
+    expect(digits).toMatch(/^1\d{10}$/);
+    expect(html).not.toContain(digits.slice(1));
+    await expect(call).toHaveAttribute('href', `tel:+${digits}`);
+    await expect(hero.getByRole('link', { name: /WhatsApp/ })).toHaveAttribute('href', new RegExp(`^https://wa\\.me/${digits}\\?text=`));
+    await expect(hero.getByRole('link', { name: /text message/ })).toHaveAttribute('href', new RegExp(`^sms:\\+${digits}`));
+    // The contact page shows the number masked.
+    await page.goto('/contact/');
+    await expect(page.locator('#reach .ca-number')).toContainText(/\d{3}-\d{2}X-XXXX/);
+  });
+
+  test('without JavaScript, the phone buttons fall back to the contact page', async ({ browser }) => {
+    const ctx = await browser.newContext({ javaScriptEnabled: false });
+    const page = await ctx.newPage();
+    await page.goto('/');
+    const call = page.locator('.hp-reach a[data-reach="call"]');
+    if ((await call.count()) > 0) await expect(call).toHaveAttribute('href', '/contact/#reach');
+    await ctx.close();
   });
 });
 
@@ -287,20 +385,20 @@ test.describe('enquiry form', () => {
 
   test('service choice starts with plain-language areas; links that pre-select a service open the detail', async ({ page }) => {
     await page.goto('/contact/');
-    // Three areas + "Not sure yet" are visible without opening anything.
-    for (const v of ['area-found', 'area-follow-up', 'area-professional', 'not-sure']) {
+    // Three areas, the add-ons and "Not sure yet" are visible without opening anything.
+    for (const v of ['area-found', 'area-follow-up', 'area-website', 'area-content', 'not-sure']) {
       await expect(page.locator(`input[name="services"][value="${v}"]`)).toBeVisible();
     }
     await expect(page.locator('[data-svc-detail]')).not.toHaveAttribute('open', '');
     // The verified email alternative sits beside the send button.
     await expect(page.locator('[data-alt-email]')).toBeVisible();
 
-    await page.goto('/contact/?services=seo,business-email');
+    await page.goto('/contact/?services=reviews,missed-calls');
     await expect(page.locator('[data-svc-detail]')).toHaveAttribute('open', '');
-    await expect(page.locator('input[name="services"][value="seo"]')).toBeChecked();
+    await expect(page.locator('input[name="services"][value="reviews"]')).toBeChecked();
     await expect(page.locator('input[name="services"][value="area-found"]')).toBeChecked();
     await expect(page.locator('input[name="services"][value="area-follow-up"]')).toBeChecked();
-    await expect(page.locator('input[name="services"][value="area-professional"]')).not.toBeChecked();
+    await expect(page.locator('input[name="services"][value="area-website"]')).not.toBeChecked();
   });
 
   test('a failed status check does not claim the form is disconnected', async ({ page }) => {

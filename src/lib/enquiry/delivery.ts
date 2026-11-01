@@ -7,7 +7,7 @@ import type { Enquiry } from './validate';
 import { labelFor, SERVICE_OPTIONS, PACKAGE_OPTIONS, BUDGET_OPTIONS, TIMEFRAME_OPTIONS } from './options';
 import { signHex } from './spam';
 
-export type DeliveryMode = 'file' | 'resend' | 'webhook' | 'none';
+export type DeliveryMode = 'file' | 'resend' | 'cloudflare' | 'webhook' | 'none';
 
 export interface DeliveryConfig {
   mode: DeliveryMode;
@@ -19,6 +19,8 @@ export interface DeliveryConfig {
   webhookUrl?: string;
   webhookSecret?: string;
   dataDir?: string;
+  /** Cloudflare: true when the Worker has its send_email binding. */
+  cloudflareEmail?: boolean;
 }
 
 export interface Lead extends Enquiry {
@@ -33,6 +35,8 @@ export interface DeliveryDeps {
   fetch: typeof fetch;
   appendFile?: (path: string, data: string) => Promise<void>;
   sleep?: (ms: number) => Promise<void>;
+  /** Cloudflare Email (send_email binding). Resolves when Cloudflare accepts the message. */
+  sendEmail?: (msg: { to: string; subject: string; text: string; replyTo?: string; messageId: string }) => Promise<void>;
 }
 
 export interface DeliveryResult {
@@ -49,6 +53,10 @@ export function deliveryReady(cfg: DeliveryConfig): { ready: boolean; reason?: s
       return cfg.production ? { ready: false, reason: 'file storage is for local testing only' } : { ready: true };
     case 'resend':
       if (!cfg.resendKey || !cfg.toEmail || !cfg.fromEmail) return { ready: false, reason: 'RESEND_API_KEY, ENQUIRY_TO_EMAIL and ENQUIRY_FROM_EMAIL are required' };
+      return { ready: true };
+    case 'cloudflare':
+      if (!cfg.cloudflareEmail || !cfg.toEmail || !cfg.fromEmail)
+        return { ready: false, reason: 'the send_email binding, ENQUIRY_TO_EMAIL and ENQUIRY_FROM_EMAIL are required' };
       return { ready: true };
     case 'webhook':
       if (!cfg.webhookUrl) return { ready: false, reason: 'ENQUIRY_WEBHOOK_URL is required' };
@@ -177,7 +185,7 @@ export async function deliver(lead: Lead, cfg: DeliveryConfig, deps: DeliveryDep
     return result;
   }
 
-  if (cfg.mode === 'webhook' || (cfg.mode === 'resend' && cfg.webhookUrl)) {
+  if (cfg.mode === 'webhook' || ((cfg.mode === 'resend' || cfg.mode === 'cloudflare') && cfg.webhookUrl)) {
     try {
       if (await sendWebhook(cfg, deps, lead)) result.channels.push('webhook');
       else result.failures.push('webhook');
@@ -200,6 +208,29 @@ export async function deliver(lead: Lead, cfg: DeliveryConfig, deps: DeliveryDep
     } catch {
       result.failures.push('owner-email');
     }
+  }
+
+  // Cloudflare Email can only send to verified addresses, so there is no visitor acknowledgement.
+  if (cfg.mode === 'cloudflare') {
+    const send = deps.sendEmail;
+    const message = {
+      to: cfg.toEmail ?? '',
+      subject: `New enquiry: ${lead.name}${lead.business ? ` (${lead.business})` : ''}`,
+      text: ownerEmailText(lead),
+      replyTo: lead.email,
+      messageId: `${lead.id}@${(cfg.fromEmail ?? 'website@localhost').replace(/>.*$/, '').split('@').pop()}`,
+    };
+    let sent = false;
+    for (let attempt = 0; send && message.to && !sent && attempt < 2; attempt++) {
+      try {
+        await send(message);
+        sent = true;
+      } catch {
+        if (attempt === 0) await (deps.sleep ?? defaultSleep)(400);
+      }
+    }
+    if (sent) result.channels.push('owner-email');
+    else result.failures.push('owner-email');
   }
 
   result.accepted = result.channels.length > 0;

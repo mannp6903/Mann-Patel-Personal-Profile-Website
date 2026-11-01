@@ -3,6 +3,7 @@ import { defineConfig, envField } from 'astro/config';
 import node from '@astrojs/node';
 import cloudflare from '@astrojs/cloudflare';
 import sitemap from '@astrojs/sitemap';
+import { randomBytes } from 'node:crypto';
 
 /**
  * Domain-dependent values come from the environment (see .env.example).
@@ -34,16 +35,24 @@ export default defineConfig({
   devToolbar: { enabled: false },
   build: { inlineStylesheets: 'auto' },
   image: { responsiveStyles: true },
+  vite: {
+    // Signs the form's time-check token when FORM_TOKEN_SECRET isn't set: random per build,
+    // server-only (used by src/pages/api/enquiry.ts), never committed.
+    define: { __FORM_BUILD_SECRET__: JSON.stringify(randomBytes(32).toString('hex')) },
+  },
   env: {
     schema: {
       // Build-time, public
       PUBLIC_SITE_URL: envField.string({ context: 'client', access: 'public', optional: true }),
       PUBLIC_GA4_ID: envField.string({ context: 'client', access: 'public', optional: true }),
+      // Phone for the Call / WhatsApp / Text buttons, E.164 (e.g. +16475550142). Set it as a
+      // Cloudflare build variable so the number is never stored in this public repository.
+      PUBLIC_CONTACT_PHONE: envField.string({ context: 'client', access: 'public', optional: true }),
       PUBLIC_TURNSTILE_SITE_KEY: envField.string({ context: 'client', access: 'public', optional: true }),
       SITE_MODE: envField.enum({ context: 'server', access: 'public', values: ['preview', 'production'], default: 'preview' }),
       SITE_INDEXING: envField.boolean({ context: 'server', access: 'public', default: false }),
       // Runtime secrets (read when the enquiry endpoint runs, never inlined into the bundle)
-      ENQUIRY_DELIVERY: envField.enum({ context: 'server', access: 'secret', values: ['file', 'resend', 'webhook', 'none'], optional: true }),
+      ENQUIRY_DELIVERY: envField.enum({ context: 'server', access: 'secret', values: ['file', 'resend', 'cloudflare', 'webhook', 'none'], optional: true }),
       ENQUIRY_TO_EMAIL: envField.string({ context: 'server', access: 'secret', optional: true }),
       ENQUIRY_FROM_EMAIL: envField.string({ context: 'server', access: 'secret', optional: true }),
       ENQUIRY_ACKNOWLEDGE: envField.boolean({ context: 'server', access: 'secret', optional: true }),

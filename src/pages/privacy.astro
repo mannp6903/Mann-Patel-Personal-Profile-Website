@@ -2,27 +2,34 @@
 /**
  * Privacy notice. It describes what the code actually does, and the text adapts to the
  * configuration: analytics appear only if PUBLIC_GA4_ID is set. The processors named below
- * (Cloudflare for hosting, Resend for email delivery) must match the production setup
- * (ENQUIRY_DELIVERY=resend); update this page if that ever changes.
+ * (Cloudflare for hosting and email delivery, Google for the inbox) must match the production
+ * setup (ENQUIRY_DELIVERY=cloudflare); update this page if that ever changes.
  */
 import BaseLayout from '../layouts/BaseLayout.astro';
 import PreviewNote from '../components/PreviewNote.astro';
 import { profile } from '../data/site';
 import { PUBLIC_GA4_ID, PUBLIC_TURNSTILE_SITE_KEY } from 'astro:env/client';
 
-const updated = '31 October 2026';
+const updated = '1 November 2026';
 const contactEmail = profile.contact.email;
 ---
 
 <BaseLayout
-  title="Privacy"
-  description="What information this website collects through the project brief form, why, where it goes, how long it is kept, and your choices."
+  title="Privacy Policy"
+  description="Privacy Policy for mannpatel.me: what the website collects through the project brief form, why, where it goes, how long it is kept, cookies, and your choices."
 >
   <section class="section">
     <div class="container prose">
-      <p class="label">Privacy</p>
-      <h1>How your information is handled</h1>
-      <p class="muted">Last updated {updated}.</p>
+      <p class="label">Legal</p>
+      <h1>Privacy Policy</h1>
+      <p class="lead">How your information is handled on mannpatel.me.</p>
+      <p class="muted">Last updated {updated}. See also the <a href="/terms/">Terms of Use</a>.</p>
+
+      <h2>Who is responsible</h2>
+      <p>
+        This website is run by {profile.name}, a sole proprietor in Toronto, Ontario, Canada. I am responsible for the
+        personal information it collects.{contactEmail && <> Questions or requests: <a href={`mailto:${contactEmail}`}>{contactEmail}</a>.</>}
+      </p>
 
       <h2>The short version</h2>
       <ul>
@@ -50,13 +57,20 @@ const contactEmail = profile.contact.email;
         behalf, only to do that job:
       </p>
       <ul>
-        <li><strong>Cloudflare</strong> hosts this website and runs the code that checks the form.</li>
-        <li><strong>Resend</strong> delivers the email with your brief to my inbox.</li>
+        <li>
+          <strong>Cloudflare</strong> hosts this website, runs the code that checks the form, and delivers the email
+          with your brief (Cloudflare Email). Emails to {contactEmail ?? 'my business address'} pass through Cloudflare
+          Email Routing too.
+        </li>
+        <li><strong>Google</strong> (Gmail) hosts the inbox where those emails arrive.</li>
       </ul>
       <p>
-        Both companies are based in the United States, and Cloudflare runs its network worldwide. Your information
-        may be processed and stored outside Canada, including in the United States, where it is subject to local laws.
-        Neither service may use it for its own purposes.
+        Both companies are based in the United States and run their networks worldwide. Your information may be
+        processed and stored outside Canada, including in the United States, where it is subject to local laws.
+      </p>
+      <p>
+        If you call, text or message me on WhatsApp, your number and messages are handled by your phone carrier or by
+        WhatsApp (Meta) under their own terms. I use them only to reply to you.
       </p>
       {
         PUBLIC_TURNSTILE_SITE_KEY && (
@@ -66,16 +80,12 @@ const contactEmail = profile.contact.email;
           </p>
         )
       }
-      <p>
-        If an automatic acknowledgement is switched on, you receive one email confirming your message arrived. It is a
-        reply to your request, not marketing.
-      </p>
 
       <h2>How long it’s kept</h2>
       <p>
         Enquiries that don’t become projects are deleted from my inbox within 12 months. If we work together, project
-        records are kept for as long as needed for the work and for tax and legal requirements. Resend keeps its own
-        delivery records for a limited time under its own policy.
+        records are kept for as long as needed for the work and for tax and legal requirements. Cloudflare keeps
+        limited email delivery logs under its own policy.
       </p>
 
       <h2 id="analytics">Analytics and cookies</h2>
@@ -113,9 +123,24 @@ const contactEmail = profile.contact.email;
       </p>
       {!contactEmail && <PreviewNote note="a privacy contact email is recommended" />}
 
+      <h2>Security</h2>
+      <p>
+        The site is served only over HTTPS. Form messages are checked by the server and emailed to my inbox; the
+        website itself doesn’t store them. No system is perfectly secure, so please don’t send passwords, payment card
+        numbers or other sensitive details through the form.
+      </p>
+
+      <h2>Children</h2>
+      <p>This website is for business owners. It isn’t aimed at children, and I don’t knowingly collect their information.</p>
+
       <h2>Links to other sites</h2>
       <p>
-        Links to other websites, including Nest &amp; Rest Cleaning, have their own privacy notices.
+        Links to other websites, including Nest &amp; Rest Cleaning, have their own privacy policies.
+      </p>
+
+      <h2>Changes to this policy</h2>
+      <p>
+        If the way this site handles information changes, this page is updated and the date at the top changes with it.
       </p>
     </div>
   </section>

@@ -4,6 +4,7 @@ import Hero from '../components/home/Hero.astro';
 import Intro from '../components/home/Intro.astro';
 import WorkList from '../components/home/WorkList.astro';
 import Rails from '../components/home/Rails.astro';
+import Marquee from '../components/Marquee.astro';
 import ServiceOverview from '../components/ServiceOverview.astro';
 import Guide from '../components/Guide.astro';
 import { personJsonLd } from '../lib/seo';
@@ -20,11 +21,13 @@ const jsonLd = {
 <BaseLayout
   title="Home"
   fullTitle="Mann Patel · Websites, Google visibility & follow-up for Toronto small businesses"
-  description="Websites and simpler systems for small businesses in Toronto and the GTA: websites, Google visibility, professional email, enquiry follow-up and content, from Mann Patel."
+  description="Mann Patel helps Toronto and GTA small businesses get found and chosen on Google, never miss an enquiry, and turn website visits into bookings."
   jsonLd={jsonLd}
-  overlayHeader
 >
   <Hero />
+  <div class="ribbon">
+    <Marquee />
+  </div>
   <Intro />
   <WorkList />
   <Rails />
@@ -34,9 +37,10 @@ const jsonLd = {
     <div class="container">
       <div class="section-head">
         <p class="label">What I do</p>
-        <h2 id="what-title" class="big">Three kinds of help, one goal: a business that’s easy to choose.</h2>
+        <h2 id="what-title" class="big">Get found. Answer fast. Get booked.</h2>
         <p class="muted measure">
-          Every service has written deliverables, a list of what I need from you, and what isn’t included. <a
+          Three areas that follow your customer’s path, from search to booking. Every service has written deliverables,
+          a list of what I need from you, and what isn’t included. <a
             class="link-accent"
             href="/services/">See every service in detail</a
           >, or <a class="link-accent" href="/services/#follow-up">see what enquiry follow-up looks like</a>.
@@ -63,6 +67,15 @@ const jsonLd = {
 </BaseLayout>
 
 <style>
+  /* The services marquee as a slightly tilted ribbon between the hero and the intro. */
+  .ribbon {
+    overflow: hidden;
+    padding-block: 1.25rem;
+    margin-block: -1.25rem;
+  }
+  .ribbon :global(.marquee) {
+    transform: rotate(-1.4deg) scaleX(1.04);
+  }
   .big {
     font-size: clamp(2rem, 1.4rem + 2.4vw, 3.5rem);
     font-weight: 600;

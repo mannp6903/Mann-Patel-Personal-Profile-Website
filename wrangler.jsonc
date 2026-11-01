@@ -2,7 +2,7 @@
 // Build: `npm run build:cloudflare`   Deploy: `npx wrangler deploy`
 // Steps (first-time setup, custom domain, secrets): docs/05-launch-and-integrations.md §4.
 //
-// Secrets (RESEND_API_KEY, FORM_TOKEN_SECRET, ...) are NOT stored here: this repository is
+// Secrets and private values (ENQUIRY_TO_EMAIL, optional FORM_TOKEN_SECRET) are NOT stored here: this repository is
 // public. Set them in Cloudflare → Workers & Pages → mann-patel-website → Settings →
 // Variables and Secrets (or with `npx wrangler secret put NAME`).
 {
@@ -20,9 +20,17 @@
     { "pattern": "www.mannpatel.me", "custom_domain": true }
   ],
 
+  // Keep variables added in the Cloudflare dashboard (e.g. ENQUIRY_TO_EMAIL) on every deploy.
+  "keep_vars": true,
+
+  // The enquiry form sends each brief through Cloudflare Email (Email Routing must be on for
+  // mannpatel.me, and ENQUIRY_TO_EMAIL must be a verified destination address).
+  "send_email": [{ "name": "ENQUIRY_EMAIL" }],
+
   // Plain (non-secret) runtime settings for the enquiry form.
   "vars": {
-    "ENQUIRY_DELIVERY": "resend",
+    "ENQUIRY_DELIVERY": "cloudflare",
+    "ENQUIRY_FROM_EMAIL": "Mann Patel website <website@mannpatel.me>",
     "ENQUIRY_ACKNOWLEDGE": "false"
   }
 }

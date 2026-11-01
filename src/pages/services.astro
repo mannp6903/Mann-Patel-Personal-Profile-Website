@@ -5,7 +5,7 @@ import ProcessSteps from '../components/ProcessSteps.astro';
 import WorkflowDemo from '../components/WorkflowDemo.astro';
 import CtaBand from '../components/CtaBand.astro';
 import Confirm from '../components/Confirm.astro';
-import { groups, servicesInGroup } from '../data/services';
+import { groups, servicesInGroup, addOns } from '../data/services';
 import { packages, checkUp } from '../data/packages';
 import { faqs } from '../data/faqs';
 
@@ -19,17 +19,16 @@ const faqLd = {
 };
 // "Compare at a glance": which areas each package covers, derived from its serviceIds.
 const areas = [
-  { label: 'Website', ids: ['websites'] },
-  { label: 'Google visibility', ids: ['seo', 'search-console', 'analytics', 'business-profile'] },
-  { label: 'Email & follow-up', ids: ['business-email', 'enquiry-workflows', 'integrations'] },
-  { label: 'Content & branding', ids: ['social-strategy', 'social-materials', 'identity', 'print-digital'] },
+  { label: 'A · Google & reviews', ids: ['business-profile', 'reviews', 'listings', 'local-plan'] },
+  { label: 'B · Replies & booking', ids: ['missed-calls', 'enquiry-workflows', 'booking', 'integrations'] },
+  { label: 'C · Website', ids: ['websites', 'seo', 'maintenance'] },
 ];
 const covers = (pkgIds: readonly string[], ids: string[]) => ids.some((id) => pkgIds.includes(id));
 ---
 
 <BaseLayout
-  title="Websites, Google visibility & enquiry follow-up services"
-  description="Websites, SEO, Google Search Console, Analytics and Business Profile support, professional email, enquiry follow-up workflows, social content and print materials for small businesses in Toronto. Deliverables, inputs and exclusions for each."
+  title="Google Business Profile, reviews, missed-call text-back & booking websites"
+  description="Get found and chosen on Google, never miss an enquiry, and a website that books work: Google Business Profile, reviews, missed-call text-back, online booking, websites, plus flyers and social content for Toronto and GTA small businesses."
   jsonLd={faqLd}
 >
   <section class="section page-head">
@@ -37,13 +36,15 @@ const covers = (pkgIds: readonly string[], ids: string[]) => ids.some((id) => pk
       <p class="label">Services</p>
       <h1>Clear deliverables. Plain language. Yours to keep.</h1>
       <p class="lead measure">
-        Start with one of three outcomes or a common package. The full list below shows what each service includes,
-        what I need from you, and what isn’t included. Every project gets a written quote.
+        Three areas that follow your customer’s path: they find you, they contact you, they book. Start with one area or
+        a common package. Every service lists what’s included, what I need from you and what isn’t included, and every
+        project gets a written quote.
       </p>
       <nav class="jump" aria-label="On this page">
         <ul role="list">
           <li><a href="#packages">Packages</a></li>
           {groups.map((g) => <li><a href={`#${g.id}`}><span class="jl">{g.letter}</span> {g.title}</a></li>)}
+          <li><a href={`#${addOns.id}`}><span class="jl">+</span> {addOns.title}</a></li>
           <li><a href="#faq">Questions</a></li>
         </ul>
       </nav>
@@ -54,7 +55,7 @@ const covers = (pkgIds: readonly string[], ids: string[]) => ids.some((id) => pk
     <div class="container">
       <div class="section-head">
         <p class="label">Three outcomes</p>
-        <h2 id="outcomes-title">Pick the result you want. I’ll handle the technical parts.</h2>
+        <h2 id="outcomes-title">Found. Answered. Booked.</h2>
       </div>
       <ServiceOverview />
     </div>
@@ -88,8 +89,8 @@ const covers = (pkgIds: readonly string[], ids: string[]) => ids.some((id) => pk
                   <td class="fit">{p.forWho}</td>
                   {p.id === 'check-up' ? (
                     <td class="fit review" colspan={areas.length}>
-                      A review, not a build: your website on a phone and a laptop, your Google information and a test
-                      enquiry, then a written fix list.
+                      A review, not a build: how you look on Google, Maps and AI assistants, your reviews against
+                      nearby competitors, and a test enquiry, then a written fix list.
                     </td>
                   ) : areas.map((a) => (
                     <td class="mark">
@@ -125,7 +126,7 @@ const covers = (pkgIds: readonly string[], ids: string[]) => ids.some((id) => pk
               <ul class="crosses" role="list">{p.notIncluded.map((i) => <li>{i}</li>)}</ul>
               <h4>You provide</h4>
               <p class="small">{p.youProvide.join(' · ')}</p>
-              {p.id === 'content-follow-up' && (
+              {p.id === 'answered' && (
                 <a class="demo-link" href="#follow-up">See what follow-up looks like ↓</a>
               )}
               <a class="btn" href={`/contact/?package=${p.id}&services=${p.serviceIds.join(',')}#brief`}>
@@ -139,9 +140,9 @@ const covers = (pkgIds: readonly string[], ids: string[]) => ids.some((id) => pk
         <h3>In every written scope</h3>
         <ul role="list">
           <li><strong>Two rounds of changes</strong> per deliverable are included. More are quoted.</li>
-          <li><strong>Third-party fees</strong> (domain, email subscription, hosting, paid tools, printing) are billed to you by the provider, in your name.</li>
+          <li><strong>Third-party fees</strong> (domain, email, hosting, booking tools, phone and texting, printing) are billed to you by the provider, in your name.</li>
           <li><strong>Ownership:</strong> your domain, accounts, content and final files are yours. I only show your project in my portfolio with your written permission.</li>
-          <li><strong>One-time vs ongoing:</strong> setup is a one-time fee. Content, monitoring and maintenance are separate, so you can stop any of them.</li>
+          <li><strong>One-time vs ongoing:</strong> setup is a one-time fee. Monthly plans (Stay found, care) are separate, so you can stop any of them.</li>
         </ul>
       </div>
     </div>
@@ -158,8 +159,8 @@ const covers = (pkgIds: readonly string[], ids: string[]) => ids.some((id) => pk
   </section>
 
   {
-    groups.map((g) => (
-      <section class:list={['section', 'group', { 'section--alt': g.letter === 'B' }]} id={g.id} aria-labelledby={`g-${g.id}`}>
+    [...groups, addOns].map((g) => (
+      <section class:list={['section', 'group', { 'section--alt': g.letter === 'B' || g.letter === '+' }]} id={g.id} aria-labelledby={`g-${g.id}`}>
         <div class="container">
           <header class="group-head">
             <p class="letter" aria-hidden="true">{g.letter}</p>
@@ -224,7 +225,7 @@ const covers = (pkgIds: readonly string[], ids: string[]) => ids.some((id) => pk
   <section class="section on-night" id="follow-up" aria-labelledby="demo-title">
     <div class="container">
       <div class="section-head">
-        <p class="label">What “follow up” looks like</p>
+        <p class="label">What “never miss an enquiry” looks like</p>
         <h2 id="demo-title">From enquiry to answer, without anything slipping through.</h2>
         <p class="muted measure">
           This is the kind of simple routine I set up for owners: an honest acknowledgement, one place to see every
@@ -533,6 +534,19 @@ const covers = (pkgIds: readonly string[], ids: string[]) => ids.some((id) => pk
     display: grid;
     gap: var(--space-m);
     grid-template-columns: repeat(auto-fit, minmax(min(100%, 17rem), 1fr));
+  }
+  /* The check is the low-commitment first step: a full-width strip under the four packages. */
+  @media (min-width: 64em) {
+    .pkg.small {
+      grid-column: 1 / -1;
+    }
+    .pkg.small .ticks {
+      grid-template-columns: repeat(2, minmax(0, 1fr));
+      column-gap: var(--space-xl);
+    }
+    .pkg.small .btn {
+      justify-self: start;
+    }
   }
   .pkg {
     position: relative;

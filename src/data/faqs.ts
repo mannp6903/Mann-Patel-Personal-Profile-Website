@@ -19,7 +19,15 @@ export const faqs: Faq[] = [
   },
   {
     q: 'Can you get me to the top of Google?',
-    a: 'No one honest can promise that. I can make your pages clear, fast and accurate, set up Search Console and your Business Profile correctly, and show you what to keep doing. Rankings are decided by Google.',
+    a: 'No one honest can promise that. I can make your Google profile complete and accurate, help you earn recent, real reviews, make your pages clear and fast, and show you what to keep doing. Rankings are decided by Google.',
+  },
+  {
+    q: 'Can you get us more reviews?',
+    a: 'I set up a simple, honest routine for asking every customer, with a review link and QR cards. I never buy, write or swap reviews, and I don’t offer discounts for them: Google forbids any incentive, and Canada’s Competition Bureau treats fake reviews as misleading advertising.',
+  },
+  {
+    q: 'Do you make flyers, gift cards and social media content?',
+    a: 'Yes, as add-ons: flyers, business cards, gift-card artwork, and social content such as posts, Reels, stories, hooks and scripts. They work best alongside your Google profile or website, so every piece points to one booking link. I don’t promise followers or views, and for a brand-new logo I can recommend a designer.',
   },
   {
     q: 'How long does a project take?',

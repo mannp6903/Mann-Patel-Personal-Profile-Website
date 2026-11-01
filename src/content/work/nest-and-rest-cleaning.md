@@ -6,7 +6,7 @@ kind: Own business · bookings open summer 2027
 year: '2026'
 summary: My own home-cleaning business in Scarborough and North York, and the website I built from scratch to price it, explain it and take booking requests. Bookings open in summer 2027.
 role: Founder & Owner. I built the website myself, from scratch. When bookings open in summer 2027, I'll clean every home myself.
-serviceIds: [websites, enquiry-workflows, seo, identity]
+serviceIds: [websites, enquiry-workflows, seo]
 highlights:
   - Instant price estimate and postal-code check on the home page
   - Room-by-room “what’s included” explorer for every service

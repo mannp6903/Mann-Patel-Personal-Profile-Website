@@ -1,5 +1,7 @@
 # 08 · Studio-style redesign (1 Nov 2026)
 
+> **Superseded (1 Nov 2026)** by [`10-round-4-original-design.md`](10-round-4-original-design.md): the cut-out hero, sliding name, floating menu button and round buttons described here were replaced with an original design.
+
 Mann asked for a personal site "similar to" Dennis Snellenberg's freelance portfolio. The reference was used for **interaction patterns and layout ideas only**. Its text, images, colours and exact composition were not copied. Everything shown is Mann's: his name, his photo, his real projects and his ink / paper / stamp-orange palette. (The reference site couldn't be opened from the build environment. The patterns below are well-known features of it.)
 
 | Pattern (reference) | Mann's version | File |

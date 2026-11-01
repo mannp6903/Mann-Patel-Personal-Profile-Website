@@ -102,7 +102,7 @@ describe('guide', () => {
   });
   it('builds a contact link that pre-fills package and services', () => {
     const href = briefHref(recommend({ stage: 'running', problem: 'enquiries', site: 'ok' }));
-    expect(href).toMatch(/^\/contact\/\?package=content-follow-up&services=enquiry-workflows%2Cintegrations%2Cbusiness-email#brief$/);
+    expect(href).toMatch(/^\/contact\/\?package=answered&services=missed-calls%2Cenquiry-workflows%2Cbooking#brief$/);
   });
   it('rejects incomplete or invalid answers', () => {
     expect(parseAnswers({ stage: 'starting', problem: 'found' })).toBeNull();

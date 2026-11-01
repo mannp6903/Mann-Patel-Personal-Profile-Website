@@ -1,4 +1,6 @@
 ---
+import ContactActions from './ContactActions.astro';
+
 interface Props {
   title?: string;
   text?: string;
@@ -20,6 +22,7 @@ const {
     <div class="btn-row">
       <a class="btn" href={href}>{label} <span class="arrow" aria-hidden="true">→</span></a>
     </div>
+    <ContactActions label="Or reach me directly" />
   </div>
 </section>
 

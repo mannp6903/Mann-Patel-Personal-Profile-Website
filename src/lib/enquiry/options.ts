@@ -5,31 +5,33 @@
 
 export const SERVICE_OPTIONS = [
   // Plain-language areas shown first on the form; the specific services below are optional detail.
-  { id: 'area-found', label: 'Get found: website and Google visibility', group: 'area', area: 'A' },
-  { id: 'area-follow-up', label: 'Follow up: business email and enquiry handling', group: 'area', area: 'B' },
-  { id: 'area-professional', label: 'Look professional: content, branding and print', group: 'area', area: 'C' },
-  { id: 'websites', label: 'Website or landing page', group: 'A' },
-  { id: 'seo', label: 'SEO review and fixes', group: 'A' },
-  { id: 'search-console', label: 'Google Search Console', group: 'A' },
-  { id: 'analytics', label: 'Google Analytics 4', group: 'A' },
+  { id: 'area-found', label: 'Get found and chosen: Google, Maps and reviews', group: 'area', area: 'A' },
+  { id: 'area-follow-up', label: 'Never miss an enquiry: replies, booking and follow-up', group: 'area', area: 'B' },
+  { id: 'area-website', label: 'A website that books work', group: 'area', area: 'C' },
+  { id: 'area-content', label: 'Print and social content', group: 'area', area: 'D' },
   { id: 'business-profile', label: 'Google Business Profile', group: 'A' },
-  { id: 'business-email', label: 'Professional email', group: 'B' },
-  { id: 'enquiry-workflows', label: 'Enquiry follow-up', group: 'B' },
+  { id: 'reviews', label: 'Reviews and review cards', group: 'A' },
+  { id: 'listings', label: 'Apple Maps, Bing and AI check', group: 'A' },
+  { id: 'local-plan', label: 'Monthly “Stay found” plan', group: 'A' },
+  { id: 'missed-calls', label: 'Missed-call text-back', group: 'B' },
+  { id: 'enquiry-workflows', label: 'Enquiry list and follow-up', group: 'B' },
+  { id: 'booking', label: 'Online booking and reminders', group: 'B' },
   { id: 'integrations', label: 'Connecting my tools', group: 'B' },
-  { id: 'maintenance', label: 'Ongoing support', group: 'B' },
-  { id: 'social-strategy', label: 'Social content plan', group: 'C' },
-  { id: 'social-materials', label: 'Social posts and WhatsApp materials', group: 'C' },
-  { id: 'identity', label: 'Logo and identity', group: 'C' },
-  { id: 'print-digital', label: 'Cards, flyers, gift-card artwork', group: 'C' },
+  { id: 'websites', label: 'Website fix-up or new site', group: 'C' },
+  { id: 'seo', label: 'Service pages and search basics', group: 'C' },
+  { id: 'maintenance', label: 'Monthly care plan', group: 'C' },
+  { id: 'print-design', label: 'Flyers, business cards, gift-card artwork', group: 'D' },
+  { id: 'social-content', label: 'Posts, Reels, stories, hooks and scripts', group: 'D' },
   { id: 'not-sure', label: 'Not sure yet', group: 'other' },
   { id: 'other', label: 'Something else', group: 'other' },
 ] as const;
 
 export const PACKAGE_OPTIONS = [
   { id: 'launch', label: 'Business Launch' },
-  { id: 'visibility', label: 'Website & Visibility' },
-  { id: 'content-follow-up', label: 'Content & Follow-up' },
-  { id: 'check-up', label: 'Website & enquiry check-up' },
+  { id: 'found', label: 'Found & Chosen' },
+  { id: 'answered', label: 'Never Miss an Enquiry' },
+  { id: 'website', label: 'Website That Books' },
+  { id: 'check-up', label: 'Found & Answered check' },
 ] as const;
 
 export const BUDGET_OPTIONS = [

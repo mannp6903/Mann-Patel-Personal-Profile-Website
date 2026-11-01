@@ -1,348 +1,622 @@
 ---
 /**
- * Home hero: cut-out portrait on warm stone, a giant name that slides sideways (direction
- * follows the scroll, speed follows scroll velocity), a location pill with a spinning globe,
- * and the role line. The moving name is decorative (aria-hidden); the real H1 is text.
- * A Pause button stops the movement (WCAG 2.2.2); reduced motion keeps it still.
+ * Home hero, "front desk" layout.
+ * - Left: availability and area, the promise as the H1 (a hand-drawn underline draws itself
+ *   under "simpler"), one line about me, the two main actions, and direct contact buttons.
+ * - Right: the real photo on a card that tilts toward the pointer, a name badge with the live
+ *   Toronto time, and a sample enquiry ticket that stamps itself through four steps (Replay).
+ *   The ticket is fictional and labelled "Sample".
+ * Reduced motion or no JavaScript: everything is static and fully visible.
+ * The H1 text is never animated, so it paints immediately (LCP).
  */
 import { Image } from 'astro:assets';
-import cutout from '../../assets/mann-patel-portrait-cutout.png';
+import portrait from '../../assets/mann-patel-portrait.jpg';
 import { profile } from '../../data/site';
+import ContactActions from '../ContactActions.astro';
+
+const steps = [
+  { label: 'Enquiry received', time: '9:42 a.m.' },
+  { label: 'Owner notified', time: '9:42 a.m.' },
+  { label: 'Reply sent to Priya', time: '9:44 a.m.' },
+  { label: 'Follow-up booked', time: 'Mon 9:00' },
+];
+const check =
+  '<svg viewBox="0 0 24 24" aria-hidden="true" focusable="false"><path d="M5 12.5l4.2 4.2L19 7" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"/></svg>';
 ---
 
-<section class="hx" data-hero>
-
-  <Image
-    src={cutout}
-    alt="Mann Patel smiling, in a dark green sweatshirt."
-    widths={[480, 720, 960, 1060]}
-    sizes="(min-width: 64em) 52rem, 120vw"
-    width={1060}
-    height={1060}
-    loading="eager"
-    fetchpriority="high"
-    class="hx-portrait"
-  />
-
-  <p class="hx-loc">
-    <span class="hx-loc-text">Based in<br />Toronto, Canada</span>
-    <span class="hx-globe" aria-hidden="true">
-      <svg viewBox="0 0 40 40" fill="none" stroke="currentColor" stroke-width="1.6">
-        <circle cx="20" cy="20" r="17"></circle>
-        <path d="M3 20h34M20 3c-5 5-7 11-7 17s2 12 7 17M20 3c5 5 7 11 7 17s-2 12-7 17"></path>
-        <ellipse class="hx-meridian" cx="20" cy="20" rx="9" ry="17"></ellipse>
-      </svg>
-    </span>
-  </p>
-
-  <div class="hx-role">
-    <svg class="hx-arrow" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" aria-hidden="true">
-      <path d="M5 5l14 14M19 8v11H8"></path>
-    </svg>
-    <div class="hx-copy">
-      <p class="hx-eyebrow">Based in Toronto, Canada</p>
-      <h1 class="hx-title">
-        <span class="visually-hidden">{profile.name}: </span>Websites &amp; simpler <br class="br" />systems for small <br class="br" />businesses
+<section class="hp" aria-labelledby="hp-title" data-hp>
+  <div class="container hp-grid">
+    <div class="hp-copy">
+      <p class="hp-status">
+        <span class="hp-pulse" aria-hidden="true"></span>
+        Taking new projects · Toronto &amp; the GTA
+      </p>
+      <h1 id="hp-title" class="hp-title">
+        <span class="visually-hidden">{profile.name}: </span>Websites &amp; <span class="hp-mark"
+          >simpler<svg class="hp-underline" viewBox="0 0 200 18" preserveAspectRatio="none" aria-hidden="true"
+            ><path d="M3 12.5C40 4.5 92 3 197 8.5" pathLength="1"></path></svg
+          ></span
+        > systems for small businesses.
       </h1>
-      <div class="hx-actions">
+      <p class="hp-lead">
+        I’m Mann, a Toronto small business founder. I help local businesses get found and chosen on Google, answer every
+        enquiry fast, and turn website visits into bookings.
+      </p>
+      <div class="hp-actions">
         <a class="btn" href="/contact/">Start a project <span class="arrow" aria-hidden="true">→</span></a>
         <a class="btn btn--secondary" href="#work">See my work</a>
       </div>
+      <ContactActions label="Or reach me directly" class="hp-reach" />
+    </div>
+
+    <div class="hp-visual" data-hp-visual>
+      <div class="hp-frame">
+      <figure class="hp-photo">
+        <div class="hp-clip">
+          <Image
+            src={portrait}
+            alt={profile.portrait?.alt ?? 'Mann Patel'}
+            widths={[420, 640, 880, 1060]}
+            sizes="(min-width: 30em) 26rem, 92vw"
+            loading="eager"
+            fetchpriority="high"
+            class="hp-img"
+          />
+          <span class="hp-shutter" aria-hidden="true"></span>
+          <span class="hp-glare" aria-hidden="true"></span>
+        </div>
+        <figcaption class="hp-badge">
+          <strong>Mann Patel</strong>
+          <span class="hp-time" data-hp-time>Founder · Toronto</span>
+        </figcaption>
+      </figure>
+
+      <div class="hp-ticket" role="group" aria-labelledby="hp-ticket-title" data-ticket>
+        <p class="ht-head">
+          <span id="hp-ticket-title">Enquiry #0142</span>
+          <span class="ht-tag">Sample</span>
+        </p>
+        <p class="ht-q">
+          “Do you have Saturday openings for a large dog?”
+          <span>Priya S., Bloom &amp; Bark Grooming</span>
+        </p>
+        <ol class="ht-steps" role="list">
+          {
+            steps.map((s, i) => (
+              <li style={`--i:${i}`}>
+                <span class="ht-check" set:html={check} />
+                <span class="ht-label">{s.label}</span>
+                <span class="ht-time">{s.time}</span>
+              </li>
+            ))
+          }
+        </ol>
+        <div class="ht-foot">
+          <span class="ht-bar" aria-hidden="true"><span></span></span>
+          <span class="ht-stamp" aria-hidden="true">Nothing slipped</span>
+          <button type="button" class="ht-replay" data-ticket-replay hidden>
+            <svg viewBox="0 0 24 24" aria-hidden="true" focusable="false"
+              ><path d="M4 12a8 8 0 1 0 2.4-5.7M4 4v4.5h4.5" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"></path></svg
+            >
+            Replay<span class="visually-hidden"> the sample enquiry</span>
+          </button>
+        </div>
+      </div>
+      </div>
     </div>
   </div>
-
-  <div class="hx-name" aria-hidden="true">
-    <div class="hx-track" data-hero-track>
-      <span>Mann Patel —&nbsp;</span><span>Mann Patel —&nbsp;</span><span>Mann Patel —&nbsp;</span>
-    </div>
-  </div>
-
-  <button class="hx-pause" type="button" aria-pressed="false" data-hero-pause>
-    <span class="hx-pause-icon" aria-hidden="true"></span>
-    <span class="visually-hidden">Pause the moving name</span>
-  </button>
 </section>
 
 <script>
-  const hero = document.querySelector<HTMLElement>('[data-hero]');
-  const track = hero?.querySelector<HTMLElement>('[data-hero-track]');
-  const pauseBtn = hero?.querySelector<HTMLButtonElement>('[data-hero-pause]');
+  const hero = document.querySelector<HTMLElement>('[data-hp]');
   const motion = document.documentElement.classList.contains('js-motion');
 
-  if (hero && track && pauseBtn && motion) {
-    let x = 0; // percent of the track (one copy = 33.333%)
-    let dir = -1;
-    let lastY = window.scrollY;
-    let boost = 0;
-    let visible = true;
-    let paused = false;
-    let raf = 0;
-    try {
-      paused = sessionStorage.getItem('mp-hero-paused') === '1';
-    } catch {
-      /* ignore */
-    }
-    const setPaused = (p: boolean) => {
-      paused = p;
-      pauseBtn.setAttribute('aria-pressed', String(p));
-      try {
-        sessionStorage.setItem('mp-hero-paused', p ? '1' : '0');
-      } catch {
-        /* ignore */
-      }
-      if (!p) loop();
+  // Live Toronto time on the name badge (it sits on the photo's corner, clear of the face).
+  const timeEl = hero?.querySelector<HTMLElement>('[data-hp-time]');
+  if (timeEl) {
+    const fmt = new Intl.DateTimeFormat('en-CA', { timeZone: 'America/Toronto', hour: 'numeric', minute: '2-digit' });
+    const tick = () => (timeEl.textContent = `Toronto · ${fmt.format(new Date())}`);
+    tick();
+    window.setInterval(tick, 30_000);
+  }
+
+  // Sample enquiry: stamps each step in turn, then the "Nothing slipped" stamp. Replayable.
+  const ticket = hero?.querySelector<HTMLElement>('[data-ticket]');
+  const replay = ticket?.querySelector<HTMLButtonElement>('[data-ticket-replay]');
+  if (ticket && replay && motion) {
+    const items = [...ticket.querySelectorAll<HTMLElement>('.ht-steps li')];
+    let timers: number[] = [];
+    const play = () => {
+      timers.forEach(clearTimeout);
+      timers = [];
+      ticket.classList.add('is-live');
+      ticket.classList.remove('is-complete');
+      items.forEach((li) => li.classList.remove('is-done'));
+      ticket.style.setProperty('--p', '0');
+      items.forEach((li, i) => {
+        timers.push(
+          window.setTimeout(() => {
+            li.classList.add('is-done');
+            ticket.style.setProperty('--p', String((i + 1) / items.length));
+          }, 500 + i * 650),
+        );
+      });
+      timers.push(window.setTimeout(() => ticket.classList.add('is-complete'), 500 + items.length * 650));
     };
-    const loop = () => {
-      cancelAnimationFrame(raf);
-      const frame = () => {
-        if (paused || !visible) return;
-        const y = window.scrollY;
-        const dy = y - lastY;
-        lastY = y;
-        if (dy !== 0) dir = dy > 0 ? -1 : 1;
-        boost = Math.max(boost * 0.92, Math.min(Math.abs(dy) * 0.012, 0.5));
-        x += dir * (0.02 + boost);
-        if (x <= -33.3333) x += 33.3333;
-        if (x > 0) x -= 33.3333;
-        track.style.transform = `translate3d(${x}%, 0, 0)`;
-        raf = requestAnimationFrame(frame);
-      };
-      raf = requestAnimationFrame(frame);
-    };
-    pauseBtn.addEventListener('click', () => setPaused(!paused));
-    pauseBtn.setAttribute('aria-pressed', String(paused));
-    new IntersectionObserver(([e]) => {
-      visible = e.isIntersecting;
-      if (visible) loop();
-    }).observe(hero);
-    // Parallax: the portrait drifts down slightly as the hero scrolls away.
-    const portrait = hero.querySelector<HTMLElement>('.hx-portrait');
-    window.addEventListener(
-      'scroll',
-      () => {
-        if (!visible || !portrait) return;
-        portrait.style.setProperty('--py', `${Math.min(window.scrollY * 0.18, 160)}px`);
+    replay.hidden = false;
+    replay.addEventListener('click', play);
+    ticket.classList.add('is-live');
+    new IntersectionObserver(
+      ([entry], obs) => {
+        if (entry.isIntersecting) {
+          play();
+          obs.disconnect();
+        }
       },
-      { passive: true },
-    );
-    loop();
-  } else if (pauseBtn) {
-    pauseBtn.hidden = true;
+      { threshold: 0.35 },
+    ).observe(ticket);
+  }
+
+  // Pointer tilt: the photo leans toward the pointer and the ticket drifts the other way.
+  const visual = hero?.querySelector<HTMLElement>('[data-hp-visual]');
+  const fine = window.matchMedia('(hover: hover) and (pointer: fine)').matches;
+  if (visual && motion && fine) {
+    let tx = 0;
+    let ty = 0;
+    let x = 0;
+    let y = 0;
+    let raf = 0;
+    const step = () => {
+      x += (tx - x) * 0.12;
+      y += (ty - y) * 0.12;
+      visual.style.setProperty('--rx', x.toFixed(3));
+      visual.style.setProperty('--ry', y.toFixed(3));
+      raf = Math.abs(tx - x) + Math.abs(ty - y) > 0.001 ? requestAnimationFrame(step) : 0;
+    };
+    const kick = () => {
+      if (!raf) raf = requestAnimationFrame(step);
+    };
+    visual.addEventListener('pointermove', (e) => {
+      const r = visual.getBoundingClientRect();
+      tx = (e.clientX - r.left) / r.width - 0.5;
+      ty = (e.clientY - r.top) / r.height - 0.5;
+      visual.style.setProperty('--gx', `${((tx + 0.5) * 100).toFixed(1)}%`);
+      visual.style.setProperty('--gy', `${((ty + 0.5) * 100).toFixed(1)}%`);
+      visual.classList.add('is-tilting');
+      kick();
+    });
+    visual.addEventListener('pointerleave', () => {
+      tx = 0;
+      ty = 0;
+      visual.classList.remove('is-tilting');
+      kick();
+    });
   }
 </script>
 
 <style>
-  .hx {
+  .hp {
     position: relative;
-    isolation: isolate;
-    min-height: max(40rem, min(100svh, 62rem));
-    background: var(--hero-bg);
-    color: var(--ink);
+    padding-block: clamp(1.5rem, 0.5rem + 3vw, 4rem) clamp(3rem, 2rem + 4vw, 6rem);
     overflow: hidden;
   }
-  .hx-portrait {
-    position: absolute;
-    z-index: 0;
-    bottom: 0;
-    left: 50%;
-    translate: -50% var(--py, 0px);
-    height: min(92%, 58rem, 100vw);
-    width: auto;
-    max-width: none;
-    pointer-events: none;
-    user-select: none;
-  }
-  /* Location pill, attached to the left edge */
-  .hx-loc {
-    position: absolute;
-    z-index: 2;
-    left: 0;
-    top: 46%;
-    display: flex;
+  .hp-grid {
+    display: grid;
+    gap: clamp(2.5rem, 1.5rem + 4vw, 4rem);
     align-items: center;
-    gap: var(--space-l);
-    padding: var(--space-s) var(--space-s) var(--space-s) var(--gutter);
-    border-radius: 0 var(--radius-pill) var(--radius-pill) 0;
-    background: var(--ink);
-    color: var(--paper);
-    font-weight: 600;
-    line-height: 1.25;
   }
-  .hx-globe {
-    display: grid;
-    place-items: center;
-    width: 4rem;
-    height: 4rem;
-    border-radius: 50%;
-    background: var(--night-2);
-  }
-  .hx-globe svg {
-    width: 2.4rem;
-    height: 2.4rem;
-  }
-  .hx-meridian {
-    transform-origin: 20px 20px;
-  }
-  @media (prefers-reduced-motion: no-preference) {
-    .hx-meridian {
-      animation: meridian 3.2s linear infinite;
+  @media (min-width: 64em) {
+    .hp-grid {
+      grid-template-columns: minmax(0, 1.12fr) minmax(0, 0.88fr);
+      gap: clamp(2rem, 4vw, 5rem);
     }
-  }
-  @keyframes meridian {
-    from {
-      transform: scaleX(1);
-    }
-    50% {
-      transform: scaleX(-1);
-    }
-    to {
-      transform: scaleX(1);
-    }
-  }
-  /* Role line on the right */
-  .hx-role {
-    position: absolute;
-    z-index: 2;
-    right: var(--gutter);
-    top: 38%;
-    display: grid;
-    gap: var(--space-l);
-    font-size: clamp(1.25rem, 1rem + 1vw, 2rem);
-    font-weight: 500;
-    line-height: 1.2;
-    letter-spacing: -0.01em;
-  }
-  .hx-arrow {
-    width: 1.4em;
-    height: 1.4em;
-  }
-  .hx-copy {
-    display: grid;
-    gap: var(--space-m);
-  }
-  .hx-eyebrow {
-    display: none;
-    font-family: var(--font-mono);
-    font-size: var(--step--1);
-    letter-spacing: var(--tracking-label);
-    text-transform: uppercase;
-  }
-  .hx-title {
-    font-family: var(--font-display);
-    font-size: inherit;
-    font-weight: 500;
-    line-height: 1.15;
-    letter-spacing: -0.02em;
-    max-width: none;
-  }
-  .hx-actions {
-    display: flex;
-    flex-wrap: wrap;
-    gap: var(--space-xs);
-  }
-  .hx-actions .btn--secondary {
-    --btn-bg: transparent;
-  }
-  /* The giant name */
-  .hx-name {
-    position: absolute;
-    z-index: 1;
-    left: 0;
-    right: 0;
-    bottom: clamp(1.5rem, 5vh, 4rem);
-    overflow: hidden;
-    pointer-events: none;
-  }
-  .hx-track {
-    display: flex;
-    width: max-content;
-    white-space: nowrap;
-    font-family: var(--font-display);
-    font-size: clamp(5.5rem, 3rem + 13vw, 15rem);
-    font-weight: 500;
-    line-height: 1;
-    letter-spacing: -0.045em;
-    color: var(--paper);
-    will-change: transform;
-  }
-  .hx-pause {
-    position: absolute;
-    z-index: 3;
-    right: var(--gutter);
-    bottom: var(--space-s);
-    display: grid;
-    place-items: center;
-    width: var(--tap);
-    height: var(--tap);
-    border: 1.5px solid rgb(21 23 26 / 0.35);
-    border-radius: 50%;
-    background: rgb(244 241 234 / 0.88); /* readable over the photo as well as the grey */
-    color: var(--ink);
-    cursor: pointer;
-  }
-  .hx-pause:hover {
-    border-color: var(--ink);
-  }
-  .hx-pause:focus-visible {
-    outline: 3px solid var(--ink);
-    outline-offset: 2px;
-  }
-  .hx-pause-icon {
-    width: 11px;
-    height: 13px;
-    border-inline: 3.5px solid currentColor;
-  }
-  .hx-pause[aria-pressed='true'] .hx-pause-icon {
-    width: 0;
-    height: 0;
-    border-inline: 0;
-    border-block: 6.5px solid transparent;
-    border-left: 11px solid currentColor;
-    margin-left: 3px;
   }
 
-  @media (max-width: 47.99em) {
-    .hx {
-      min-height: max(38rem, min(100svh, 52rem));
+  /* ── Copy ── */
+  .hp-copy {
+    display: grid;
+    gap: var(--space-m);
+    justify-items: start;
+    min-width: 0;
+  }
+  .hp-status {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.6em;
+    padding: 0.35rem 0.85rem 0.35rem 0.7rem;
+    border: 1px solid var(--line);
+    border-radius: var(--radius-pill);
+    background: var(--card);
+    font-size: var(--step--1);
+    font-weight: 700;
+  }
+  .hp-pulse {
+    position: relative;
+    width: 0.55rem;
+    height: 0.55rem;
+    border-radius: 50%;
+    background: var(--ok);
+  }
+  .hp-pulse::after {
+    content: '';
+    position: absolute;
+    inset: 0;
+    border-radius: 50%;
+    border: 2px solid var(--ok);
+    opacity: 0;
+  }
+  :global(.js-motion) .hp-pulse::after {
+    animation: hp-ring 2.2s var(--ease-out) infinite;
+  }
+  @keyframes hp-ring {
+    0% {
+      transform: scale(1);
+      opacity: 0.7;
     }
-    /* Phones: fill a taller box, cropping only the empty sides of the square cut-out. */
-    .hx-portrait {
-      left: 0;
-      translate: 0 var(--py, 0px);
-      width: 100%;
-      height: min(58%, 32rem);
-      object-fit: cover;
-      object-position: 50% 0;
+    100% {
+      transform: scale(2.8);
+      opacity: 0;
     }
-    /* Phones: the location becomes a small line above the promise, and the promise and
-       both actions sit above the portrait so they are visible without scrolling. */
-    .hx-loc {
+  }
+  .hp-title {
+    font-size: clamp(2.35rem, 1.45rem + 3.9vw, 5.1rem);
+    font-weight: 650;
+    line-height: 1.02;
+    letter-spacing: -0.04em;
+    max-width: 14ch;
+    text-wrap: balance;
+  }
+  .hp-mark {
+    position: relative;
+    display: inline-block;
+    color: var(--accent-text);
+    font-style: italic;
+    font-weight: 500;
+    padding-right: 0.06em;
+  }
+  .hp-underline {
+    position: absolute;
+    left: -0.02em;
+    right: -0.02em;
+    bottom: -0.12em;
+    width: 104%;
+    height: 0.24em;
+    overflow: visible;
+  }
+  .hp-underline path {
+    fill: none;
+    stroke: var(--accent);
+    stroke-width: 5;
+    stroke-linecap: round;
+    vector-effect: non-scaling-stroke;
+  }
+  :global(.js-motion) .hp-underline path {
+    stroke-dasharray: 1;
+    stroke-dashoffset: 1;
+    animation: hp-draw 900ms 350ms cubic-bezier(0.65, 0, 0.35, 1) forwards;
+  }
+  @keyframes hp-draw {
+    to {
+      stroke-dashoffset: 0;
+    }
+  }
+  .hp-lead {
+    max-width: 44ch;
+    font-size: var(--step-1);
+    line-height: 1.45;
+    color: var(--ink-2);
+  }
+  .hp-actions {
+    display: flex;
+    flex-wrap: wrap;
+    gap: var(--space-s);
+  }
+  .hp-copy :global(.hp-reach) {
+    margin-top: var(--space-2xs);
+    padding-top: var(--space-m);
+    border-top: 1px dashed var(--line);
+    width: min(100%, 34rem);
+  }
+
+  /* ── Visual ── */
+  .hp-visual {
+    --rx: 0;
+    --ry: 0;
+    position: relative;
+    display: grid;
+    justify-items: center;
+    min-width: 0;
+  }
+  /* A dotted "desk mat" behind the photo. */
+  .hp-visual::before {
+    content: '';
+    position: absolute;
+    z-index: -1;
+    inset: 6% -4% 14% 12%;
+    border-radius: 28px;
+    background: radial-gradient(circle, rgb(21 23 26 / 0.16) 1.2px, transparent 1.4px) 0 0 / 16px 16px;
+    transform: translate(calc(var(--rx) * -14px), calc(var(--ry) * -14px));
+  }
+  /*
+   * Layout rule: nothing may cover the face. The face sits in the middle of the upper half
+   * of the photo, so the name badge hangs off the top-right corner (above the head) and the
+   * ticket overlaps only the bottom of the photo (the sweatshirt), at every screen width.
+   */
+  .hp-frame {
+    position: relative;
+    width: min(100%, 26rem);
+    padding-top: 2.25rem; /* room for the badge that hangs above the corner */
+  }
+  @media (min-width: 64em) {
+    .hp-visual {
+      justify-items: end;
+    }
+    .hp-frame {
+      width: min(100% - 1.5rem, 26rem);
+      margin-bottom: 5.5rem;
+    }
+  }
+  .hp-photo {
+    position: relative;
+    margin: 0;
+    aspect-ratio: 4 / 5;
+    transform: perspective(1100px) rotateX(calc(var(--ry) * -7deg)) rotateY(calc(var(--rx) * 9deg));
+  }
+  .hp-clip {
+    position: absolute;
+    inset: 0;
+    overflow: hidden;
+    border-radius: 28px;
+    background: #2c3a33;
+    box-shadow: 0 40px 70px -40px rgb(21 23 26 / 0.55), 0 1px 0 rgb(21 23 26 / 0.08);
+  }
+  .hp-clip :global(.hp-img) {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    object-position: 50% 30%;
+    transform: scale(1.04) translate(calc(var(--rx) * -10px), calc(var(--ry) * -10px));
+  }
+  .hp-glare {
+    position: absolute;
+    inset: 0;
+    background: radial-gradient(circle at var(--gx, 30%) var(--gy, 20%), rgb(255 255 255 / 0.28), transparent 45%);
+    opacity: 0;
+    transition: opacity 400ms var(--ease-out);
+    pointer-events: none;
+  }
+  .hp-visual.is-tilting .hp-glare {
+    opacity: 1;
+  }
+  /* Shutter: a panel that lifts off the photo on load (the photo is painted underneath). */
+  .hp-shutter {
+    position: absolute;
+    inset: 0;
+    background: var(--ink);
+    transform: scaleY(0);
+    transform-origin: top;
+    pointer-events: none;
+  }
+  :global(.js-motion) .hp-shutter {
+    animation: hp-shutter 900ms 100ms cubic-bezier(0.76, 0, 0.24, 1) backwards;
+  }
+  @keyframes hp-shutter {
+    from {
+      transform: scaleY(1);
+    }
+  }
+  /* Name badge: a small tag clipped to the top-right corner, above the head. */
+  .hp-badge {
+    position: absolute;
+    z-index: 1;
+    top: -2.25rem;
+    right: -0.5rem;
+    display: grid;
+    gap: 0.05rem;
+    padding: 0.45rem 0.85rem 0.5rem;
+    border-radius: 12px;
+    background: var(--card);
+    color: var(--ink);
+    font-size: var(--step--1);
+    line-height: 1.3;
+    box-shadow: 0 12px 26px -16px rgb(0 0 0 / 0.55), 0 0 0 1px rgb(21 23 26 / 0.06);
+    transform: rotate(2deg);
+  }
+  @media (min-width: 64em) {
+    .hp-badge {
+      right: -1rem;
+    }
+  }
+  .hp-badge strong {
+    font-family: var(--font-display);
+    font-size: var(--step-0);
+  }
+  .hp-time {
+    font-family: var(--font-mono);
+    color: var(--ink-2);
+    white-space: nowrap;
+  }
+
+  /* ── Sample enquiry ticket ── */
+  .hp-ticket {
+    --p: 1;
+    position: relative;
+    z-index: 2;
+    width: min(92%, 21rem);
+    margin: -3.5rem 0 0 auto;
+    padding: var(--space-s) var(--space-s) var(--space-xs);
+    border-radius: 16px;
+    background: var(--card);
+    box-shadow: 0 30px 50px -28px rgb(21 23 26 / 0.55), 0 0 0 1px rgb(21 23 26 / 0.06);
+    font-size: var(--step--1);
+    transform: translate(calc(var(--rx) * 18px), calc(var(--ry) * 12px)) rotate(-1.5deg);
+  }
+  /* Desktop: tucked under the photo's bottom-left corner, hanging below it. */
+  @media (min-width: 64em) {
+    .hp-ticket {
+      position: absolute;
+      left: -2.25rem;
+      bottom: -5.5rem;
+      margin: 0;
+      width: 19rem;
+    }
+  }
+  .ht-head {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: var(--space-xs);
+    padding-bottom: var(--space-2xs);
+    border-bottom: 1.5px dashed var(--line);
+    font-family: var(--font-mono);
+    font-weight: 700;
+    letter-spacing: 0.05em;
+    text-transform: uppercase;
+  }
+  .ht-tag {
+    padding: 0 0.55em;
+    border: 1.5px solid currentColor;
+    border-radius: var(--radius-pill);
+    color: var(--accent-text);
+  }
+  .ht-q {
+    display: grid;
+    gap: 0.15rem;
+    padding-block: var(--space-2xs);
+    font-weight: 700;
+    line-height: 1.35;
+  }
+  .ht-q span {
+    font-weight: 400;
+    color: var(--ink-2);
+  }
+  .ht-steps {
+    display: grid;
+    gap: 0.3rem;
+    list-style: none;
+    padding: 0;
+  }
+  .ht-steps li {
+    display: grid;
+    grid-template-columns: 1.5rem 1fr auto;
+    gap: 0.5rem;
+    align-items: center;
+    transition: opacity 300ms var(--ease-out);
+  }
+  .ht-check {
+    display: grid;
+    place-items: center;
+    width: 1.5rem;
+    height: 1.5rem;
+    border-radius: 50%;
+    background: var(--ok);
+    color: #fff;
+    transition: transform 320ms var(--ease-stamp);
+  }
+  .ht-check :global(svg) {
+    width: 0.9rem;
+  }
+  .ht-time {
+    font-family: var(--font-mono);
+    color: var(--ink-3);
+  }
+  .ht-foot {
+    display: flex;
+    align-items: center;
+    gap: var(--space-xs);
+    margin-top: var(--space-xs);
+  }
+  .ht-bar {
+    flex: 1;
+    height: 4px;
+    border-radius: 4px;
+    background: var(--paper-2);
+    overflow: hidden;
+  }
+  .ht-bar span {
+    display: block;
+    height: 100%;
+    background: var(--ok);
+    transform-origin: left;
+    transform: scaleX(var(--p));
+    transition: transform 600ms var(--ease-out);
+  }
+  .ht-replay {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.35em;
+    min-height: var(--tap);
+    padding: 0 0.8rem;
+    border: 1.5px solid var(--line);
+    border-radius: var(--radius-pill);
+    background: var(--card);
+    color: var(--ink);
+    font: inherit;
+    font-weight: 700;
+    cursor: pointer;
+  }
+  .ht-replay[hidden] {
+    display: none;
+  }
+  .ht-replay svg {
+    width: 1rem;
+    height: 1rem;
+  }
+  .ht-replay:hover {
+    border-color: var(--ink);
+  }
+  .ht-replay:hover svg {
+    transform: rotate(-200deg);
+    transition: transform 500ms var(--ease-out);
+  }
+  /* The finished stamp lands where the progress bar was. */
+  .ht-stamp {
+    position: absolute;
+    left: 0.1rem;
+    top: 50%;
+    padding: 0.05em 0.5em;
+    border: 3px double var(--accent-text);
+    border-radius: var(--radius-s);
+    color: var(--accent-text);
+    font-family: var(--font-display);
+    font-size: 0.8rem;
+    font-weight: 800;
+    letter-spacing: 0.02em;
+    text-transform: uppercase;
+    white-space: nowrap;
+    transform: translateY(-50%) rotate(-3deg);
+    pointer-events: none;
+    transition: opacity 200ms var(--ease-out), transform 300ms var(--ease-stamp);
+  }
+  .ht-foot {
+    position: relative;
+  }
+  .ht-bar {
+    transition: opacity 200ms var(--ease-out);
+  }
+  .hp-ticket:not(.is-live) .ht-bar,
+  .hp-ticket.is-complete .ht-bar {
+    opacity: 0;
+  }
+  /* Live (JS + motion): steps start pending and are stamped one by one. */
+  .hp-ticket.is-live li:not(.is-done) {
+    opacity: 0.38;
+  }
+  .hp-ticket.is-live li:not(.is-done) .ht-check {
+    transform: scale(0.35);
+    background: var(--control);
+  }
+  /* Very narrow phones (≤ 335 px): no room for the stamp beside Replay; the full bar says it instead. */
+  @media (max-width: 20.99em) {
+    .ht-stamp {
       display: none;
     }
-    .hx-eyebrow {
-      display: block;
+    .hp-ticket.hp-ticket .ht-bar {
+      opacity: 1;
     }
-    .hx-role {
-      top: 5.75rem;
-      right: var(--gutter);
-      left: var(--gutter);
-      grid-template-columns: auto minmax(0, 1fr);
-      align-items: start;
-      gap: var(--space-xs);
-      font-size: var(--step-1);
-    }
-    .hx-arrow {
-      width: 1.1em;
-      height: 1.1em;
-      margin-top: 1.6rem;
-    }
-    .hx-copy {
-      gap: var(--space-s);
-    }
-    .hx-actions .btn {
-      min-height: var(--tap);
-      padding: 0.6em 1.05em;
-      font-size: var(--step--1);
-    }
+  }
+  .hp-ticket.is-live:not(.is-complete) .ht-stamp {
+    opacity: 0;
+    transform: translateY(-50%) rotate(-14deg) scale(1.8);
   }
 </style>
