@@ -76,6 +76,7 @@ Cloudflare Workers, connected to GitHub: build command `npm run build:cloudflare
 | [`docs/08-studio-redesign.md`](docs/08-studio-redesign.md) | Studio-style redesign: hero, menu, work list, footer, motion and checks |
 | [`docs/09-audit-round-3.md`](docs/09-audit-round-3.md) | Audit round 3: contact warning diagnosed, hero actions, touch work rows, package comparison |
 | [`docs/10-round-4-original-design.md`](docs/10-round-4-original-design.md) | Round 4: original "front desk" design, Cloudflare Email form delivery, info@ + Call/WhatsApp/Text, zero overlaps, scorecard |
+| [`docs/11-service-areas.md`](docs/11-service-areas.md) | Service areas rebuilt from research: A Get found and chosen, B Never miss an enquiry, C A website that books work |
 | [`docs/OWNER-INPUTS.md`](docs/OWNER-INPUTS.md) | Questions and owner actions |
 
 ## Licences

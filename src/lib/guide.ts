@@ -4,7 +4,7 @@
  */
 
 export type Stage = 'starting' | 'running';
-export type Problem = 'look' | 'found' | 'enquiries' | 'content' | 'unsure';
+export type Problem = 'found' | 'enquiries' | 'bookings' | 'unsure';
 export type Site = 'none' | 'outdated' | 'ok';
 
 export interface GuideAnswers {
@@ -14,7 +14,7 @@ export interface GuideAnswers {
 }
 
 export interface Recommendation {
-  packageId: 'launch' | 'visibility' | 'content-follow-up' | 'check-up';
+  packageId: 'launch' | 'found' | 'answered' | 'website' | 'check-up';
   serviceIds: string[];
   headline: string;
   reasons: string[];
@@ -33,10 +33,9 @@ export const questions = [
     name: 'problem',
     legend: 'What would help most?',
     options: [
-      { value: 'look', label: 'Looking as professional online as we are in person' },
-      { value: 'found', label: 'Being easier to find on Google' },
-      { value: 'enquiries', label: 'Not missing or delaying enquiries' },
-      { value: 'content', label: 'Knowing what to post, and posting consistently' },
+      { value: 'found', label: 'Being found and chosen on Google' },
+      { value: 'enquiries', label: 'Not missing calls, messages or enquiries' },
+      { value: 'bookings', label: 'Turning website visitors into bookings' },
       { value: 'unsure', label: 'I’m not sure yet' },
     ],
   },
@@ -52,8 +51,7 @@ export const questions = [
 ] as const;
 
 const isStage = (v: unknown): v is Stage => v === 'starting' || v === 'running';
-const isProblem = (v: unknown): v is Problem =>
-  v === 'look' || v === 'found' || v === 'enquiries' || v === 'content' || v === 'unsure';
+const isProblem = (v: unknown): v is Problem => v === 'found' || v === 'enquiries' || v === 'bookings' || v === 'unsure';
 const isSite = (v: unknown): v is Site => v === 'none' || v === 'outdated' || v === 'ok';
 
 export function parseAnswers(input: Record<string, unknown>): GuideAnswers | null {
@@ -65,91 +63,77 @@ export function parseAnswers(input: Record<string, unknown>): GuideAnswers | nul
 export function recommend({ stage, problem, site }: GuideAnswers): Recommendation {
   // No website yet, or just starting: the foundations come first.
   if (site === 'none' || (stage === 'starting' && problem !== 'unsure')) {
-    const reasons = [
-      site === 'none'
-        ? 'Without a website, customers have nowhere reliable to check your services or contact you.'
-        : 'Setting the basics up properly once is easier than fixing them later.',
-      'It covers a website, professional email, an enquiry form that replies, and Google setup in one scope.',
-    ];
-    if (problem === 'content') reasons.push('Content planning can follow once the foundation is live.');
     return {
       packageId: 'launch',
-      serviceIds: ['websites', 'business-email', 'enquiry-workflows', 'business-profile'],
+      serviceIds: ['websites', 'business-profile', 'missed-calls', 'enquiry-workflows'],
       headline: 'Start with Business Launch',
-      reasons,
+      reasons: [
+        site === 'none'
+          ? 'Without a website, customers have nowhere reliable to check your services, book or contact you.'
+          : 'Setting the basics up properly once is easier than fixing them later.',
+        'It covers a website that books work, your Google profile and instant replies to every enquiry in one scope.',
+      ],
     };
   }
 
   if (problem === 'unsure') {
     return {
       packageId: 'check-up',
-      serviceIds: ['seo', 'enquiry-workflows', 'business-profile'],
-      headline: 'Start with a website & enquiry check-up',
+      serviceIds: ['business-profile', 'reviews', 'missed-calls'],
+      headline: 'Start with a Found & Answered check',
       reasons: [
-        'A short review of your site, your Google information and a test enquiry shows what to fix first.',
-        'You get a written list of fixes, most important first, before committing to a bigger project.',
+        'I look you up the way a customer would, and see what happens when a test enquiry arrives.',
+        'You get a written list of fixes, most important first, before committing to anything bigger.',
       ],
     };
   }
 
   if (problem === 'found') {
     return {
-      packageId: 'visibility',
-      serviceIds: ['seo', 'search-console', 'business-profile', 'analytics'],
-      headline: 'Website & Visibility fits best',
+      packageId: 'found',
+      serviceIds: site === 'outdated' ? ['business-profile', 'reviews', 'listings', 'seo'] : ['business-profile', 'reviews', 'listings'],
+      headline: 'Found & Chosen fits best',
       reasons: [
-        'Clear page titles, fast pages and accurate Google information help people find and understand you.',
-        'Search Console and Analytics show what is happening, so changes are measured rather than guessed.',
+        'Correct details and recent, real reviews are what people nearby compare before they call.',
+        'Your Google profile, Apple Maps, Bing and what AI assistants say about you are checked and made consistent.',
         'Rankings are decided by Google; this work improves what you control.',
-      ],
-    };
-  }
-
-  if (problem === 'look') {
-    if (site === 'outdated') {
-      return {
-        packageId: 'visibility',
-        serviceIds: ['websites', 'identity', 'seo'],
-        headline: 'Website & Visibility, with identity support',
-        reasons: [
-          'A dated site is often the first thing a new customer sees.',
-          'Refreshing key pages with a tidy identity makes the whole business look consistent.',
-        ],
-      };
-    }
-    return {
-      packageId: 'content-follow-up',
-      serviceIds: ['identity', 'social-materials', 'print-digital'],
-      headline: 'Content & Follow-up, focused on materials',
-      reasons: [
-        'Your website works, so the quickest improvement is consistent posts, templates and print pieces.',
-        'Editable templates mean you can keep making them yourself.',
       ],
     };
   }
 
   if (problem === 'enquiries') {
     const reasons = [
-      'An instant acknowledgement and an owner notification mean no enquiry waits unseen.',
-      'A simple lead list and reminder make it obvious who still needs a reply.',
+      'A missed call gets a polite text straight away, and every enquiry lands in one list with a reminder.',
+      'Reminders before appointments help cut no-shows.',
     ];
     if (site === 'outdated') reasons.push('I would also test your current form, because dated forms often fail quietly.');
     return {
-      packageId: 'content-follow-up',
-      serviceIds: ['enquiry-workflows', 'integrations', 'business-email'],
-      headline: 'Content & Follow-up, focused on enquiries',
+      packageId: 'answered',
+      serviceIds: ['missed-calls', 'enquiry-workflows', 'booking'],
+      headline: 'Never Miss an Enquiry fits best',
       reasons,
     };
   }
 
-  // problem === 'content'
+  // problem === 'bookings'
+  if (site === 'ok') {
+    return {
+      packageId: 'answered',
+      serviceIds: ['booking', 'enquiry-workflows'],
+      headline: 'Never Miss an Enquiry, focused on booking',
+      reasons: [
+        'Your site works, so the quickest win is a booking or quote button customers can use at any hour.',
+        'Reminders before each appointment help cut no-shows.',
+      ],
+    };
+  }
   return {
-    packageId: 'content-follow-up',
-    serviceIds: ['social-strategy', 'social-materials'],
-    headline: 'Content & Follow-up, focused on content',
+    packageId: 'website',
+    serviceIds: ['websites', 'seo', 'booking'],
+    headline: 'Website That Books fits best',
     reasons: [
-      'A plan sized to the time you actually have is easier to keep up than an ambitious one.',
-      'Ideas, captions and Reel scripts are ready before you need them.',
+      'A page for each service and a book-or-quote button on every page make it easy for a visitor to say yes.',
+      'I would also test your current form, because dated forms often fail quietly.',
     ],
   };
 }

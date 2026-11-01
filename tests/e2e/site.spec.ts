@@ -161,7 +161,7 @@ test.describe('interactions', () => {
   test('guide recommends a starting point and pre-fills the brief', async ({ page }) => {
     await page.goto('/#guide');
     await page.getByLabel('Just starting, or about to launch').check();
-    await page.getByLabel('Not missing or delaying enquiries').check();
+    await page.getByLabel('Not missing calls, messages or enquiries').check();
     await page.getByLabel('No', { exact: true }).check();
     await page.getByRole('button', { name: 'Show my starting point' }).click();
     const result = page.locator('[data-guide-result]');
@@ -174,7 +174,7 @@ test.describe('interactions', () => {
     await expect(page).toHaveURL(/\/contact\/\?package=launch/);
     await expect(page.locator('#f-package')).toHaveValue('launch');
     await expect(page.locator('input[name="services"][value="websites"]')).toBeChecked();
-    await expect(page.locator('input[name="services"][value="business-email"]')).toBeChecked();
+    await expect(page.locator('input[name="services"][value="missed-calls"]')).toBeChecked();
   });
 
   test('guide asks for missing answers instead of guessing', async ({ page }) => {
@@ -266,7 +266,7 @@ test.describe('home and services (round 3)', () => {
   test('services compares packages at a glance and links to the follow-up demo', async ({ page }) => {
     await page.goto('/services/');
     const table = page.locator('table.compare');
-    await expect(table.locator('tbody tr')).toHaveCount(4);
+    await expect(table.locator('tbody tr')).toHaveCount(5);
     await expect(table.locator('caption')).toContainText('Compare at a glance');
     await page.getByRole('link', { name: /See what follow-up looks like/ }).click();
     await expect(page).toHaveURL(/#follow-up$/);
@@ -386,19 +386,19 @@ test.describe('enquiry form', () => {
   test('service choice starts with plain-language areas; links that pre-select a service open the detail', async ({ page }) => {
     await page.goto('/contact/');
     // Three areas + "Not sure yet" are visible without opening anything.
-    for (const v of ['area-found', 'area-follow-up', 'area-professional', 'not-sure']) {
+    for (const v of ['area-found', 'area-follow-up', 'area-website', 'not-sure']) {
       await expect(page.locator(`input[name="services"][value="${v}"]`)).toBeVisible();
     }
     await expect(page.locator('[data-svc-detail]')).not.toHaveAttribute('open', '');
     // The verified email alternative sits beside the send button.
     await expect(page.locator('[data-alt-email]')).toBeVisible();
 
-    await page.goto('/contact/?services=seo,business-email');
+    await page.goto('/contact/?services=reviews,missed-calls');
     await expect(page.locator('[data-svc-detail]')).toHaveAttribute('open', '');
-    await expect(page.locator('input[name="services"][value="seo"]')).toBeChecked();
+    await expect(page.locator('input[name="services"][value="reviews"]')).toBeChecked();
     await expect(page.locator('input[name="services"][value="area-found"]')).toBeChecked();
     await expect(page.locator('input[name="services"][value="area-follow-up"]')).toBeChecked();
-    await expect(page.locator('input[name="services"][value="area-professional"]')).not.toBeChecked();
+    await expect(page.locator('input[name="services"][value="area-website"]')).not.toBeChecked();
   });
 
   test('a failed status check does not claim the form is disconnected', async ({ page }) => {

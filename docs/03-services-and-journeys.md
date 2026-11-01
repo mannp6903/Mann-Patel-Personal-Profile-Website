@@ -1,5 +1,7 @@
 # 03 · Services, packages, boundaries, sitemap and journeys
 
+> **Updated 1 Nov 2026:** the A/B/C service areas were rebuilt from research. See [`11-service-areas.md`](11-service-areas.md); the structure below is the earlier version.
+
 **Source of truth for service copy:** `src/data/services.ts`. Every service there has customer problem, deliverables, inputs needed, exclusions, handover and next step, plus plain-language definitions of technical terms. The shared five-step process (brief → written scope → build → test and launch → handover) is in the same file. This document explains the structure and the decisions.
 
 ## Service structure

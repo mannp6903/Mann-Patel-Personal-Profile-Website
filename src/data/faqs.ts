@@ -19,7 +19,15 @@ export const faqs: Faq[] = [
   },
   {
     q: 'Can you get me to the top of Google?',
-    a: 'No one honest can promise that. I can make your pages clear, fast and accurate, set up Search Console and your Business Profile correctly, and show you what to keep doing. Rankings are decided by Google.',
+    a: 'No one honest can promise that. I can make your Google profile complete and accurate, help you earn recent, real reviews, make your pages clear and fast, and show you what to keep doing. Rankings are decided by Google.',
+  },
+  {
+    q: 'Can you get us more reviews?',
+    a: 'I set up a simple, honest routine for asking every customer, with a review link and QR cards. I never buy, write or swap reviews, and I don’t offer discounts for them: Google forbids any incentive, and Canada’s Competition Bureau treats fake reviews as misleading advertising.',
+  },
+  {
+    q: 'Do you design logos or post on social media for us?',
+    a: 'Not as a main service. I focus on getting you found, answering every enquiry and turning visits into bookings. If you need a logo, I can recommend a designer.',
   },
   {
     q: 'How long does a project take?',

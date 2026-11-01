@@ -219,7 +219,7 @@ describe('delivery adapters', () => {
   });
 
   it('email texts are plain and honest', () => {
-    expect(ownerEmailText(lead)).toContain('Services: Website or landing page');
+    expect(ownerEmailText(lead)).toContain('Services: Website fix-up or new site');
     expect(acknowledgementText(lead)).toMatch(/^Hi Ada,/);
   });
 });
