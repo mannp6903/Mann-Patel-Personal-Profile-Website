@@ -55,10 +55,10 @@ const steps = [
     }
   </div>
 
-  <ol class="panels" role="list">
+  <div class="panels">
     {
       steps.map((s, i) => (
-        <li class="panel" id={`panel-${s.id}`} data-panel={i} aria-labelledby={`tab-${s.id}`}>
+        <div class="panel" id={`panel-${s.id}`} data-panel={i} aria-labelledby={`tab-${s.id}`}>
           <div class="panel-copy">
             <p class="step-no">Step {i + 1} of 4</p>
             <h3>{s.title}</h3>
@@ -116,10 +116,10 @@ const steps = [
               </div>
             )}
           </div>
-        </li>
+        </div>
       ))
     }
-  </ol>
+  </div>
 
   <div class="nav-btns" data-nav hidden>
     <button class="btn btn--secondary" type="button" data-prev>← Back</button>

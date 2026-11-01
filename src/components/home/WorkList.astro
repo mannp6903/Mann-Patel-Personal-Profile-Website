@@ -1,0 +1,253 @@
+---
+/**
+ * Recent work as large rows. On a mouse/trackpad, a preview card follows the cursor and
+ * slides to the hovered project's capture. Touch and keyboard users get plain, fully
+ * labelled links (the preview is decorative and hidden from assistive tech).
+ */
+import { getCollection } from 'astro:content';
+import { Image } from 'astro:assets';
+import nestDesktop from '../../assets/work/nest-and-rest/live-2026-10-31-desktop.png';
+import sampDesktop from '../../assets/work/samp-hair-spa/preview-2026-10-31-desktop.png';
+
+const work = (await getCollection('work')).sort((a, b) => a.data.order - b.data.order);
+const images = {
+  'nest-and-rest': { src: nestDesktop, tint: '#dfe8ee' },
+  samp: { src: sampDesktop, tint: '#f1dde1' },
+} as const;
+const status = { launched: 'Live', 'in-progress': 'In progress', prototype: 'Prototype' } as const;
+---
+
+<section class="section wl" id="work" aria-labelledby="wl-title" data-worklist>
+  <div class="container">
+    <p class="label" id="wl-title">Recent work</p>
+    <ul class="wl-list" role="list">
+      {
+        work.map((w, i) => (
+          <li>
+            <a class="wl-row" href={`/work/${w.id}/`} data-index={i}>
+              <span class="wl-title">{w.data.title}</span>
+              <span class="wl-meta">
+                <span>{w.data.kind.split('·')[0].trim()}</span>
+                <span class="wl-status">{status[w.data.status]}</span>
+              </span>
+            </a>
+          </li>
+        ))
+      }
+    </ul>
+    <p class="wl-more">
+      <a class="pill-btn" href="/work/" data-magnetic>
+        <span data-magnetic-label>All work <sup>{work.length}</sup></span>
+      </a>
+    </p>
+  </div>
+
+  <div class="wl-preview" aria-hidden="true" data-wl-preview>
+    <div class="wl-slides" data-wl-slides>
+      {
+        work.map((w) => {
+          const img = images[w.data.scene];
+          return (
+            <div class="wl-slide" style={`background:${img.tint}`}>
+              <Image src={img.src} alt="" widths={[480, 720]} sizes="22rem" loading="lazy" decoding="async" />
+            </div>
+          );
+        })
+      }
+    </div>
+    <span class="wl-view">View</span>
+  </div>
+</section>
+
+<script>
+  const section = document.querySelector<HTMLElement>('[data-worklist]');
+  const preview = section?.querySelector<HTMLElement>('[data-wl-preview]');
+  const slides = section?.querySelector<HTMLElement>('[data-wl-slides]');
+  const fine = window.matchMedia('(hover: hover) and (pointer: fine)').matches;
+  const motion = document.documentElement.classList.contains('js-motion');
+
+  if (section && preview && slides && fine && motion) {
+    let tx = 0;
+    let ty = 0;
+    let x = 0;
+    let y = 0;
+    let raf = 0;
+    const follow = () => {
+      x += (tx - x) * 0.14;
+      y += (ty - y) * 0.14;
+      preview.style.transform = `translate3d(${x}px, ${y}px, 0) translate(-50%, -50%)`;
+      raf = requestAnimationFrame(follow);
+    };
+    section.querySelectorAll<HTMLElement>('.wl-row').forEach((row) => {
+      row.addEventListener('pointerenter', () => {
+        slides.style.transform = `translateY(${-100 * Number(row.dataset.index)}%)`;
+        preview.classList.add('is-on');
+        section.classList.add('is-hovering');
+      });
+      row.addEventListener('pointerleave', () => {
+        preview.classList.remove('is-on');
+        section.classList.remove('is-hovering');
+      });
+    });
+    section.addEventListener('pointermove', (e) => {
+      const r = section.getBoundingClientRect();
+      tx = e.clientX - r.left;
+      ty = e.clientY - r.top;
+      if (!raf) {
+        x = tx;
+        y = ty;
+        raf = requestAnimationFrame(follow);
+      }
+    });
+    section.addEventListener('pointerleave', () => {
+      cancelAnimationFrame(raf);
+      raf = 0;
+    });
+  }
+</script>
+
+<style>
+  .wl {
+    position: relative;
+    padding-top: 0;
+  }
+  .wl-list {
+    list-style: none;
+    padding: 0;
+    margin-top: var(--space-l);
+    border-bottom: 1px solid var(--line);
+  }
+  .wl-row {
+    display: grid;
+    grid-template-columns: minmax(0, 1fr) auto;
+    gap: var(--space-s) var(--space-l);
+    align-items: center;
+    padding: clamp(1.75rem, 1rem + 3vw, 3.5rem) clamp(0rem, 3vw, 3rem);
+    border-top: 1px solid var(--line);
+    color: var(--ink);
+    text-decoration: none;
+    transition: opacity 300ms var(--ease-out), padding 450ms var(--ease-out);
+  }
+  .wl-title {
+    font-family: var(--font-display);
+    font-size: clamp(2rem, 1.2rem + 3.4vw, 5rem);
+    font-weight: 500;
+    letter-spacing: -0.04em;
+    line-height: 1;
+  }
+  .wl-meta {
+    display: grid;
+    justify-items: end;
+    gap: var(--space-3xs);
+    color: var(--ink-2);
+    text-align: right;
+  }
+  .wl-status {
+    font-family: var(--font-mono);
+    font-size: var(--step--1);
+    letter-spacing: var(--tracking-label);
+    text-transform: uppercase;
+  }
+  @media (hover: hover) and (pointer: fine) {
+    .wl.is-hovering .wl-row {
+      opacity: 0.35;
+    }
+    .wl.is-hovering .wl-row:hover {
+      opacity: 1;
+      padding-inline: clamp(1rem, 5vw, 5rem) clamp(0rem, 1vw, 1rem);
+    }
+  }
+  .wl-row:focus-visible {
+    outline: 3px solid var(--focus);
+    outline-offset: -3px;
+  }
+  @media (max-width: 40em) {
+    .wl-row {
+      grid-template-columns: 1fr;
+    }
+    .wl-meta {
+      justify-items: start;
+      text-align: left;
+    }
+  }
+  .wl-more {
+    display: flex;
+    justify-content: center;
+    margin-top: var(--space-2xl);
+  }
+  .pill-btn {
+    display: inline-flex;
+    align-items: center;
+    min-height: 4rem;
+    padding: 0 var(--space-xl);
+    border: 1px solid var(--line);
+    border-radius: var(--radius-pill);
+    color: var(--ink);
+    font-weight: 600;
+    text-decoration: none;
+    transition: background-color var(--dur-base) var(--ease-out), color var(--dur-base) var(--ease-out);
+  }
+  .pill-btn:hover {
+    background: var(--ink);
+    color: var(--paper);
+  }
+  .pill-btn sup {
+    font-size: 0.7em;
+    margin-left: 0.15em;
+  }
+
+  /* Cursor-following preview (mouse only) */
+  .wl-preview {
+    position: absolute;
+    z-index: 5;
+    top: 0;
+    left: 0;
+    width: 22rem;
+    height: 16rem;
+    overflow: hidden;
+    border-radius: var(--radius-s);
+    pointer-events: none;
+    transform: translate(-50%, -50%);
+    scale: 0;
+    transition: scale 380ms cubic-bezier(0.76, 0, 0.24, 1);
+    display: none;
+  }
+  @media (hover: hover) and (pointer: fine) {
+    .wl-preview {
+      display: block;
+    }
+  }
+  .wl-preview.is-on {
+    scale: 1;
+  }
+  .wl-slides {
+    height: 100%;
+    transition: transform 520ms cubic-bezier(0.76, 0, 0.24, 1);
+  }
+  .wl-slide {
+    display: grid;
+    place-items: center;
+    height: 100%;
+    padding: 1.6rem;
+  }
+  .wl-slide :global(img) {
+    width: 100%;
+    height: auto;
+    border-radius: 4px;
+    box-shadow: 0 12px 30px -16px rgb(0 0 0 / 0.5);
+  }
+  .wl-view {
+    position: absolute;
+    left: 50%;
+    top: 50%;
+    translate: -50% -50%;
+    display: grid;
+    place-items: center;
+    width: 5.5rem;
+    height: 5.5rem;
+    border-radius: 50%;
+    background: var(--accent-text);
+    color: #fff;
+    font-weight: 700;
+  }
+</style>

@@ -73,6 +73,7 @@ Cloudflare Workers, connected to GitHub: build command `npm run build:cloudflare
 | [`docs/05-launch-and-integrations.md`](docs/05-launch-and-integrations.md) | Enquiry pipeline, analytics, SEO, Search Console, hosting, costs |
 | [`docs/06-qa-report.md`](docs/06-qa-report.md) | Test results, Lighthouse, accessibility, captures, rubric |
 | [`docs/07-audit-round-2.md`](docs/07-audit-round-2.md) | Audit round 2 (1 Nov 2026): contact-form diagnosis, changes, verification, before/after score, SEO plan, handover |
+| [`docs/08-studio-redesign.md`](docs/08-studio-redesign.md) | Studio-style redesign: hero, menu, work list, footer, motion and checks |
 | [`docs/OWNER-INPUTS.md`](docs/OWNER-INPUTS.md) | Questions and owner actions |
 
 ## Licences

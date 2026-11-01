@@ -413,3 +413,89 @@ a:hover {
   color: var(--accent-text);
   font-weight: 700;
 }
+
+/* ── Round "magnetic" buttons (home intro, footer) ─────────── */
+:root {
+  --hero-bg: #8e8a82; /* warm stone behind the portrait; ink text on it ≈ 5.6:1 */
+}
+.round-btn {
+  position: relative;
+  display: inline-grid;
+  place-items: center;
+  width: clamp(9rem, 7rem + 6vw, 12rem);
+  aspect-ratio: 1;
+  border-radius: 50%;
+  background: var(--ink);
+  color: var(--paper);
+  font-weight: 700;
+  font-size: var(--step-0);
+  text-align: center;
+  text-decoration: none;
+  overflow: hidden;
+  isolation: isolate;
+  transition: transform 450ms var(--ease-out);
+}
+.round-btn::before {
+  /* Fills from the bottom on hover. */
+  content: '';
+  position: absolute;
+  inset: 0;
+  z-index: -1;
+  border-radius: 50%;
+  background: var(--accent-text);
+  transform: translateY(101%);
+  transition: transform 450ms cubic-bezier(0.76, 0, 0.24, 1);
+}
+.round-btn:hover::before,
+.round-btn:focus-visible::before {
+  transform: translateY(0);
+}
+.round-btn--accent {
+  background: var(--accent-text);
+  color: #fff;
+}
+.round-btn--accent::before {
+  background: var(--paper);
+}
+.round-btn--accent:hover,
+.round-btn--accent:focus-visible {
+  color: var(--ink);
+}
+.round-btn:focus-visible {
+  outline: 3px solid var(--accent);
+  outline-offset: 4px;
+}
+.rb-label,
+[data-magnetic-label] {
+  display: inline-block;
+  transition: transform 450ms var(--ease-out);
+}
+[data-magnetic].is-magnet,
+[data-magnetic].is-magnet [data-magnetic-label] {
+  transition-duration: 120ms;
+}
+
+/* ── Page transitions (browsers that support cross-document view transitions) ── */
+@media (prefers-reduced-motion: no-preference) {
+  @view-transition {
+    navigation: auto;
+  }
+}
+::view-transition-old(root) {
+  animation: vt-out 320ms cubic-bezier(0.7, 0, 0.84, 0) both;
+}
+::view-transition-new(root) {
+  animation: vt-in 480ms cubic-bezier(0.16, 1, 0.3, 1) both;
+}
+@keyframes vt-out {
+  to {
+    opacity: 0;
+    transform: translateY(-1.5%);
+  }
+}
+@keyframes vt-in {
+  from {
+    opacity: 0;
+    transform: translateY(2%);
+  }
+}
