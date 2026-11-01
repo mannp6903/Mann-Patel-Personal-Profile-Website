@@ -74,6 +74,7 @@ Cloudflare Workers, connected to GitHub: build command `npm run build:cloudflare
 | [`docs/06-qa-report.md`](docs/06-qa-report.md) | Test results, Lighthouse, accessibility, captures, rubric |
 | [`docs/07-audit-round-2.md`](docs/07-audit-round-2.md) | Audit round 2 (1 Nov 2026): contact-form diagnosis, changes, verification, before/after score, SEO plan, handover |
 | [`docs/08-studio-redesign.md`](docs/08-studio-redesign.md) | Studio-style redesign: hero, menu, work list, footer, motion and checks |
+| [`docs/09-audit-round-3.md`](docs/09-audit-round-3.md) | Audit round 3: contact warning diagnosed, hero actions, touch work rows, package comparison |
 | [`docs/OWNER-INPUTS.md`](docs/OWNER-INPUTS.md) | Questions and owner actions |
 
 ## Licences

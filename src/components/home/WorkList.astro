@@ -25,10 +25,14 @@ const status = { launched: 'Live', 'in-progress': 'In progress', prototype: 'Pro
         work.map((w, i) => (
           <li>
             <a class="wl-row" href={`/work/${w.id}/`} data-index={i}>
+              <span class="wl-thumb" aria-hidden="true" style={`background:${images[w.data.scene].tint}`}>
+                <Image src={images[w.data.scene].src} alt="" widths={[360, 640]} sizes="90vw" loading="lazy" decoding="async" />
+              </span>
               <span class="wl-title">{w.data.title}</span>
               <span class="wl-meta">
                 <span>{w.data.kind.split('·')[0].trim()}</span>
                 <span class="wl-status">{status[w.data.status]}</span>
+                <span class="wl-cta">Case study <span aria-hidden="true">→</span></span>
               </span>
             </a>
           </li>
@@ -141,6 +145,34 @@ const status = { launched: 'Live', 'in-progress': 'In progress', prototype: 'Pro
     gap: var(--space-3xs);
     color: var(--ink-2);
     text-align: right;
+  }
+  .wl-cta {
+    margin-top: var(--space-2xs);
+    font-weight: 700;
+    color: var(--accent-text);
+  }
+  .wl-row:hover .wl-cta,
+  .wl-row:focus-visible .wl-cta {
+    text-decoration: underline;
+  }
+  /* Touch screens (no hover): show the project image inside the row. */
+  .wl-thumb {
+    grid-column: 1 / -1;
+    display: grid;
+    place-items: center;
+    padding: var(--space-s);
+    border-radius: var(--radius-m);
+  }
+  .wl-thumb :global(img) {
+    width: 100%;
+    height: auto;
+    border-radius: 6px;
+    box-shadow: 0 10px 24px -16px rgb(0 0 0 / 0.5);
+  }
+  @media (hover: hover) and (pointer: fine) {
+    .wl-thumb {
+      display: none;
+    }
   }
   .wl-status {
     font-family: var(--font-mono);

@@ -11,11 +11,10 @@ import { profile } from '../../data/site';
 ---
 
 <section class="hx" data-hero>
-  <h1 class="visually-hidden">{profile.name}: websites and simpler systems for small businesses in Toronto and the GTA</h1>
 
   <Image
     src={cutout}
-    alt={profile.portrait?.alt ?? ''}
+    alt="Mann Patel smiling, in a dark green sweatshirt."
     widths={[480, 720, 960, 1060]}
     sizes="(min-width: 64em) 52rem, 120vw"
     width={1060}
@@ -40,7 +39,16 @@ import { profile } from '../../data/site';
     <svg class="hx-arrow" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" aria-hidden="true">
       <path d="M5 5l14 14M19 8v11H8"></path>
     </svg>
-    <p>Websites &amp; simpler<br />systems for small<br />businesses</p>
+    <div class="hx-copy">
+      <p class="hx-eyebrow">Based in Toronto, Canada</p>
+      <h1 class="hx-title">
+        <span class="visually-hidden">{profile.name}: </span>Websites &amp; simpler <br class="br" />systems for small <br class="br" />businesses
+      </h1>
+      <div class="hx-actions">
+        <a class="btn" href="/contact/">Start a project <span class="arrow" aria-hidden="true">→</span></a>
+        <a class="btn btn--secondary" href="#work">See my work</a>
+      </div>
+    </div>
   </div>
 
   <div class="hx-name" aria-hidden="true">
@@ -208,6 +216,33 @@ import { profile } from '../../data/site';
     width: 1.4em;
     height: 1.4em;
   }
+  .hx-copy {
+    display: grid;
+    gap: var(--space-m);
+  }
+  .hx-eyebrow {
+    display: none;
+    font-family: var(--font-mono);
+    font-size: var(--step--1);
+    letter-spacing: var(--tracking-label);
+    text-transform: uppercase;
+  }
+  .hx-title {
+    font-family: var(--font-display);
+    font-size: inherit;
+    font-weight: 500;
+    line-height: 1.15;
+    letter-spacing: -0.02em;
+    max-width: none;
+  }
+  .hx-actions {
+    display: flex;
+    flex-wrap: wrap;
+    gap: var(--space-xs);
+  }
+  .hx-actions .btn--secondary {
+    --btn-bg: transparent;
+  }
   /* The giant name */
   .hx-name {
     position: absolute;
@@ -275,38 +310,39 @@ import { profile } from '../../data/site';
       left: 0;
       translate: 0 var(--py, 0px);
       width: 100%;
-      height: min(72%, 38rem);
+      height: min(58%, 32rem);
       object-fit: cover;
       object-position: 50% 0;
     }
+    /* Phones: the location becomes a small line above the promise, and the promise and
+       both actions sit above the portrait so they are visible without scrolling. */
     .hx-loc {
-      top: 6.25rem;
-      padding-block: var(--space-xs);
-      gap: var(--space-s);
-      font-size: var(--step--1);
+      display: none;
     }
-    .hx-globe {
-      width: 3rem;
-      height: 3rem;
+    .hx-eyebrow {
+      display: block;
     }
-    .hx-globe svg {
-      width: 1.9rem;
-      height: 1.9rem;
-    }
-    /* On phones the role sits under the pill, clear of the portrait. */
     .hx-role {
-      top: 11.25rem;
-      right: auto;
+      top: 5.75rem;
+      right: var(--gutter);
       left: var(--gutter);
-      grid-auto-flow: column;
+      grid-template-columns: auto minmax(0, 1fr);
       align-items: start;
       gap: var(--space-xs);
-      font-size: var(--step-0);
-      font-weight: 600;
+      font-size: var(--step-1);
     }
     .hx-arrow {
-      width: 1.2em;
-      height: 1.2em;
+      width: 1.1em;
+      height: 1.1em;
+      margin-top: 1.6rem;
+    }
+    .hx-copy {
+      gap: var(--space-s);
+    }
+    .hx-actions .btn {
+      min-height: var(--tap);
+      padding: 0.6em 1.05em;
+      font-size: var(--step--1);
     }
   }
 </style>
