@@ -24,6 +24,11 @@ const waNumber = whatsapp?.replace(/[^\d]/g, '');
         A short brief is enough. I’ll reply by email with questions or a suggested next step. If I’m not the right
         fit, I’ll say so.
       </p>
+      <ol class="next-inline" role="list" aria-label="What happens next">
+        <li><span class="n" aria-hidden="true">1</span> You send a short brief</li>
+        <li><span class="n" aria-hidden="true">2</span> I reply by email</li>
+        <li><span class="n" aria-hidden="true">3</span> You get a written scope before any work starts</li>
+      </ol>
     </div>
   </section>
 
@@ -106,6 +111,30 @@ const waNumber = whatsapp?.replace(/[^\d]/g, '');
 </script>
 
 <style>
+  .next-inline {
+    list-style: none;
+    padding: 0;
+    display: flex;
+    flex-wrap: wrap;
+    gap: var(--space-2xs) var(--space-m);
+    font-weight: 600;
+  }
+  .next-inline li {
+    display: inline-flex;
+    align-items: center;
+    gap: var(--space-2xs);
+  }
+  .next-inline .n {
+    display: inline-grid;
+    place-items: center;
+    width: 1.6rem;
+    height: 1.6rem;
+    border-radius: 50%;
+    background: var(--ink);
+    color: var(--paper);
+    font-family: var(--font-mono);
+    font-size: var(--step--1);
+  }
   .page-head {
     padding-bottom: var(--space-l);
   }

@@ -2,6 +2,7 @@
 import { getCollection, render, type CollectionEntry } from 'astro:content';
 import BaseLayout from '../../layouts/BaseLayout.astro';
 import Scene from '../../components/mocks/Scene.astro';
+import Details from '../../components/mocks/Details.astro';
 import StatusChip from '../../components/StatusChip.astro';
 import Confirm from '../../components/Confirm.astro';
 import CtaBand from '../../components/CtaBand.astro';
@@ -52,6 +53,8 @@ const crumbs = breadcrumbJsonLd([
         <Scene scene={d.scene} variant="full" eager />
       </div>
     </section>
+
+    <Details scene={d.scene} />
 
     <section class="section section--tight">
       <div class="container body-grid">

@@ -23,7 +23,7 @@ export const profile = {
   headline: 'I help small businesses look professional, get found, and follow up.',
   descriptor: 'Websites, Google visibility and follow-up systems for small businesses in Toronto and the GTA',
   intro:
-    'I’m Mann Patel, founder of Nest & Rest Cleaning. I also help other owners set up the website, online presence, content and simple systems that keep new enquiries from slipping through.',
+    'I’m Mann Patel, a Toronto small business founder. I build websites, improve Google visibility, and connect the tools that help owners answer new enquiries.',
   /** Public location: based in Toronto, serves the GTA (confirmed by Mann, 31 Oct 2026). */
   location: 'Toronto',
   serviceArea: 'Toronto and the GTA',

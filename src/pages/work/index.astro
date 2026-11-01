@@ -15,23 +15,20 @@ const work = (await getCollection('work')).sort((a, b) => a.data.order - b.data.
     <div class="container head">
       <p class="label">Work</p>
       <h1>Real work, clearly labelled.</h1>
-      <p class="lead measure">
-        I’m early in offering these services, so this page is clear about what’s what. Every item carries one of these
-        labels:
-      </p>
-      <dl class="legend">
-        <div><dt><span class="chip chip--launched">Launched</span></dt><dd>Real and live.</dd></div>
-        <div><dt><span class="chip chip--in-progress">In progress</span></dt><dd>Real client work that isn’t finished yet.</dd></div>
-      </dl>
+      <p class="lead measure">My own business website, and a salon website I’m building for a client.</p>
     </div>
   </section>
 
-  <section class="section section--tight" aria-labelledby="own-title">
+  <section class="section section--tight projects" aria-labelledby="own-title">
     <div class="container">
-      <h2 id="own-title" class="sub">Real projects</h2>
+      <h2 id="own-title" class="visually-hidden">Projects</h2>
       <div class="list">
         {work.map((w) => <WorkCard entry={w} large headingLevel="h3" />)}
       </div>
+      <dl class="legend" aria-label="How projects are labelled">
+        <div><dt><span class="chip chip--launched">Launched</span></dt><dd>Real and live.</dd></div>
+        <div><dt><span class="chip chip--in-progress">In progress</span></dt><dd>Real client work that isn’t finished yet.</dd></div>
+      </dl>
     </div>
   </section>
 
@@ -56,9 +53,14 @@ const work = (await getCollection('work')).sort((a, b) => a.data.order - b.data.
   .page-head {
     padding-bottom: var(--space-l);
   }
+  .projects {
+    padding-top: 0;
+  }
   .legend {
     display: grid;
     gap: var(--space-xs);
+    margin-top: var(--space-l);
+    font-size: var(--step--1);
   }
   .legend div {
     display: grid;

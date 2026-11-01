@@ -246,9 +246,37 @@ test.describe('enquiry form', () => {
     await page.locator('#f-email').fill('owner@example.ca');
     await page.locator('#f-business').fill('Example Salon');
     await page.locator('#f-website').fill('examplesalon.ca');
-    await page.locator('input[name="services"][value="websites"]').check();
+    await page.locator('input[name="services"][value="area-found"]').check();
     await page.locator('#f-message').fill(msg);
   };
+
+  test('service choice starts with plain-language areas; links that pre-select a service open the detail', async ({ page }) => {
+    await page.goto('/contact/');
+    // Three areas + "Not sure yet" are visible without opening anything.
+    for (const v of ['area-found', 'area-follow-up', 'area-professional', 'not-sure']) {
+      await expect(page.locator(`input[name="services"][value="${v}"]`)).toBeVisible();
+    }
+    await expect(page.locator('[data-svc-detail]')).not.toHaveAttribute('open', '');
+    // The verified email alternative sits beside the send button.
+    await expect(page.locator('[data-alt-email]')).toBeVisible();
+
+    await page.goto('/contact/?services=seo,business-email');
+    await expect(page.locator('[data-svc-detail]')).toHaveAttribute('open', '');
+    await expect(page.locator('input[name="services"][value="seo"]')).toBeChecked();
+    await expect(page.locator('input[name="services"][value="area-found"]')).toBeChecked();
+    await expect(page.locator('input[name="services"][value="area-follow-up"]')).toBeChecked();
+    await expect(page.locator('input[name="services"][value="area-professional"]')).not.toBeChecked();
+  });
+
+  test('a failed status check does not claim the form is disconnected', async ({ page }) => {
+    await page.route('**/api/enquiry/', (route) =>
+      route.request().method() === 'GET' ? route.fulfill({ status: 403, body: 'Forbidden' }) : route.continue(),
+    );
+    await page.goto('/contact/');
+    await page.waitForTimeout(500);
+    await expect(page.locator('[data-not-connected]')).toBeHidden();
+    await expect(page.getByRole('button', { name: 'Send my brief' })).toBeEnabled();
+  });
 
   test('shows accessible errors for missing required fields', async ({ page }) => {
     await page.goto('/contact/');
@@ -307,6 +335,7 @@ test.describe('enquiry form', () => {
     const err = page.locator('[data-form-error]');
     await expect(err).toBeVisible();
     await expect(err).toContainText('wasn’t sent');
+    await expect(err).toContainText('email me at');
     await expect(page.locator('#f-name')).toHaveValue('Test Owner');
     await expect(page.getByRole('button', { name: 'Send my brief' })).toBeEnabled();
     await expect(page.locator('[data-success]')).toBeHidden();
@@ -319,6 +348,7 @@ test.describe('enquiry form', () => {
     await page.waitForTimeout(3200);
     await page.getByRole('button', { name: 'Send my brief' }).click();
     await expect(page.locator('[data-form-error]')).toContainText('isn’t connected');
+    await expect(page.locator('[data-form-error]')).toContainText('email me at');
     await expect(page.locator('[data-success]')).toBeHidden();
     await expect(page.locator('#f-message')).not.toHaveValue('');
   });

@@ -1,0 +1,140 @@
+---
+/**
+ * "Look closer": numbered close-ups cropped from the real captures (31 Oct 2026),
+ * each paired with the design decision it shows. No mock-ups, no invented results.
+ */
+import { Image } from 'astro:assets';
+import type { ImageMetadata } from 'astro';
+import nrPrice from '../../assets/work/nest-and-rest/detail-price-estimate.png';
+import nrPostal from '../../assets/work/nest-and-rest/detail-postal-check.png';
+import sampType from '../../assets/work/samp-hair-spa/detail-type.png';
+import sampActions from '../../assets/work/samp-hair-spa/detail-actions-mobile.png';
+
+interface Props {
+  scene: 'nest-and-rest' | 'samp';
+}
+interface Detail {
+  src: ImageMetadata;
+  alt: string;
+  title: string;
+  note: string;
+}
+const sets: Record<Props['scene'], Detail[]> = {
+  'nest-and-rest': [
+    {
+      src: nrPrice,
+      alt: 'Nest & Rest price card: Regular Cleaning for a 1-bedroom, 1-bathroom condo shows $116 for the first visit and a regular price of $145, with service, home type, bedroom and bathroom controls and a Choose a preferred day button.',
+      title: 'Price first',
+      note: 'The home page opens with an instant estimate built from the service, home type, bedrooms and bathrooms. The regular price and the booking terms are visible before any form.',
+    },
+    {
+      src: nrPostal,
+      alt: 'Nest & Rest postal-code check: “Do I come to you? Check your postal code” with a Check button, followed by Request a clean and How it works.',
+      title: 'Do I come to you?',
+      note: 'A postal-code check answers the service-area question in one step, right above the main action.',
+    },
+  ],
+  samp: [
+    {
+      src: sampType,
+      alt: 'Samp Hair & Spa headline “Where beauty meets calm.” in an elegant serif, with “beauty” in plum italic, under the line Hair · Skin · Spa — Scarborough.',
+      title: 'A calm, premium look',
+      note: 'Deep plum, blush and an elegant serif set the tone of a salon visit before anyone reads a price.',
+    },
+    {
+      src: sampActions,
+      alt: 'Samp Hair & Spa on a phone: a Book an appointment button, a call button, 4.4 stars from about 300 reviews, and an “Open now · until 6:00 PM” badge.',
+      title: 'Book, call or check the hours',
+      note: 'On a phone, the appointment request and a one-tap call sit together, with the public rating and a live “Open now” badge worked out in Toronto time.',
+    },
+  ],
+};
+const { scene } = Astro.props;
+const items = sets[scene];
+---
+
+<section class="section section--tight details" aria-labelledby="details-title">
+  <div class="container">
+    <h2 id="details-title" class="title">Look closer</h2>
+    <ol class="grid" role="list">
+      {
+        items.map((d, i) => (
+          <li>
+            <figure>
+              <div class="frame">
+                <Image src={d.src} alt={d.alt} widths={[340, 520, 700]} sizes="(min-width: 56em) 34rem, 92vw" loading="lazy" decoding="async" />
+              </div>
+              <figcaption>
+                <span class="n" aria-hidden="true">{i + 1}</span>
+                <span>
+                  <strong>{d.title}.</strong> {d.note}
+                </span>
+              </figcaption>
+            </figure>
+          </li>
+        ))
+      }
+    </ol>
+    <p class="small muted source">Close-ups cropped from the captures above, taken 31 October 2026.</p>
+  </div>
+</section>
+
+<style>
+  .title {
+    font-size: var(--step-2);
+    margin-bottom: var(--space-l);
+  }
+  .grid {
+    list-style: none;
+    padding: 0;
+    display: grid;
+    gap: var(--space-xl);
+    align-items: start;
+  }
+  @media (min-width: 56em) {
+    .grid {
+      grid-template-columns: repeat(2, minmax(0, 1fr));
+    }
+  }
+  figure {
+    display: grid;
+    gap: var(--space-s);
+  }
+  .frame {
+    display: grid;
+    place-items: center;
+    padding: var(--space-m);
+    background: var(--paper-2);
+    border: 1px solid var(--line);
+    border-radius: var(--radius-l);
+  }
+  .frame :global(img) {
+    width: auto;
+    max-width: 100%;
+    max-height: 30rem;
+    height: auto;
+    border-radius: var(--radius-s);
+    box-shadow: var(--shadow-card);
+  }
+  figcaption {
+    display: grid;
+    grid-template-columns: auto minmax(0, 1fr);
+    gap: var(--space-s);
+    align-items: start;
+    max-width: 52ch;
+  }
+  .n {
+    display: grid;
+    place-items: center;
+    width: 2rem;
+    height: 2rem;
+    border-radius: 50%;
+    background: var(--accent-text); /* white on #B03A12 ≈ 5.9:1 */
+    color: #fff;
+    font-family: var(--font-mono);
+    font-weight: 700;
+  }
+  .source {
+    margin-top: var(--space-l);
+  }
+</style>
