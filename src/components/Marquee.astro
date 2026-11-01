@@ -1,7 +1,9 @@
 ---
 /**
  * Slow, decorative services marquee (the same services are listed in full right after it,
- * so it is hidden from assistive tech). Pauses on hover; static with reduced motion.
+ * so it is hidden from assistive tech). A Pause button stops it for touch and keyboard users
+ * (WCAG 2.2.2 Pause, Stop, Hide); it also pauses on hover and while off screen, and is static
+ * with reduced motion. A paused choice is remembered for the visit.
  */
 const items = [
   'Websites',
@@ -16,6 +18,7 @@ const items = [
 ];
 ---
 
+<div class="marquee-wrap" data-marquee>
 <div class="marquee" aria-hidden="true">
   <div class="track">
     {
@@ -32,8 +35,44 @@ const items = [
     }
   </div>
 </div>
+<button class="mq-toggle" type="button" aria-pressed="false" data-marquee-toggle>
+  <span class="mq-icon" aria-hidden="true"></span>
+  <span class="visually-hidden">Pause the moving list of services</span>
+</button>
+</div>
+
+<script>
+  const wrap = document.querySelector<HTMLElement>('[data-marquee]');
+  const btn = wrap?.querySelector<HTMLButtonElement>('[data-marquee-toggle]');
+  if (wrap && btn) {
+    const set = (paused: boolean) => {
+      wrap.classList.toggle('is-paused', paused);
+      btn.setAttribute('aria-pressed', String(paused));
+      try {
+        sessionStorage.setItem('mp-marquee-paused', paused ? '1' : '0');
+      } catch {
+        /* storage blocked: the choice lasts for this page only */
+      }
+    };
+    let saved = false;
+    try {
+      saved = sessionStorage.getItem('mp-marquee-paused') === '1';
+    } catch {
+      /* ignore */
+    }
+    if (saved) set(true);
+    btn.addEventListener('click', () => set(!wrap.classList.contains('is-paused')));
+    // Don't animate while nobody can see it.
+    if ('IntersectionObserver' in window) {
+      new IntersectionObserver(([e]) => wrap.classList.toggle('is-offscreen', !e.isIntersecting)).observe(wrap);
+    }
+  }
+</script>
 
 <style>
+  .marquee-wrap {
+    position: relative;
+  }
   .marquee {
     overflow: hidden;
     background: var(--ink);
@@ -75,8 +114,51 @@ const items = [
     .track {
       animation: marquee 48s linear infinite;
     }
-    .marquee:hover .track {
+    .marquee:hover .track,
+    .is-paused .track,
+    .is-offscreen .track {
       animation-play-state: paused;
+    }
+  }
+  .mq-toggle {
+    position: absolute;
+    right: max(var(--space-2xs), env(safe-area-inset-right, 0px));
+    top: 50%;
+    translate: 0 -50%;
+    display: grid;
+    place-items: center;
+    width: var(--tap);
+    height: var(--tap);
+    border: 1.5px solid var(--night-line);
+    border-radius: 50%;
+    background: var(--ink);
+    color: var(--paper);
+    cursor: pointer;
+  }
+  .mq-toggle:hover {
+    border-color: var(--paper);
+  }
+  .mq-toggle:focus-visible {
+    outline: 3px solid var(--accent-on-night);
+    outline-offset: 2px;
+  }
+  /* Pause icon (two bars) / play icon (triangle) */
+  .mq-icon {
+    width: 12px;
+    height: 14px;
+    border-inline: 4px solid currentColor;
+  }
+  .mq-toggle[aria-pressed='true'] .mq-icon {
+    width: 0;
+    height: 0;
+    border-inline: 0;
+    border-block: 7px solid transparent;
+    border-left: 12px solid currentColor;
+    margin-left: 3px;
+  }
+  @media (prefers-reduced-motion: reduce) {
+    .mq-toggle {
+      display: none;
     }
   }
   @keyframes marquee {

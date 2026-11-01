@@ -18,24 +18,6 @@ import { absoluteUrl } from '../lib/mode';
 const work = (await getCollection('work')).sort((a, b) => a.data.order - b.data.order);
 const nest = businesses[0];
 
-// Hero headline, split into words for the staggered reveal (reads as plain text without motion).
-let wi = 0;
-const w = (text: string) => text.split(' ').map((t) => `<span class="w" style="--i:${wi++}">${t}</span>`).join(' ');
-const verb = (text: string, href: string, u: number) => `<a class="verb" href="${href}" style="--u:${u}">${w(text)}</a>`;
-const heroHtml = [
-  w('I help small businesses'),
-  ' ',
-  verb('look professional', '#overview-content', 0),
-  w(','),
-  ' ',
-  verb('get found', '#overview-visibility', 1),
-  w(','),
-  ' ',
-  w('and'),
-  ' ',
-  verb('follow up', '#overview-follow-up', 2),
-  w('.'),
-].join('');
 
 const jsonLd = {
   '@context': 'https://schema.org',
@@ -56,14 +38,17 @@ const jsonLd = {
     <div class="container hero-grid">
       <div class="hero-copy">
         <p class="label eyebrow">
-          {profile.name} · {profile.location}
+          {profile.name} · {profile.location} &amp; the GTA
         </p>
-        <h1 class="hero-title" set:html={heroHtml} />
+        <h1 class="hero-title">Websites and simpler systems for <span class="hl">small businesses</span>.</h1>
         <p class="lead intro">{profile.intro}</p>
         <div class="btn-row">
           <a class="btn" href="/contact/">Start a project <span class="arrow" aria-hidden="true">→</span></a>
-          <a class="btn btn--secondary" href="#guide">Find your starting point</a>
+          <a class="btn btn--secondary" href="#work">See my work</a>
         </div>
+        <p class="guide-link">
+          Not sure where to start? <a class="link-accent" href="#guide">Answer three quick questions</a>
+        </p>
         <p class="cleaning small">
           Looking for home cleaning? <a href={nest.url} rel="noopener">Visit {nest.name}&nbsp;↗</a>
         </p>
@@ -96,6 +81,24 @@ const jsonLd = {
 
   <Marquee />
 
+  <!-- ── Evidence ─────────────────────────────────────── -->
+  <section class="section section--alt" id="work" aria-labelledby="work-title">
+    <div class="container">
+      <div class="section-head">
+        <p class="label">Selected work</p>
+        <h2 id="work-title">Real work, clearly labelled.</h2>
+        <p class="muted measure">
+          The business I’m launching and a client website I’m building now. Every card says which is which, and no
+          results are invented.
+        </p>
+      </div>
+      <div class="work-grid">
+        {work.map((r) => <WorkCard entry={r} headingLevel="h3" large />)}
+      </div>
+      <p class="more-link"><a class="link-accent" href="/work/">All work and how it’s labelled →</a></p>
+    </div>
+  </section>
+
   <!-- ── What I do ────────────────────────────────────── -->
   <section class="section section--tight" aria-labelledby="what-title">
     <div class="container">
@@ -110,24 +113,6 @@ const jsonLd = {
         </p>
       </div>
       <ServiceOverview />
-    </div>
-  </section>
-
-  <!-- ── Evidence ─────────────────────────────────────── -->
-  <section class="section section--alt" aria-labelledby="work-title">
-    <div class="container">
-      <div class="section-head">
-        <p class="label">Evidence, not promises</p>
-        <h2 id="work-title">Real work, clearly labelled.</h2>
-        <p class="muted measure">
-          The business I’m launching and a client website I’m building now. Every card says which is which, and no
-          results are invented.
-        </p>
-      </div>
-      <div class="work-grid">
-        {work.map((r) => <WorkCard entry={r} headingLevel="h3" large />)}
-      </div>
-      <p class="more-link"><a class="link-accent" href="/work/">All work and how it’s labelled →</a></p>
     </div>
   </section>
 
@@ -222,49 +207,35 @@ const jsonLd = {
     gap: var(--space-2xs) var(--space-s);
     align-items: center;
   }
+  /* Hero: readable at once (36 px on a 360 px phone, 72 px on desktop). Only the underline moves. */
   h1 {
-    font-size: var(--step-5);
-    line-height: 1.02;
-    letter-spacing: -0.035em;
-    max-width: 15ch;
+    font-size: clamp(2.25rem, 1.4rem + 3.6vw, 4.5rem);
+    line-height: 1.04;
+    letter-spacing: -0.03em;
+    max-width: 17ch;
+    text-wrap: balance;
   }
-  .hero-title :global(.verb) {
-    text-decoration: none;
+  .hero-title .hl {
     background-image: linear-gradient(var(--accent), var(--accent));
     background-repeat: no-repeat;
-    background-size: 100% 0.12em;
-    background-position: 0 92%;
-    padding-bottom: 0.02em;
-    transition: background-size var(--dur-base) var(--ease-out);
+    background-size: 100% 0.11em;
+    background-position: 0 94%;
     -webkit-box-decoration-break: clone;
     box-decoration-break: clone;
   }
-  .hero-title :global(.verb:hover) {
-    background-size: 100% 0.3em;
-  }
-  /* Motion: words rise in sequence, then the verb underlines draw left to right. */
-  :global(.js-motion) .hero-title :global(.w) {
-    display: inline-block;
-    animation: word-rise 720ms var(--ease-out) backwards;
-    animation-delay: calc(60ms + var(--i) * 55ms);
-  }
-  :global(.js-motion) .hero-title :global(.verb) {
-    animation: underline-draw 620ms cubic-bezier(0.65, 0, 0.35, 1) backwards;
-    animation-delay: calc(820ms + var(--u) * 160ms);
-  }
-  @keyframes word-rise {
-    from {
-      opacity: 0;
-      transform: translateY(0.42em);
-    }
+  :global(.js-motion) .hero-title .hl {
+    animation: underline-draw 560ms cubic-bezier(0.65, 0, 0.35, 1) 180ms backwards;
   }
   @keyframes underline-draw {
     from {
-      background-size: 0% 0.12em;
+      background-size: 0% 0.11em;
     }
   }
   .intro {
-    max-width: 40ch;
+    max-width: 46ch;
+  }
+  .guide-link {
+    color: var(--ink-2);
   }
   .cleaning {
     color: var(--ink-2);

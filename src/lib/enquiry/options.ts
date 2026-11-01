@@ -4,6 +4,10 @@
  */
 
 export const SERVICE_OPTIONS = [
+  // Plain-language areas shown first on the form; the specific services below are optional detail.
+  { id: 'area-found', label: 'Get found: website and Google visibility', group: 'area', area: 'A' },
+  { id: 'area-follow-up', label: 'Follow up: business email and enquiry handling', group: 'area', area: 'B' },
+  { id: 'area-professional', label: 'Look professional: content, branding and print', group: 'area', area: 'C' },
   { id: 'websites', label: 'Website or landing page', group: 'A' },
   { id: 'seo', label: 'SEO review and fixes', group: 'A' },
   { id: 'search-console', label: 'Google Search Console', group: 'A' },

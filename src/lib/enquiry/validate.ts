@@ -12,7 +12,7 @@ export const LIMITS = {
   phone: 30,
   messageMin: 20,
   message: 3000,
-  services: 15,
+  services: 20,
 } as const;
 
 export interface Enquiry {

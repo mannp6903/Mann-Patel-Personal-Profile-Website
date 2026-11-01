@@ -1,5 +1,6 @@
 ---
 import BaseLayout from '../layouts/BaseLayout.astro';
+import ServiceOverview from '../components/ServiceOverview.astro';
 import ProcessSteps from '../components/ProcessSteps.astro';
 import CtaBand from '../components/CtaBand.astro';
 import Confirm from '../components/Confirm.astro';
@@ -18,7 +19,7 @@ const faqLd = {
 ---
 
 <BaseLayout
-  title="Services"
+  title="Websites, Google visibility & enquiry follow-up services"
   description="Websites, SEO, Google Search Console, Analytics and Business Profile support, professional email, enquiry follow-up workflows, social content and print materials for small businesses in Toronto. Deliverables, inputs and exclusions for each."
   jsonLd={faqLd}
 >
@@ -27,16 +28,78 @@ const faqLd = {
       <p class="label">Services</p>
       <h1>Clear deliverables. Plain language. Yours to keep.</h1>
       <p class="lead measure">
-        Each service below lists the problem it solves, what you get, what I need from you, and what isn’t included.
-        Prices depend on scope, so every project gets a written quote.
+        Start with one of three outcomes or a common package. The full list below shows what each service includes,
+        what I need from you, and what isn’t included. Every project gets a written quote.
       </p>
       <nav class="jump" aria-label="On this page">
         <ul role="list">
-          {groups.map((g) => <li><a href={`#${g.id}`}><span class="jl">{g.letter}</span> {g.title}</a></li>)}
           <li><a href="#packages">Packages</a></li>
+          {groups.map((g) => <li><a href={`#${g.id}`}><span class="jl">{g.letter}</span> {g.title}</a></li>)}
           <li><a href="#faq">Questions</a></li>
         </ul>
       </nav>
+    </div>
+  </section>
+
+  <section class="section section--tight" aria-labelledby="outcomes-title">
+    <div class="container">
+      <div class="section-head">
+        <p class="label">Three outcomes</p>
+        <h2 id="outcomes-title">Pick the result you want. I’ll handle the technical parts.</h2>
+      </div>
+      <ServiceOverview />
+    </div>
+  </section>
+
+  <section class="section on-night" id="packages" aria-labelledby="pk-title">
+    <div class="container">
+      <div class="section-head">
+        <p class="label">Packages</p>
+        <h2 id="pk-title">Common starting points.</h2>
+        <p class="muted">
+          Packages bundle the services that usually go together. Every one is scoped and quoted in writing; nothing is
+          fixed until you’ve seen it.
+        </p>
+      </div>
+      <div class="packages">
+        {
+          allPackages.map((p) => (
+            <article class:list={['pkg', { featured: p.featured, small: p.id === 'check-up' }]} aria-labelledby={`pk-${p.id}`}>
+              {p.featured && <p class="chip flag">Most common</p>}
+              <h3 id={`pk-${p.id}`}>{p.name}</h3>
+              <p class="for">{p.forWho}</p>
+              <h4>Includes</h4>
+              <ul class="ticks" role="list">{p.includes.map((i) => <li>{i}</li>)}</ul>
+              <h4>Not included</h4>
+              <ul class="crosses" role="list">{p.notIncluded.map((i) => <li>{i}</li>)}</ul>
+              <h4>You provide</h4>
+              <p class="small">{p.youProvide.join(' · ')}</p>
+              <a class="btn" href={`/contact/?package=${p.id}&services=${p.serviceIds.join(',')}#brief`}>
+                Request a quote<span class="visually-hidden">: {p.name}</span>
+              </a>
+            </article>
+          ))
+        }
+      </div>
+      <div class="terms-box">
+        <h3>In every written scope</h3>
+        <ul role="list">
+          <li><strong>Two rounds of changes</strong> per deliverable are included. More are quoted.</li>
+          <li><strong>Third-party fees</strong> (domain, email subscription, hosting, paid tools, printing) are billed to you by the provider, in your name.</li>
+          <li><strong>Ownership:</strong> your domain, accounts, content and final files are yours. I only show your project in my portfolio with your written permission.</li>
+          <li><strong>One-time vs ongoing:</strong> setup is a one-time fee. Content, monitoring and maintenance are separate, so you can stop any of them.</li>
+        </ul>
+      </div>
+    </div>
+  </section>
+
+  <section class="section section--tight catalogue-head" aria-labelledby="catalogue-title">
+    <div class="container">
+      <div class="section-head">
+        <p class="label">Every service in detail</p>
+        <h2 id="catalogue-title">What you get, what I need, what isn’t included.</h2>
+        <p class="muted measure">Use these when you already know what you need, or to see exactly what a package covers.</p>
+      </div>
     </div>
   </section>
 
@@ -103,48 +166,6 @@ const faqLd = {
       </section>
     ))
   }
-
-  <section class="section on-night" id="packages" aria-labelledby="pk-title">
-    <div class="container">
-      <div class="section-head">
-        <p class="label">Packages</p>
-        <h2 id="pk-title">Common starting points.</h2>
-        <p class="muted">
-          Packages bundle the services that usually go together. Every one is scoped and quoted in writing; nothing is
-          fixed until you’ve seen it.
-        </p>
-      </div>
-      <div class="packages">
-        {
-          allPackages.map((p) => (
-            <article class:list={['pkg', { featured: p.featured, small: p.id === 'check-up' }]} aria-labelledby={`pk-${p.id}`}>
-              {p.featured && <p class="chip flag">Most common</p>}
-              <h3 id={`pk-${p.id}`}>{p.name}</h3>
-              <p class="for">{p.forWho}</p>
-              <h4>Includes</h4>
-              <ul class="ticks" role="list">{p.includes.map((i) => <li>{i}</li>)}</ul>
-              <h4>Not included</h4>
-              <ul class="crosses" role="list">{p.notIncluded.map((i) => <li>{i}</li>)}</ul>
-              <h4>You provide</h4>
-              <p class="small">{p.youProvide.join(' · ')}</p>
-              <a class="btn" href={`/contact/?package=${p.id}&services=${p.serviceIds.join(',')}#brief`}>
-                Request a quote<span class="visually-hidden">: {p.name}</span>
-              </a>
-            </article>
-          ))
-        }
-      </div>
-      <div class="terms-box">
-        <h3>In every written scope</h3>
-        <ul role="list">
-          <li><strong>Two rounds of changes</strong> per deliverable are included. More are quoted.</li>
-          <li><strong>Third-party fees</strong> (domain, email subscription, hosting, paid tools, printing) are billed to you by the provider, in your name.</li>
-          <li><strong>Ownership:</strong> your domain, accounts, content and final files are yours. I only show your project in my portfolio with your written permission.</li>
-          <li><strong>One-time vs ongoing:</strong> setup is a one-time fee. Content, monitoring and maintenance are separate, so you can stop any of them.</li>
-        </ul>
-      </div>
-    </div>
-  </section>
 
   <section class="section" aria-labelledby="process-title">
     <div class="container">

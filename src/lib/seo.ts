@@ -12,7 +12,8 @@ export function personJsonLd() {
     name: profile.name,
     description: profile.descriptor,
     ...(url ? { url } : {}),
-    ...(profile.portrait && url ? { image: new URL('/og/default.png', url).toString() } : {}),
+    // The real portrait (square crop, public/brand/), not the social share card.
+    ...(profile.portrait && url ? { image: new URL('/brand/mann-patel-portrait.jpg', url).toString() } : {}),
     ...(sameAs.length ? { sameAs } : {}),
     worksFor: businesses.map((b) => ({ '@type': 'Organization', name: b.name, url: b.url })),
     knowsAbout: ['Websites', 'Search engine optimisation', 'Google Search Console', 'Google Analytics 4', 'Business email', 'Social media content'],

@@ -71,7 +71,8 @@ export const GET: APIRoute = async () => {
   const ready = deliveryReady(config());
   const secret = tokenSecret();
   const token = secret ? await issueToken(secret, Date.now()) : null;
-  return json(200, { connected: ready.ready, token });
+  // `reason` is a fixed code only; it never names settings or secrets.
+  return json(200, { connected: ready.ready, token, reason: ready.ready ? 'ready' : 'not_configured' });
 };
 
 export const POST: APIRoute = async (context) => {

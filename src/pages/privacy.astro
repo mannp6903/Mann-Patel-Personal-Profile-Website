@@ -32,7 +32,7 @@ const contactEmail = profile.contact.email;
         <li>
           {PUBLIC_GA4_ID
             ? 'Visit statistics are collected only if you allow them, and never include what you type into forms.'
-            : 'This site does not use analytics or advertising cookies.'}
+            : 'Visits are counted without cookies, and there are no advertising or tracking cookies.'}
         </li>
       </ul>
 
@@ -79,6 +79,10 @@ const contactEmail = profile.contact.email;
       </p>
 
       <h2 id="analytics">Analytics and cookies</h2>
+      <p>
+        Cloudflare, which hosts this site, counts page views with Cloudflare Web Analytics. It doesn’t use cookies or
+        browser storage, doesn’t build a profile of you across websites, and never sees what you type into the form.
+      </p>
       {
         PUBLIC_GA4_ID ? (
           <p>
@@ -89,8 +93,8 @@ const contactEmail = profile.contact.email;
           </p>
         ) : (
           <p>
-            This site currently uses no analytics, advertising or tracking cookies. If that changes, this page will be
-            updated and you will be asked before anything loads.
+            There are no advertising or tracking cookies, and nothing here asks for your consent because nothing needs
+            it. If that changes, this page will be updated and you will be asked before anything loads.
           </p>
         )
       }
