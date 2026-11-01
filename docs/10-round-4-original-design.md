@@ -68,3 +68,15 @@ Mann reported the image "overlapping in the top part" and that privacy and polic
 **Checks:** a geometry test now proves the badge and ticket never touch the face (hair to chin) at 320, 390, 1024 and 1440 px (the scratch check also covered 360, 412, 768, 1280, 1366 and 1920: 25–32 px clear above the head, 67+ px below the chin). Playwright + axe **53/53** (includes `/terms/`), unit 39/39, overlap scan 0 on 9 pages × 9 viewports, production pre-launch check 0 errors (11 pages).
 
 *The Terms of Use are plain-language website terms, not legal advice; a lawyer can review them before you rely on them.*
+
+## Follow-up 2 (1 Nov 2026): the hero shows the promise
+
+Mann asked for a world-class first impression. The hero now **shows** the three service areas instead of describing them:
+
+- **H1: "Get found. Answer fast. Get booked."** (the A/B/C verbs), with a plain lead line on who it's for and how it's set up (in the owner's name, by a small business founder).
+- **A live sample beside the photo**, labelled *Sample*, plays the three steps a customer takes with a local business: a search result with reviews and a Book button → a missed call answered by an automatic text → a confirmed booking with a reminder and a review request. **The matching H1 phrase lights up and underlines as each step plays.**
+- It is an accessible carousel (APG pattern): tabs that double as progress bars, a Pause button, and rotation that stops on hover, on focus, off screen and once the visitor picks a step. With reduced motion it does not rotate; without JavaScript all three steps are listed.
+- **Lower-commitment second action:** "Get a Found & Answered check" next to "Start a project", plus three honest trust points (written quote first, accounts in your name, run by a local business founder).
+- A soft warm light follows the pointer on desktop; supporting lines rise in after the headline. The H1 and the lead paragraph never animate, so the largest text paints immediately.
+
+**Checks:** Playwright + axe 54/54 (new: rotation in sync with the H1, Pause holds it, keyboard tabs, reduced-motion and no-JS behaviour), unit 39/39, overlap scan 0, the face stays clear at all ten sizes (77–216 px below the chin to the card), Lighthouse `/` (mobile, production build) 95 · 100 · 100 · 100, CLS 0.

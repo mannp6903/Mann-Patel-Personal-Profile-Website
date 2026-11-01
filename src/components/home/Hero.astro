@@ -1,107 +1,168 @@
 ---
 /**
- * Home hero, "front desk" layout.
- * - Left: availability and area, the promise as the H1 (a hand-drawn underline draws itself
- *   under "simpler"), one line about me, the two main actions, and direct contact buttons.
- * - Right: the real photo on a card that tilts toward the pointer, a name badge with the live
- *   Toronto time, and a sample enquiry ticket that stamps itself through four steps (Replay).
- *   The ticket is fictional and labelled "Sample".
- * Reduced motion or no JavaScript: everything is static and fully visible.
- * The H1 text is never animated, so it paints immediately (LCP).
+ * Home hero: "Get found. Answer fast. Get booked."
+ *
+ * The promise is shown, not just told. Beside the real photo, a short sample plays the three
+ * steps a customer takes with a local business: they find it on Google, their missed call gets
+ * a text back, and they book. As each step plays, the matching phrase in the H1 lights up.
+ *
+ * - The sample is fictional and labelled "Sample". It is an accessible carousel (APG pattern):
+ *   tabs to choose a step, a Pause button, and rotation that stops on hover, on focus, when
+ *   off screen, and after the visitor picks a step. Reduced motion: no rotation; tabs still work.
+ * - Without JavaScript all three steps are shown one under another.
+ * - The H1 text itself never moves, so it paints immediately (LCP).
+ * - Layout rule kept from round 4: nothing covers the face in the photo.
  */
 import { Image } from 'astro:assets';
 import portrait from '../../assets/mann-patel-portrait.jpg';
 import { profile } from '../../data/site';
 import ContactActions from '../ContactActions.astro';
 
+const phrases = ['Get found.', 'Answer fast.', 'Get booked.'];
 const steps = [
-  { label: 'Enquiry received', time: '9:42 a.m.' },
-  { label: 'Owner notified', time: '9:42 a.m.' },
-  { label: 'Reply sent to Priya', time: '9:44 a.m.' },
-  { label: 'Follow-up booked', time: 'Mon 9:00' },
+  { id: 'found', label: 'Found' },
+  { id: 'answered', label: 'Answered' },
+  { id: 'booked', label: 'Booked' },
 ];
-const check =
+const tick =
   '<svg viewBox="0 0 24 24" aria-hidden="true" focusable="false"><path d="M5 12.5l4.2 4.2L19 7" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"/></svg>';
 ---
 
-<section class="hp" aria-labelledby="hp-title" data-hp>
+<section class="hp" aria-labelledby="hp-title" data-hp data-step="0">
+  <span class="hp-glow" aria-hidden="true"></span>
   <div class="container hp-grid">
     <div class="hp-copy">
-      <p class="hp-status">
+      <p class="hp-status hp-in" style="--d:0">
         <span class="hp-pulse" aria-hidden="true"></span>
         Taking new projects · Toronto &amp; the GTA
       </p>
       <h1 id="hp-title" class="hp-title">
-        <span class="visually-hidden">{profile.name}: </span>Websites &amp; <span class="hp-mark"
-          >simpler<svg class="hp-underline" viewBox="0 0 200 18" preserveAspectRatio="none" aria-hidden="true"
-            ><path d="M3 12.5C40 4.5 92 3 197 8.5" pathLength="1"></path></svg
-          ></span
-        > systems for small businesses.
+        <span class="visually-hidden">{profile.name}: </span>{
+          phrases.map((p, i) => (
+            <>
+              <span class="hp-k" data-k={i}>{p}</span>{' '}
+            </>
+          ))
+        }
       </h1>
       <p class="hp-lead">
-        I’m Mann, a Toronto small business founder. I help local businesses get found and chosen on Google, answer every
-        enquiry fast, and turn website visits into bookings.
+        I help Toronto small businesses show up on Google, reply to every call and message, and turn website visits
+        into bookings. Set up properly, in your name, by someone who runs a small business too.
       </p>
-      <div class="hp-actions">
+      <div class="hp-actions hp-in" style="--d:2">
         <a class="btn" href="/contact/">Start a project <span class="arrow" aria-hidden="true">→</span></a>
-        <a class="btn btn--secondary" href="#work">See my work</a>
+        <a class="btn btn--secondary" href="/contact/?package=check-up#brief">Free Found &amp; Answered check</a>
       </div>
-      <ContactActions label="Or reach me directly" class="hp-reach" />
+      <ul class="hp-trust hp-in" style="--d:3" role="list">
+        <li><span class="hp-tick" set:html={tick} />Written quote before any work</li>
+        <li><span class="hp-tick" set:html={tick} />Every account stays in your name</li>
+        <li><span class="hp-tick" set:html={tick} />Run by a local business founder</li>
+      </ul>
+      <ContactActions label="Or reach me directly" class="hp-reach hp-in" />
     </div>
 
     <div class="hp-visual" data-hp-visual>
       <div class="hp-frame">
-      <figure class="hp-photo">
-        <div class="hp-clip">
-          <Image
-            src={portrait}
-            alt={profile.portrait?.alt ?? 'Mann Patel'}
-            widths={[420, 640, 880, 1060]}
-            sizes="(min-width: 30em) 26rem, 92vw"
-            loading="eager"
-            fetchpriority="high"
-            class="hp-img"
-          />
-          <span class="hp-shutter" aria-hidden="true"></span>
-          <span class="hp-glare" aria-hidden="true"></span>
-        </div>
-        <figcaption class="hp-badge">
-          <strong>Mann Patel</strong>
-          <span class="hp-time" data-hp-time>Founder · Toronto</span>
-        </figcaption>
-      </figure>
+        <figure class="hp-photo">
+          <div class="hp-clip">
+            <Image
+              src={portrait}
+              alt={profile.portrait?.alt ?? 'Mann Patel'}
+              widths={[420, 640, 880, 1060]}
+              sizes="(min-width: 30em) 26rem, 92vw"
+              loading="eager"
+              fetchpriority="high"
+              class="hp-img"
+            />
+            <span class="hp-shutter" aria-hidden="true"></span>
+            <span class="hp-glare" aria-hidden="true"></span>
+          </div>
+          <figcaption class="hp-badge">
+            <strong>Mann Patel</strong>
+            <span class="hp-time" data-hp-time>Founder · Toronto</span>
+          </figcaption>
+        </figure>
 
-      <div class="hp-ticket" role="group" aria-labelledby="hp-ticket-title" data-ticket>
-        <p class="ht-head">
-          <span id="hp-ticket-title">Enquiry #0142</span>
-          <span class="ht-tag">Sample</span>
-        </p>
-        <p class="ht-q">
-          “Do you have Saturday openings for a large dog?”
-          <span>Priya S., Bloom &amp; Bark Grooming</span>
-        </p>
-        <ol class="ht-steps" role="list">
-          {
-            steps.map((s, i) => (
-              <li style={`--i:${i}`}>
-                <span class="ht-check" set:html={check} />
-                <span class="ht-label">{s.label}</span>
-                <span class="ht-time">{s.time}</span>
-              </li>
-            ))
-          }
-        </ol>
-        <div class="ht-foot">
-          <span class="ht-bar" aria-hidden="true"><span></span></span>
-          <span class="ht-stamp" aria-hidden="true">Nothing slipped</span>
-          <button type="button" class="ht-replay" data-ticket-replay hidden>
-            <svg viewBox="0 0 24 24" aria-hidden="true" focusable="false"
-              ><path d="M4 12a8 8 0 1 0 2.4-5.7M4 4v4.5h4.5" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"></path></svg
-            >
-            Replay<span class="visually-hidden"> the sample enquiry</span>
-          </button>
+        <div
+          class="hp-story"
+          role="region"
+          aria-roledescription="carousel"
+          aria-label="Sample: how a customer finds, contacts and books a local business"
+          data-story
+        >
+          <div class="hs-head">
+            <span class="hs-tag">Sample</span>
+            <span class="hs-title">How it works</span>
+            <button class="hs-pause" type="button" aria-label="Pause the sample" data-story-pause hidden>
+              <span class="hs-pause-icon" aria-hidden="true"></span>
+            </button>
+          </div>
+          <div class="hs-tabs" role="tablist" aria-label="Steps">
+            {
+              steps.map((st, i) => (
+                <button
+                  class="hs-tab"
+                  type="button"
+                  role="tab"
+                  id={`hs-tab-${st.id}`}
+                  aria-controls={`hs-panel-${st.id}`}
+                  aria-selected={i === 0 ? 'true' : 'false'}
+                  tabindex={i === 0 ? 0 : -1}
+                  data-story-tab={i}
+                >
+                  <span class="hs-label">
+                    <span class="hs-n" aria-hidden="true">{i + 1}</span>
+                    {st.label}
+                  </span>
+                  <span class="hs-bar" aria-hidden="true"><span></span></span>
+                </button>
+              ))
+            }
+          </div>
+
+          <div class="hs-panels">
+            <div class="hs-panel is-active" role="tabpanel" id="hs-panel-found" aria-labelledby="hs-tab-found" data-story-panel="0">
+              <p class="hs-step">1 · Found</p>
+              <div class="sc-search">
+                <svg viewBox="0 0 24 24" aria-hidden="true" focusable="false"><circle cx="11" cy="11" r="6.5" fill="none" stroke="currentColor" stroke-width="2"></circle><path d="M16 16l4.5 4.5" stroke="currentColor" stroke-width="2" stroke-linecap="round"></path></svg>
+                <span>dog groomer near me</span>
+              </div>
+              <div class="sc-card sc-pop" style="--p:1">
+                <p class="sc-row"><strong>Bloom &amp; Bark Grooming</strong><span class="sc-open">Open</span></p>
+                <p class="sc-rating"><span class="sc-stars" aria-hidden="true">★★★★★</span> 4.9 <span class="sc-muted">(127 reviews)</span></p>
+                <p class="sc-muted">Dog groomer · Closes 6 p.m.</p>
+                <p class="sc-chips" aria-hidden="true"><span>Call</span><span class="is-main">Book</span><span>Directions</span></p>
+              </div>
+            </div>
+
+            <div class="hs-panel" role="tabpanel" id="hs-panel-answered" aria-labelledby="hs-tab-answered" data-story-panel="1">
+              <p class="hs-step">2 · Answered</p>
+              <p class="sc-missed">
+                <svg viewBox="0 0 24 24" aria-hidden="true" focusable="false"><path d="M6.6 3.5h2.6l1.4 4.1-2 1.5a12.3 12.3 0 0 0 6.3 6.3l1.5-2 4.1 1.4v2.6a2 2 0 0 1-2.1 2A16.5 16.5 0 0 1 4.6 5.6a2 2 0 0 1 2-2.1z" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linejoin="round"></path><path d="M15 4l5 5M20 4l-5 5" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"></path></svg>
+                Missed call · 9:41 a.m.
+              </p>
+              <p class="sc-bubble sc-out sc-pop" style="--p:1">
+                <span class="sc-from">Automatic text-back</span>
+                Sorry we missed you, we’re with a client! Want to book? Reply here or tap our booking link.
+              </p>
+              <p class="sc-bubble sc-in sc-pop" style="--p:2">Saturday morning, for a large dog?</p>
+            </div>
+
+            <div class="hs-panel" role="tabpanel" id="hs-panel-booked" aria-labelledby="hs-tab-booked" data-story-panel="2">
+              <p class="hs-step">3 · Booked</p>
+              <div class="sc-cal sc-pop" style="--p:0">
+                <p class="sc-date" aria-hidden="true"><span>Sat</span><strong>10:00</strong></p>
+                <p class="sc-what"><strong>Full groom, large dog</strong><span class="sc-muted">Saturday 10 a.m. · Priya S.</span></p>
+                <span class="sc-ok">Booked</span>
+              </div>
+              <ul class="sc-list" role="list">
+                <li class="sc-pop" style="--p:1"><span class="hp-tick" set:html={tick} />Reminder set for Friday</li>
+                <li class="sc-pop" style="--p:2"><span class="hp-tick" set:html={tick} />Added to the enquiry list</li>
+                <li class="sc-pop" style="--p:3"><span class="hp-tick" set:html={tick} />Review request after the visit</li>
+              </ul>
+            </div>
+          </div>
         </div>
-      </div>
       </div>
     </div>
   </div>
@@ -110,6 +171,7 @@ const check =
 <script>
   const hero = document.querySelector<HTMLElement>('[data-hp]');
   const motion = document.documentElement.classList.contains('js-motion');
+  const fine = window.matchMedia('(hover: hover) and (pointer: fine)').matches;
 
   // Live Toronto time on the name badge (it sits on the photo's corner, clear of the face).
   const timeEl = hero?.querySelector<HTMLElement>('[data-hp-time]');
@@ -120,47 +182,96 @@ const check =
     window.setInterval(tick, 30_000);
   }
 
-  // Sample enquiry: stamps each step in turn, then the "Nothing slipped" stamp. Replayable.
-  const ticket = hero?.querySelector<HTMLElement>('[data-ticket]');
-  const replay = ticket?.querySelector<HTMLButtonElement>('[data-ticket-replay]');
-  if (ticket && replay && motion) {
-    const items = [...ticket.querySelectorAll<HTMLElement>('.ht-steps li')];
-    let timers: number[] = [];
-    const play = () => {
-      timers.forEach(clearTimeout);
-      timers = [];
-      ticket.classList.add('is-live');
-      ticket.classList.remove('is-complete');
-      items.forEach((li) => li.classList.remove('is-done'));
-      ticket.style.setProperty('--p', '0');
-      items.forEach((li, i) => {
-        timers.push(
-          window.setTimeout(() => {
-            li.classList.add('is-done');
-            ticket.style.setProperty('--p', String((i + 1) / items.length));
-          }, 500 + i * 650),
-        );
+  // ── The sample: Found → Answered → Booked ───────────────────────────────
+  const story = hero?.querySelector<HTMLElement>('[data-story]');
+  if (hero && story) {
+    const tabs = [...story.querySelectorAll<HTMLButtonElement>('[data-story-tab]')];
+    const panels = [...story.querySelectorAll<HTMLElement>('[data-story-panel]')];
+    const pause = story.querySelector<HTMLButtonElement>('[data-story-pause]')!;
+    let index = 0;
+    let userPaused = false;
+    let hovered = false;
+    let focused = false;
+    let visible = false;
+
+    const show = (i: number) => {
+      index = (i + tabs.length) % tabs.length;
+      tabs.forEach((t, k) => {
+        const on = k === index;
+        t.setAttribute('aria-selected', String(on));
+        t.tabIndex = on ? 0 : -1;
+        t.classList.toggle('is-done', k < index);
       });
-      timers.push(window.setTimeout(() => ticket.classList.add('is-complete'), 500 + items.length * 650));
+      panels.forEach((p, k) => p.classList.toggle('is-active', k === index));
+      hero.dataset.step = String(index);
     };
-    replay.hidden = false;
-    replay.addEventListener('click', play);
-    ticket.classList.add('is-live');
-    new IntersectionObserver(
-      ([entry], obs) => {
-        if (entry.isIntersecting) {
-          play();
-          obs.disconnect();
+
+    // Rotation runs only while nobody is reading or using it (APG carousel guidance).
+    const update = () => {
+      const running = motion && !userPaused && !hovered && !focused && visible;
+      story.classList.toggle('is-playing', running);
+    };
+    const setUserPaused = (p: boolean) => {
+      userPaused = p;
+      pause.setAttribute('aria-label', p ? 'Play the sample' : 'Pause the sample');
+      pause.classList.toggle('is-paused', p);
+      update();
+    };
+
+    hero.classList.add('is-synced');
+    story.classList.add('is-js');
+    if (motion) {
+      story.classList.add('is-auto');
+      pause.hidden = false;
+      pause.addEventListener('click', () => setUserPaused(!userPaused));
+      // The active tab's progress bar is a CSS animation; when it ends, move on.
+      story.addEventListener('animationend', (e) => {
+        if ((e.target as Element).closest('.hs-bar') && story.classList.contains('is-playing')) show(index + 1);
+      });
+      story.addEventListener('pointerenter', () => ((hovered = true), update()));
+      story.addEventListener('pointerleave', () => ((hovered = false), update()));
+      story.addEventListener('focusin', () => ((focused = true), update()));
+      story.addEventListener('focusout', (e) => {
+        if (!story.contains(e.relatedTarget as Node | null)) {
+          focused = false;
+          update();
         }
-      },
-      { threshold: 0.35 },
-    ).observe(ticket);
+      });
+      new IntersectionObserver(([entry]) => {
+        visible = entry.isIntersecting;
+        update();
+      }, { threshold: 0.4 }).observe(story);
+    }
+
+    tabs.forEach((t, k) =>
+      t.addEventListener('click', () => {
+        show(k);
+        if (motion) setUserPaused(true); // the visitor took over; stop rotating
+      }),
+    );
+    story.querySelector('[role="tablist"]')?.addEventListener('keydown', (e) => {
+      const key = (e as KeyboardEvent).key;
+      const next = key === 'ArrowRight' ? index + 1 : key === 'ArrowLeft' ? index - 1 : key === 'Home' ? 0 : key === 'End' ? tabs.length - 1 : null;
+      if (next === null) return;
+      e.preventDefault();
+      show(next);
+      tabs[index].focus();
+      if (motion) setUserPaused(true);
+    });
+    show(0);
   }
 
-  // Pointer tilt: the photo leans toward the pointer and the ticket drifts the other way.
+  // ── Pointer effects (mouse/trackpad only, never with reduced motion) ──────
   const visual = hero?.querySelector<HTMLElement>('[data-hp-visual]');
-  const fine = window.matchMedia('(hover: hover) and (pointer: fine)').matches;
-  if (visual && motion && fine) {
+  if (hero && visual && motion && fine) {
+    // A soft light follows the pointer across the hero.
+    hero.addEventListener('pointermove', (e) => {
+      const r = hero.getBoundingClientRect();
+      hero.style.setProperty('--mx', `${(((e.clientX - r.left) / r.width) * 100).toFixed(1)}%`);
+      hero.style.setProperty('--my', `${(((e.clientY - r.top) / r.height) * 100).toFixed(1)}%`);
+    });
+
+    // The photo leans toward the pointer and the sample card drifts the other way.
     let tx = 0;
     let ty = 0;
     let x = 0;
@@ -196,9 +307,20 @@ const check =
 
 <style>
   .hp {
+    --mx: 78%;
+    --my: 28%;
     position: relative;
+    isolation: isolate;
     padding-block: clamp(1.5rem, 0.5rem + 3vw, 4rem) clamp(3rem, 2rem + 4vw, 6rem);
     overflow: hidden;
+  }
+  /* A warm light behind the hero; it follows the pointer on desktop. */
+  .hp-glow {
+    position: absolute;
+    z-index: -1;
+    inset: 0;
+    background: radial-gradient(42rem circle at var(--mx) var(--my), rgb(217 72 28 / 0.11), transparent 62%);
+    pointer-events: none;
   }
   .hp-grid {
     display: grid;
@@ -207,7 +329,7 @@ const check =
   }
   @media (min-width: 64em) {
     .hp-grid {
-      grid-template-columns: minmax(0, 1.12fr) minmax(0, 0.88fr);
+      grid-template-columns: minmax(0, 1.08fr) minmax(0, 0.92fr);
       gap: clamp(2rem, 4vw, 5rem);
     }
   }
@@ -258,50 +380,45 @@ const check =
       opacity: 0;
     }
   }
+
+  /* H1: three short lines. The phrase for the step on screen lights up and underlines. */
   .hp-title {
-    font-size: clamp(2.35rem, 1.45rem + 3.9vw, 5.1rem);
-    font-weight: 650;
-    line-height: 1.02;
-    letter-spacing: -0.04em;
-    max-width: 14ch;
-    text-wrap: balance;
+    font-size: clamp(2.6rem, 1.5rem + 4.6vw, 5.6rem);
+    font-weight: 700;
+    line-height: 0.98;
+    letter-spacing: -0.045em;
   }
-  .hp-mark {
+  .hp-k {
     position: relative;
-    display: inline-block;
-    color: var(--accent-text);
-    font-style: italic;
-    font-weight: 500;
-    padding-right: 0.06em;
+    display: block;
+    width: fit-content;
+    transition: color 450ms var(--ease-out);
   }
-  .hp-underline {
+  .hp-k::after {
+    content: '';
     position: absolute;
-    left: -0.02em;
-    right: -0.02em;
-    bottom: -0.12em;
-    width: 104%;
-    height: 0.24em;
-    overflow: visible;
+    left: 0.02em;
+    right: 0.1em;
+    bottom: 0.02em;
+    height: 0.085em;
+    border-radius: 0.1em;
+    background: var(--accent);
+    transform: scaleX(0);
+    transform-origin: left;
+    transition: transform 650ms cubic-bezier(0.65, 0, 0.35, 1);
   }
-  .hp-underline path {
-    fill: none;
-    stroke: var(--accent);
-    stroke-width: 5;
-    stroke-linecap: round;
-    vector-effect: non-scaling-stroke;
+  .hp.is-synced[data-step='0'] .hp-k[data-k='0'],
+  .hp.is-synced[data-step='1'] .hp-k[data-k='1'],
+  .hp.is-synced[data-step='2'] .hp-k[data-k='2'] {
+    color: var(--accent-text);
   }
-  :global(.js-motion) .hp-underline path {
-    stroke-dasharray: 1;
-    stroke-dashoffset: 1;
-    animation: hp-draw 900ms 350ms cubic-bezier(0.65, 0, 0.35, 1) forwards;
-  }
-  @keyframes hp-draw {
-    to {
-      stroke-dashoffset: 0;
-    }
+  .hp.is-synced[data-step='0'] .hp-k[data-k='0']::after,
+  .hp.is-synced[data-step='1'] .hp-k[data-k='1']::after,
+  .hp.is-synced[data-step='2'] .hp-k[data-k='2']::after {
+    transform: scaleX(1);
   }
   .hp-lead {
-    max-width: 44ch;
+    max-width: 46ch;
     font-size: var(--step-1);
     line-height: 1.45;
     color: var(--ink-2);
@@ -311,11 +428,51 @@ const check =
     flex-wrap: wrap;
     gap: var(--space-s);
   }
+  .hp-trust {
+    display: flex;
+    flex-wrap: wrap;
+    gap: var(--space-2xs) var(--space-m);
+    list-style: none;
+    padding: 0;
+    font-size: var(--step--1);
+    font-weight: 600;
+    color: var(--ink-2);
+  }
+  .hp-trust li {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.4em;
+  }
+  .hp-tick {
+    display: inline-grid;
+    place-items: center;
+    flex: none;
+    width: 1.15rem;
+    height: 1.15rem;
+    border-radius: 50%;
+    background: var(--ok);
+    color: #fff;
+  }
+  .hp-tick :global(svg) {
+    width: 0.72rem;
+  }
   .hp-copy :global(.hp-reach) {
     margin-top: var(--space-2xs);
     padding-top: var(--space-m);
     border-top: 1px dashed var(--line);
     width: min(100%, 34rem);
+  }
+  /* Entrance: supporting lines rise in after the headline (the H1 itself never moves). */
+  :global(.js-motion) .hp-in,
+  :global(.js-motion) .hp-copy :global(.hp-in) {
+    animation: hp-rise 700ms var(--ease-out) backwards;
+    animation-delay: calc(120ms + var(--d, 4) * 90ms);
+  }
+  @keyframes hp-rise {
+    from {
+      opacity: 0;
+      transform: translateY(14px);
+    }
   }
 
   /* ── Visual ── */
@@ -340,7 +497,7 @@ const check =
   /*
    * Layout rule: nothing may cover the face. The face sits in the middle of the upper half
    * of the photo, so the name badge hangs off the top-right corner (above the head) and the
-   * ticket overlaps only the bottom of the photo (the sweatshirt), at every screen width.
+   * sample card overlaps only the bottom of the photo (the sweatshirt), at every screen width.
    */
   .hp-frame {
     position: relative;
@@ -352,8 +509,8 @@ const check =
       justify-items: end;
     }
     .hp-frame {
-      width: min(100% - 1.5rem, 26rem);
-      margin-bottom: 5.5rem;
+      width: min(100% - 2.25rem, 26rem);
+      margin-bottom: 8rem;
     }
   }
   .hp-photo {
@@ -437,186 +594,363 @@ const check =
     white-space: nowrap;
   }
 
-  /* ── Sample enquiry ticket ── */
-  .hp-ticket {
-    --p: 1;
+  /* ── The sample: Found → Answered → Booked ── */
+  .hp-story {
+    --dur: 3600ms;
     position: relative;
     z-index: 2;
-    width: min(92%, 21rem);
+    width: min(94%, 21rem);
     margin: -3.5rem 0 0 auto;
-    padding: var(--space-s) var(--space-s) var(--space-xs);
-    border-radius: 16px;
+    padding: var(--space-xs) var(--space-s) var(--space-s);
+    border-radius: 18px;
     background: var(--card);
     box-shadow: 0 30px 50px -28px rgb(21 23 26 / 0.55), 0 0 0 1px rgb(21 23 26 / 0.06);
     font-size: var(--step--1);
-    transform: translate(calc(var(--rx) * 18px), calc(var(--ry) * 12px)) rotate(-1.5deg);
+    transform: translate(calc(var(--rx) * 18px), calc(var(--ry) * 12px)) rotate(-1.2deg);
   }
   /* Desktop: tucked under the photo's bottom-left corner, hanging below it. */
   @media (min-width: 64em) {
-    .hp-ticket {
+    .hp-story {
       position: absolute;
-      left: -2.25rem;
-      bottom: -5.5rem;
+      left: -3rem;
+      bottom: -8rem;
       margin: 0;
-      width: 19rem;
+      width: 20.5rem;
     }
   }
-  .ht-head {
+  :global(.js-motion) .hp-story {
+    animation: hp-rise 800ms 650ms var(--ease-out) backwards;
+  }
+  .hs-head {
     display: flex;
     align-items: center;
-    justify-content: space-between;
-    gap: var(--space-xs);
-    padding-bottom: var(--space-2xs);
-    border-bottom: 1.5px dashed var(--line);
-    font-family: var(--font-mono);
-    font-weight: 700;
-    letter-spacing: 0.05em;
-    text-transform: uppercase;
+    gap: var(--space-2xs);
+    min-height: var(--tap);
   }
-  .ht-tag {
+  .hs-tag {
     padding: 0 0.55em;
     border: 1.5px solid currentColor;
     border-radius: var(--radius-pill);
+    font-family: var(--font-mono);
+    font-size: 0.78rem;
+    font-weight: 700;
+    letter-spacing: 0.05em;
+    text-transform: uppercase;
     color: var(--accent-text);
   }
-  .ht-q {
-    display: grid;
-    gap: 0.15rem;
-    padding-block: var(--space-2xs);
+  .hs-title {
+    flex: 1;
+    min-width: 0;
     font-weight: 700;
-    line-height: 1.35;
-  }
-  .ht-q span {
-    font-weight: 400;
     color: var(--ink-2);
   }
-  .ht-steps {
-    display: grid;
-    gap: 0.3rem;
-    list-style: none;
-    padding: 0;
-  }
-  .ht-steps li {
-    display: grid;
-    grid-template-columns: 1.5rem 1fr auto;
-    gap: 0.5rem;
-    align-items: center;
-    transition: opacity 300ms var(--ease-out);
-  }
-  .ht-check {
+  .hs-pause {
     display: grid;
     place-items: center;
-    width: 1.5rem;
-    height: 1.5rem;
+    width: var(--tap);
+    height: var(--tap);
+    margin-right: -0.5rem;
+    border: 0;
     border-radius: 50%;
-    background: var(--ok);
-    color: #fff;
-    transition: transform 320ms var(--ease-stamp);
+    background: transparent;
+    color: var(--ink);
+    cursor: pointer;
   }
-  .ht-check :global(svg) {
-    width: 0.9rem;
+  .hs-pause[hidden] {
+    display: none;
   }
-  .ht-time {
-    font-family: var(--font-mono);
-    color: var(--ink-3);
-  }
-  .ht-foot {
-    display: flex;
-    align-items: center;
-    gap: var(--space-xs);
-    margin-top: var(--space-xs);
-  }
-  .ht-bar {
-    flex: 1;
-    height: 4px;
-    border-radius: 4px;
+  .hs-pause:hover {
     background: var(--paper-2);
-    overflow: hidden;
   }
-  .ht-bar span {
-    display: block;
-    height: 100%;
-    background: var(--ok);
-    transform-origin: left;
-    transform: scaleX(var(--p));
-    transition: transform 600ms var(--ease-out);
+  .hs-pause-icon {
+    width: 10px;
+    height: 12px;
+    border-inline: 3.5px solid currentColor;
   }
-  .ht-replay {
+  .hs-pause.is-paused .hs-pause-icon {
+    width: 0;
+    height: 0;
+    border-inline: 0;
+    border-block: 6px solid transparent;
+    border-left: 10px solid currentColor;
+    margin-left: 3px;
+  }
+  /* Tabs double as progress bars. */
+  .hs-tabs {
+    display: grid;
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+    gap: 0.6rem;
+    margin-bottom: var(--space-xs);
+  }
+  .hs-tab {
+    display: grid;
+    gap: 0.35rem;
+    min-height: var(--tap);
+    padding: 0.35rem 0.2rem 0.3rem;
+    border: 0;
+    border-radius: 10px;
+    background: transparent;
+    color: var(--ink-3);
+    font: inherit;
+    font-weight: 700;
+    text-align: left;
+    cursor: pointer;
+  }
+  .hs-tab:hover {
+    color: var(--ink);
+  }
+  .hs-tab[aria-selected='true'] {
+    color: var(--ink);
+  }
+  .hs-tab:focus-visible {
+    outline: 3px solid var(--focus);
+    outline-offset: 1px;
+  }
+  .hs-label {
     display: inline-flex;
     align-items: center;
     gap: 0.35em;
-    min-height: var(--tap);
-    padding: 0 0.8rem;
-    border: 1.5px solid var(--line);
-    border-radius: var(--radius-pill);
-    background: var(--card);
-    color: var(--ink);
-    font: inherit;
-    font-weight: 700;
-    cursor: pointer;
+    white-space: nowrap;
   }
-  .ht-replay[hidden] {
+  .hs-n {
+    display: inline-grid;
+    place-items: center;
+    width: 1.2rem;
+    height: 1.2rem;
+    border-radius: 50%;
+    background: var(--paper-2);
+    font-family: var(--font-mono);
+    font-size: 0.72rem;
+  }
+  .hs-tab[aria-selected='true'] .hs-n {
+    background: var(--accent-text);
+    color: #fff;
+  }
+  .hs-bar {
+    display: block;
+    height: 3px;
+    border-radius: 3px;
+    background: var(--paper-2);
+    overflow: hidden;
+  }
+  .hs-bar span {
+    display: block;
+    height: 100%;
+    background: var(--accent);
+    transform-origin: left;
+    transform: scaleX(0);
+  }
+  .hs-tab.is-done .hs-bar span,
+  .hs-tab[aria-selected='true'] .hs-bar span {
+    transform: scaleX(1);
+  }
+  /* While rotating, the selected bar fills over --dur; animationend moves to the next step. */
+  .hp-story.is-auto .hs-tab[aria-selected='true'] .hs-bar span {
+    animation: hs-fill var(--dur) linear both;
+    animation-play-state: paused;
+  }
+  .hp-story.is-auto.is-playing .hs-tab[aria-selected='true'] .hs-bar span {
+    animation-play-state: running;
+  }
+  @keyframes hs-fill {
+    from {
+      transform: scaleX(0);
+    }
+    to {
+      transform: scaleX(1);
+    }
+  }
+
+  /* Panels: stacked in one cell so the card never changes height. */
+  .hs-panels {
+    display: grid;
+  }
+  .hs-panel {
+    display: grid;
+    gap: 0.55rem;
+    align-content: start;
+  }
+  .hp-story.is-js .hs-panel {
+    grid-area: 1 / 1;
+    transition: opacity 350ms var(--ease-out), visibility 0s linear 350ms;
+  }
+  .hp-story.is-js .hs-panel:not(.is-active) {
+    visibility: hidden;
+    opacity: 0;
+  }
+  .hp-story.is-js .hs-panel.is-active {
+    transition-delay: 0s;
+  }
+  .hs-step {
+    display: none;
+    font-family: var(--font-mono);
+    font-weight: 700;
+    color: var(--accent-text);
+  }
+  /* Without JavaScript: no tabs; all three steps one under another. */
+  .hp-story:not(.is-js) .hs-tabs {
     display: none;
   }
-  .ht-replay svg {
+  .hp-story:not(.is-js) .hs-step {
+    display: block;
+  }
+  .hp-story:not(.is-js) .hs-panels {
+    gap: var(--space-s);
+  }
+  /* Each element of the step pops in, one after another. */
+  :global(.js-motion) .hp-story.is-js .hs-panel.is-active .sc-pop {
+    animation: sc-pop 520ms var(--ease-stamp) backwards;
+    animation-delay: calc(120ms + var(--p, 0) * 260ms);
+  }
+  @keyframes sc-pop {
+    from {
+      opacity: 0;
+      transform: translateY(10px) scale(0.97);
+    }
+  }
+
+  /* Scene parts */
+  .sc-muted {
+    color: var(--ink-2);
+  }
+  .sc-search {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    padding: 0.45rem 0.8rem;
+    border: 1px solid var(--line);
+    border-radius: var(--radius-pill);
+    background: #fff;
+    color: var(--ink-2);
+  }
+  .sc-search svg {
     width: 1rem;
     height: 1rem;
+    flex: none;
   }
-  .ht-replay:hover {
+  .sc-card {
+    display: grid;
+    gap: 0.25rem;
+    padding: 0.7rem 0.8rem;
+    border: 1px solid var(--line);
+    border-radius: 12px;
+    background: #fff;
+  }
+  .sc-row {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 0.5rem;
+  }
+  .sc-open {
+    color: var(--ok);
+    font-weight: 700;
+  }
+  .sc-stars {
+    color: #c77d00;
+    letter-spacing: 0.05em;
+  }
+  .sc-chips {
+    display: flex;
+    gap: 0.35rem;
+    margin-top: 0.3rem;
+  }
+  .sc-chips span {
+    padding: 0.15rem 0.65rem;
+    border: 1px solid var(--line);
+    border-radius: var(--radius-pill);
+    font-weight: 700;
+  }
+  .sc-chips .is-main {
     border-color: var(--ink);
+    background: var(--ink);
+    color: var(--paper);
   }
-  .ht-replay:hover svg {
-    transform: rotate(-200deg);
-    transition: transform 500ms var(--ease-out);
+  .sc-missed {
+    display: flex;
+    align-items: center;
+    gap: 0.45rem;
+    font-weight: 700;
+    color: var(--error);
   }
-  /* The finished stamp lands where the progress bar was. */
-  .ht-stamp {
-    position: absolute;
-    left: 0.1rem;
-    top: 50%;
-    padding: 0.05em 0.5em;
-    border: 3px double var(--accent-text);
-    border-radius: var(--radius-s);
-    color: var(--accent-text);
-    font-family: var(--font-display);
-    font-size: 0.8rem;
-    font-weight: 800;
-    letter-spacing: 0.02em;
+  .sc-missed svg {
+    width: 1.1rem;
+    height: 1.1rem;
+  }
+  .sc-bubble {
+    max-width: 92%;
+    padding: 0.55rem 0.75rem;
+    border-radius: 14px;
+    line-height: 1.4;
+  }
+  .sc-out {
+    justify-self: start;
+    border-bottom-left-radius: 4px;
+    background: var(--paper-2);
+  }
+  .sc-in {
+    justify-self: end;
+    border-bottom-right-radius: 4px;
+    background: var(--ok);
+    color: #fff;
+  }
+  .sc-from {
+    display: block;
+    margin-bottom: 0.15rem;
+    font-family: var(--font-mono);
+    font-size: 0.75rem;
+    font-weight: 700;
+    color: var(--ok);
+  }
+  .sc-cal {
+    display: grid;
+    grid-template-columns: auto minmax(0, 1fr) auto;
+    gap: 0.6rem;
+    align-items: center;
+    padding: 0.6rem 0.7rem;
+    border: 1px solid var(--line);
+    border-radius: 12px;
+    background: #fff;
+  }
+  .sc-date {
+    display: grid;
+    justify-items: center;
+    padding: 0.2rem 0.45rem;
+    border-radius: 8px;
+    background: var(--ink);
+    color: var(--paper);
+    line-height: 1.15;
+  }
+  .sc-date span {
+    font-family: var(--font-mono);
+    font-size: 0.7rem;
     text-transform: uppercase;
-    white-space: nowrap;
-    transform: translateY(-50%) rotate(-3deg);
-    pointer-events: none;
-    transition: opacity 200ms var(--ease-out), transform 300ms var(--ease-stamp);
   }
-  .ht-foot {
-    position: relative;
+  .sc-what {
+    display: grid;
+    line-height: 1.3;
   }
-  .ht-bar {
-    transition: opacity 200ms var(--ease-out);
+  .sc-ok {
+    padding: 0.1rem 0.5rem;
+    border: 2px solid var(--ok);
+    border-radius: 6px;
+    color: var(--ok);
+    font-family: var(--font-display);
+    font-weight: 800;
+    text-transform: uppercase;
+    letter-spacing: 0.04em;
+    transform: rotate(-6deg);
   }
-  .hp-ticket:not(.is-live) .ht-bar,
-  .hp-ticket.is-complete .ht-bar {
-    opacity: 0;
+  .sc-list {
+    display: grid;
+    gap: 0.4rem;
+    list-style: none;
+    padding: 0;
+    font-weight: 600;
   }
-  /* Live (JS + motion): steps start pending and are stamped one by one. */
-  .hp-ticket.is-live li:not(.is-done) {
-    opacity: 0.38;
-  }
-  .hp-ticket.is-live li:not(.is-done) .ht-check {
-    transform: scale(0.35);
-    background: var(--control);
-  }
-  /* Very narrow phones (≤ 335 px): no room for the stamp beside Replay; the full bar says it instead. */
-  @media (max-width: 20.99em) {
-    .ht-stamp {
-      display: none;
-    }
-    .hp-ticket.hp-ticket .ht-bar {
-      opacity: 1;
-    }
-  }
-  .hp-ticket.is-live:not(.is-complete) .ht-stamp {
-    opacity: 0;
-    transform: translateY(-50%) rotate(-14deg) scale(1.8);
+  .sc-list li {
+    display: flex;
+    align-items: center;
+    gap: 0.45rem;
   }
 </style>
