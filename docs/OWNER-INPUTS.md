@@ -43,4 +43,5 @@ Everything below is tracked in code. Unverified **claims** are wrapped in `<Conf
 | FAQ | `src/data/faqs.ts` |
 | Case studies | `src/content/work/*.md` |
 | About story and principles | `src/pages/about.astro` |
-| Privacy notice | `src/pages/privacy.astro` |
+| Privacy Policy | `src/pages/privacy.astro` |
+| Terms of Use | `src/pages/terms.astro` |

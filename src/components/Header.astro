@@ -90,6 +90,10 @@ const socials = social.filter((s) => s.url);
           </p>
         )
       }
+      <p class="panel-legal">
+        <a href="/privacy/">Privacy Policy</a>
+        <a href="/terms/">Terms of Use</a>
+      </p>
     </div>
   </div>
 </dialog>
@@ -144,19 +148,14 @@ const socials = social.filter((s) => s.url);
 </script>
 
 <style>
+  /* Solid, never see-through: content (like the hero photo) scrolls cleanly underneath. */
   .site-header {
     position: sticky;
     top: 0;
     z-index: 40;
-    background: rgb(244 241 234 / 0.94);
+    background: var(--paper);
     border-bottom: 1px solid transparent;
     transition: border-color var(--dur-base) var(--ease-out), box-shadow var(--dur-base) var(--ease-out);
-  }
-  @supports (backdrop-filter: blur(1px)) {
-    .site-header {
-      background: rgb(244 241 234 / 0.82);
-      backdrop-filter: saturate(1.4) blur(14px);
-    }
   }
   .site-header.is-scrolled {
     border-bottom-color: var(--line);
@@ -410,6 +409,20 @@ const socials = social.filter((s) => s.url);
   }
   .panel-socials .panel-label {
     width: 100%;
+  }
+  .panel-legal {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0 var(--space-m);
+    padding-top: var(--space-s);
+    border-top: 1px solid var(--line);
+    font-size: var(--step--1);
+  }
+  .panel-legal a {
+    display: inline-flex;
+    align-items: center;
+    min-height: var(--tap);
+    color: var(--ink-2);
   }
   .panel-socials a {
     display: inline-flex;

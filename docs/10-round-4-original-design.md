@@ -52,3 +52,19 @@ Overall now ≈ **92/100**; **≈ 96** once the three owner items below are done
 1. **Email Routing + form:** `docs/05` §1: turn on Email Routing for mannpatel.me, verify your Gmail as a destination, create `info@mannpatel.me` → Gmail, add Secret `ENQUIRY_TO_EMAIL` = your Gmail. Send a "Test Owner" brief.
 2. **Phone buttons:** `docs/05` §4 step 5: build variable `PUBLIC_CONTACT_PHONE` = your number, then redeploy.
 3. **Socials:** send me your Instagram / LinkedIn / Facebook URLs (or add them in `src/data/site.ts` → `social`).
+
+## Follow-up (1 Nov 2026): photo overlap, Privacy Policy, Terms of Use
+
+Mann reported the image "overlapping in the top part" and that privacy and policy pages seemed missing.
+
+| Finding | Cause | Fix |
+| --- | --- | --- |
+| Name badge on top of the head (phones, laptops) | The badge sat inside the photo's top-left corner | It now hangs off the photo's **top-right corner, above the head** |
+| Ticket covering the face at 1024 px | The ticket was pinned 1.75 rem from the photo's bottom in a narrow column | The ticket now overlaps **only the bottom of the photo** (sweatshirt) and hangs below it; the photo is right-aligned on desktop so the ticket never reaches the text column |
+| Photo showing through the header while scrolling | The sticky header was 82 % opaque with a blur | The header is **solid** |
+| "Nothing slipped" stamp touching Replay | Stamp wider than the space beside the button | Smaller stamp; hidden on phones narrower than 336 px |
+| Privacy page hard to find | Titled "How your information is handled", linked once as "Privacy" | Renamed **Privacy Policy** (adds who is responsible, security, children, changes) and new **Terms of Use** page (`/terms/`: enquiries aren't contracts, written scope, content ownership, acceptable use, liability, Ontario law). Both linked from a **Legal** row in every footer (plus Cookies → the cookies section), the menu, the footer page list and the brief form |
+
+**Checks:** a geometry test now proves the badge and ticket never touch the face (hair to chin) at 320, 390, 1024 and 1440 px (the scratch check also covered 360, 412, 768, 1280, 1366 and 1920: 25–32 px clear above the head, 67+ px below the chin). Playwright + axe **53/53** (includes `/terms/`), unit 39/39, overlap scan 0 on 9 pages × 9 viewports, production pre-launch check 0 errors (11 pages).
+
+*The Terms of Use are plain-language website terms, not legal advice; a lawyer can review them before you rely on them.*

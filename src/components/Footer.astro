@@ -49,7 +49,8 @@ const nest = businesses[0];
           <li><a href="/">Home</a></li>
           {nav.map((item) => <li><a href={item.href}>{item.label}</a></li>)}
           <li><a href="/contact/">Contact</a></li>
-          <li><a href="/privacy/">Privacy</a></li>
+          <li><a href="/privacy/">Privacy Policy</a></li>
+          <li><a href="/terms/">Terms of Use</a></li>
         </ul>
       </nav>
       <div>
@@ -67,6 +68,11 @@ const nest = businesses[0];
 
     <div class="ft-legal">
       <p>© {year} {profile.name} · Toronto, Ontario</p>
+      <nav class="ft-legal-links" aria-label="Legal">
+        <a href="/privacy/">Privacy Policy</a>
+        <a href="/terms/">Terms of Use</a>
+        <a href="/privacy/#analytics">Cookies</a>
+      </nav>
       <a class="ft-top" href="#main">Back to top <span aria-hidden="true">↑</span></a>
     </div>
   </div>
@@ -236,6 +242,22 @@ const nest = businesses[0];
     border-top: 1px solid var(--night-line);
     font-size: var(--step--1);
     color: var(--night-ink-2);
+  }
+  .ft-legal-links {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0 var(--space-m);
+  }
+  .ft-legal-links a {
+    display: inline-flex;
+    align-items: center;
+    min-height: var(--tap);
+    color: var(--night-ink);
+    text-decoration: underline;
+    text-underline-offset: 0.2em;
+  }
+  .ft-legal-links a:hover {
+    color: var(--accent-on-night);
   }
   .ft-top {
     display: inline-flex;

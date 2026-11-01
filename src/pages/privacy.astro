@@ -15,14 +15,21 @@ const contactEmail = profile.contact.email;
 ---
 
 <BaseLayout
-  title="Privacy"
-  description="What information this website collects through the project brief form, why, where it goes, how long it is kept, and your choices."
+  title="Privacy Policy"
+  description="Privacy Policy for mannpatel.me: what the website collects through the project brief form, why, where it goes, how long it is kept, cookies, and your choices."
 >
   <section class="section">
     <div class="container prose">
-      <p class="label">Privacy</p>
-      <h1>How your information is handled</h1>
-      <p class="muted">Last updated {updated}.</p>
+      <p class="label">Legal</p>
+      <h1>Privacy Policy</h1>
+      <p class="lead">How your information is handled on mannpatel.me.</p>
+      <p class="muted">Last updated {updated}. See also the <a href="/terms/">Terms of Use</a>.</p>
+
+      <h2>Who is responsible</h2>
+      <p>
+        This website is run by {profile.name}, a sole proprietor in Toronto, Ontario, Canada. I am responsible for the
+        personal information it collects.{contactEmail && <> Questions or requests: <a href={`mailto:${contactEmail}`}>{contactEmail}</a>.</>}
+      </p>
 
       <h2>The short version</h2>
       <ul>
@@ -116,9 +123,24 @@ const contactEmail = profile.contact.email;
       </p>
       {!contactEmail && <PreviewNote note="a privacy contact email is recommended" />}
 
+      <h2>Security</h2>
+      <p>
+        The site is served only over HTTPS. Form messages are checked by the server and emailed to my inbox; the
+        website itself doesn’t store them. No system is perfectly secure, so please don’t send passwords, payment card
+        numbers or other sensitive details through the form.
+      </p>
+
+      <h2>Children</h2>
+      <p>This website is for business owners. It isn’t aimed at children, and I don’t knowingly collect their information.</p>
+
       <h2>Links to other sites</h2>
       <p>
-        Links to other websites, including Nest &amp; Rest Cleaning, have their own privacy notices.
+        Links to other websites, including Nest &amp; Rest Cleaning, have their own privacy policies.
+      </p>
+
+      <h2>Changes to this policy</h2>
+      <p>
+        If the way this site handles information changes, this page is updated and the date at the top changes with it.
       </p>
     </div>
   </section>

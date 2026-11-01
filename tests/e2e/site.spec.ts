@@ -11,6 +11,7 @@ const PAGES = [
   '/about/',
   '/contact/',
   '/privacy/',
+  '/terms/',
   '/contact/received/',
 ];
 
@@ -131,12 +132,14 @@ test.describe('navigation', () => {
     const header = page.locator('[data-header]');
     await expect(header).toHaveClass(/is-scrolled/);
     expect((await header.boundingBox())!.y).toBe(0);
-    // Every footer control is the top-most element at its own centre (nothing covers it).
+    // Every footer control below the header is the top-most element at its own centre: nothing
+    // floats over it. (Controls that have simply scrolled up under the sticky header don't count.)
     const covered = await page.evaluate(() =>
       [...document.querySelectorAll<HTMLElement>('footer a, footer button')]
         .filter((el) => {
           const r = el.getBoundingClientRect();
-          if (r.width < 2 || r.bottom < 0 || r.top > innerHeight) return false;
+          const headerBottom = document.querySelector('[data-header]')!.getBoundingClientRect().bottom;
+          if (r.width < 2 || r.top < headerBottom || r.top > innerHeight) return false;
           const hit = document.elementFromPoint(r.left + r.width / 2, r.top + r.height / 2);
           return !(hit && (el === hit || el.contains(hit)));
         })
@@ -267,6 +270,46 @@ test.describe('home and services (round 3)', () => {
     await expect(table.locator('caption')).toContainText('Compare at a glance');
     await page.getByRole('link', { name: /See what follow-up looks like/ }).click();
     await expect(page).toHaveURL(/#follow-up$/);
+  });
+});
+
+test.describe('hero photo and legal pages', () => {
+  for (const [w, h] of [[320, 640], [390, 844], [1024, 768], [1440, 900]] as const) {
+    test(`nothing covers the face in the hero photo at ${w}px, and the header is solid`, async ({ page }) => {
+      await page.setViewportSize({ width: w, height: h });
+      await page.goto('/');
+      const r = await page.evaluate(() => {
+        const box = (s: string) => document.querySelector(s)!.getBoundingClientRect();
+        const clip = box('.hp-clip');
+        // Hair to chin in the 4:5 crop: x 33-67%, y 11-47% of the photo.
+        const face = { l: clip.left + clip.width * 0.33, r: clip.left + clip.width * 0.67, t: clip.top + clip.height * 0.11, b: clip.top + clip.height * 0.47 };
+        const hit = (s: string) => {
+          const a = box(s);
+          return Math.max(0, Math.min(a.right, face.r) - Math.max(a.left, face.l)) * Math.max(0, Math.min(a.bottom, face.b) - Math.max(a.top, face.t));
+        };
+        return { badge: hit('.hp-badge'), ticket: hit('.hp-ticket'), headerBg: getComputedStyle(document.querySelector('.site-header')!).backgroundColor };
+      });
+      expect(r.badge).toBe(0);
+      expect(r.ticket).toBe(0);
+      expect(r.headerBg).toBe('rgb(244, 241, 234)');
+    });
+  }
+
+  test('Privacy Policy and Terms of Use are linked from the footer, the menu and the form', async ({ page }) => {
+    await page.setViewportSize({ width: 390, height: 844 });
+    await page.goto('/contact/');
+    const legal = page.getByRole('navigation', { name: 'Legal' });
+    await expect(legal.getByRole('link', { name: 'Privacy Policy' })).toHaveAttribute('href', '/privacy/');
+    await expect(legal.getByRole('link', { name: 'Terms of Use' })).toHaveAttribute('href', '/terms/');
+    await expect(page.locator('form .privacy a[href="/privacy/"]')).toHaveText('Privacy Policy');
+    await expect(page.locator('form .privacy a[href="/terms/"]')).toHaveText('Terms of Use');
+    await page.locator('[data-menu-toggle]').click();
+    await expect(page.locator('[data-menu-panel] a[href="/terms/"]')).toBeVisible();
+    await page.keyboard.press('Escape');
+    await legal.getByRole('link', { name: 'Terms of Use' }).click();
+    await expect(page.locator('h1')).toHaveText('Terms of Use');
+    await page.getByRole('link', { name: 'Privacy Policy' }).first().click();
+    await expect(page.locator('h1')).toHaveText('Privacy Policy');
   });
 });
 
