@@ -17,6 +17,14 @@ const faqLd = {
     .filter((f) => !f.confirm)
     .map((f) => ({ '@type': 'Question', name: f.q, acceptedAnswer: { '@type': 'Answer', text: f.a } })),
 };
+// "Compare at a glance": which areas each package covers, derived from its serviceIds.
+const areas = [
+  { label: 'Website', ids: ['websites'] },
+  { label: 'Google visibility', ids: ['seo', 'search-console', 'analytics', 'business-profile'] },
+  { label: 'Email & follow-up', ids: ['business-email', 'enquiry-workflows', 'integrations'] },
+  { label: 'Content & branding', ids: ['social-strategy', 'social-materials', 'identity', 'print-digital'] },
+];
+const covers = (pkgIds: readonly string[], ids: string[]) => ids.some((id) => pkgIds.includes(id));
 ---
 
 <BaseLayout
@@ -62,6 +70,48 @@ const faqLd = {
           fixed until you’ve seen it.
         </p>
       </div>
+      <div class="compare-wrap" role="region" aria-labelledby="cmp-caption" tabindex="0">
+        <table class="compare">
+          <caption id="cmp-caption">Compare at a glance: what each starting point covers</caption>
+          <thead>
+            <tr>
+              <th scope="col">Package</th>
+              <th scope="col">Best for</th>
+              {areas.map((a) => <th scope="col">{a.label}</th>)}
+            </tr>
+          </thead>
+          <tbody>
+            {
+              allPackages.map((p) => (
+                <tr>
+                  <th scope="row"><a href={`#pk-${p.id}`}>{p.name}</a></th>
+                  <td class="fit">{p.forWho}</td>
+                  {p.id === 'check-up' ? (
+                    <td class="fit review" colspan={areas.length}>
+                      A review, not a build: your website on a phone and a laptop, your Google information and a test
+                      enquiry, then a written fix list.
+                    </td>
+                  ) : areas.map((a) => (
+                    <td class="mark">
+                      {covers(p.serviceIds, a.ids) ? (
+                        <>
+                          <span aria-hidden="true">●</span>
+                          <span class="visually-hidden">Included</span>
+                        </>
+                      ) : (
+                        <>
+                          <span aria-hidden="true" class="dim">–</span>
+                          <span class="visually-hidden">Not included</span>
+                        </>
+                      )}
+                    </td>
+                  ))}
+                </tr>
+              ))
+            }
+          </tbody>
+        </table>
+      </div>
       <div class="packages">
         {
           allPackages.map((p) => (
@@ -75,6 +125,9 @@ const faqLd = {
               <ul class="crosses" role="list">{p.notIncluded.map((i) => <li>{i}</li>)}</ul>
               <h4>You provide</h4>
               <p class="small">{p.youProvide.join(' · ')}</p>
+              {p.id === 'content-follow-up' && (
+                <a class="demo-link" href="#follow-up">See what follow-up looks like ↓</a>
+              )}
               <a class="btn" href={`/contact/?package=${p.id}&services=${p.serviceIds.join(',')}#brief`}>
                 Request a quote<span class="visually-hidden">: {p.name}</span>
               </a>
@@ -222,6 +275,72 @@ const faqLd = {
   }
   .page-head {
     padding-bottom: var(--space-xl);
+  }
+  .compare-wrap {
+    /* Scrolls inside itself on phones; never widens the page. */
+    position: relative; /* keeps the screen-reader-only labels inside the scroll box */
+    min-width: 0;
+    max-width: 100%;
+    overflow-x: auto;
+    margin-bottom: var(--space-xl);
+    border: 1px solid var(--night-line);
+    border-radius: var(--radius-m);
+  }
+  .compare-wrap:focus-visible {
+    outline: 3px solid var(--accent-on-night);
+    outline-offset: 2px;
+  }
+  .compare {
+    width: 100%;
+    min-width: 44rem;
+    border-collapse: collapse;
+    font-size: var(--step--1);
+  }
+  .compare caption {
+    text-align: left;
+    padding: var(--space-s) var(--space-m);
+    font-family: var(--font-mono);
+    letter-spacing: var(--tracking-label);
+    text-transform: uppercase;
+    color: var(--night-ink-2);
+  }
+  .compare th,
+  .compare td {
+    padding: var(--space-xs) var(--space-m);
+    border-top: 1px solid var(--night-line);
+    text-align: left;
+    vertical-align: top;
+  }
+  .compare thead th {
+    color: var(--night-ink-2);
+    font-weight: 600;
+  }
+  .compare tbody th a {
+    color: var(--night-ink);
+    font-weight: 700;
+  }
+  .compare .fit {
+    color: var(--night-ink-2);
+    max-width: 22rem;
+  }
+  .compare .review {
+    max-width: none;
+    text-align: center;
+  }
+  .compare .mark {
+    text-align: center;
+    color: var(--accent-on-night);
+    font-size: var(--step-0);
+  }
+  .compare .mark .dim {
+    color: var(--night-ink-2);
+  }
+  .compare thead th:nth-child(n + 3) {
+    text-align: center;
+  }
+  .demo-link {
+    color: var(--accent-on-night);
+    font-weight: 700;
   }
   .jump ul {
     display: flex;

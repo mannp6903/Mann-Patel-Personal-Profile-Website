@@ -211,6 +211,39 @@ test.describe('interactions', () => {
   });
 });
 
+test.describe('home and services (round 3)', () => {
+  for (const [w, h] of [[360, 640], [390, 844], [1440, 900]] as const) {
+    test(`hero promise is the H1 and "Start a project" is visible without scrolling at ${w}px`, async ({ page }) => {
+      await page.setViewportSize({ width: w, height: h });
+      await page.goto('/');
+      await expect(page.locator('h1')).toContainText('Websites & simpler systems for small businesses');
+      const cta = page.locator('.hx-actions a[href="/contact/"]');
+      await expect(cta).toBeVisible();
+      const box = (await cta.boundingBox())!;
+      expect(box.y + box.height).toBeLessThanOrEqual(h);
+      await expect(page.locator('.hx-actions a[href="#work"]')).toBeVisible();
+    });
+  }
+
+  test('work rows show images and a case-study cue on touch screens', async ({ browser }) => {
+    const ctx = await browser.newContext({ viewport: { width: 390, height: 844 }, hasTouch: true, isMobile: true });
+    const page = await ctx.newPage();
+    await page.goto('/');
+    await expect(page.locator('.wl-thumb').first()).toBeVisible();
+    await expect(page.locator('.wl-row').first()).toContainText('Case study');
+    await ctx.close();
+  });
+
+  test('services compares packages at a glance and links to the follow-up demo', async ({ page }) => {
+    await page.goto('/services/');
+    const table = page.locator('table.compare');
+    await expect(table.locator('tbody tr')).toHaveCount(4);
+    await expect(table.locator('caption')).toContainText('Compare at a glance');
+    await page.getByRole('link', { name: /See what follow-up looks like/ }).click();
+    await expect(page).toHaveURL(/#follow-up$/);
+  });
+});
+
 test.describe('logo', () => {
   test('is the name only, with unique glint ids, and plays its intro once per visit', async ({ page }) => {
     await page.goto('/');
