@@ -29,3 +29,7 @@ preview-artifact/
 
 # logo generator virtualenv
 .venv-logo/
+
+# deep-research working notes and reports (kept out of the public repo)
+research_notes/
+reports/
