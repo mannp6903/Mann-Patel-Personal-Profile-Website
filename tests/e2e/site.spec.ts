@@ -211,31 +211,62 @@ test.describe('interactions', () => {
     await ctx.close();
   });
 
-  test('reduced motion: the hero ticket is complete and still, and content is visible immediately', async ({ browser }) => {
+  test('reduced motion: the hero sample does not rotate, its tabs still work, and content is visible immediately', async ({ browser }) => {
     const ctx = await browser.newContext({ reducedMotion: 'reduce' });
     const page = await ctx.newPage();
     await page.goto('/');
     expect(await page.evaluate(() => document.documentElement.classList.contains('js-motion'))).toBe(false);
-    const ticket = page.locator('[data-ticket]');
-    await expect(ticket).not.toHaveClass(/is-live/);
-    await expect(ticket.locator('.ht-steps li')).toHaveCount(4);
-    for (const li of await ticket.locator('.ht-steps li').all()) expect(await li.evaluate((el) => getComputedStyle(el).opacity)).toBe('1');
-    await expect(page.locator('[data-ticket-replay]')).toBeHidden();
+    const story = page.locator('[data-story]');
+    await expect(story).not.toHaveClass(/is-auto/);
+    await expect(page.locator('[data-story-pause]')).toBeHidden();
+    const tabs = story.getByRole('tab');
+    await expect(tabs).toHaveCount(3);
+    await expect(tabs.first()).toHaveAttribute('aria-selected', 'true');
+    await page.waitForTimeout(4500);
+    await expect(tabs.first()).toHaveAttribute('aria-selected', 'true');
+    await story.getByRole('tab', { name: /Booked/ }).click();
+    await expect(page.locator('#hs-panel-booked')).toBeVisible();
+    await expect(page.locator('#hs-panel-found')).toBeHidden();
     const opacity = await page.locator('[data-reveal]').first().evaluate((el) => getComputedStyle(el).opacity);
     expect(opacity).toBe('1');
     await ctx.close();
   });
 
-  test('the sample enquiry stamps itself through four steps and can be replayed', async ({ browser }) => {
+  test('the hero sample plays found → answered → booked in sync with the H1, and can be paused', async ({ browser }) => {
     const ctx = await browser.newContext({ reducedMotion: 'no-preference' });
     const page = await ctx.newPage();
     await page.goto('/');
-    const ticket = page.locator('[data-ticket]');
-    await expect(ticket).toHaveClass(/is-complete/, { timeout: 6000 });
-    await expect(ticket.locator('li.is-done')).toHaveCount(4);
-    await page.getByRole('button', { name: 'Replay the sample enquiry' }).click();
-    await expect(ticket).not.toHaveClass(/is-complete/);
-    await expect(ticket).toHaveClass(/is-complete/, { timeout: 6000 });
+    const hero = page.locator('[data-hp]');
+    const story = page.locator('[data-story]');
+    await expect(hero).toHaveAttribute('data-step', '0');
+    await expect(story.getByRole('tab', { name: /Answered/ })).toHaveAttribute('aria-selected', 'true', { timeout: 7000 });
+    await expect(hero).toHaveAttribute('data-step', '1');
+    const color = (k: number) => page.locator(`.hp-k[data-k="${k}"]`).evaluate((el) => getComputedStyle(el).color);
+    expect(await color(1)).not.toBe(await color(0));
+    // Pause stops the rotation.
+    await page.getByRole('button', { name: 'Pause the sample' }).click();
+    await expect(page.getByRole('button', { name: 'Play the sample' })).toBeVisible();
+    // Move the pointer and focus away, so only the Pause choice is holding it.
+    await page.mouse.move(5, 300);
+    await page.evaluate(() => (document.activeElement as HTMLElement | null)?.blur());
+    await expect(story).not.toHaveClass(/is-playing/);
+    const step = await hero.getAttribute('data-step');
+    await page.waitForTimeout(4500);
+    await expect(hero).toHaveAttribute('data-step', step!);
+    // Arrow keys move between steps.
+    await story.getByRole('tab', { selected: true }).focus();
+    await page.keyboard.press('End');
+    await expect(story.getByRole('tab', { name: /Booked/ })).toBeFocused();
+    await expect(page.locator('#hs-panel-booked')).toBeVisible();
+    await ctx.close();
+  });
+
+  test('without JavaScript, the hero sample shows all three steps', async ({ browser }) => {
+    const ctx = await browser.newContext({ javaScriptEnabled: false });
+    const page = await ctx.newPage();
+    await page.goto('/');
+    for (const id of ['found', 'answered', 'booked']) await expect(page.locator(`#hs-panel-${id}`)).toBeVisible();
+    await expect(page.locator('[data-story] [role="tablist"]')).toBeHidden();
     await ctx.close();
   });
 });
@@ -245,12 +276,12 @@ test.describe('home and services (round 3)', () => {
     test(`hero promise is the H1 and "Start a project" is visible without scrolling at ${w}px`, async ({ page }) => {
       await page.setViewportSize({ width: w, height: h });
       await page.goto('/');
-      await expect(page.locator('h1')).toContainText('Websites & simpler systems for small businesses');
+      await expect(page.locator('h1')).toContainText('Get found. Answer fast. Get booked.');
       const cta = page.locator('.hp-actions a[href="/contact/"]');
       await expect(cta).toBeVisible();
       const box = (await cta.boundingBox())!;
       expect(box.y + box.height).toBeLessThanOrEqual(h);
-      await expect(page.locator('.hp-actions a[href="#work"]')).toBeVisible();
+      await expect(page.locator('.hp-actions a[href*="package=check-up"]')).toBeVisible();
     });
   }
 
@@ -287,7 +318,7 @@ test.describe('hero photo and legal pages', () => {
           const a = box(s);
           return Math.max(0, Math.min(a.right, face.r) - Math.max(a.left, face.l)) * Math.max(0, Math.min(a.bottom, face.b) - Math.max(a.top, face.t));
         };
-        return { badge: hit('.hp-badge'), ticket: hit('.hp-ticket'), headerBg: getComputedStyle(document.querySelector('.site-header')!).backgroundColor };
+        return { badge: hit('.hp-badge'), ticket: hit('.hp-story'), headerBg: getComputedStyle(document.querySelector('.site-header')!).backgroundColor };
       });
       expect(r.badge).toBe(0);
       expect(r.ticket).toBe(0);
