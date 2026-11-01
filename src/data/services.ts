@@ -7,7 +7,7 @@
  * - No prices or turnaround promises until Mann confirms them.
  */
 
-export type GroupId = 'found' | 'answered' | 'booked';
+export type GroupId = 'found' | 'answered' | 'booked' | 'extras';
 
 export interface Term {
   term: string;
@@ -33,7 +33,7 @@ export interface Service {
 
 export interface ServiceGroup {
   id: GroupId;
-  letter: 'A' | 'B' | 'C';
+  letter: 'A' | 'B' | 'C' | '+';
   verb: string;
   title: string;
   intro: string;
@@ -69,6 +69,19 @@ export const groups: ServiceGroup[] = [
       'A clear, fast site with a page for each service and a book-or-quote button on every page, kept working every month.',
   },
 ];
+
+/**
+ * Add-ons: print and social content. Real skills, offered alongside A/B/C rather than as a
+ * headline area (stand-alone design and posting work is heavily price-competitive).
+ */
+export const addOns: ServiceGroup = {
+  id: 'extras',
+  letter: '+',
+  verb: 'Add-ons',
+  title: 'Print and social content',
+  intro:
+    'Flyers, business cards, gift-card artwork, posts, Reels and stories in one consistent style, each pointing customers to your booking link or review card.',
+};
 
 export const services: Service[] = [
   // ───────────── A · Get found and chosen on Google ─────────────
@@ -360,6 +373,65 @@ export const services: Service[] = [
     exclusions: ['Emergency or after-hours support unless agreed in writing', 'New features, which are quoted as projects'],
     handover: 'Stop at any time and you receive the change log and the access list, and my access is removed.',
     nextStep: 'Ask about the care plan when you request a project quote.',
+  },
+
+  // ───────────── + · Add-ons: print and social content ─────────────
+  {
+    id: 'print-design',
+    group: 'extras',
+    name: 'Flyers, business cards and gift-card artwork',
+    summary:
+      'Print pieces with the right sizes, bleed and file formats, each with a QR code to your booking link or review card, plus matching digital versions.',
+    problem: 'Print shops reject your files, your flyer looks nothing like your Instagram, or your cards send people nowhere.',
+    deliverables: [
+      'Flyers, door hangers, business cards and gift-card artwork',
+      'QR codes that open your booking link, website or review link',
+      'Print-ready PDFs with bleed and your printer’s specifications, plus web and social versions',
+      'Editable templates so you can update prices and dates yourself',
+    ],
+    inputs: ['Your printer’s specifications (or I recommend a common standard)', 'Text, offers, prices and contact details'],
+    exclusions: [
+      'Gift-card artwork only: selling, tracking and redeeming gift cards needs your payment or booking system',
+      'Printing costs, which are paid to the printer',
+      'A new logo (I can recommend a designer)',
+    ],
+    handover: 'Print-ready and editable files, with a note of the sizes and specifications used.',
+    nextStep: 'Request a quote and list the pieces you need.',
+    terms: [
+      {
+        term: 'Bleed',
+        plain: 'Extra artwork past the trim line, so printed pieces have no white edges after cutting.',
+      },
+    ],
+  },
+  {
+    id: 'social-content',
+    group: 'extras',
+    name: 'Social media content: posts, Reels and stories',
+    summary:
+      'A posting plan sized to your time, with posts, carousels, Reel and story ideas, hooks, scripts and captions that point people to your booking link.',
+    problem: 'You know you should post, but you are not sure what to post, or you start strong and stop.',
+    deliverables: [
+      'Content ideas based on what customers ask you, planned for the month',
+      'Post and carousel designs at each platform’s current sizes',
+      'Reel and story ideas with hooks, short scripts and shot lists',
+      'Captions with a clear next step (book, call or leave a review)',
+      'Editable templates so you can make the next ones yourself',
+    ],
+    inputs: ['Twenty minutes of the questions customers often ask', 'Photos or clips of your real work'],
+    exclusions: [
+      'Follower growth, reach or views cannot be guaranteed',
+      'Posting on your behalf and replying to comments, unless agreed separately',
+      'Paid ads, and stock photos presented as your own work',
+    ],
+    handover: 'The plan and editable templates in accounts you own (for example Canva), plus exported files.',
+    nextStep: 'Request a quote and tell me which platforms your customers use.',
+    terms: [
+      {
+        term: 'Hook',
+        plain: 'The first line or first two seconds of a post or Reel, written to make people stop scrolling.',
+      },
+    ],
   },
 ];
 

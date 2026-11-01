@@ -385,8 +385,8 @@ test.describe('enquiry form', () => {
 
   test('service choice starts with plain-language areas; links that pre-select a service open the detail', async ({ page }) => {
     await page.goto('/contact/');
-    // Three areas + "Not sure yet" are visible without opening anything.
-    for (const v of ['area-found', 'area-follow-up', 'area-website', 'not-sure']) {
+    // Three areas, the add-ons and "Not sure yet" are visible without opening anything.
+    for (const v of ['area-found', 'area-follow-up', 'area-website', 'area-content', 'not-sure']) {
       await expect(page.locator(`input[name="services"][value="${v}"]`)).toBeVisible();
     }
     await expect(page.locator('[data-svc-detail]')).not.toHaveAttribute('open', '');

@@ -28,10 +28,12 @@ Packages: **Business Launch** (all three), **Found & Chosen** (A), **Never Miss 
 | --- | --- |
 | A · Websites and online visibility | Split: Google profile and reviews became **A**; websites and search basics became **C** |
 | B · Business email and automation | **B** is now "Never miss an enquiry"; professional email is a line item in website work |
-| C · Content, branding and marketing materials | **Dropped as a service area.** Logos and stand-alone social posting are heavily commoditised (AI tools and marketplaces). WhatsApp Business messages moved to B; print shrank to QR review cards in A |
+| C · Content, branding and marketing materials | **No longer a headline area.** Print and social content are add-ons (below); logos are referred out. WhatsApp Business messages moved to B; QR review cards are part of A |
 | Search Console and GA4 as separate services | Folded into "Service pages, search basics and measurement" and the monthly reports |
 
-Two new FAQs explain the review rules (no incentives, no gating, no fake reviews) and that logos and social posting are not offered as main services.
+Two new FAQs explain the review rules (no incentives, no gating, no fake reviews) and what print and social work is offered.
+
+**Add-ons (Mann's decision, 1 Nov 2026):** Mann also creates flyers, business cards, gift-card artwork and social content (posts, Reels, stories, hooks and scripts). These are offered as **add-ons** (“+ Print and social content”) alongside A/B/C rather than as a headline area: the research found stand-alone design and posting work heavily price-competitive, but they sell well to clients who already trust him, and every piece points to the client's booking link or review card. Logos stay referred out.
 
 ## Rules kept
 

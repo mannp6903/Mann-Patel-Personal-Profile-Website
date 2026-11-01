@@ -28,7 +28,7 @@ export const packages: Package[] = [
       'Search Console and Analytics counting enquiries',
       'A QR review card and a routine for asking every customer for a review',
     ],
-    notIncluded: ['Logo design (I can recommend a designer)', 'Monthly plans, which are optional'],
+    notIncluded: ['Logo design (I can recommend a designer)', 'Monthly plans, and print or social content (available as add-ons)'],
     youProvide: ['Business details and services', 'Photos of your real work', 'Domain and account access in your name'],
     serviceIds: ['websites', 'business-profile', 'reviews', 'missed-calls', 'enquiry-workflows', 'seo'],
     featured: true,

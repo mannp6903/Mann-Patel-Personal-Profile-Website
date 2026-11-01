@@ -1,5 +1,5 @@
 ---
-import { groups, servicesInGroup } from '../data/services';
+import { groups, servicesInGroup, addOns } from '../data/services';
 ---
 
 <div class="ledger">
@@ -26,9 +26,43 @@ import { groups, servicesInGroup } from '../data/services';
       </section>
     ))
   }
+  <p class="addons" data-reveal>
+    <span class="addons-tag"><span aria-hidden="true">+</span> {addOns.verb}</span>
+    <span class="addons-text">
+      <strong>{addOns.title}</strong>, alongside any of the above:
+      {
+        servicesInGroup('extras').map((s, i, all) => (
+          <><a href={`/services/#${s.id}`}>{s.name}</a>{i < all.length - 1 ? ' · ' : '.'}</>
+        ))
+      }
+    </span>
+  </p>
 </div>
 
 <style>
+  .addons {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: baseline;
+    gap: var(--space-2xs) var(--space-m);
+    padding-block: var(--space-m);
+    border-bottom: 1px solid var(--line);
+  }
+  .addons-tag {
+    font-family: var(--font-mono);
+    font-size: var(--step--1);
+    font-weight: 700;
+    letter-spacing: var(--tracking-label);
+    text-transform: uppercase;
+    color: var(--accent-text);
+  }
+  .addons-text {
+    flex: 1 1 24rem;
+    min-width: 0;
+  }
+  .addons a {
+    font-weight: 700;
+  }
   .ledger {
     border-top: 2px solid var(--ink);
   }

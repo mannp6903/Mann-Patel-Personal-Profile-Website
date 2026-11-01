@@ -5,7 +5,7 @@ import ProcessSteps from '../components/ProcessSteps.astro';
 import WorkflowDemo from '../components/WorkflowDemo.astro';
 import CtaBand from '../components/CtaBand.astro';
 import Confirm from '../components/Confirm.astro';
-import { groups, servicesInGroup } from '../data/services';
+import { groups, servicesInGroup, addOns } from '../data/services';
 import { packages, checkUp } from '../data/packages';
 import { faqs } from '../data/faqs';
 
@@ -28,7 +28,7 @@ const covers = (pkgIds: readonly string[], ids: string[]) => ids.some((id) => pk
 
 <BaseLayout
   title="Google Business Profile, reviews, missed-call text-back & booking websites"
-  description="Get found and chosen on Google, never miss an enquiry, and a website that books work: Google Business Profile, reviews, missed-call text-back, online booking and websites for Toronto and GTA small businesses."
+  description="Get found and chosen on Google, never miss an enquiry, and a website that books work: Google Business Profile, reviews, missed-call text-back, online booking, websites, plus flyers and social content for Toronto and GTA small businesses."
   jsonLd={faqLd}
 >
   <section class="section page-head">
@@ -44,6 +44,7 @@ const covers = (pkgIds: readonly string[], ids: string[]) => ids.some((id) => pk
         <ul role="list">
           <li><a href="#packages">Packages</a></li>
           {groups.map((g) => <li><a href={`#${g.id}`}><span class="jl">{g.letter}</span> {g.title}</a></li>)}
+          <li><a href={`#${addOns.id}`}><span class="jl">+</span> {addOns.title}</a></li>
           <li><a href="#faq">Questions</a></li>
         </ul>
       </nav>
@@ -158,8 +159,8 @@ const covers = (pkgIds: readonly string[], ids: string[]) => ids.some((id) => pk
   </section>
 
   {
-    groups.map((g) => (
-      <section class:list={['section', 'group', { 'section--alt': g.letter === 'B' }]} id={g.id} aria-labelledby={`g-${g.id}`}>
+    [...groups, addOns].map((g) => (
+      <section class:list={['section', 'group', { 'section--alt': g.letter === 'B' || g.letter === '+' }]} id={g.id} aria-labelledby={`g-${g.id}`}>
         <div class="container">
           <header class="group-head">
             <p class="letter" aria-hidden="true">{g.letter}</p>

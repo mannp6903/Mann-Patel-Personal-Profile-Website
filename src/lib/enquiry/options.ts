@@ -8,6 +8,7 @@ export const SERVICE_OPTIONS = [
   { id: 'area-found', label: 'Get found and chosen: Google, Maps and reviews', group: 'area', area: 'A' },
   { id: 'area-follow-up', label: 'Never miss an enquiry: replies, booking and follow-up', group: 'area', area: 'B' },
   { id: 'area-website', label: 'A website that books work', group: 'area', area: 'C' },
+  { id: 'area-content', label: 'Print and social content', group: 'area', area: 'D' },
   { id: 'business-profile', label: 'Google Business Profile', group: 'A' },
   { id: 'reviews', label: 'Reviews and review cards', group: 'A' },
   { id: 'listings', label: 'Apple Maps, Bing and AI check', group: 'A' },
@@ -19,6 +20,8 @@ export const SERVICE_OPTIONS = [
   { id: 'websites', label: 'Website fix-up or new site', group: 'C' },
   { id: 'seo', label: 'Service pages and search basics', group: 'C' },
   { id: 'maintenance', label: 'Monthly care plan', group: 'C' },
+  { id: 'print-design', label: 'Flyers, business cards, gift-card artwork', group: 'D' },
+  { id: 'social-content', label: 'Posts, Reels, stories, hooks and scripts', group: 'D' },
   { id: 'not-sure', label: 'Not sure yet', group: 'other' },
   { id: 'other', label: 'Something else', group: 'other' },
 ] as const;
