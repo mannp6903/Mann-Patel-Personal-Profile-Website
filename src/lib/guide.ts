@@ -80,9 +80,9 @@ export function recommend({ stage, problem, site }: GuideAnswers): Recommendatio
     return {
       packageId: 'check-up',
       serviceIds: ['business-profile', 'reviews', 'missed-calls'],
-      headline: 'Start with a Found & Answered check',
+      headline: 'Start with a free Found & Answered check',
       reasons: [
-        'I look you up the way a customer would, and see what happens when a test enquiry arrives.',
+        'I look you up the way a customer would, and see what happens when a test enquiry arrives. It’s free.',
         'You get a written list of fixes, most important first, before committing to anything bigger.',
       ],
     };

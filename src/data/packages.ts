@@ -13,6 +13,8 @@ export interface Package {
   youProvide: string[];
   serviceIds: string[];
   featured?: boolean;
+  /** Offered at no charge (Mann's decision, 1 Nov 2026). */
+  free?: boolean;
 }
 
 export const packages: Package[] = [
@@ -83,20 +85,21 @@ export const packages: Package[] = [
   },
 ];
 
-/** Recommended low-commitment first step (see docs/03 and docs/11). */
+/** Recommended low-commitment first step, free (see docs/11). */
 export const checkUp: Package = {
   id: 'check-up',
-  name: 'Found & Answered check',
-  forWho: 'Owners who are not sure what to fix first.',
+  name: 'Free Found & Answered check',
+  forWho: 'Owners who are not sure what to fix first. Free, with no obligation to buy anything.',
   includes: [
     'I look you up the way a customer would: Google, Maps, Apple Maps and AI assistants',
     'I compare your reviews with the top three businesses near you',
     'I send a test enquiry and, with your permission, call after hours to see what a customer experiences',
     'You receive a short written list of fixes, most important first',
   ],
-  notIncluded: ['The fixes themselves, which can be quoted as a project'],
+  notIncluded: ['The fixes themselves, which I quote separately if you want them done'],
   youProvide: ['Your business name and website', 'Permission for a test call and a test enquiry'],
   serviceIds: ['business-profile', 'reviews', 'missed-calls'],
+  free: true,
 };
 
 export const packageById = (id: string) => [...packages, checkUp].find((p) => p.id === id);

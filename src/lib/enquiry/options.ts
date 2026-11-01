@@ -31,7 +31,7 @@ export const PACKAGE_OPTIONS = [
   { id: 'found', label: 'Found & Chosen' },
   { id: 'answered', label: 'Never Miss an Enquiry' },
   { id: 'website', label: 'Website That Books' },
-  { id: 'check-up', label: 'Found & Answered check' },
+  { id: 'check-up', label: 'Free Found & Answered check' },
 ] as const;
 
 export const BUDGET_OPTIONS = [

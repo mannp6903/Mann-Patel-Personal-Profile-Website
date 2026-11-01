@@ -89,7 +89,7 @@ const covers = (pkgIds: readonly string[], ids: string[]) => ids.some((id) => pk
                   <td class="fit">{p.forWho}</td>
                   {p.id === 'check-up' ? (
                     <td class="fit review" colspan={areas.length}>
-                      A review, not a build: how you look on Google, Maps and AI assistants, your reviews against
+                      Free. A review, not a build: how you look on Google, Maps and AI assistants, your reviews against
                       nearby competitors, and a test enquiry, then a written fix list.
                     </td>
                   ) : areas.map((a) => (
@@ -118,6 +118,7 @@ const covers = (pkgIds: readonly string[], ids: string[]) => ids.some((id) => pk
           allPackages.map((p) => (
             <article class:list={['pkg', { featured: p.featured, small: p.id === 'check-up' }]} aria-labelledby={`pk-${p.id}`}>
               {p.featured && <p class="chip flag">Most common</p>}
+              {p.free && <p class="chip flag">Free</p>}
               <h3 id={`pk-${p.id}`}>{p.name}</h3>
               <p class="for">{p.forWho}</p>
               <h4>Includes</h4>
@@ -130,7 +131,7 @@ const covers = (pkgIds: readonly string[], ids: string[]) => ids.some((id) => pk
                 <a class="demo-link" href="#follow-up">See what follow-up looks like ↓</a>
               )}
               <a class="btn" href={`/contact/?package=${p.id}&services=${p.serviceIds.join(',')}#brief`}>
-                Request a quote<span class="visually-hidden">: {p.name}</span>
+                {p.free ? 'Request your free check' : 'Request a quote'}<span class="visually-hidden">: {p.name}</span>
               </a>
             </article>
           ))
