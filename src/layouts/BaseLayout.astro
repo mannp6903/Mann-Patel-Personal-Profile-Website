@@ -14,11 +14,9 @@ interface Props {
   noindex?: boolean;
   ogImage?: string;
   jsonLd?: Record<string, unknown> | Record<string, unknown>[];
-  /** Place the header over a full-bleed hero (home page). */
-  overlayHeader?: boolean;
 }
 
-const { title, description, fullTitle, noindex = false, ogImage = '/og/default.png', jsonLd, overlayHeader = false } = Astro.props;
+const { title, description, fullTitle, noindex = false, ogImage = '/og/default.png', jsonLd } = Astro.props;
 const pageTitle = fullTitle ?? `${title} · ${profile.name}`;
 const canonical = absoluteUrl(Astro.url.pathname);
 const ogImageUrl = absoluteUrl(ogImage) ?? ogImage;
@@ -81,7 +79,7 @@ const ld = jsonLd ? (Array.isArray(jsonLd) ? jsonLd : [jsonLd]) : [];
   </head>
   <body>
     <a class="skip-link" href="#main">Skip to content</a>
-    <Header overlay={overlayHeader} />
+    <Header />
     <main id="main" tabindex="-1">
       <slot />
     </main>
@@ -89,6 +87,7 @@ const ld = jsonLd ? (Array.isArray(jsonLd) ? jsonLd : [jsonLd]) : [];
     <script>
       import '../scripts/reveal';
       import '../scripts/magnetic';
+      import '../scripts/reach';
     </script>
   </body>
 </html>

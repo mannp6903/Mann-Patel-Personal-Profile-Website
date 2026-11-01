@@ -14,6 +14,20 @@ export function personJsonLd() {
     ...(url ? { url } : {}),
     // The real portrait (square crop, public/brand/), not the social share card.
     ...(profile.portrait && url ? { image: new URL('/brand/mann-patel-portrait.jpg', url).toString() } : {}),
+    ...(profile.contact.email ? { email: `mailto:${profile.contact.email}` } : {}),
+    // The phone number is deliberately left out of structured data (privacy).
+    ...(profile.contact.email
+      ? {
+          contactPoint: {
+            '@type': 'ContactPoint',
+            contactType: 'new projects',
+            email: profile.contact.email,
+            areaServed: ['Toronto', 'Greater Toronto Area'],
+            availableLanguage: 'English',
+          },
+        }
+      : {}),
+    homeLocation: { '@type': 'Place', name: 'Toronto, Ontario, Canada' },
     ...(sameAs.length ? { sameAs } : {}),
     worksFor: businesses.map((b) => ({ '@type': 'Organization', name: b.name, url: b.url })),
     knowsAbout: ['Websites', 'Search engine optimisation', 'Google Search Console', 'Google Analytics 4', 'Business email', 'Social media content'],

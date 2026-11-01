@@ -1,15 +1,13 @@
 ---
 import BaseLayout from '../../layouts/BaseLayout.astro';
 import ContactForm from '../../components/ContactForm.astro';
-import PreviewNote from '../../components/PreviewNote.astro';
 import SocialLinks from '../../components/SocialLinks.astro';
+import ContactActions from '../../components/ContactActions.astro';
+import { contact } from '../../lib/contact';
 import { Image } from 'astro:assets';
 import { profile, businesses } from '../../data/site';
 
 const nest = businesses[0];
-const { email, phone, whatsapp } = profile.contact;
-const hasDirect = Boolean(email || phone || whatsapp);
-const waNumber = whatsapp?.replace(/[^\d]/g, '');
 ---
 
 <BaseLayout
@@ -56,39 +54,17 @@ const waNumber = whatsapp?.replace(/[^\d]/g, '');
           </ol>
         </div>
 
-        <div class="card">
-          <h2>Other ways to reach me</h2>
-          {
-            hasDirect ? (
-              <>
-              <ul class="direct" role="list">
-                {email && (
-                  <li>
-                    <a href={`mailto:${email}`} data-contact="email">{email}</a>
-                  </li>
-                )}
-                {phone && (
-                  <li>
-                    <a href={`tel:${phone}`} data-contact="phone">{phone}</a>
-                  </li>
-                )}
-                {waNumber && (
-                  <li>
-                    <a href={`https://wa.me/${waNumber}`} rel="noopener" data-contact="whatsapp">
-                      WhatsApp
-                    </a>
-                  </li>
-                )}
-              </ul>
-              <SocialLinks />
-              </>
-            ) : (
-              <>
-                <p class="muted small">For now, the form is the way to reach me.</p>
-                <PreviewNote note="add a verified business email (and phone/WhatsApp if you want them public) in src/data/site.ts" />
-              </>
-            )
-          }
+        <div class="card" id="reach">
+          <h2>Prefer to talk?</h2>
+          <p class="small">
+            {
+              contact.phone
+                ? 'Call, WhatsApp or text me, or send an email. I’ll get back to you myself.'
+                : 'Email me directly. I’ll get back to you myself.'
+            }
+          </p>
+          <ContactActions showNumber />
+          <SocialLinks />
         </div>
 
         <div class="card cleaning">
@@ -102,13 +78,6 @@ const waNumber = whatsapp?.replace(/[^\d]/g, '');
     </div>
   </section>
 </BaseLayout>
-
-<script>
-  import { track } from '../../scripts/analytics';
-  document.querySelectorAll<HTMLAnchorElement>('[data-contact]').forEach((a) =>
-    a.addEventListener('click', () => track('contact_click', { method: a.dataset.contact ?? 'unknown' })),
-  );
-</script>
 
 <style>
   .next-inline {
@@ -186,16 +155,6 @@ const waNumber = whatsapp?.replace(/[^\d]/g, '');
     gap: var(--space-xs);
     font-size: var(--step--1);
   }
-  .direct {
-    list-style: none;
-    padding: 0;
-  }
-  .direct a {
-    display: inline-flex;
-    min-height: var(--tap);
-    align-items: center;
-    font-weight: 700;
-  }
   .cleaning {
     background: var(--paper-2);
   }
@@ -213,9 +172,6 @@ const waNumber = whatsapp?.replace(/[^\d]/g, '');
     border-radius: 50%;
     object-fit: cover;
     object-position: 50% 28%;
-  }
-  .direct a {
-    overflow-wrap: anywhere;
   }
   .cleaning .btn {
     justify-self: start;

@@ -14,23 +14,51 @@ import {
 import { handleEnquiry, type HandlerConfig, type HandlerResponse } from '../../lib/enquiry/handler';
 import { RateLimiter, Dedupe } from '../../lib/enquiry/limits';
 import { deliveryReady } from '../../lib/enquiry/delivery';
+import { buildMime, addressOf } from '../../lib/enquiry/mime';
 import { issueToken } from '../../lib/enquiry/spam';
 
 export const prerender = false;
 
 const MAX_BODY_BYTES = 64 * 1024;
 const production = SITE_MODE === 'production';
-// Local previews without FORM_TOKEN_SECRET get a per-process secret. Production must set one.
-// Created on first use: Cloudflare Workers don't allow random values while a module loads.
-let previewSecret: string | undefined;
-const tokenSecret = (): string | undefined =>
-  FORM_TOKEN_SECRET || (production ? undefined : (previewSecret ??= crypto.randomUUID()));
+// The form's time-check token is signed with FORM_TOKEN_SECRET when set, otherwise with a
+// random secret generated at build time (stable for one deploy, never stored in the repo).
+const tokenSecret = (): string => FORM_TOKEN_SECRET || __FORM_BUILD_SECRET__;
 
 // Per-instance memory (see limits.ts for the limitation).
 const limiter = new RateLimiter();
 const dedupe = new Dedupe<HandlerResponse>();
 
-function config(): HandlerConfig {
+// ── Cloudflare Email (ENQUIRY_DELIVERY=cloudflare) ──
+// Uses the Worker's send_email binding (wrangler.jsonc). Loaded only on Cloudflare.
+interface SendEmailBinding {
+  send(message: unknown): Promise<void>;
+}
+async function emailBinding(): Promise<SendEmailBinding | undefined> {
+  if (ENQUIRY_DELIVERY !== 'cloudflare') return undefined;
+  try {
+    const mod = 'cloudflare:workers';
+    const { env } = (await import(/* @vite-ignore */ mod)) as { env?: Record<string, unknown> };
+    const binding = env?.ENQUIRY_EMAIL as SendEmailBinding | undefined;
+    return binding && typeof binding.send === 'function' ? binding : undefined;
+  } catch {
+    return undefined;
+  }
+}
+async function sendViaCloudflare(
+  binding: SendEmailBinding,
+  m: { to: string; subject: string; text: string; replyTo?: string; messageId: string },
+) {
+  const mod = 'cloudflare:email';
+  const { EmailMessage } = (await import(/* @vite-ignore */ mod)) as {
+    EmailMessage: new (from: string, to: string, raw: string) => unknown;
+  };
+  const from = ENQUIRY_FROM_EMAIL ?? '';
+  const raw = buildMime({ from, to: m.to, replyTo: m.replyTo, subject: m.subject, text: m.text, messageId: m.messageId });
+  await binding.send(new EmailMessage(addressOf(from), addressOf(m.to), raw));
+}
+
+function config(binding?: SendEmailBinding): HandlerConfig {
   return {
     mode: ENQUIRY_DELIVERY ?? (production ? 'none' : 'file'),
     production,
@@ -42,6 +70,7 @@ function config(): HandlerConfig {
     webhookSecret: ENQUIRY_WEBHOOK_SECRET,
     dataDir: '.data',
     tokenSecret: tokenSecret(),
+    cloudflareEmail: Boolean(binding),
     turnstileSecret: TURNSTILE_SECRET_KEY,
   };
 }
@@ -68,7 +97,7 @@ const log = (event: string, meta: Record<string, unknown>) => console.info(JSON.
 
 /** Form status + time-check token. Called when a visitor first interacts with the form. */
 export const GET: APIRoute = async () => {
-  const ready = deliveryReady(config());
+  const ready = deliveryReady(config(await emailBinding()));
   const secret = tokenSecret();
   const token = secret ? await issueToken(secret, Date.now()) : null;
   // `reason` is a fixed code only; it never names settings or secrets.
@@ -102,7 +131,9 @@ export const POST: APIRoute = async (context) => {
     return json(400, { ok: false, code: 'bad_request', message: 'The form data could not be read. Please try again.' });
   }
 
-  const result = await handleEnquiry(body, { ip: clientIp(request, () => context.clientAddress) }, config(), {
+  const binding = await emailBinding();
+  const result = await handleEnquiry(body, { ip: clientIp(request, () => context.clientAddress) }, config(binding), {
+    sendEmail: binding ? (m) => sendViaCloudflare(binding, m) : undefined,
     fetch: globalThis.fetch.bind(globalThis),
     now: Date.now,
     limiter,

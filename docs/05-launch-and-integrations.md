@@ -29,22 +29,28 @@ Browser form ──► GET /api/enquiry/  → { connected, token }      (status 
 | Success only after acceptance | Implemented, e2e tested | Success means *the provider accepted it*, not that it reached an inbox |
 | No-JavaScript path | Implemented, e2e tested | Posts the form, redirects to `/contact/received/`; errors render a plain page |
 | Local test adapter (`ENQUIRY_DELIVERY=file`) | Implemented, tested | Writes `.data/enquiries.jsonl`; **refused in production** |
-| Resend email adapter (owner notification + optional acknowledgement) | Implemented, unit tested with a mocked API | **Not connected: no API key was available.** Verify with a live test (below) before launch. |
+| **Cloudflare Email adapter (production, since 1 Nov 2026)**: owner notification through the Worker's `send_email` binding | Implemented; unit tested; **verified end to end in `wrangler dev`** (the brief arrived as a readable email with Reply-To = visitor) | Goes live once Email Routing is on and `ENQUIRY_TO_EMAIL` is set (below) |
+| Resend email adapter (owner notification + optional acknowledgement) | Implemented, unit tested with a mocked API | Kept as an alternative; not used |
 | Webhook adapter (e.g. Google Sheet via Apps Script) | Implemented, unit tested (HMAC signature) | Not connected |
 | Logs | Implemented | Event name, lead id, services, channels only. Never names, emails or message text. |
 
-### Connecting email delivery (Owner action, about 30 minutes)
+### Connecting email delivery (Owner action, about 10 minutes)
 
-**Decision (31 Oct 2026):** Resend email delivery (`ENQUIRY_DELIVERY=resend`), as named on the Privacy page. Verify `mannpatel.me` as the sending domain.
+**Decision (1 Nov 2026):** Cloudflare Email (`ENQUIRY_DELIVERY=cloudflare`, set in `wrangler.jsonc`). No extra account or API key: the Worker sends each brief from `website@mannpatel.me` to your inbox, with Reply-To set to the visitor, so you just press Reply.
 
-1. Create a Resend account in Mann's name. Add and verify the sending domain (DNS records shown by Resend; follow its current docs). Until a domain is verified, Resend only allows test sends.
-2. In Cloudflare, add the secrets listed in §4 step 4 (`RESEND_API_KEY`, `ENQUIRY_TO_EMAIL`, `ENQUIRY_FROM_EMAIL`, `FORM_TOKEN_SECRET`). `ENQUIRY_DELIVERY=resend` is already in `wrangler.jsonc`. Resend can add its DNS records to Cloudflare for you when you verify `mannpatel.me`.
-3. **Live test with sample data:** set `ENQUIRY_TO_EMAIL` to your own inbox, deploy, submit the form with the name "Test Owner", and confirm: (a) success screen shows a reference id; (b) the owner email arrives, Reply-To is the visitor's address (this also confirms the API's `reply_to` field); (c) the acknowledgement arrives if enabled. Resend's dashboard shows each email's status.
-4. Optional durable record (not used at launch; if you add it, update the Privacy page to name Google as a processor): create a Google Sheet + Apps Script web app that appends rows, set `ENQUIRY_WEBHOOK_URL` and `ENQUIRY_WEBHOOK_SECRET`; verify the `X-Signature` HMAC in the script. With both set, an enquiry is accepted if *either* channel accepts it.
+1. **Turn on Email Routing** for mannpatel.me: Cloudflare dashboard → `mannpatel.me` → *Email* → *Email Routing* → *Get started*, and let Cloudflare add its DNS records.
+2. **Add your inbox as a destination address** (*Email Routing* → *Destination addresses*) and click the link in the verification email Cloudflare sends you. The Worker can only send to verified destination addresses.
+3. **Create `info@mannpatel.me`** (*Email Routing* → *Routing rules* → *Create address*: `info` → *Send to an email* → your verified inbox). The site shows `info@mannpatel.me` everywhere.
+4. **Tell the Worker where to send briefs:** *Workers & Pages* → `mann-patel-website` → *Settings* → *Variables and Secrets* → *Add* → type **Secret**, name `ENQUIRY_TO_EMAIL`, value = the verified inbox from step 2. (`keep_vars` in `wrangler.jsonc` keeps dashboard values across deploys.)
+5. **Live test with sample data:** open https://mannpatel.me/contact/ (the "not connected" notice must be gone), send a brief named "Test Owner", and confirm: (a) the success screen shows a reference id; (b) the email "New enquiry: Test Owner" arrives; (c) pressing Reply addresses the visitor's email.
 
-**Monitoring:** each week, compare Resend's log with the inbox; check spam folders after DNS changes; submit one test enquiry a month (maintenance checklist). If a send fails, the visitor sees an error and can retry. Nothing is silently lost.
+Optional durable record: a Google Sheet + Apps Script web app (`ENQUIRY_WEBHOOK_URL`, `ENQUIRY_WEBHOOK_SECRET`). With both set, an enquiry is accepted if *either* channel accepts it. If you add it, name Google Sheets on the Privacy page.
 
-**Retries:** one automatic retry after 400 ms on network errors, 5xx or 429; Resend's `Idempotency-Key` (`<lead id>-owner`) prevents double emails from that retry.
+**Monitoring:** check the spam folder after DNS changes; submit one test enquiry a month (maintenance checklist); *Workers & Pages → mann-patel-website → Observability* shows `enquiry_accepted` / `enquiry_delivery_failed` events (ids only, no personal data). If a send fails, the visitor sees an error and can retry or email you. Nothing is silently lost.
+
+**Retries:** one automatic retry after 400 ms if Cloudflare rejects the send.
+
+**No visitor acknowledgement:** Cloudflare Email only sends to *your* verified addresses, so visitors don't get an automatic "we got it" email; the success screen and your reply cover that. (Switch to Resend if you ever want automatic acknowledgements.)
 
 **CASL note:** the acknowledgement is a direct reply to the visitor's request, not marketing. There is no marketing list. If one is added, it needs a separate, unticked opt-in. This is not legal advice.
 
@@ -102,17 +108,11 @@ The site runs on **Cloudflare Workers** (free plan): the pages are static files,
    - No build variables are needed.
 
    Save and deploy. The first deploy also connects **mannpatel.me** and **www.mannpatel.me** (from `routes` in `wrangler.jsonc`); Cloudflare creates the DNS records and HTTPS certificates. If the deploy says the domain can't be found, step 1 isn't finished yet: wait for **Active** and retry.
-4. **Add the form's secrets:** *Workers & Pages* → `mann-patel-website` → *Settings* → *Variables and Secrets* → *Add*, choosing type **Secret** for each (secrets survive every deploy; plain-text variables added in the dashboard are replaced by `wrangler.jsonc` on the next deploy):
-   - `RESEND_API_KEY`: from Resend (§1)
-   - `ENQUIRY_TO_EMAIL`: the inbox that receives enquiries
-   - `ENQUIRY_FROM_EMAIL`: e.g. `Mann Patel <hello@mannpatel.me>` (domain verified in Resend)
-   - `FORM_TOKEN_SECRET`: a random string of 32+ characters (e.g. from a password manager's generator)
-
-   `ENQUIRY_DELIVERY=resend` is already set in `wrangler.jsonc`. To send visitors an automatic "we got your brief" email, change `ENQUIRY_ACKNOWLEDGE` there to `"true"`.
-5. **Test:** open https://mannpatel.me/contact/, send a brief with the name "Test Owner", and check it arrives (and that Reply goes to the visitor's address).
-6. *(Recommended)* *Settings* → *Build* → turn off builds for non-production branches, so only your main branch is published.
-7. *(Optional)* Redirect `www` to the bare domain: domain → *Rules* → *Redirect Rules* → template "Redirect from WWW to root". Canonical tags already point to `https://mannpatel.me`.
-8. *(Optional, free)* Receive mail at `hello@mannpatel.me`: domain → *Email* → *Email Routing* → forward it to your Gmail.
+4. **Connect the form:** follow §1 *Connecting email delivery* (Email Routing on, verified inbox, `info@` address, Secret `ENQUIRY_TO_EMAIL`). `ENQUIRY_DELIVERY=cloudflare`, the sender `website@mannpatel.me` and the `send_email` binding are already in `wrangler.jsonc`. *(Optional)* Secret `FORM_TOKEN_SECRET` (32+ random characters) keeps spam-check tokens valid across deploys; without it each build makes its own.
+5. **Call / WhatsApp / Text buttons:** *Settings* → *Build* → *Variables and secrets* → add **build variable** `PUBLIC_CONTACT_PHONE` = your number, e.g. `+16475550142`, then *Retry deployment* (or push any commit). The number is never stored in this public repository: the site shows it masked (`647-55X-XXXX`) and the buttons get their links from a small script. WhatsApp must be set up on that number. Without the variable, only the Email button shows.
+6. **Test:** send a brief named "Test Owner" (see §1 step 5) and tap Call / WhatsApp / Text on a phone.
+7. *(Recommended)* *Settings* → *Build* → turn off builds for non-production branches, so only your main branch is published.
+8. *(Optional)* Redirect `www` to the bare domain: domain → *Rules* → *Redirect Rules* → template "Redirect from WWW to root". Canonical tags already point to `https://mannpatel.me`.
 
 Every later push to the main branch rebuilds and redeploys automatically. Production builds **fail on purpose** if a "To confirm" note reappears or a page breaks (see `scripts/prelaunch-check.mjs`); the secrets can't be seen during a build, so the check lists them as warnings.
 
@@ -126,8 +126,8 @@ Every later push to the main branch rebuilds and redeploys automatically. Produc
 | --- | --- | --- |
 | Domain (mannpatel.me) | yearly renewal, set by your registrar | Yes (already owned) |
 | Cloudflare Workers Free | $0 (100,000 form/Worker requests a day; static pages don't count) | Yes |
-| Cloudflare Email Routing | free | Optional, to receive mail at `hello@mannpatel.me` |
-| Resend Free | $0 for 3,000 emails/month, 100/day; Pro $20/mo | Yes, for email delivery |
+| Cloudflare Email Routing + Email Workers | free | Yes: `info@mannpatel.me` and form delivery |
+| Resend | not needed (alternative only) | No |
 | Business email (e.g. Google Workspace) | per user per month, set by Google | Recommended for a professional address |
 | Cloudflare Turnstile | free tier | Optional |
 | GA4 / Search Console | free | Optional / recommended |

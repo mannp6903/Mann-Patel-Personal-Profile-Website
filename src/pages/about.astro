@@ -7,6 +7,7 @@ import { personJsonLd } from '../lib/seo';
 import { Image } from 'astro:assets';
 import Logo from '../components/Logo.astro';
 import SocialLinks from '../components/SocialLinks.astro';
+import ContactActions from '../components/ContactActions.astro';
 
 const principles = [
   {
@@ -46,9 +47,7 @@ const jsonLd = { '@context': 'https://schema.org', '@type': 'AboutPage', mainEnt
           simple routines that make a business easier to find and easier to reach.
         </p>
         <div class="reach">
-          {profile.contact.email && (
-            <a class="link-accent" href={`mailto:${profile.contact.email}`} data-contact="email">{profile.contact.email}</a>
-          )}
+          <ContactActions />
           <SocialLinks />
         </div>
       </div>

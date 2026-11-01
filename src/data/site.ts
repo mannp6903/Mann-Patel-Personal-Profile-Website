@@ -33,12 +33,10 @@ export const profile = {
     alt: 'Mann Patel smiling, in a dark green sweatshirt, on a tree-lined street at dusk.',
   } as null | { src: ImageMetadata; alt: string },
   contact: {
-    /** Verified business email for the public site, e.g. hello@yourdomain.ca */
-    email: 'mannp6903claudeai@gmail.com' as null | string,
-    /** E.164 format, only if Mann wants a public number. */
-    phone: null as null | string,
-    /** WhatsApp click-to-chat number in E.164, only if supplied. */
-    whatsapp: null as null | string,
+    /** Public business email (Cloudflare Email Routing forwards it to Mann's inbox). */
+    email: 'info@mannpatel.me' as null | string,
+    // The phone number (Call / WhatsApp / Text) is NOT stored here: this repository is public.
+    // It comes from the PUBLIC_CONTACT_PHONE build variable. See src/lib/contact.ts.
   },
 };
 

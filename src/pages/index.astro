@@ -4,6 +4,7 @@ import Hero from '../components/home/Hero.astro';
 import Intro from '../components/home/Intro.astro';
 import WorkList from '../components/home/WorkList.astro';
 import Rails from '../components/home/Rails.astro';
+import Marquee from '../components/Marquee.astro';
 import ServiceOverview from '../components/ServiceOverview.astro';
 import Guide from '../components/Guide.astro';
 import { personJsonLd } from '../lib/seo';
@@ -22,9 +23,11 @@ const jsonLd = {
   fullTitle="Mann Patel · Websites, Google visibility & follow-up for Toronto small businesses"
   description="Websites and simpler systems for small businesses in Toronto and the GTA: websites, Google visibility, professional email, enquiry follow-up and content, from Mann Patel."
   jsonLd={jsonLd}
-  overlayHeader
 >
   <Hero />
+  <div class="ribbon">
+    <Marquee />
+  </div>
   <Intro />
   <WorkList />
   <Rails />
@@ -63,6 +66,15 @@ const jsonLd = {
 </BaseLayout>
 
 <style>
+  /* The services marquee as a slightly tilted ribbon between the hero and the intro. */
+  .ribbon {
+    overflow: hidden;
+    padding-block: 1.25rem;
+    margin-block: -1.25rem;
+  }
+  .ribbon :global(.marquee) {
+    transform: rotate(-1.4deg) scaleX(1.04);
+  }
   .big {
     font-size: clamp(2rem, 1.4rem + 2.4vw, 3.5rem);
     font-weight: 600;

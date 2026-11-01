@@ -1,26 +1,69 @@
 ---
-/** Home intro: one statement, one supporting line, one round button to About. */
+/**
+ * Home intro: one statement, one supporting line, a link to my story.
+ * As the statement scrolls through the screen, its words darken one by one (reading
+ * along with you). Grey and ink both pass contrast; static with reduced motion.
+ */
+const statement =
+  'Helping Toronto small businesses look professional, get found and follow up. Plain language, a written scope, and everything handed over in your name.';
+const words = statement.split(' ');
 ---
 
 <section class="section ix" aria-label="Introduction">
   <div class="container ix-grid">
-    <p class="ix-statement" data-reveal>
-      Helping Toronto small businesses look professional, get found and follow up. Plain language, a written scope, and
-      everything handed over in your name.
+    <p class="ix-statement" data-ix-words>
+      {words.map((w) => <><span class="w">{w}</span>{' '}</>)}
     </p>
     <div class="ix-side" data-reveal data-reveal-delay="120">
       <p>
         I’m a small business founder myself. I build websites, set up Google visibility, and connect the tools that make
         sure no enquiry gets missed.
       </p>
-      <a class="round-btn" href="/about/" data-magnetic>
-        <span class="rb-label" data-magnetic-label>About me</span>
-      </a>
+      <a class="btn btn--secondary" href="/about/">My story <span class="arrow" aria-hidden="true">→</span></a>
     </div>
   </div>
 </section>
 
+<script>
+  const p = document.querySelector<HTMLElement>('[data-ix-words]');
+  if (p && document.documentElement.classList.contains('js-motion')) {
+    const words = [...p.querySelectorAll<HTMLElement>('.w')];
+    let lit = -1;
+    let ticking = false;
+    const update = () => {
+      ticking = false;
+      const r = p.getBoundingClientRect();
+      const vh = window.innerHeight;
+      // 0 when the top reaches 85% of the screen, 1 when the bottom reaches 45%.
+      const start = vh * 0.85;
+      const end = vh * 0.45;
+      const progress = Math.min(1, Math.max(0, (start - r.top) / (start - end + r.height)));
+      const n = Math.round(progress * words.length);
+      if (n === lit) return;
+      lit = n;
+      words.forEach((w, i) => w.classList.toggle('is-lit', i < n));
+    };
+    p.classList.add('is-reading');
+    const onScroll = () => {
+      if (!ticking) {
+        ticking = true;
+        requestAnimationFrame(update);
+      }
+    };
+    window.addEventListener('scroll', onScroll, { passive: true });
+    window.addEventListener('resize', onScroll, { passive: true });
+    update();
+  }
+</script>
+
 <style>
+  .ix-statement.is-reading .w {
+    color: var(--ink-3);
+    transition: color 260ms var(--ease-out);
+  }
+  .ix-statement.is-reading .w.is-lit {
+    color: var(--ink);
+  }
   .ix {
     padding-block: clamp(5rem, 3rem + 7vw, 10rem);
   }
@@ -46,7 +89,7 @@
   }
   .ix-side {
     display: grid;
-    gap: var(--space-xl);
+    gap: var(--space-m);
     justify-items: start;
     color: var(--ink-2);
     font-size: var(--step-0);
@@ -56,9 +99,8 @@
     .ix-side {
       padding-top: var(--space-s);
     }
-    .ix-side .round-btn {
-      margin-top: var(--space-xl);
-      margin-left: clamp(0rem, 4vw, 4rem);
+    .ix-side .btn {
+      margin-top: var(--space-s);
     }
   }
 </style>

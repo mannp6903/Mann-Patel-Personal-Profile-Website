@@ -2,29 +2,24 @@
 /**
  * Site header + menu.
  *
- * - Desktop: logo left, inline links right. Not sticky: once you scroll past it, a round
- *   menu button floats in at the top right.
- * - Phones: a "Menu" button opens the same panel.
- * - The panel is a native <dialog> (focus stays inside, Esc closes it, focus returns).
- * - Without JavaScript the inline links simply wrap under the logo.
- * - `overlay` places the header over a full-bleed hero (home page).
+ * - Sticky at the top of every page: it tightens and gains a backdrop once you scroll, and
+ *   a thin accent line under it shows how far down the page you are.
+ * - Desktop: logo, inline links and a "Start a project" button. Nothing floats over content.
+ * - Phones: a "Menu" button opens a sheet that drops down from the top, with the links and
+ *   the direct contact buttons. The sheet is a native <dialog> (focus stays inside, Esc
+ *   closes it, focus returns). Without JavaScript the inline links wrap under the logo.
  */
-import { nav, primaryCta } from '../data/site';
-import { profile, social } from '../data/site';
+import { nav, primaryCta, social } from '../data/site';
 import Logo from './Logo.astro';
+import ContactActions from './ContactActions.astro';
 
-interface Props {
-  overlay?: boolean;
-}
-const { overlay = false } = Astro.props;
 const path = Astro.url.pathname;
 const isCurrent = (href: string) => path === href || (href !== '/' && path.startsWith(href));
 const panelLinks = [{ href: '/', label: 'Home' }, ...nav, { href: primaryCta.href, label: 'Contact' }];
-const email = profile.contact.email;
 const socials = social.filter((s) => s.url);
 ---
 
-<header class:list={['site-header', { 'site-header--overlay': overlay }]}>
+<header class="site-header" data-header>
   <div class="container bar">
     <a class="wordmark" href="/" aria-label="Mann Patel, home">
       <Logo master="text" motion="intro" />
@@ -41,31 +36,30 @@ const socials = social.filter((s) => s.url);
             </li>
           ))
         }
-        <li>
-          <a href={primaryCta.href} aria-current={isCurrent(primaryCta.href) ? 'page' : undefined}>Contact</a>
+        <li class="nav-cta">
+          <a class="hdr-cta" href={primaryCta.href} aria-current={isCurrent(primaryCta.href) ? 'page' : undefined}>
+            <span class="hdr-cta-dot" aria-hidden="true"></span>
+            {primaryCta.label}
+          </a>
         </li>
       </ul>
     </nav>
 
     <button class="menu-open" type="button" aria-haspopup="dialog" aria-controls="menu-panel" data-menu-toggle>
-      <span class="menu-dot" aria-hidden="true"></span>
+      <span class="menu-lines" aria-hidden="true"><span></span><span></span></span>
       Menu
     </button>
   </div>
+  <span class="hdr-progress" aria-hidden="true"></span>
 </header>
 
-<button class="menu-fab" type="button" aria-haspopup="dialog" aria-controls="menu-panel" data-menu-fab tabindex="-1" aria-hidden="true">
-  <span class="fab-lines" aria-hidden="true"><span></span><span></span></span>
-  <span class="visually-hidden">Open menu</span>
-</button>
-
-<dialog id="menu-panel" class="menu-panel on-night" aria-label="Menu" data-menu-panel>
+<dialog id="menu-panel" class="menu-panel" aria-label="Menu" data-menu-panel>
   <div class="panel-inner">
     <div class="panel-top">
-      <p class="panel-label">Navigation</p>
+      <span class="panel-label">Menu</span>
       <button class="panel-close" type="button" data-menu-close>
-        <span class="fab-lines is-x" aria-hidden="true"><span></span><span></span></span>
-        <span class="visually-hidden">Close menu</span>
+        <span class="menu-lines is-x" aria-hidden="true"><span></span><span></span></span>
+        Close
       </button>
     </div>
     <nav aria-label="Menu">
@@ -74,6 +68,7 @@ const socials = social.filter((s) => s.url);
           panelLinks.map((item, i) => (
             <li style={`--i:${i}`}>
               <a href={item.href} aria-current={isCurrent(item.href) && (item.href !== '/' || path === '/') ? 'page' : undefined}>
+                <span class="pl-num" aria-hidden="true">0{i + 1}</span>
                 {item.label}
               </a>
             </li>
@@ -82,18 +77,11 @@ const socials = social.filter((s) => s.url);
       </ul>
     </nav>
     <div class="panel-foot">
-      {
-        email && (
-          <p>
-            <span class="panel-label">Email</span>
-            <a href={`mailto:${email}`} data-contact="email">{email}</a>
-          </p>
-        )
-      }
+      <ContactActions label="Reach me directly" compact />
       {
         socials.length > 0 && (
-          <p>
-            <span class="panel-label">Socials</span>
+          <p class="panel-socials">
+            <span class="panel-label">Elsewhere</span>
             {socials.map((s) => (
               <a href={s.url!} rel="me noopener">
                 {s.label}
@@ -108,20 +96,18 @@ const socials = social.filter((s) => s.url);
 
 <script>
   const panel = document.querySelector<HTMLDialogElement>('[data-menu-panel]');
-  const openers = document.querySelectorAll<HTMLButtonElement>('[data-menu-toggle], [data-menu-fab]');
-  const fab = document.querySelector<HTMLButtonElement>('[data-menu-fab]');
-  const header = document.querySelector<HTMLElement>('.site-header');
+  const opener = document.querySelector<HTMLButtonElement>('[data-menu-toggle]');
+  const header = document.querySelector<HTMLElement>('[data-header]');
 
   if (panel && typeof panel.showModal === 'function') {
-    const open = () => {
+    const close = () => panel.close();
+    opener?.addEventListener('click', () => {
       panel.showModal();
       document.documentElement.classList.add('menu-is-open');
-    };
-    const close = () => panel.close();
-    openers.forEach((b) => b.addEventListener('click', open));
+    });
     panel.querySelector('[data-menu-close]')?.addEventListener('click', close);
     panel.addEventListener('close', () => document.documentElement.classList.remove('menu-is-open'));
-    // Click on the dimmed backdrop (outside the panel box) closes it.
+    // A click on the dimmed backdrop (outside the sheet) closes it.
     panel.addEventListener('click', (e) => {
       const r = panel.getBoundingClientRect();
       const inside = e.clientX >= r.left && e.clientX <= r.right && e.clientY >= r.top && e.clientY <= r.bottom;
@@ -133,27 +119,48 @@ const socials = social.filter((s) => s.url);
     document.documentElement.classList.add('no-dialog');
   }
 
-  // Floating menu button: appears once the header has scrolled out of view.
-  if (fab && header && 'IntersectionObserver' in window) {
-    new IntersectionObserver(([entry]) => {
-      const show = !entry.isIntersecting;
-      fab.classList.toggle('is-visible', show);
-      fab.tabIndex = show ? 0 : -1;
-      fab.setAttribute('aria-hidden', String(!show));
-    }).observe(header);
+  // Scrolled state + reading progress (one passive listener, one frame per scroll burst).
+  if (header) {
+    let ticking = false;
+    const update = () => {
+      ticking = false;
+      const y = window.scrollY;
+      header.classList.toggle('is-scrolled', y > 8);
+      const max = document.documentElement.scrollHeight - window.innerHeight;
+      header.style.setProperty('--progress', String(max > 0 ? Math.min(1, y / max) : 0));
+    };
+    window.addEventListener(
+      'scroll',
+      () => {
+        if (!ticking) {
+          ticking = true;
+          requestAnimationFrame(update);
+        }
+      },
+      { passive: true },
+    );
+    update();
   }
 </script>
 
 <style>
   .site-header {
-    position: relative;
+    position: sticky;
+    top: 0;
     z-index: 40;
-    background: var(--paper);
+    background: rgb(244 241 234 / 0.94);
+    border-bottom: 1px solid transparent;
+    transition: border-color var(--dur-base) var(--ease-out), box-shadow var(--dur-base) var(--ease-out);
   }
-  .site-header--overlay {
-    position: absolute;
-    inset: 0 0 auto 0;
-    background: transparent;
+  @supports (backdrop-filter: blur(1px)) {
+    .site-header {
+      background: rgb(244 241 234 / 0.82);
+      backdrop-filter: saturate(1.4) blur(14px);
+    }
+  }
+  .site-header.is-scrolled {
+    border-bottom-color: var(--line);
+    box-shadow: 0 8px 24px -22px rgb(21 23 26 / 0.6);
   }
   .bar {
     display: flex;
@@ -161,20 +168,25 @@ const socials = social.filter((s) => s.url);
     align-items: center;
     justify-content: space-between;
     gap: var(--space-2xs) var(--space-m);
-    min-height: 5rem;
+    min-height: 4.5rem;
+    transition: min-height var(--dur-base) var(--ease-out);
+  }
+  .is-scrolled .bar {
+    min-height: 3.75rem;
   }
   .wordmark {
     display: inline-flex;
     align-items: center;
     min-height: var(--tap);
-    font-size: clamp(1.4rem, 1.25rem + 0.45vw, 1.65rem);
+    font-size: clamp(1.35rem, 1.2rem + 0.45vw, 1.6rem);
     color: var(--ink);
     text-decoration: none;
   }
   .nav-list {
     display: flex;
     flex-wrap: wrap;
-    gap: var(--space-2xs) var(--space-xs);
+    align-items: center;
+    gap: var(--space-2xs) var(--space-2xs);
     list-style: none;
     padding: 0;
   }
@@ -186,31 +198,97 @@ const socials = social.filter((s) => s.url);
     padding-inline: var(--space-xs);
     font-weight: 600;
     text-decoration: none;
-    border-radius: var(--radius-s);
+    border-radius: var(--radius-pill);
   }
-  /* A small dot slides in under the link, like a cursor resting on it. */
-  .nav-list a::after {
+  /* An underline draws in from the left on hover and stays under the current page. */
+  .nav-list li:not(.nav-cta) a::after {
     content: '';
     position: absolute;
-    left: 50%;
-    bottom: 0.35rem;
-    width: 6px;
-    height: 6px;
-    border-radius: 50%;
+    left: var(--space-xs);
+    right: var(--space-xs);
+    bottom: 0.45rem;
+    height: 2px;
+    border-radius: 2px;
     background: currentColor;
-    transform: translateX(-50%) scale(0);
-    transition: transform var(--dur-base) var(--ease-out);
+    transform: scaleX(0);
+    transform-origin: right;
+    transition: transform 380ms var(--ease-out);
   }
-  .nav-list a:hover::after,
-  .nav-list a[aria-current='page']::after {
-    transform: translateX(-50%) scale(1);
+  .nav-list li:not(.nav-cta) a:hover::after,
+  .nav-list li:not(.nav-cta) a[aria-current='page']::after {
+    transform: scaleX(1);
+    transform-origin: left;
   }
   .nav-list a[aria-current='page']::after {
     background: var(--accent);
   }
+  .nav-cta {
+    margin-left: var(--space-2xs);
+  }
+  .nav-list .hdr-cta {
+    gap: 0.55em;
+    padding-inline: 1.1rem;
+    background: var(--ink);
+    color: var(--paper);
+    transition: background-color var(--dur-base) var(--ease-out);
+  }
+  .nav-list .hdr-cta:hover {
+    background: var(--accent-text);
+  }
+  .hdr-cta-dot {
+    width: 0.5rem;
+    height: 0.5rem;
+    border-radius: 50%;
+    background: #3ecf8e;
+    box-shadow: 0 0 0 0 rgb(62 207 142 / 0.6);
+  }
+  @media (prefers-reduced-motion: no-preference) {
+    .hdr-cta-dot {
+      animation: ping 2.4s var(--ease-out) infinite;
+    }
+  }
+  @keyframes ping {
+    70%,
+    100% {
+      box-shadow: 0 0 0 0.45rem rgb(62 207 142 / 0);
+    }
+  }
+  .hdr-progress {
+    position: absolute;
+    left: 0;
+    bottom: -1px;
+    width: 100%;
+    height: 2px;
+    background: var(--accent);
+    transform-origin: left;
+    transform: scaleX(var(--progress, 0));
+    pointer-events: none;
+  }
 
   .menu-open {
     display: none;
+  }
+  .menu-lines {
+    display: grid;
+    gap: 5px;
+    width: 18px;
+  }
+  .menu-lines span {
+    display: block;
+    height: 2px;
+    border-radius: 2px;
+    background: currentColor;
+    transition: transform var(--dur-base) var(--ease-out);
+  }
+  .menu-lines span:last-child {
+    width: 70%;
+  }
+  .menu-lines.is-x span:first-child {
+    transform: translateY(3.5px) rotate(45deg);
+  }
+  .menu-lines.is-x span:last-child {
+    width: 100%;
+    transform: translateY(-3.5px) rotate(-45deg);
   }
 
   /* Phones (with JS): a Menu button replaces the inline links. */
@@ -224,99 +302,48 @@ const socials = social.filter((s) => s.url);
       gap: var(--space-2xs);
       min-height: var(--tap);
       padding: 0 var(--space-s);
-      border: 0;
-      background: transparent;
+      border: 1.5px solid var(--line);
+      border-radius: var(--radius-pill);
+      background: var(--card);
       font: inherit;
       font-weight: 700;
       color: var(--ink);
       cursor: pointer;
     }
-    .menu-dot {
-      width: 6px;
-      height: 6px;
-      border-radius: 50%;
-      background: currentColor;
-    }
   }
 
-  /* Floating round menu button */
-  .menu-fab {
-    position: fixed;
-    z-index: 45;
-    top: calc(env(safe-area-inset-top, 0px) + var(--space-s));
-    right: max(var(--space-s), env(safe-area-inset-right, 0px));
-    display: grid;
-    place-items: center;
-    width: 4.25rem;
-    height: 4.25rem;
-    border: 0;
-    border-radius: 50%;
-    background: var(--ink);
-    color: var(--paper);
-    border: 1px solid rgb(244 241 234 / 0.18); /* stays visible over the dark footer */
-    box-shadow: 0 10px 30px -12px rgb(0 0 0 / 0.5);
-    cursor: pointer;
-    transform: scale(0);
-    transition: transform 320ms var(--ease-stamp), background-color var(--dur-base) var(--ease-out);
-  }
-  .menu-fab.is-visible {
-    transform: scale(1);
-  }
-  .menu-fab:hover {
-    background: var(--accent-text);
-  }
-  .menu-fab:focus-visible {
-    outline: 3px solid var(--accent);
-    outline-offset: 3px;
-  }
-  .fab-lines {
-    display: grid;
-    gap: 7px;
-    width: 26px;
-  }
-  .fab-lines span {
-    display: block;
-    height: 2px;
-    background: currentColor;
-  }
-  .fab-lines.is-x span:first-child {
-    transform: translateY(4.5px) rotate(45deg);
-  }
-  .fab-lines.is-x span:last-child {
-    transform: translateY(-4.5px) rotate(-45deg);
-  }
-
-  /* Side panel */
+  /* Drop-down sheet */
   .menu-panel {
     position: fixed;
-    inset: 0 0 0 auto;
-    width: min(100%, 30rem);
+    inset: 0 0 auto 0;
+    width: 100%;
     max-width: 100%;
-    height: 100%;
-    max-height: 100%;
-    margin: 0 0 0 auto;
+    max-height: 100dvh;
+    margin: 0;
     padding: 0;
     border: 0;
-    border-left: 1px solid var(--night-line);
-    background: var(--night-2);
-    color: var(--night-ink);
+    border-radius: 0 0 var(--radius-l) var(--radius-l);
+    background: var(--paper);
+    color: var(--ink);
+    overflow: auto;
+    box-shadow: 0 30px 60px -30px rgb(0 0 0 / 0.5);
   }
   .menu-panel::backdrop {
-    background: rgb(15 16 18 / 0.45);
+    background: rgb(15 16 18 / 0.5);
   }
   .panel-inner {
     display: grid;
-    grid-template-rows: auto 1fr auto;
-    gap: var(--space-xl);
-    min-height: 100%;
-    padding: calc(env(safe-area-inset-top, 0px) + var(--space-l)) max(var(--space-l), env(safe-area-inset-right, 0px)) var(--space-l) var(--space-xl);
+    gap: var(--space-l);
+    width: min(100% - 2 * var(--gutter), var(--container));
+    margin-inline: auto;
+    padding: calc(env(safe-area-inset-top, 0px) + var(--space-s)) 0 var(--space-l);
   }
   .panel-top {
     display: flex;
     align-items: center;
     justify-content: space-between;
-    padding-bottom: var(--space-s);
-    border-bottom: 1px solid var(--night-line);
+    min-height: 3.5rem;
+    border-bottom: 1px solid var(--line);
   }
   .panel-label {
     display: block;
@@ -324,95 +351,94 @@ const socials = social.filter((s) => s.url);
     font-size: var(--step--1);
     letter-spacing: var(--tracking-label);
     text-transform: uppercase;
-    color: var(--night-ink-2);
+    color: var(--ink-2);
   }
   .panel-close {
-    display: grid;
-    place-items: center;
-    width: 3.25rem;
-    height: 3.25rem;
-    border: 1.5px solid var(--night-line);
-    border-radius: 50%;
-    background: transparent;
-    color: var(--night-ink);
+    display: inline-flex;
+    align-items: center;
+    gap: var(--space-2xs);
+    min-height: var(--tap);
+    padding: 0 var(--space-s);
+    border: 1.5px solid var(--line);
+    border-radius: var(--radius-pill);
+    background: var(--card);
+    color: var(--ink);
+    font: inherit;
+    font-weight: 700;
     cursor: pointer;
-  }
-  .panel-close:hover {
-    border-color: var(--night-ink);
   }
   .panel-links {
     list-style: none;
     padding: 0;
     display: grid;
-    gap: var(--space-2xs);
-    align-content: start;
+  }
+  .panel-links li + li {
+    border-top: 1px solid var(--line);
   }
   .panel-links a {
-    display: inline-flex;
-    align-items: center;
+    display: flex;
+    align-items: baseline;
     gap: var(--space-s);
+    padding-block: 0.35rem;
     font-family: var(--font-display);
-    font-size: clamp(2.5rem, 2rem + 2vw, 3.5rem);
+    font-size: clamp(2rem, 1.6rem + 2vw, 3rem);
     font-weight: 600;
     letter-spacing: -0.03em;
-    line-height: 1.15;
-    color: var(--night-ink);
+    line-height: 1.2;
+    color: var(--ink);
     text-decoration: none;
   }
-  .panel-links a::before {
-    content: '';
-    width: 0.25em;
-    height: 0.25em;
-    border-radius: 50%;
-    background: var(--accent-on-night);
-    transform: scale(0);
-    transition: transform var(--dur-base) var(--ease-out);
+  .pl-num {
+    font-family: var(--font-mono);
+    font-size: var(--step--1);
+    font-weight: 400;
+    letter-spacing: 0;
+    color: var(--ink-3);
   }
-  .panel-links a:hover::before,
-  .panel-links a[aria-current='page']::before {
-    transform: scale(1);
+  .panel-links a[aria-current='page'] {
+    color: var(--accent-text);
   }
   .panel-foot {
     display: grid;
     gap: var(--space-m);
-    font-size: var(--step--1);
   }
-  .panel-foot p {
+  .panel-socials {
     display: flex;
     flex-wrap: wrap;
     gap: var(--space-2xs) var(--space-s);
     align-items: baseline;
   }
-  .panel-foot p .panel-label {
+  .panel-socials .panel-label {
     width: 100%;
   }
-  .panel-foot a {
-    color: var(--night-ink);
-    overflow-wrap: anywhere;
+  .panel-socials a {
+    display: inline-flex;
+    align-items: center;
+    min-height: var(--tap);
+    font-weight: 700;
   }
 
-  /* Motion: the panel slides in, links follow one after another. */
   @media (prefers-reduced-motion: no-preference) {
     .menu-panel[open] {
-      animation: panel-in 520ms cubic-bezier(0.76, 0, 0.24, 1);
+      animation: sheet-in 460ms cubic-bezier(0.2, 0.9, 0.2, 1);
     }
     .menu-panel[open] .panel-links li {
-      animation: link-in 600ms var(--ease-out) backwards;
-      animation-delay: calc(140ms + var(--i) * 45ms);
+      animation: link-in 520ms var(--ease-out) backwards;
+      animation-delay: calc(120ms + var(--i) * 50ms);
     }
     .menu-panel[open]::backdrop {
-      animation: fade-in 400ms var(--ease-out);
+      animation: fade-in 300ms var(--ease-out);
     }
   }
-  @keyframes panel-in {
+  @keyframes sheet-in {
     from {
-      transform: translateX(100%);
+      transform: translateY(-100%);
     }
   }
   @keyframes link-in {
     from {
       opacity: 0;
-      transform: translateX(3rem);
+      transform: translateY(0.75rem);
     }
   }
   @keyframes fade-in {

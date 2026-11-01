@@ -1,12 +1,12 @@
 ---
 /**
- * Footer: a closing invitation ("Let's work together") with a magnetic round button,
- * the email address (copyable), live Toronto time, and the small print.
+ * Footer: a closing invitation with the main action and every direct contact channel
+ * (Email / Call / WhatsApp / Text), a copyable email, live Toronto time and the small print.
+ * Plain document flow: nothing is absolutely positioned, so nothing can overlap.
  */
-import { Image } from 'astro:assets';
 import { profile, businesses, nav } from '../data/site';
 import SocialLinks from './SocialLinks.astro';
-import cutout from '../assets/mann-patel-portrait-cutout.png';
+import ContactActions from './ContactActions.astro';
 
 const year = new Date().getFullYear();
 const email = profile.contact.email;
@@ -15,43 +15,30 @@ const nest = businesses[0];
 
 <footer class="site-footer on-night">
   <div class="container">
-    <div class="ft-head">
-      <h2 class="ft-title">
-        <span class="ft-avatar" aria-hidden="true">
-          <Image src={cutout} alt="" width={160} height={160} loading="lazy" decoding="async" />
-        </span>
-        <span>Let’s work<br />together</span>
-      </h2>
-    </div>
-
-    <div class="ft-line">
-      <span class="ft-rule" aria-hidden="true"></span>
-      <a class="round-btn round-btn--accent" href="/contact/" data-magnetic>
-        <span class="rb-label" data-magnetic-label>Get in touch</span>
-      </a>
-    </div>
-
-    <div class="ft-pills">
-      {
-        email && (
-          <>
-            <a class="pill" href={`mailto:${email}`} data-contact="email" data-magnetic>
-              <span data-magnetic-label>{email}</span>
-            </a>
-            <button class="pill pill--quiet" type="button" data-copy-email={email}>
-              Copy email
-            </button>
-            <span class="small ft-copied" role="status" data-copy-email-status></span>
-          </>
-        )
-      }
+    <div class="ft-cta">
+      <div class="ft-head">
+        <p class="ft-label">Have a project in mind?</p>
+        <h2 class="ft-title">Let’s make your business <span class="ft-accent">easy to choose.</span></h2>
+        <p class="ft-sub">Send a short brief, or reach me directly. I reply myself, usually with a question or two.</p>
+      </div>
+      <div class="ft-actions">
+        <a class="btn ft-start" href="/contact/">Start a project <span class="arrow" aria-hidden="true">→</span></a>
+        <ContactActions compact class="ft-reach" />
+        {
+          email && (
+            <p class="ft-copy">
+              <a href={`mailto:${email}`} data-contact="email">{email}</a>
+              <button class="ft-copy-btn" type="button" data-copy-email={email}>
+                Copy email
+              </button>
+              <span class="ft-copied" role="status" data-copy-email-status></span>
+            </p>
+          )
+        }
+      </div>
     </div>
 
     <div class="ft-bottom">
-      <div>
-        <p class="ft-label">Version</p>
-        <p>{year} © {profile.name}</p>
-      </div>
       <div>
         <p class="ft-label">Local time</p>
         <p data-local-time>Toronto</p>
@@ -74,17 +61,22 @@ const nest = businesses[0];
         <p>
           <a href={nest.url} rel="noopener" data-track="nest_and_rest">{nest.name}&nbsp;<span aria-hidden="true">↗</span></a>
         </p>
-        <p class="small muted">Home cleaning · bookings open summer 2027</p>
+        <p class="small ft-muted">Home cleaning · bookings open summer 2027</p>
       </div>
+    </div>
+
+    <div class="ft-legal">
+      <p>© {year} {profile.name} · Toronto, Ontario</p>
+      <a class="ft-top" href="#main">Back to top <span aria-hidden="true">↑</span></a>
     </div>
   </div>
 </footer>
 
 <script>
-  // Live local time in Toronto, e.g. "9:41 PM EDT".
+  // Live local time in Toronto, e.g. "9:41 p.m. EST · Toronto".
   const out = document.querySelector<HTMLElement>('[data-local-time]');
   if (out) {
-    const fmt = new Intl.DateTimeFormat('en-US', {
+    const fmt = new Intl.DateTimeFormat('en-CA', {
       timeZone: 'America/Toronto',
       hour: 'numeric',
       minute: '2-digit',
@@ -101,6 +93,11 @@ const nest = businesses[0];
     try {
       await navigator.clipboard.writeText(copy.dataset.copyEmail ?? '');
       if (status) status.textContent = 'Copied';
+      copy.classList.add('is-copied');
+      window.setTimeout(() => {
+        copy.classList.remove('is-copied');
+        if (status) status.textContent = '';
+      }, 2400);
     } catch {
       if (status) status.textContent = copy.dataset.copyEmail ?? '';
     }
@@ -109,92 +106,94 @@ const nest = businesses[0];
 
 <style>
   .site-footer {
-    padding-block: clamp(4rem, 3rem + 5vw, 8rem) var(--space-l);
+    padding-block: clamp(4rem, 3rem + 5vw, 7rem) var(--space-l);
     overflow: hidden;
+  }
+  .ft-cta {
+    display: grid;
+    gap: var(--space-xl);
+    padding-bottom: clamp(3rem, 2rem + 4vw, 5rem);
+  }
+  @media (min-width: 64em) {
+    .ft-cta {
+      grid-template-columns: minmax(0, 1.25fr) minmax(0, 1fr);
+      align-items: end;
+      gap: var(--space-2xl);
+    }
+  }
+  .ft-head {
+    display: grid;
+    gap: var(--space-s);
   }
   .ft-title {
-    display: flex;
-    flex-wrap: wrap;
-    align-items: center;
-    gap: var(--space-s) var(--space-m);
-    font-size: clamp(2.75rem, 1.6rem + 5.2vw, 6.5rem);
-    font-weight: 600;
-    line-height: 1;
+    font-size: clamp(2.4rem, 1.5rem + 4vw, 5rem);
+    font-weight: 650;
+    line-height: 1.02;
     letter-spacing: -0.04em;
     color: var(--night-ink);
+    max-width: 14ch;
+    text-wrap: balance;
   }
-  .ft-avatar {
-    display: inline-block;
-    width: 0.95em;
-    height: 0.95em;
-    border-radius: 50%;
-    overflow: hidden;
-    background: var(--hero-bg, #8e8a82);
-    flex: none;
+  .ft-accent {
+    color: var(--accent-on-night);
+    font-style: italic;
+    font-weight: 500;
   }
-  .ft-avatar :global(img) {
-    width: 100%;
-    height: 100%;
-    object-fit: cover;
-    object-position: 50% 20%;
-    transform: scale(1.35) translateY(8%);
+  .ft-sub {
+    max-width: 42ch;
+    color: var(--night-ink-2);
   }
-  .ft-line {
-    position: relative;
-    display: flex;
-    align-items: center;
-    margin-block: clamp(2rem, 1rem + 4vw, 4.5rem);
+  .ft-actions {
+    display: grid;
+    gap: var(--space-m);
+    justify-items: start;
+    min-width: 0;
   }
-  .ft-rule {
-    flex: 1;
-    height: 1px;
-    background: var(--night-line);
+  .ft-actions :global(.ft-reach) {
+    width: min(100%, 28rem);
   }
-  .ft-line .round-btn {
-    position: absolute;
-    right: clamp(0rem, 8vw, 8rem);
+  .ft-start {
+    font-size: var(--step-1);
+    padding: 0.8em 1.5em;
   }
-  .ft-pills {
+  .ft-copy {
     display: flex;
     flex-wrap: wrap;
     align-items: center;
-    gap: var(--space-s);
-    margin-top: clamp(4.5rem, 3rem + 4vw, 7rem);
+    gap: var(--space-2xs) var(--space-s);
+    font-weight: 700;
   }
-  .pill {
+  .ft-copy a {
     display: inline-flex;
     align-items: center;
-    min-height: 3.75rem;
-    padding: 0 var(--space-l);
+    min-height: var(--tap);
+    color: var(--night-ink);
+    overflow-wrap: anywhere;
+  }
+  .ft-copy-btn {
+    min-height: var(--tap);
+    padding: 0 var(--space-s);
     border: 1px solid var(--night-line);
     border-radius: var(--radius-pill);
     background: transparent;
-    color: var(--night-ink);
-    font: inherit;
-    font-weight: 600;
-    text-decoration: none;
-    cursor: pointer;
-    overflow-wrap: anywhere;
-    transition: border-color var(--dur-base) var(--ease-out), background-color var(--dur-base) var(--ease-out);
-  }
-  .pill:hover {
-    border-color: var(--night-ink);
-    background: var(--night-2);
-  }
-  .pill--quiet {
-    min-height: var(--tap);
-    padding: 0 var(--space-m);
-    font-size: var(--step--1);
     color: var(--night-ink-2);
+    font: inherit;
+    font-size: var(--step--1);
+    cursor: pointer;
+  }
+  .ft-copy-btn:hover,
+  .ft-copy-btn.is-copied {
+    border-color: var(--night-ink);
+    color: var(--night-ink);
   }
   .ft-copied {
+    font-size: var(--step--1);
     color: var(--night-ink-2);
   }
   .ft-bottom {
     display: grid;
     gap: var(--space-l);
-    margin-top: clamp(3rem, 2rem + 4vw, 6rem);
-    padding-top: var(--space-m);
+    padding-block: var(--space-l);
     border-top: 1px solid var(--night-line);
     grid-template-columns: repeat(auto-fit, minmax(min(100%, 11rem), 1fr));
     font-size: var(--step--1);
@@ -202,6 +201,7 @@ const nest = businesses[0];
   .ft-label {
     margin-bottom: var(--space-2xs);
     font-family: var(--font-mono);
+    font-size: var(--step--1);
     letter-spacing: var(--tracking-label);
     text-transform: uppercase;
     color: var(--night-ink-2);
@@ -210,13 +210,43 @@ const nest = businesses[0];
     list-style: none;
     padding: 0;
     display: grid;
-    gap: var(--space-3xs);
+  }
+  .ft-bottom ul a {
+    display: inline-flex;
+    align-items: center;
+    min-height: 2rem;
   }
   .ft-bottom a {
     color: var(--night-ink);
     text-decoration: none;
   }
   .ft-bottom a:hover {
+    text-decoration: underline;
+  }
+  .ft-muted {
+    color: var(--night-ink-2);
+  }
+  .ft-legal {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    justify-content: space-between;
+    gap: var(--space-s);
+    padding-top: var(--space-m);
+    border-top: 1px solid var(--night-line);
+    font-size: var(--step--1);
+    color: var(--night-ink-2);
+  }
+  .ft-top {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.4em;
+    min-height: var(--tap);
+    color: var(--night-ink);
+    font-weight: 700;
+    text-decoration: none;
+  }
+  .ft-top:hover {
     text-decoration: underline;
   }
 </style>
