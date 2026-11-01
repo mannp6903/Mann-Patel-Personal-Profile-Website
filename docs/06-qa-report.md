@@ -100,8 +100,17 @@ Done: semantic landmarks, one H1 per page, skip link, visible 3 px focus rings, 
 | Motion | Header intro (letters rise, stop drops, glint), hover glint + hop, footer signature and founder stamp on scroll: verified frame by frame at 1440 and 360 px; static under reduced motion, without JS and in print |
 | Unit / E2E | 30/30 and 39/39 passed (3 new logo tests: name only, unique gradient ids, intro once per visit, reveal, reduced motion; axe: 0 violations on all 11 pages) |
 | Horizontal overflow | None at 390, 768, 1440 px on 10 pages |
-| Domain | Production URL is now `https://mannpatel.me` (`netlify.toml`) |
+| Domain | Production URL is now `https://mannpatel.me` |
 | Samp Hair & Spa | Permission given by Mann; the "To confirm" gate is removed, so it no longer blocks a production build |
+
+## 6e · Round 5 (1 Nov 2026): Cloudflare Workers hosting
+
+| Check | Result |
+| --- | --- |
+| Build | `npm run build:cloudflare` succeeds; pre-launch check 0 errors, 4 warnings (the four form secrets, which only exist in the Cloudflare dashboard) |
+| Bundle | `wrangler deploy --dry-run`: Worker 169 KiB gzip, 80 static files, bindings ASSETS + 2 plain vars; no KV or Images bindings (sessions off, images resized at build) |
+| Local Worker (`wrangler dev`, workerd) | All pages 200, unknown URL 404 with the site's 404 page, `_headers` security headers applied; form `GET` issues a token; `POST` without email settings answers an honest "not connected"; with test secrets the form reports connected (secrets read at runtime) |
+| Unit / E2E (Node build) | 30/30 and 37/37 passed |
 
 ## 7 · Internal design review (subjective)
 

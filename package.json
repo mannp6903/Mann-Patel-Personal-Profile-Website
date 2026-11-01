@@ -17,10 +17,12 @@
     "qa:lighthouse": "node scripts/lighthouse.mjs http://127.0.0.1:4321 / /services/ /work/nest-and-rest-cleaning/ /contact/",
     "images": "node scripts/make-images.mjs",
     "prelaunch": "node scripts/prelaunch-check.mjs",
-    "preview:static": "npm run build && node scripts/export-static-preview.mjs"
+    "preview:static": "npm run build && node scripts/export-static-preview.mjs",
+    "build:cloudflare": "node scripts/build-cloudflare.mjs",
+    "deploy:cloudflare": "npm run build:cloudflare && wrangler deploy"
   },
   "dependencies": {
-    "@astrojs/netlify": "^8.2.10",
+    "@astrojs/cloudflare": "^14.4.3",
     "@astrojs/node": "^11.1.9",
     "@astrojs/sitemap": "^3.7.4",
     "@fontsource-variable/atkinson-hyperlegible-mono": "^5.3.0",
@@ -34,6 +36,7 @@
     "@fontsource-variable/fraunces": "^5.3.0",
     "@playwright/test": "^1.63.0",
     "typescript": "^6.0.3",
-    "vitest": "^5.0.5"
+    "vitest": "^5.0.5",
+    "wrangler": "^4.156.0"
   }
 }

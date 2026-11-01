@@ -1,0 +1,28 @@
+// Cloudflare Workers settings for mannpatel.me.
+// Build: `npm run build:cloudflare`   Deploy: `npx wrangler deploy`
+// Steps (first-time setup, custom domain, secrets): docs/05-launch-and-integrations.md §4.
+//
+// Secrets (RESEND_API_KEY, FORM_TOKEN_SECRET, ...) are NOT stored here: this repository is
+// public. Set them in Cloudflare → Workers & Pages → mann-patel-website → Settings →
+// Variables and Secrets (or with `npx wrangler secret put NAME`).
+{
+  "$schema": "node_modules/wrangler/config-schema.json",
+  "name": "mann-patel-website",
+  "compatibility_date": "2026-10-23",
+  "compatibility_flags": ["nodejs_compat"],
+  // The Astro adapter fills in the Worker entry point and the static-assets folder.
+  "observability": { "enabled": true },
+
+  // Serve the site on mannpatel.me. Cloudflare creates the DNS records and HTTPS
+  // certificates on deploy, as long as mannpatel.me is added to this Cloudflare account.
+  "routes": [
+    { "pattern": "mannpatel.me", "custom_domain": true },
+    { "pattern": "www.mannpatel.me", "custom_domain": true }
+  ],
+
+  // Plain (non-secret) runtime settings for the enquiry form.
+  "vars": {
+    "ENQUIRY_DELIVERY": "resend",
+    "ENQUIRY_ACKNOWLEDGE": "false"
+  }
+}

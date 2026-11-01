@@ -11,8 +11,6 @@ import {
   FORM_TOKEN_SECRET,
   TURNSTILE_SECRET_KEY,
 } from 'astro:env/server';
-import { appendFile, mkdir } from 'node:fs/promises';
-import { dirname } from 'node:path';
 import { handleEnquiry, type HandlerConfig, type HandlerResponse } from '../../lib/enquiry/handler';
 import { RateLimiter, Dedupe } from '../../lib/enquiry/limits';
 import { deliveryReady } from '../../lib/enquiry/delivery';
@@ -23,7 +21,10 @@ export const prerender = false;
 const MAX_BODY_BYTES = 64 * 1024;
 const production = SITE_MODE === 'production';
 // Local previews without FORM_TOKEN_SECRET get a per-process secret. Production must set one.
-const tokenSecret = FORM_TOKEN_SECRET || (production ? undefined : crypto.randomUUID());
+// Created on first use: Cloudflare Workers don't allow random values while a module loads.
+let previewSecret: string | undefined;
+const tokenSecret = (): string | undefined =>
+  FORM_TOKEN_SECRET || (production ? undefined : (previewSecret ??= crypto.randomUUID()));
 
 // Per-instance memory (see limits.ts for the limitation).
 const limiter = new RateLimiter();
@@ -40,7 +41,7 @@ function config(): HandlerConfig {
     webhookUrl: ENQUIRY_WEBHOOK_URL,
     webhookSecret: ENQUIRY_WEBHOOK_SECRET,
     dataDir: '.data',
-    tokenSecret,
+    tokenSecret: tokenSecret(),
     turnstileSecret: TURNSTILE_SECRET_KEY,
   };
 }
@@ -56,7 +57,7 @@ function clientIp(request: Request, clientAddress: () => string): string {
     return clientAddress();
   } catch {
     return (
-      request.headers.get('x-nf-client-connection-ip') ||
+      request.headers.get('cf-connecting-ip') ||
       request.headers.get('x-forwarded-for')?.split(',')[0]?.trim() ||
       'unknown'
     );
@@ -68,7 +69,8 @@ const log = (event: string, meta: Record<string, unknown>) => console.info(JSON.
 /** Form status + time-check token. Called when a visitor first interacts with the form. */
 export const GET: APIRoute = async () => {
   const ready = deliveryReady(config());
-  const token = tokenSecret ? await issueToken(tokenSecret, Date.now()) : null;
+  const secret = tokenSecret();
+  const token = secret ? await issueToken(secret, Date.now()) : null;
   return json(200, { connected: ready.ready, token });
 };
 
@@ -110,7 +112,10 @@ export const POST: APIRoute = async (context) => {
       const ymd = `${d.getUTCFullYear()}${String(d.getUTCMonth() + 1).padStart(2, '0')}${String(d.getUTCDate()).padStart(2, '0')}`;
       return `enq_${ymd}_${crypto.randomUUID().slice(0, 8)}`;
     },
+    // Local testing only (ENQUIRY_DELIVERY=file); loaded on demand because Workers have no disk.
     appendFile: async (path, data) => {
+      const { appendFile, mkdir } = await import('node:fs/promises');
+      const { dirname } = await import('node:path');
       await mkdir(dirname(path), { recursive: true });
       await appendFile(path, data, 'utf8');
     },
