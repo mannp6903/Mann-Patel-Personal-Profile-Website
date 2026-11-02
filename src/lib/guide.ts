@@ -3,6 +3,8 @@
  * Shared by the client script and unit tests. No prices, no promised results.
  */
 
+import { freeCheckShort } from '../data/free-check';
+
 export type Stage = 'starting' | 'running';
 export type Problem = 'found' | 'enquiries' | 'bookings' | 'unsure';
 export type Site = 'none' | 'outdated' | 'ok';
@@ -82,7 +84,7 @@ export function recommend({ stage, problem, site }: GuideAnswers): Recommendatio
       serviceIds: ['business-profile', 'reviews', 'missed-calls'],
       headline: 'Start with a free Found & Answered check',
       reasons: [
-        'I look you up the way a customer would, and see what happens when a test enquiry arrives. It’s free.',
+        `I look you up the way a customer would, and see what happens when a test enquiry arrives. It’s free (${freeCheckShort}).`,
         'You get a written list of fixes, most important first, before committing to anything bigger.',
       ],
     };

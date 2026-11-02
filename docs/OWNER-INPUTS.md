@@ -45,3 +45,4 @@ Everything below is tracked in code. Unverified **claims** are wrapped in `<Conf
 | About story and principles | `src/pages/about.astro` |
 | Privacy Policy | `src/pages/privacy.astro` |
 | Terms of Use | `src/pages/terms.astro` |
+| Free check limit (3 a month) and “this month is full” switch | `src/data/free-check.ts` |

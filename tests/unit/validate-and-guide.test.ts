@@ -4,6 +4,8 @@ import { SERVICE_IDS } from '../../src/lib/enquiry/options';
 import { services } from '../../src/data/services';
 import { packages, checkUp } from '../../src/data/packages';
 import { recommend, parseAnswers, briefHref, questions } from '../../src/lib/guide';
+import { PACKAGE_OPTIONS } from '../../src/lib/enquiry/options';
+import { freeCheck, freeCheckNote } from '../../src/data/free-check';
 
 const good = {
   name: '  Ada   Lovelace ',
@@ -71,6 +73,16 @@ describe('content consistency', () => {
       .join(' ')
       .toLowerCase();
     expect(promises).not.toMatch(/guarantee|rank (first|#1|top)|more leads|go viral/);
+  });
+});
+
+describe('free check limit', () => {
+  it('states the monthly limit on the package, the form option and the guide', () => {
+    expect(freeCheck.perMonth).toBe(3);
+    expect(checkUp.free).toBe(true);
+    expect(checkUp.forWho).toContain(freeCheckNote);
+    expect(PACKAGE_OPTIONS.find((o) => o.id === 'check-up')?.label).toContain('3 a month');
+    expect(recommend({ stage: 'running', problem: 'unsure', site: 'ok' }).reasons.join(' ')).toContain('3 a month');
   });
 });
 

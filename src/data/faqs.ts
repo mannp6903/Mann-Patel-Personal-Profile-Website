@@ -2,6 +2,8 @@
  * FAQs. `confirm` marks an answer that states something about how Mann works
  * which he has not confirmed yet. The production build refuses to render it.
  */
+import { freeCheckNote } from './free-check';
+
 export interface Faq {
   q: string;
   a: string;
@@ -15,7 +17,7 @@ export const faqs: Faq[] = [
   },
   {
     q: 'What is the free Found & Answered check?',
-    a: 'I look your business up the way a customer would (Google, Maps, Apple Maps and AI assistants), compare your reviews with nearby competitors, and, with your permission, send a test enquiry and call after hours. You get a short written list of fixes, most important first. It’s free, with no obligation; if you want the fixes done, I quote them separately.',
+    a: `I look your business up the way a customer would (Google, Maps, Apple Maps and AI assistants), compare your reviews with nearby competitors, and, with your permission, send a test enquiry and call after hours. You get a short written list of fixes, most important first. It’s free, with no obligation; if you want the fixes done, I quote them separately. ${freeCheckNote}`,
   },
   {
     q: 'Do I own the website and accounts?',

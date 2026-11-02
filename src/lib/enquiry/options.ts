@@ -3,6 +3,8 @@
  * Service ids must match src/data/services.ts (a unit test checks this).
  */
 
+import { freeCheckShort } from '../../data/free-check';
+
 export const SERVICE_OPTIONS = [
   // Plain-language areas shown first on the form; the specific services below are optional detail.
   { id: 'area-found', label: 'Get found and chosen: Google, Maps and reviews', group: 'area', area: 'A' },
@@ -31,7 +33,7 @@ export const PACKAGE_OPTIONS = [
   { id: 'found', label: 'Found & Chosen' },
   { id: 'answered', label: 'Never Miss an Enquiry' },
   { id: 'website', label: 'Website That Books' },
-  { id: 'check-up', label: 'Free Found & Answered check' },
+  { id: 'check-up', label: `Free Found & Answered check (${freeCheckShort})` },
 ] as const;
 
 export const BUDGET_OPTIONS = [

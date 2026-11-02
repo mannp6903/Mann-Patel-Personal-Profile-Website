@@ -7,6 +7,7 @@ import CtaBand from '../components/CtaBand.astro';
 import Confirm from '../components/Confirm.astro';
 import { groups, servicesInGroup, addOns } from '../data/services';
 import { packages, checkUp } from '../data/packages';
+import { freeCheckShort } from '../data/free-check';
 import { faqs } from '../data/faqs';
 
 const allPackages = [...packages, checkUp];
@@ -89,7 +90,7 @@ const covers = (pkgIds: readonly string[], ids: string[]) => ids.some((id) => pk
                   <td class="fit">{p.forWho}</td>
                   {p.id === 'check-up' ? (
                     <td class="fit review" colspan={areas.length}>
-                      Free. A review, not a build: how you look on Google, Maps and AI assistants, your reviews against
+                      Free ({freeCheckShort}). A review, not a build: how you look on Google, Maps and AI assistants, your reviews against
                       nearby competitors, and a test enquiry, then a written fix list.
                     </td>
                   ) : areas.map((a) => (
@@ -118,7 +119,7 @@ const covers = (pkgIds: readonly string[], ids: string[]) => ids.some((id) => pk
           allPackages.map((p) => (
             <article class:list={['pkg', { featured: p.featured, small: p.id === 'check-up' }]} aria-labelledby={`pk-${p.id}`}>
               {p.featured && <p class="chip flag">Most common</p>}
-              {p.free && <p class="chip flag">Free</p>}
+              {p.free && <p class="chip flag">Free · {freeCheckShort}</p>}
               <h3 id={`pk-${p.id}`}>{p.name}</h3>
               <p class="for">{p.forWho}</p>
               <h4>Includes</h4>

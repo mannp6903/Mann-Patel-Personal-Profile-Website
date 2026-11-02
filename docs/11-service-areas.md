@@ -12,7 +12,7 @@ The new areas follow a local customer's path: they **find** a business, **contac
 | **B** | **Never miss an enquiry** | Every call, form and message gets a quick, honest reply and lands in one list; reminders help cut no-shows | Missed-call text-back and instant replies · One enquiry list and follow-up · Online booking, reminders and deposits · Connecting tools |
 | **C** | **A website that books work** | A page for each service and a book-or-quote button on every page, kept working monthly | Website fix-up or new site · Service pages, search basics and measurement · Monthly care plan |
 
-Packages: **Business Launch** (all three), **Found & Chosen** (A), **Never Miss an Enquiry** (B), **Website That Books** (C), and the **Found & Answered check** as the low-commitment first step. **The check is free** (Mann's decision, 1 Nov 2026), with no obligation; fixes are quoted separately.
+Packages: **Business Launch** (all three), **Found & Chosen** (A), **Never Miss an Enquiry** (B), **Website That Books** (C), and the **Found & Answered check** as the low-commitment first step. **The check is free** (Mann's decision, 1 Nov 2026), with no obligation; fixes are quoted separately. **Limited to 3 free checks a month** (2 Nov 2026): when they're taken, set `fullThisMonth: true` in `src/data/free-check.ts` and push; the site then says new requests go on next month's list.
 
 ## Why (headline evidence; details and caveats in the private report)
 

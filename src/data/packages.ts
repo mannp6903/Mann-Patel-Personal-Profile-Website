@@ -4,6 +4,8 @@
  * Publicly every package says "Request a quote" until Mann confirms pricing.
  */
 
+import { freeCheck, freeCheckNote } from './free-check';
+
 export interface Package {
   id: 'launch' | 'found' | 'answered' | 'website' | 'check-up';
   name: string;
@@ -89,7 +91,7 @@ export const packages: Package[] = [
 export const checkUp: Package = {
   id: 'check-up',
   name: 'Free Found & Answered check',
-  forWho: 'Owners who are not sure what to fix first. Free, with no obligation to buy anything.',
+  forWho: `Owners who are not sure what to fix first. Free, with no obligation to buy anything. ${freeCheckNote}`,
   includes: [
     'I look you up the way a customer would: Google, Maps, Apple Maps and AI assistants',
     'I compare your reviews with the top three businesses near you',

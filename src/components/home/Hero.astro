@@ -17,6 +17,7 @@ import { Image } from 'astro:assets';
 import portrait from '../../assets/mann-patel-portrait.jpg';
 import { profile } from '../../data/site';
 import ContactActions from '../ContactActions.astro';
+import { freeCheck, freeCheckNote } from '../../data/free-check';
 
 const phrases = ['Get found.', 'Answer fast.', 'Get booked.'];
 const steps = [
@@ -51,9 +52,12 @@ const tick =
       </p>
       <div class="hp-actions hp-in" style="--d:2">
         <a class="btn" href="/contact/">Start a project <span class="arrow" aria-hidden="true">→</span></a>
-        <a class="btn btn--secondary" href="/contact/?package=check-up#brief">Free Found &amp; Answered check</a>
+        <a class="btn btn--secondary" href="/contact/?package=check-up#brief" aria-describedby="hp-limit">Free Found &amp; Answered check</a>
       </div>
-      <ul class="hp-trust hp-in" style="--d:3" role="list">
+      <p class:list={['hp-limit', 'hp-in', { 'is-full': freeCheck.fullThisMonth }]} id="hp-limit" style="--d:3">
+        <span class="hp-limit-dot" aria-hidden="true"></span>{freeCheckNote}
+      </p>
+      <ul class="hp-trust hp-in" style="--d:4" role="list">
         <li><span class="hp-tick" set:html={tick} />Written quote before any work</li>
         <li><span class="hp-tick" set:html={tick} />Every account stays in your name</li>
         <li><span class="hp-tick" set:html={tick} />Run by a local business founder</li>
@@ -427,6 +431,26 @@ const tick =
     display: flex;
     flex-wrap: wrap;
     gap: var(--space-s);
+  }
+  .hp-limit {
+    display: inline-flex;
+    align-items: flex-start;
+    gap: 0.5em;
+    margin-top: calc(var(--space-xs) * -1);
+    font-size: var(--step--1);
+    font-weight: 600;
+    color: var(--ink-2);
+  }
+  .hp-limit-dot {
+    width: 0.5rem;
+    height: 0.5rem;
+    margin-top: 0.45em;
+    flex: none;
+    border-radius: 50%;
+    background: var(--accent);
+  }
+  .hp-limit.is-full .hp-limit-dot {
+    background: var(--control);
   }
   .hp-trust {
     display: flex;
