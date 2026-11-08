@@ -1016,7 +1016,7 @@ fieldset > legend + * {
 
 /* ═══════════════ Motion ═══════════════ */
 /* Reveal on scroll. Content is visible by default; html.js-motion opts in to the animation. */
-.js-motion [data-reveal] {
+.js-motion [data-reveal]:not([data-reveal^='load']) {
   opacity: 0;
   transform: translateY(28px);
   transition:
@@ -1045,7 +1045,7 @@ fieldset > legend + * {
 .line-mask > span {
   display: block;
 }
-.js-motion [data-split] .line-mask > span {
+.js-motion [data-split]:not([data-split='load']) .line-mask > span {
   transform: translateY(105%);
   transition: transform var(--t-reveal) var(--ease-out);
   transition-delay: calc(var(--i, 0) * 90ms + var(--d, 0) * 1ms);
@@ -1054,28 +1054,45 @@ fieldset > legend + * {
   transform: none;
 }
 
-/* Page transitions between pages (supporting browsers). */
+/* Page transitions between pages (supporting browsers): the old page recedes into the dark
+   while the new one wipes up over it; the header holds still across the change. */
 @media (prefers-reduced-motion: no-preference) {
   @view-transition {
     navigation: auto;
   }
 }
+::view-transition-group(root) {
+  animation-duration: 900ms;
+}
 ::view-transition-old(root) {
-  animation: vt-out 280ms var(--ease-in-out) both;
+  animation: vt-out 700ms var(--ease-in-out) both;
 }
 ::view-transition-new(root) {
-  animation: vt-in 620ms var(--ease-out) both;
+  animation: vt-in 900ms var(--ease-out) both;
+}
+::view-transition-group(site-header) {
+  animation-duration: 0s;
+}
+::view-transition-old(site-header) {
+  display: none;
+}
+::view-transition-new(site-header) {
+  animation: none;
 }
 @keyframes vt-out {
   to {
-    opacity: 0;
-    filter: blur(6px);
+    opacity: 0.25;
+    transform: scale(0.94) translateY(-3%);
+    filter: blur(3px) brightness(0.6);
   }
 }
 @keyframes vt-in {
   from {
-    opacity: 0;
-    transform: translateY(16px);
+    clip-path: inset(100% 0 0 0 round 2rem 2rem 0 0);
+    transform: translateY(8%);
+  }
+  to {
+    clip-path: inset(0 0 0 0 round 0);
   }
 }
 
@@ -1099,5 +1116,265 @@ fieldset > legend + * {
   footer,
   .no-print {
     display: none !important;
+  }
+}
+
+/* ═══════════════ Live Signal effects (round 6, src/scripts/fx/) ═══════════════ */
+
+/* Signal field: a static dot map in CSS; the WebGL canvas fades in over it once it has drawn.
+   It sits under the section's content (the zone is its own stacking context). */
+[data-field-zone] {
+  position: relative;
+  isolation: isolate;
+}
+.fx-field {
+  position: absolute;
+  inset: 0;
+  z-index: -1;
+  pointer-events: none;
+  overflow: hidden;
+  -webkit-mask-image: radial-gradient(ellipse var(--fw, 72%) var(--fh, 80%) at var(--fx, 74%) var(--fy, 45%), #000 25%, transparent 78%);
+  mask-image: radial-gradient(ellipse var(--fw, 72%) var(--fh, 80%) at var(--fx, 74%) var(--fy, 45%), #000 25%, transparent 78%);
+}
+.fx-field::before {
+  content: '';
+  position: absolute;
+  inset: 0;
+  background-image: radial-gradient(circle at center, rgb(242 241 236 / 0.13) 0 1px, transparent 1.6px);
+  background-size: 22px 22px;
+  transition: opacity 1200ms var(--ease-out);
+}
+.fx-field__gl {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  opacity: 0;
+  transition: opacity 1200ms var(--ease-out);
+}
+.fx-field.is-gl::before {
+  opacity: 0;
+}
+.fx-field.is-gl .fx-field__gl {
+  opacity: 1;
+}
+
+/* Cursor follower (mouse only; created by fx/cursor.ts). */
+.cursor,
+.cursor-tag {
+  position: fixed;
+  left: 0;
+  top: 0;
+  z-index: 300;
+  pointer-events: none;
+}
+.cursor {
+  width: 2.25rem;
+  height: 2.25rem;
+  margin: -1.125rem 0 0 -1.125rem;
+  border: 1px solid rgb(242 241 236 / 0.5);
+  border-radius: 50%;
+  opacity: 0;
+  transition:
+    opacity 300ms var(--ease-out),
+    scale 450ms var(--ease-out),
+    border-color 300ms var(--ease-out),
+    background-color 300ms var(--ease-out);
+}
+.has-cursor .cursor {
+  opacity: 1;
+}
+.has-cursor .cursor.is-hidden {
+  opacity: 0;
+}
+.cursor.is-link {
+  scale: 1.65;
+  border-color: var(--signal);
+  background: rgb(212 248 74 / 0.08);
+}
+.cursor.is-down {
+  scale: 0.8;
+}
+.cursor.is-link.is-down {
+  scale: 1.35;
+}
+.cursor-tag span {
+  display: grid;
+  place-items: center;
+  width: 5.25rem;
+  height: 5.25rem;
+  margin: -2.625rem 0 0 -2.625rem;
+  border-radius: 50%;
+  background: var(--signal);
+  color: var(--on-signal);
+  font-family: var(--font-mono);
+  font-size: 0.75rem;
+  font-weight: 600;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  scale: 0;
+  transition: scale 480ms var(--ease-out);
+}
+.has-cursor .cursor-tag.is-on span {
+  scale: 1;
+}
+
+/* Magnetic pull (fx/pointer.ts sets `translate`; it composes with hover and press transforms). */
+.btn,
+.icon-btn,
+.qm-trigger,
+.menu-btn,
+[data-magnetic] {
+  translate: 0 0;
+}
+.btn,
+.icon-btn,
+.qm-trigger,
+.menu-btn,
+[data-magnetic],
+.btn__icon {
+  transition-property: transform, background-color, color, border-color, translate;
+}
+.btn,
+.icon-btn,
+.qm-trigger,
+.menu-btn,
+[data-magnetic] {
+  transition-duration: var(--t-fast), var(--t-base), var(--t-base), var(--t-base), 700ms;
+  transition-timing-function: var(--ease-out), var(--ease-out), var(--ease-out), var(--ease-out), var(--ease-spring);
+}
+.btn__icon {
+  transition-duration: 520ms, var(--t-base), var(--t-base), var(--t-base), 700ms;
+  transition-timing-function: var(--ease-out), var(--ease-out), var(--ease-out), var(--ease-out), var(--ease-spring);
+}
+.is-pulled,
+.is-pulled .btn__icon {
+  transition-duration: var(--t-fast), var(--t-base), var(--t-base), var(--t-base), 180ms;
+  transition-timing-function: var(--ease-out);
+}
+
+/* Spotlight panels: a light and a lit border follow the pointer (fx/pointer.ts sets --mx/--my).
+   One layer: the mask shows the gradient fully on a 1px ring and at 14% inside, under the content. */
+[data-spotlight] {
+  position: relative;
+  isolation: isolate;
+}
+[data-spotlight]::after {
+  content: '';
+  position: absolute;
+  inset: 0;
+  z-index: -1;
+  padding: 1px;
+  border-radius: inherit;
+  background: radial-gradient(22rem circle at var(--mx, 50%) var(--my, 0%), rgb(212 248 74 / 0.72), transparent 70%);
+  -webkit-mask: linear-gradient(rgb(0 0 0 / 0.86) 0 0) content-box, linear-gradient(#000 0 0);
+  -webkit-mask-composite: xor;
+  mask: linear-gradient(rgb(0 0 0 / 0.86) 0 0) content-box exclude, linear-gradient(#000 0 0);
+  opacity: 0;
+  pointer-events: none;
+  transition: opacity 500ms var(--ease-out);
+}
+@media (hover: hover) and (pointer: fine) and (prefers-reduced-motion: no-preference) {
+  [data-spotlight]:hover::after {
+    opacity: 1;
+  }
+}
+
+/* 3D tilt with a moving glare (fx/pointer.ts sets --rx/--ry/--gx/--gy). */
+[data-tilt] {
+  transform: perspective(1200px) rotateX(var(--rx, 0deg)) rotateY(var(--ry, 0deg));
+  transition: transform 900ms var(--ease-out);
+}
+[data-tilt].is-tilting {
+  transition-duration: 220ms;
+}
+[data-tilt]::after {
+  content: '';
+  position: absolute;
+  inset: 0;
+  z-index: 3;
+  border-radius: inherit;
+  background: radial-gradient(36rem circle at var(--gx, 50%) var(--gy, 0%), rgb(255 255 255 / 0.14), transparent 45%);
+  opacity: 0;
+  pointer-events: none;
+  transition: opacity 600ms var(--ease-out);
+}
+[data-tilt].is-tilting::after {
+  opacity: 1;
+}
+
+/* Scroll-lit statements (fx/text.ts): unlit words stay at --text-3 (5.8:1, AA). */
+.is-scrub .sw {
+  color: var(--text-3);
+  transition: color 450ms var(--ease-out);
+}
+.is-scrub .sw.is-lit {
+  color: var(--text);
+}
+.is-scrub a .sw.is-lit {
+  color: inherit;
+}
+
+/* Images that open from a frame as they scroll into view (CSS scroll-driven, no JavaScript). */
+@supports (animation-timeline: view()) {
+  @media (prefers-reduced-motion: no-preference) {
+    .reveal-clip {
+      animation: clip-open linear both;
+      animation-timeline: view();
+      animation-range: entry 0% cover 38%;
+    }
+    .reveal-clip img {
+      animation: img-settle linear both;
+      animation-timeline: view();
+      animation-range: entry 0% cover 55%;
+    }
+  }
+}
+@keyframes clip-open {
+  from {
+    clip-path: inset(14% 7% 14% 7% round var(--clip-r, var(--r-md)));
+  }
+  to {
+    clip-path: inset(0 0 0 0 round var(--clip-r, var(--r-md)));
+  }
+}
+@keyframes img-settle {
+  from {
+    scale: 1.16;
+  }
+  to {
+    scale: 1;
+  }
+}
+
+/* First-screen content animates on load in CSS, so it never waits for a script (fast LCP). */
+@media (prefers-reduced-motion: no-preference) {
+  .js [data-reveal='load'] {
+    animation: rise-in 1000ms var(--ease-out) both;
+    animation-delay: calc(var(--d, 0) * 1ms);
+  }
+  .js [data-split='load'] .line-mask > span {
+    animation: line-up 1000ms var(--ease-out) both;
+    animation-delay: calc(var(--i, 0) * 90ms + var(--d, 0) * 1ms);
+  }
+  .js [data-reveal='load-media'] {
+    animation: media-in 1300ms var(--ease-out) both;
+    animation-delay: calc(var(--d, 0) * 1ms);
+  }
+}
+@keyframes rise-in {
+  from {
+    opacity: 0;
+    transform: translateY(22px);
+  }
+}
+@keyframes line-up {
+  from {
+    transform: translateY(105%);
+  }
+}
+@keyframes media-in {
+  from {
+    transform: translateY(40px) scale(0.965);
   }
 }

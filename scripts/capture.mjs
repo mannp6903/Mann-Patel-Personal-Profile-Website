@@ -28,9 +28,9 @@ for (const w of widths) {
       }
       window.scrollTo(0, 0);
     });
-    await page.waitForTimeout(2600); // let images, stamps and reveals settle
+    await page.waitForTimeout(2600); // let images, the portrait and reveals settle
     // reveal everything for a full-page capture
-    await page.evaluate(() => document.querySelectorAll('[data-reveal]').forEach((el) => el.classList.add('is-revealed')));
+    await page.evaluate(() => document.querySelectorAll('[data-reveal], [data-split]').forEach((el) => el.classList.add('is-in')));
     await page.waitForTimeout(700); // let reveal transitions finish
     const overflow = await page.evaluate(() => {
       const docW = document.documentElement.clientWidth;
@@ -40,6 +40,16 @@ for (const w of widths) {
         if (r.width && (r.right > docW + 1 || r.left < -1)) {
           const cs = getComputedStyle(el);
           if (cs.position === 'fixed' || el.closest('[aria-hidden="true"], .thumb-stage, .visually-hidden, .skip-link')) continue;
+          // Cards inside a sideways-scrolling row (swipe rails, the jump bar) are meant to sit off screen.
+          let inScroller = false;
+          for (let p = el.parentElement; p && p !== document.body; p = p.parentElement) {
+            const ox = getComputedStyle(p).overflowX;
+            if (ox === 'auto' || ox === 'scroll' || ox === 'hidden' || ox === 'clip') {
+              inScroller = true;
+              break;
+            }
+          }
+          if (inScroller) continue;
           offenders.push(`${el.tagName.toLowerCase()}.${[...el.classList].join('.')} → ${Math.round(r.left)}..${Math.round(r.right)}`);
         }
       }

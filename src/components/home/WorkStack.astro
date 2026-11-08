@@ -33,7 +33,7 @@ const work = (await getCollection('work')).sort((a, b) => a.data.order - b.data.
       {
         work.map((w, i) => (
           <li class="card" style={`--i:${i}`} data-card>
-            <article class="card__inner pm-host" aria-labelledby={`card-${w.id}`}>
+            <article class="card__inner pm-host" aria-labelledby={`card-${w.id}`} data-spotlight>
               <div class="card__text">
                 <div class="card__top">
                   <span class="num card__no">{String(i + 1).padStart(2, '0')}</span>
@@ -67,7 +67,7 @@ const work = (await getCollection('work')).sort((a, b) => a.data.order - b.data.
                 </div>
               </div>
               <div class="card__media">
-                <ProjectMedia scene={w.data.scene} />
+                <ProjectMedia scene={w.data.scene} tilt />
               </div>
             </article>
           </li>

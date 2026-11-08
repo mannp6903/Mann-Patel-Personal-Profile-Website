@@ -169,7 +169,7 @@ const jump = [
       <ol class="pkgs__grid rail" role="list" data-rail>
         {
           packages.map((p, i) => (
-            <li class:list={['pkg', { 'pkg--featured': p.featured }]} id={`pkg-${p.id}`} data-reveal style={`--d:${i * 80}`}>
+            <li class:list={['pkg', { 'pkg--featured': p.featured }]} id={`pkg-${p.id}`} data-reveal style={`--d:${i * 80}`} data-spotlight>
               <div class="pkg__top">
                 <span class="num subtle">{String(i + 1).padStart(2, '0')}</span>
                 {p.featured && <span class="pkg__badge">Most complete</span>}

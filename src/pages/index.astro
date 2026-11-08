@@ -6,6 +6,7 @@ import WorkStack from '../components/home/WorkStack.astro';
 import FreeCheck from '../components/home/FreeCheck.astro';
 import AboutTeaser from '../components/home/AboutTeaser.astro';
 import Faq from '../components/Faq.astro';
+import Marquee from '../components/fx/Marquee.astro';
 import { personJsonLd, servicesJsonLd } from '../lib/seo';
 import { absoluteUrl } from '../lib/mode';
 
@@ -24,6 +25,10 @@ const jsonLd = {
   jsonLd={[jsonLd, servicesJsonLd()]}
 >
   <Hero />
+  <Marquee
+    words={['Found.', 'Answered.', 'Booked.']}
+    tags={['Google Business Profile', 'Real reviews', 'Missed-call text-back', 'One enquiry list', 'Online booking', 'Websites that book work', 'Toronto & the GTA']}
+  />
   <Path />
   <WorkStack />
   <FreeCheck />

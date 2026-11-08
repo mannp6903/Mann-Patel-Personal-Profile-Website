@@ -88,6 +88,7 @@ check(files.length > 0, `${files.length} HTML pages built`, `No built pages foun
 
 const exists = async (p) => stat(p).then(() => true, () => false);
 const brokenLinks = new Set();
+const brokenAssets = new Set();
 for (const f of files) {
   const html = await readFile(f, 'utf8');
   const rel = '/' + relative(root, f).replace(/index\.html$/, '').replace(/\.html$/, '');
@@ -106,8 +107,20 @@ for (const f of files) {
     const target = href.endsWith('/') ? join(root, href, 'index.html') : join(root, href);
     if (!(await exists(target))) brokenLinks.add(`${rel} → ${href}`);
   }
+  // Assets: images, scripts, preloads and CSS url()s (fonts) must exist in the build.
+  const assetRefs = [
+    ...html.matchAll(/\s(?:src|href)="(\/[^"#?]*\.(?:woff2|png|jpe?g|webp|avif|svg|js|css|ico|xml|txt))"/g),
+    ...html.matchAll(/url\(['"]?(\/[^'")?#]+)['"]?\)/g),
+    ...[...html.matchAll(/\ssrcset="([^"]+)"/g)].flatMap((m) => m[1].split(',').map((part) => [null, part.trim().split(/\s+/)[0]])),
+  ];
+  for (const m of assetRefs) {
+    const src = m[1];
+    if (!src || !src.startsWith('/')) continue;
+    if (!(await exists(join(root, src)))) brokenAssets.add(`${rel} → ${src}`);
+  }
 }
 check(brokenLinks.size === 0, 'All internal links resolve', `Broken internal links:\n    ${[...brokenLinks].join('\n    ')}`);
+check(brokenAssets.size === 0, 'All images, fonts and scripts referenced by the pages exist', `Missing assets:\n    ${[...brokenAssets].join('\n    ')}`);
 
 const robots = await readFile(join(root, 'robots.txt'), 'utf8').catch(() => '');
 if (env.SITE_INDEXING === 'true') {

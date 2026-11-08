@@ -11,6 +11,10 @@ const defaults = {
   SITE_MODE: 'production',
   PUBLIC_SITE_URL: 'https://mannpatel.me',
   SITE_INDEXING: 'true',
+  // Wrangler (used by the Cloudflare adapter while prerendering) would otherwise read a local .env
+  // file as dev vars and override the values above: a build from a computer with the preview .env
+  // came out "noindex" with no canonical URLs. Production builds never read .env.
+  CLOUDFLARE_LOAD_DEV_VARS_FROM_DOT_ENV: 'false',
 };
 const env = { ...process.env };
 for (const [key, value] of Object.entries(defaults)) env[key] ??= value;

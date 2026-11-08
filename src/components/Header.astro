@@ -153,6 +153,39 @@ const sheetLinks = [{ href: '/', label: 'Home' }, ...nav, { href: '/contact/', l
     height: var(--header-h);
     transition: background-color var(--t-base) var(--ease-out), border-color var(--t-base), backdrop-filter var(--t-base);
     border-bottom: 1px solid transparent;
+    /* Holds still while the page underneath changes (view transitions in global.css). */
+    view-transition-name: site-header;
+  }
+  /* Reading progress: a lime line along the bottom edge, driven by the scroll position (CSS only). */
+  .hdr::after {
+    content: '';
+    position: absolute;
+    left: 0;
+    right: 0;
+    bottom: -1px;
+    height: 2px;
+    background: var(--signal);
+    transform-origin: left;
+    transform: scaleX(0);
+    opacity: 0;
+    transition: opacity var(--t-base) var(--ease-out);
+    pointer-events: none;
+  }
+  @supports (animation-timeline: scroll()) {
+    @media (prefers-reduced-motion: no-preference) {
+      .hdr::after {
+        animation: read-progress linear both;
+        animation-timeline: scroll(root block);
+      }
+      .hdr.is-scrolled::after {
+        opacity: 1;
+      }
+    }
+  }
+  @keyframes read-progress {
+    to {
+      transform: scaleX(1);
+    }
   }
   .hdr.is-scrolled {
     background: rgb(11 11 12 / 0.82);

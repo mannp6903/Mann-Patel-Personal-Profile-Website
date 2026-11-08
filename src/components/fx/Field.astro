@@ -1,0 +1,15 @@
+---
+/**
+ * The signal field behind a section (src/scripts/fx/field.ts). Place it as the first child of a
+ * positioned section marked `data-field-zone`; the pointer anywhere in that section drives it.
+ * Without WebGL (or with reduced motion) it is a static dot map in CSS.
+ */
+interface Props {
+  preset?: 'hero' | 'head' | 'cta' | 'lost';
+  class?: string;
+  style?: string;
+}
+const { preset = 'hero', class: cls, style } = Astro.props;
+---
+
+<div class:list={['fx-field', cls]} data-field={preset} aria-hidden="true" style={style}></div>

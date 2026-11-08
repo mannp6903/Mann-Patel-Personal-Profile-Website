@@ -30,8 +30,8 @@ const crumbs = breadcrumbJsonLd([
       <ol class="rows" role="list">
         {
           work.map((w, i) => (
-            <li class="row" data-reveal style={`--d:${i * 100}`}>
-              <a class="row__link" href={`/work/${w.id}/`}>
+            <li class="row" data-reveal={i === 0 ? 'load' : ''} style={`--d:${i * 100 + 200}`}>
+              <a class="row__link" href={`/work/${w.id}/`} data-spotlight data-cursor="Open">
                 <div class="row__text">
                   <div class="row__meta">
                     <span class="num subtle">{String(i + 1).padStart(2, '0')}</span>
@@ -46,7 +46,7 @@ const crumbs = breadcrumbJsonLd([
                     Read the case study <Icon name="arrow" />
                   </span>
                 </div>
-                <ProjectMedia scene={w.data.scene} eager={i === 0} />
+                <ProjectMedia scene={w.data.scene} eager={i === 0} tilt />
               </a>
             </li>
           ))

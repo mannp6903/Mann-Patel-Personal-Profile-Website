@@ -51,7 +51,17 @@ export function mountSignalPortrait(fig: HTMLElement) {
   let lens = 0; // eased 0..1
   let flow = 0; // phase offset that makes the waves travel under the lens
 
-  const build = () => {
+  // Long loops hand control back to the browser every few milliseconds, so building the portrait
+  // never blocks a tap or a scroll (no long tasks on slow phones).
+  let sliceStart = 0;
+  const maybeYield = async () => {
+    if (performance.now() - sliceStart < 8) return;
+    await new Promise<void>((r) => setTimeout(r, 0));
+    sliceStart = performance.now();
+  };
+
+  const build = async () => {
+    sliceStart = performance.now();
     const rect = canvas.getBoundingClientRect();
     if (!rect.width || !rect.height) return false;
     w = rect.width;
@@ -102,6 +112,7 @@ export function mountSignalPortrait(fig: HTMLElement) {
     // Sharpen (unsharp mask on the sample grid) so eyes, nose and mouth keep their edges.
     const sharp = new Float32Array(lum.length);
     for (let j = 0; j < rows; j++) {
+      if (j % 8 === 0) await maybeYield();
       for (let i = 0; i < cols; i++) {
         let sum = 0;
         let cnt = 0;
@@ -124,8 +135,9 @@ export function mountSignalPortrait(fig: HTMLElement) {
     const flat = hi - lo < 0.05; // e.g. white lettering: every part of the figure at full strength
 
     const top = h - rows * gap;
-    lines = [];
+    const next: Line[] = [];
     for (let j = 0; j < rows; j++) {
+      if (j % 16 === 0) await maybeYield();
       const amp = new Float32Array(cols);
       const phase = new Float32Array(cols);
       const mask = new Uint8Array(cols);
@@ -150,8 +162,9 @@ export function mountSignalPortrait(fig: HTMLElement) {
         const e = ex * ex + ey * ey;
         fade[i] = e < 0.42 ? 2 : e < 0.7 ? 1 : e < 1 ? 0 : 3;
       }
-      lines.push({ y: ly, amp, phase, mask, tone, fade });
+      next.push({ y: ly, amp, phase, mask, tone, fade });
     }
+    lines = next;
     return true;
   };
 
@@ -258,12 +271,71 @@ export function mountSignalPortrait(fig: HTMLElement) {
   // finished drawing row by row, so each frame is one clipped copy, not a full redraw: cheap on
   // slow phones and nothing blocks the page while it plays.
   let snap: HTMLCanvasElement | null = null;
-  const snapshot = () => {
-    draw();
-    snap = document.createElement('canvas');
-    snap.width = canvas.width;
-    snap.height = canvas.height;
-    snap.getContext('2d')?.drawImage(canvas, 0, 0);
+  /** The resting drawing (no lens), painted into its own canvas a band of rows at a time. */
+  const snapshot = async () => {
+    const off = document.createElement('canvas');
+    off.width = canvas.width;
+    off.height = canvas.height;
+    const sx = off.getContext('2d');
+    if (!sx) return;
+    sx.setTransform(canvas.width / w, 0, 0, canvas.height / h, 0, 0);
+    sx.lineJoin = 'round';
+    sx.lineCap = 'round';
+    const k = w < 480 ? 0.8 : 1;
+    const widths = [0.65, 1.15, 1.75];
+    for (let j0 = 0; j0 < lines.length; j0 += 14) {
+      await maybeYield();
+      const faint = [new Path2D(), new Path2D(), new Path2D()];
+      const ink = [new Path2D(), new Path2D(), new Path2D()];
+      for (let j = j0; j < Math.min(lines.length, j0 + 14); j++) {
+        const ln = lines[j];
+        let inFigure = false;
+        let lastTone = -1;
+        let lastFade = 3;
+        let prevX = 0;
+        let prevY = 0;
+        for (let i = 0; i < ln.amp.length; i++) {
+          const x = i * dx;
+          const y = ln.y + Math.sin(ln.phase[i]) * ln.amp[i];
+          const f = ln.fade[i];
+          if (f < 3) {
+            const fp = faint[f];
+            if (lastFade === 3 || i === 0) fp.moveTo(x, y);
+            else {
+              if (f !== lastFade) fp.moveTo(prevX, prevY);
+              fp.lineTo(x, y);
+            }
+          }
+          lastFade = f;
+          if (ln.mask[i]) {
+            const t = ln.tone[i];
+            if (!inFigure) ink[t].moveTo(x, y);
+            else {
+              if (t !== lastTone) ink[t].moveTo(prevX, prevY);
+              ink[t].lineTo(x, y);
+            }
+            lastTone = t;
+            inFigure = true;
+          } else {
+            inFigure = false;
+            lastTone = -1;
+          }
+          prevX = x;
+          prevY = y;
+        }
+      }
+      sx.lineWidth = 1;
+      faint.forEach((path, f) => {
+        sx.strokeStyle = FAINT[f];
+        sx.stroke(path);
+      });
+      sx.strokeStyle = INK;
+      widths.forEach((lw, t) => {
+        sx.lineWidth = lw * k;
+        sx.stroke(ink[t]);
+      });
+    }
+    snap = off;
   };
   const reveal = (now: number) => {
     const elapsed = now - introStart;
@@ -314,15 +386,16 @@ export function mountSignalPortrait(fig: HTMLElement) {
     if (!raf && onScreen) raf = requestAnimationFrame(loop);
   };
 
-  const start = () => {
-    if (!build()) return;
-    fig.classList.add('is-ready');
+  const start = async () => {
+    if (!(await build())) return;
     if (reduced) {
+      fig.classList.add('is-ready');
       draw();
       return;
     }
-    snapshot();
-    introStart = performance.now() + 120;
+    await snapshot();
+    fig.classList.add('is-ready');
+    introStart = performance.now() + 60;
     reveal(introStart);
     kick();
   };
@@ -369,7 +442,7 @@ export function mountSignalPortrait(fig: HTMLElement) {
       const r = canvas.getBoundingClientRect();
       if (Math.abs(r.width - w) < 1 && Math.abs(r.height - h) < 1) return;
       introDone = true;
-      if (build()) draw();
+      build().then((ok) => ok && draw());
     }, 150);
   }).observe(canvas);
 
@@ -380,6 +453,11 @@ export function mountSignalPortrait(fig: HTMLElement) {
     toggle.setAttribute('aria-pressed', String(photo));
   });
 
-  if (img.complete && img.naturalWidth) start();
-  else img.addEventListener('load', start, { once: true });
+  // Start once the photo is in and the page has painted, so the portrait never delays the first view.
+  const go = () => {
+    if ('requestIdleCallback' in window) requestIdleCallback(() => void start(), { timeout: 600 });
+    else setTimeout(() => void start(), 50);
+  };
+  if (img.complete && img.naturalWidth) go();
+  else img.addEventListener('load', go, { once: true });
 }

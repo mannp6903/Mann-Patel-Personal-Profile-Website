@@ -14,9 +14,11 @@ import { profile } from '../../data/site';
 import Button from '../ui/Button.astro';
 import ContactActions from '../ContactActions.astro';
 import Icon from '../ui/Icon.astro';
+import Field from '../fx/Field.astro';
 ---
 
-<section class="hero" aria-labelledby="hero-title">
+<section class="hero" aria-labelledby="hero-title" data-field-zone>
+  <Field preset="hero" class="hero__field" />
   <div class="hero__inner container">
     <div class="hero__meta">
       <Image src={face} alt="" widths={[96, 144]} sizes="3rem" format="webp" loading="eager" class="hero__avatar" />
@@ -64,7 +66,7 @@ import Icon from '../ui/Icon.astro';
       <figcaption class="hp__cap">
         <span class="hp__who">
           <span>Mann Patel</span>
-          <span class="num subtle">43.65° N · 79.38° W</span>
+          <span class="num subtle" data-scramble>43.65° N · 79.38° W</span>
         </span>
         <button class="hp__toggle" type="button" aria-pressed="false" data-portrait-toggle>
           <span class="hp__switch" aria-hidden="true"><i></i></span>
@@ -113,6 +115,13 @@ import Icon from '../ui/Icon.astro';
     aspect-ratio: 1;
     background: radial-gradient(closest-side, rgb(212 248 74 / 0.09), transparent 70%);
     pointer-events: none;
+  }
+  /* The signal field: centred low behind the portrait on phones, on the portrait side on desktop. */
+  .hero :global(.hero__field) {
+    --fx: 50%;
+    --fy: 80%;
+    --fw: 110%;
+    --fh: 62%;
   }
   .hero__inner {
     position: relative;
@@ -467,6 +476,12 @@ import Icon from '../ui/Icon.astro';
   }
 
   @media (min-width: 64em) {
+    .hero :global(.hero__field) {
+      --fx: 74%;
+      --fy: 50%;
+      --fw: 62%;
+      --fh: 90%;
+    }
     .hero {
       min-height: calc(100svh - var(--header-h));
       display: flex;
