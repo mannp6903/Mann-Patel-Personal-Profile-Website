@@ -270,6 +270,38 @@ test.describe('home interactions', () => {
     await expect(freq).toHaveText('104.3');
   });
 
+  test('the headline acts out its words, rests in the finished state, and replays on hover', async ({ page }) => {
+    await page.setViewportSize({ width: 1440, height: 900 });
+    await page.goto('/');
+    const h1 = page.locator('h1');
+    await expect(h1).toContainText('Found.');
+    await expect(h1).toContainText('Answered.');
+    await expect(h1).toContainText('Booked.');
+    // The pin, bubble, ticks and circle are decoration: hidden from screen readers, no text.
+    const deco = h1.locator('[aria-hidden="true"]');
+    expect(await deco.count()).toBeGreaterThanOrEqual(5);
+    expect((await deco.allTextContents()).join('').trim()).toBe('');
+    // Finished: pin on the full stop, read ticks drawn, "Booked." circled.
+    await expect.poll(() => page.locator('.hw__pin').evaluate((e) => getComputedStyle(e).opacity), { timeout: 8000 }).toBe('1');
+    const offset = (sel: string) => page.locator(sel).first().evaluate((e) => getComputedStyle(e).strokeDashoffset);
+    await expect.poll(() => offset('.hw__circle path'), { timeout: 8000 }).toMatch(/^0(px)?$/);
+    await expect.poll(() => offset('.hw__ticks path')).toMatch(/^0(px)?$/);
+    // Hovering a word plays its scene again.
+    await page.waitForTimeout(600);
+    await page.locator('.hw--found .hw__w').hover();
+    expect(await page.locator('.hw--found .hw__w').evaluate((e) => e.getAnimations({ subtree: true }).some((a) => a.playState === 'running'))).toBe(true);
+  });
+
+  test('reduced motion: the headline shows its finished state at once', async ({ browser }) => {
+    const ctx = await browser.newContext({ reducedMotion: 'reduce', viewport: { width: 390, height: 844 } });
+    const page = await ctx.newPage();
+    await page.goto('/');
+    expect(await page.locator('.hw__pin').evaluate((e) => getComputedStyle(e).opacity)).toBe('1');
+    expect(await page.locator('.hw__circle path').evaluate((e) => getComputedStyle(e).strokeDashoffset)).toMatch(/^0(px)?$/);
+    expect(await page.locator('.hw__w').first().evaluate((e) => e.getAnimations({ subtree: true }).length)).toBe(0);
+    await ctx.close();
+  });
+
   test('the three service summaries each link to their full detail on Services', async ({ page }) => {
     await page.goto('/');
     const items = page.locator('#what-i-do li');
@@ -321,6 +353,22 @@ test.describe('home interactions', () => {
     expect(op).toBe('1');
     await ctx.close();
   });
+
+  for (const [w, h] of [[320, 568], [375, 667], [390, 844]]) {
+    test(`phones: the menu fits on one ${w}x${h} screen, down to Privacy and Terms`, async ({ page }) => {
+      await page.setViewportSize({ width: w, height: h });
+      await page.goto('/');
+      await page.locator('[data-menu-open]').click();
+      const sheet = page.locator('[data-menu]');
+      await expect(sheet).toBeVisible();
+      await page.waitForTimeout(700);
+      const fit = await sheet.evaluate((d) => d.scrollHeight - d.clientHeight);
+      expect(fit).toBeLessThanOrEqual(1);
+      for (const name of ['Home', 'Services', 'Work', 'About', 'Contact', 'Start a project', 'Privacy', 'Terms'])
+        await expect(sheet.getByRole('link', { name, exact: name !== 'Start a project' })).toBeInViewport();
+      await expect(sheet.getByRole('link', { name: /Email Mann/ })).toBeInViewport();
+    });
+  }
 
   test('phones: Contact stays one tap away, the tuner follows the buttons, and its show waits until it is seen', async ({ page }) => {
     await page.setViewportSize({ width: 360, height: 800 });

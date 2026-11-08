@@ -466,12 +466,14 @@ const sheetLinks = [{ href: '/', label: 'Home' }, ...nav, { href: '/contact/', l
   .sheet::backdrop {
     background: rgb(0 0 0 / 0.6);
   }
+  /* The sheet scales with the screen's height, so every link, the contact buttons and the legal
+     links fit on one screen, from a 568px-tall phone up. It still scrolls if text is enlarged. */
   .sheet__inner {
     min-height: 100%;
     display: flex;
     flex-direction: column;
-    gap: var(--s-6);
-    padding-block: var(--s-4) var(--s-6);
+    gap: clamp(var(--s-3), 3.2dvh, var(--s-6));
+    padding-block: clamp(var(--s-2), 1.6dvh, var(--s-4)) clamp(var(--s-3), 3dvh, var(--s-6));
   }
   .sheet__top {
     display: flex;
@@ -490,7 +492,7 @@ const sheetLinks = [{ href: '/', label: 'Home' }, ...nav, { href: '/contact/', l
     display: flex;
     align-items: baseline;
     gap: var(--s-4);
-    padding-block: var(--s-3);
+    padding-block: clamp(0.3rem, 1.1dvh, var(--s-3));
     text-decoration: none;
   }
   .sheet__no {
@@ -499,7 +501,7 @@ const sheetLinks = [{ href: '/', label: 'Home' }, ...nav, { href: '/contact/', l
     width: 2ch;
   }
   .sheet__label {
-    font-size: clamp(2.4rem, 10vw, 3.6rem);
+    font-size: clamp(1.9rem, min(10vw, 6dvh), 3.6rem);
     font-weight: 760;
     font-stretch: 115%;
     letter-spacing: -0.045em;
@@ -517,8 +519,35 @@ const sheetLinks = [{ href: '/', label: 'Home' }, ...nav, { href: '/contact/', l
   .sheet__foot {
     margin-top: auto;
     display: grid;
-    gap: var(--s-5);
+    gap: clamp(var(--s-3), 2.2dvh, var(--s-5));
     justify-items: start;
+  }
+  /* Contact buttons and the address share a row. */
+  .sheet__foot :global(.ca) {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    gap: var(--s-2) var(--s-4);
+  }
+  .sheet__foot :global(.ca__label) {
+    flex-basis: 100%;
+  }
+  /* Short phones: round icon buttons (each keeps its name), so the row stays on one line. */
+  @media (max-height: 44em) {
+    .sheet__foot :global(.ca__btn) {
+      width: var(--tap);
+      height: var(--tap);
+      padding: 0;
+      justify-content: center;
+    }
+    .sheet__foot :global(.ca__text) {
+      position: absolute;
+      width: 1px;
+      height: 1px;
+      overflow: hidden;
+      clip-path: inset(50%);
+      white-space: nowrap;
+    }
   }
   @media (prefers-reduced-motion: no-preference) {
     .sheet[open] {
