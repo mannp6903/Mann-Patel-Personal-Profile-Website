@@ -49,8 +49,10 @@ New order: compact hero → **selected work** → three service summaries → fr
 - **Hero:** outcome headline kept; service descriptor added to the H1; one short paragraph; two
   actions with different jobs (Start a project; See selected work). The free check moved to its own
   block. The A/B/C strip was removed. Title size 88–120 px on desktop, ≈ 54 px on phones.
-- **Portrait:** the signal-line portrait stays on wide screens. On phones and tablets the first
-  screen shows the small round photo; the portrait art opens on request (“Show portrait art”).
+- **Portrait:** wide screens keep the signal-line portrait, and “Show photo” now reveals Mann's real,
+  whole photo. Phones and tablets show the real photo under the buttons by default (an earlier
+  version hid the large portrait behind a button, which removed it from the first screens; reversed
+  at Mann's request). The work heading sits at y≈1,256 at 390×844 (test limit 1,300).
 - **Selected work:** two image-led cards with relationship, website status kept separate from
   business status (“Website live” / “Business opens summer 2027”), the customer problem, my role,
   the date checked and the case-study link. Side by side on desktop, stacked on phones.

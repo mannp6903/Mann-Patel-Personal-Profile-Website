@@ -42,12 +42,26 @@ import Field from '../fx/Field.astro';
           <Button href="#work" variant="ghost" icon="arrow-down">See selected work</Button>
         </div>
         <ContactActions compact label="Or reach me directly" class="hero__reach" />
-        <button class="hero__art-btn" type="button" aria-expanded="false" aria-controls="hero-art" data-art-toggle>
-          <span class="hero__art-dot" aria-hidden="true"></span>
-          <span data-art-label>Show portrait art</span>
-        </button>
       </div>
     </div>
+
+    {
+      profile.portrait && (
+        <figure class="hero__photo">
+          <Image
+            src={profile.portrait.src}
+            alt={profile.portrait.alt}
+            widths={[360, 560, 720, 1060]}
+            sizes="(min-width: 40em) 28rem, 92vw"
+            format="webp"
+            quality={80}
+            loading="eager"
+            class="hero__photo-img"
+          />
+          <figcaption class="hero__photo-cap num subtle">Mann Patel · Toronto · 43.65° N · 79.38° W</figcaption>
+        </figure>
+      )
+    }
 
     <figure class="hero__portrait" id="hero-art" data-portrait>
       <div class="hp__stage">
@@ -64,6 +78,20 @@ import Field from '../fx/Field.astro';
           data-portrait-img
         />
         <canvas class="hp__canvas" aria-hidden="true" data-portrait-canvas></canvas>
+        {
+          profile.portrait && (
+            <Image
+              src={profile.portrait.src}
+              alt={profile.portrait.alt}
+              widths={[540, 720, 1060]}
+              sizes="(min-width: 64em) 40vw, 0px"
+              format="webp"
+              quality={80}
+              loading="lazy"
+              class="hp__real"
+            />
+          )
+        }
       </div>
       <figcaption class="hp__cap">
         <span class="hp__who">
@@ -83,20 +111,6 @@ import Field from '../fx/Field.astro';
 <script>
   import { mountSignalPortrait } from '../../scripts/signal-portrait';
   document.querySelectorAll<HTMLElement>('[data-portrait]').forEach(mountSignalPortrait);
-
-  // Phones and tablets: the portrait art is optional, so the work comes sooner.
-  const hero = document.querySelector<HTMLElement>('.hero');
-  const btn = hero?.querySelector<HTMLButtonElement>('[data-art-toggle]');
-  if (hero && btn) {
-    const label = btn.querySelector<HTMLElement>('[data-art-label]')!;
-    btn.addEventListener('click', () => {
-      const open = !hero.classList.contains('is-art');
-      hero.classList.toggle('is-art', open);
-      btn.setAttribute('aria-expanded', String(open));
-      label.textContent = open ? 'Hide portrait art' : 'Show portrait art';
-      if (open) document.getElementById('hero-art')?.scrollIntoView({ block: 'nearest', behavior: matchMedia('(prefers-reduced-motion: reduce)').matches ? 'auto' : 'smooth' });
-    });
-  }
 </script>
 
 <style>
@@ -312,7 +326,7 @@ import Field from '../fx/Field.astro';
     opacity: 0;
   }
   .hero__portrait:global(.is-ready.is-photo) .hp__img {
-    opacity: 1;
+    opacity: 0;
   }
   .hp__cap {
     display: flex;
@@ -383,47 +397,49 @@ import Field from '../fx/Field.astro';
     background: var(--on-signal);
   }
 
-  /* ── Portrait art on phones and tablets: optional, behind a button (with JavaScript) ── */
-  .hero__art-btn {
+  /* ── Phones and tablets: the real, whole photo. Wide screens: the signal portrait (photo on switch). ── */
+  .hero__photo {
     justify-self: start;
-    display: inline-flex;
-    align-items: center;
-    gap: 0.6rem;
-    min-height: var(--tap);
-    padding: 0 1rem 0 0.8rem;
-    border: 1px solid var(--line);
-    border-radius: var(--r-pill);
-    background: transparent;
-    color: var(--text-2);
-    font-size: 0.875rem;
-    font-weight: 560;
+    width: 100%;
+    max-width: 26rem;
+    display: grid;
+    gap: var(--s-2);
   }
-  .hero__art-btn:hover {
-    border-color: var(--control);
-    color: var(--text);
+  .hero__photo :global(.hero__photo-img) {
+    width: 100%;
+    aspect-ratio: 1;
+    object-fit: cover;
+    border-radius: var(--r-lg);
+    background: var(--surface);
   }
-  .hero__art-dot {
-    width: 0.5rem;
-    height: 0.5rem;
-    border-radius: 50%;
-    background: var(--signal);
+  .hero__photo-cap {
+    font-size: 0.75rem;
+    letter-spacing: 0.04em;
   }
   @media (max-width: 63.99em) {
-    :global(.js) .hero__portrait {
+    .hero__portrait {
       display: none;
     }
-    :global(.js) .hero:global(.is-art) .hero__portrait {
-      display: block;
-    }
-  }
-  /* Shown from the first paint when JavaScript runs (no layout shift), never without it. */
-  :global(html:not(.js)) .hero__art-btn {
-    display: none;
   }
   @media (min-width: 64em) {
-    .hero__art-btn {
+    .hero__photo {
       display: none;
     }
+  }
+  /* Desktop "Show photo": the real photo fades in over the signal drawing. */
+  .hp__stage :global(.hp__real) {
+    position: absolute;
+    inset: 0;
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    border-radius: var(--r-lg);
+    opacity: 0;
+    transition: opacity 900ms var(--ease-out);
+    pointer-events: none;
+  }
+  .hero__portrait:global(.is-photo) .hp__stage :global(.hp__real) {
+    opacity: 1;
   }
   /* Phones: the header's Contact button and the footer already carry direct contact. */
   @media (max-width: 39.99em) {
