@@ -1,0 +1,71 @@
+---
+/** Frequently asked questions as accordions (native <details>, smooth height where supported). */
+import { faqs } from '../data/faqs';
+import Confirm from './Confirm.astro';
+import Heading from './ui/Heading.astro';
+import Icon from './ui/Icon.astro';
+
+interface Props {
+  id?: string;
+  limit?: number;
+  more?: boolean;
+}
+const { id = 'faq', limit, more = false } = Astro.props;
+const items = typeof limit === 'number' ? faqs.slice(0, limit) : faqs;
+---
+
+<section class="faq section" id={id} aria-labelledby={`${id}-title`}>
+  <div class="container faq__grid">
+    <div class="faq__head stack" style="--stack: var(--s-5)">
+      <p class="eyebrow">Questions</p>
+      <Heading id={`${id}-title`} lines={['Straight', '<span class="serif">answers.</span>']} />
+      <p class="muted" data-reveal>
+        Something else on your mind? Ask it in your brief, or email me. I answer every message myself.
+      </p>
+      {
+        more && (
+          <a class="link-arrow" href="/services/#faq" data-reveal>
+            All questions <Icon name="arrow" />
+          </a>
+        )
+      }
+    </div>
+    <div class="faq__list">
+      {
+        items.map((f, i) => (
+          <details class="acc" name={id} open={i === 0} data-reveal style={`--d:${i * 50}`}>
+            <summary>
+              <span>{f.q}</span>
+              <span class="acc__plus" aria-hidden="true" />
+            </summary>
+            <div class="acc__body">
+              <p>{f.a}</p>
+              {f.confirm && <Confirm note={f.confirm} />}
+            </div>
+          </details>
+        ))
+      }
+    </div>
+  </div>
+</section>
+
+<style>
+  .faq__grid {
+    display: grid;
+    gap: var(--s-7);
+  }
+  .faq__head h2 {
+    max-width: 10ch;
+  }
+  @media (min-width: 64em) {
+    .faq__grid {
+      grid-template-columns: minmax(0, 0.8fr) minmax(0, 1.2fr);
+      gap: var(--s-8);
+    }
+    .faq__head {
+      position: sticky;
+      top: calc(var(--header-h) + 2rem);
+      align-self: start;
+    }
+  }
+</style>

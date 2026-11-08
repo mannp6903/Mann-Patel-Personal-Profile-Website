@@ -1,5 +1,6 @@
-// Generates favicon PNGs and the default Open Graph image (1200×630) from code.
-// Run: node scripts/make-images.mjs   (after scripts/make-logo.py, or when the photo/headline changes)
+// Generates favicon PNGs and the default Open Graph image (1200×630) from code, in the
+// "Signal" design (DESIGN.md): the halftone portrait beside "Found. Answered. Booked."
+// Run: npm run images   (when the portrait, favicon or headline changes)
 import { chromium } from '@playwright/test';
 import sharp from 'sharp';
 import { mkdir, readFile, writeFile, rm } from 'node:fs/promises';
@@ -12,32 +13,48 @@ const favicon = await readFile(`${root}public/favicon.svg`);
 await sharp(favicon, { density: 384 }).resize(32, 32).png().toFile(`${root}public/favicon-32.png`);
 await sharp(favicon, { density: 768 }).resize(180, 180).png().toFile(`${root}public/apple-touch-icon.png`);
 
-const wordmark = (await readFile(`${root}public/brand/mann-patel-wordmark.svg`, 'utf8')).replace(/<title>.*?<\/title>/, '');
-const portrait = (await sharp(`${root}src/assets/mann-patel-portrait.jpg`).resize(520, 624, { fit: 'cover', position: 'attention' }).jpeg({ quality: 82 }).toBuffer()).toString('base64');
+const cutout = (await sharp(`${root}src/assets/mann-patel-cutout.png`).resize(520).png().toBuffer()).toString('base64');
 const font = (f) => `file://${root}public/fonts/${f}`;
 
-const html = `<!doctype html><html><head><style>
-@font-face{font-family:B;src:url(${font('bricolage-grotesque-latin-wght.woff2')}) format('woff2');font-weight:200 800}
-@font-face{font-family:M;src:url(${font('atkinson-hyperlegible-mono-latin-wght.woff2')}) format('woff2');font-weight:200 800}
+const html = `<!doctype html><html><head><meta charset="utf-8"><style>
+@font-face{font-family:Mona;src:url(${font('mona-sans-latin-wdth-wght.woff2')}) format('woff2');font-weight:200 900;font-stretch:75% 125%}
+@font-face{font-family:Serif;font-style:italic;src:url(${font('instrument-serif-latin-400-italic.woff2')}) format('woff2')}
+@font-face{font-family:Mono;src:url(${font('geist-mono-latin-wght.woff2')}) format('woff2');font-weight:100 900}
 *{margin:0;box-sizing:border-box}
-body{width:1200px;height:630px;background:#f4f1ea;color:#15171a;position:relative;overflow:hidden}
-.copy{position:absolute;left:72px;top:64px;bottom:60px;width:610px;display:flex;flex-direction:column;justify-content:space-between}
-.label{font-family:M;font-weight:700;letter-spacing:.07em;text-transform:uppercase;font-size:17px;color:#4b5058;white-space:nowrap}
-h1{font-family:B;font-weight:780;font-size:70px;line-height:1.04;letter-spacing:-.035em;white-space:nowrap}
-h1 span{background:linear-gradient(#d9481c,#d9481c) no-repeat 0 92%/100% 8px}
-.wm{height:58px}.wm svg{height:100%;width:auto;display:block}
-.sub{font-family:M;font-size:15.5px;color:#4b5058;margin-top:12px;white-space:nowrap}
-.photo{position:absolute;right:70px;top:52px;width:390px;padding:12px 12px 48px;background:#fbfaf6;border-radius:16px;transform:rotate(2deg);box-shadow:0 2px 0 rgba(21,23,26,.08),0 24px 40px -24px rgba(21,23,26,.45)}
-.photo img{width:100%;height:auto;display:block;border-radius:10px}
-.photo p{position:absolute;left:18px;bottom:15px;font-family:M;font-weight:700;letter-spacing:.06em;text-transform:uppercase;font-size:16px;color:#4b5058}
+body{width:1200px;height:630px;background:#0b0b0c;color:#f2f1ec;position:relative;overflow:hidden;font-family:Mona}
+body::before{content:'';position:absolute;right:-120px;top:20px;width:720px;height:720px;background:radial-gradient(closest-side,rgba(212,248,74,.11),transparent 70%)}
+.copy{position:absolute;left:72px;top:64px;bottom:60px;width:700px;display:flex;flex-direction:column;justify-content:space-between}
+.label{font-family:Mono;font-weight:500;letter-spacing:.08em;text-transform:uppercase;font-size:17px;color:#8d8c86;display:flex;align-items:center;gap:12px}
+.label i{width:10px;height:10px;border-radius:50%;background:#d4f84a;display:block}
+h1{font-weight:800;font-stretch:118%;font-size:112px;line-height:.86;letter-spacing:-.045em}
+h1 em{font-family:Serif;font-weight:400;font-stretch:100%;font-size:1.12em;color:#d4f84a;letter-spacing:-.02em}
+.sub{font-size:27px;font-weight:560;line-height:1.3;letter-spacing:-.01em;max-width:560px}
+.url{font-family:Mono;font-size:17px;color:#8d8c86;margin-top:14px}
+canvas{position:absolute;right:40px;bottom:0;width:470px;height:496px}
 </style></head><body>
 <div class="copy">
-<p class="label">Toronto · small-business digital foundations</p>
-<h1>Look <span>professional</span>.<br>Get <span>found</span>.<br>Follow <span>up</span>.</h1>
-<div><div class="wm">${wordmark}</div>
-<p class="sub">Websites · Google visibility · business email · follow-up</p></div>
+<p class="label"><i></i>Mann Patel · Toronto, Canada</p>
+<h1>Found.<br>Answered.<br><em>Booked.</em></h1>
+<div><p class="sub">I help small businesses in Toronto and the GTA get all three.</p><p class="url">mannpatel.me</p></div>
 </div>
-<figure class="photo"><img src="data:image/jpeg;base64,${portrait}" alt=""><p>Mann Patel</p></figure>
+<canvas id="c" width="940" height="992"></canvas>
+<img id="src" src="data:image/png;base64,${cutout}" style="display:none">
+<script>
+// Static version of src/scripts/halftone.ts
+const img=document.getElementById('src');
+img.decode().then(()=>{
+  const c=document.getElementById('c'),x=c.getContext('2d');x.scale(2,2);
+  const w=470,h=496,p=w/108,cols=Math.floor(w/p),rows=Math.floor(h/p);
+  const o=document.createElement('canvas');o.width=cols;o.height=rows;const ox=o.getContext('2d');
+  const ir=img.naturalWidth/img.naturalHeight,cr=cols/rows;let dw=cols,dh=rows;if(ir>cr)dh=cols/ir;else dw=rows*ir;
+  ox.drawImage(img,(cols-dw)/2,rows-dh,dw,dh);const d=ox.getImageData(0,0,cols,rows).data;
+  const cells=[];let lo=1,hi=0;
+  for(let j=0;j<rows;j++)for(let i=0;i<cols;i++){const k=(j*cols+i)*4;if(d[k+3]<90)continue;const L=(.2126*d[k]+.7152*d[k+1]+.0722*d[k+2])/255;cells.push([i,j,L]);lo=Math.min(lo,L);hi=Math.max(hi,L)}
+  x.fillStyle='#f2f1ec';const R=p*.6;
+  for(const [i,j,L0] of cells){const L=Math.pow((L0-lo)/(hi-lo),1.2);const r=R*(.1+.9*L);x.beginPath();x.arc((i+.5)*p,(j+.5)*p+(h-rows*p),r,0,7);x.fill()}
+  document.body.dataset.ready='1';
+});
+</script>
 </body></html>`;
 
 const browser = await chromium.launch();
@@ -47,6 +64,7 @@ const tmp = `${root}.og-template.tmp.html`;
 await writeFile(tmp, html);
 await page.goto(`file://${tmp}`, { waitUntil: 'load' });
 await page.evaluate(() => document.fonts.ready);
+await page.waitForSelector('body[data-ready="1"]');
 await page.screenshot({ path: `${root}public/og/default.png` });
 await browser.close();
 await rm(tmp);

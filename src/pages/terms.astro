@@ -5,6 +5,7 @@
  * agreed in a written scope). Not legal advice: have a lawyer review before relying on them.
  */
 import BaseLayout from '../layouts/BaseLayout.astro';
+import Legal from '../components/Legal.astro';
 import { profile } from '../data/site';
 
 const updated = '1 November 2026';
@@ -15,12 +16,7 @@ const email = profile.contact.email;
   title="Terms of Use"
   description="Terms of Use for mannpatel.me: using the website, enquiries and quotes, project examples, content ownership, links, liability and Ontario law."
 >
-  <section class="section">
-    <div class="container prose">
-      <p class="label">Legal</p>
-      <h1>Terms of Use</h1>
-      <p class="lead">The rules for using mannpatel.me, in plain language.</p>
-      <p class="muted">Last updated {updated}. See also the <a href="/privacy/">Privacy Policy</a>.</p>
+  <Legal title="Terms of Use" lead="The rules for using mannpatel.me, in plain language." updated={updated} see={{ href: '/privacy/', label: 'Privacy Policy' }}>
 
       <h2>About these terms</h2>
       <p>
@@ -88,26 +84,5 @@ const email = profile.contact.email;
         If these terms change, this page is updated and the date at the top changes with it.
         {email && <> Questions: <a href={`mailto:${email}`}>{email}</a>.</>}
       </p>
-    </div>
-  </section>
+  </Legal>
 </BaseLayout>
-
-<style>
-  .prose {
-    max-width: calc(var(--container-text) + 2 * var(--gutter));
-    display: grid;
-    gap: var(--space-s);
-  }
-  h1 {
-    margin-bottom: var(--space-2xs);
-  }
-  h2 {
-    font-size: var(--step-2);
-    margin-top: var(--space-l);
-  }
-  ul {
-    padding-left: 1.3em;
-    display: grid;
-    gap: var(--space-2xs);
-  }
-</style>

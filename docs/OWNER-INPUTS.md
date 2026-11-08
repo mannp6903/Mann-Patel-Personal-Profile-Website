@@ -8,10 +8,10 @@ Everything below is tracked in code. Unverified **claims** are wrapped in `<Conf
 2. ~~How was the Nest & Rest site built?~~ **Answered (31 Oct 2026): built from scratch by Mann.** Nest & Rest has no paying clients yet; bookings open in summer 2027, and the site now says so everywhere.
 3. ~~Concept samples~~ **Answered (31 Oct 2026): removed.** Kettle & Crumb and Northline Plumbing are gone from the site; the Work page shows only real projects (Nest & Rest, Samp Hair & Spa).
 4. ~~Public contact details~~ **Answered (1 Nov 2026):** the public email is **info@mannpatel.me** (one place: `profile.contact.email` in `src/data/site.ts`). **Phone / WhatsApp / Text buttons** are built; they need your number as the Cloudflare **build variable** `PUBLIC_CONTACT_PHONE` (never in this public repo). The site shows it masked as `647-XXX-XXXX`-style; the buttons dial the full number. See `docs/05` §4 step 5. Local previews use the fictional `+1 647-555-0142`.
-4b. **Social links.** GitHub is linked (`github.com/mannp6903`, your connected account). **Instagram, Facebook and LinkedIn URLs are still needed.** Until then their buttons show as greyed placeholders in previews and are **hidden in production** (no dead buttons). Add them in `src/data/site.ts` → `social`.
+4b. **Social links.** GitHub is linked (`github.com/mannp6903`, your connected account). **Instagram, Facebook and LinkedIn URLs are still needed.** Until then they are simply not shown (no dead buttons). Add them in `src/data/site.ts` → `social` and they appear in the footer and on About.
 5. ~~Domain~~ **Answered (31 Oct 2026): mannpatel.me** (your domain; replaces the earlier mannpatel.ca plan). Set as the production URL in `scripts/build-cloudflare.mjs` and `wrangler.jsonc`. Owner action: add it to Cloudflare (see `docs/05` §4).
 6. ~~Public location wording~~ **Answered (31 Oct 2026): based in Toronto, serving the GTA.** The hero says "Mann Patel · Toronto" and the FAQ says you work with small businesses across the GTA. (Clients outside the GTA aren't mentioned; tell me if you want to add remote work.)
-7. ~~Portrait~~ **Done (31 Oct 2026):** your photo is used in the home hero, About, Contact and the share image.
+7. ~~Portrait~~ **Done (31 Oct 2026; round 5, 8 Nov 2026):** the cut-out is drawn as the halftone portrait in the home hero and the share image ("Show photo" switches to the real photo); the full street photo is on Home (About section) and the About page.
 8. ~~Your story~~ **Answered (31 Oct 2026):** the About page now tells Mann's story (Palana → Seneca → Saint John → Thunder Bay → North York → Walmart → Nest & Rest), with the depression and the lost job described plainly. Edit it any time in `src/pages/about.astro`.
 9. ~~AI tools FAQ~~ **Answered (31 Oct 2026): accurate**, published as written.
 10. ~~Privacy details~~ **Decided (31 Oct 2026, Mann: "do whatever is best"; updated 1 Nov 2026):** Cloudflare hosts the site and delivers each enquiry by email (Cloudflare Email, no Resend), Google (Gmail) hosts the inbox; both are named on the Privacy page, which also covers calls, texts and WhatsApp. Enquiries that don't become projects are deleted from your inbox within 12 months. **Your part:** the Email Routing steps in `docs/05` §1, and once a year delete enquiry emails older than 12 months.
@@ -43,5 +43,9 @@ Everything below is tracked in code. Unverified **claims** are wrapped in `<Conf
 | FAQ | `src/data/faqs.ts` |
 | Case studies | `src/content/work/*.md` |
 | About story and principles | `src/pages/about.astro` |
+| Home hero wording | `src/components/home/Hero.astro` |
+| Example phone screens (fictional salon) | `src/components/home/PhoneScreen.astro` |
+| Project screenshots, alt text and captions | `src/data/captures.ts` |
+| Colours, fonts, spacing (design tokens) | `src/styles/tokens.css` (documented in `DESIGN.md`) |
 | Privacy Policy | `src/pages/privacy.astro` |
 | Terms of Use | `src/pages/terms.astro` |

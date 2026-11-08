@@ -1,0 +1,354 @@
+---
+/**
+ * "What I do": the three service areas as one customer path. On desktop a phone stays in view
+ * and switches to the example screen of the step being read. On phones each step shows its own
+ * screen. Screens are decorative examples (fictional business), hidden from assistive tech.
+ */
+import { groups, servicesInGroup, addOns } from '../../data/services';
+import Heading from '../ui/Heading.astro';
+import Icon from '../ui/Icon.astro';
+import PhoneScreen from './PhoneScreen.astro';
+
+const kinds = groups.map((g) => g.id) as ('found' | 'answered' | 'booked')[];
+---
+
+<section class="path section" id="what-i-do" aria-labelledby="path-title" data-path>
+  <div class="container">
+    <div class="section-head section-head--split">
+      <div class="stack" style="--stack: var(--s-5)">
+        <p class="eyebrow">What I do</p>
+        <Heading id="path-title" lines={['Three jobs.', '<span class="serif">One customer path.</span>']} />
+      </div>
+      <p class="lead" data-reveal>
+        Most small businesses lose work in one of three places: they aren’t found, they don’t answer in time, or booking
+        is hard. I fix the one that costs you most, first.
+      </p>
+    </div>
+
+    <div class="path__grid">
+      <ol class="path__steps" role="list">
+        {
+          groups.map((g, i) => (
+            <li class="step" id={g.id} data-step={g.id}>
+              <div class="step__head">
+                <span class="step__letter" aria-hidden="true">
+                  {g.letter}
+                </span>
+                <p class="eyebrow eyebrow--plain">
+                  <span class="visually-hidden">Area {g.letter}: </span>
+                  {g.verb}
+                </p>
+              </div>
+              <h3 class="step__title">{g.title}</h3>
+              <p class="step__intro muted">{g.intro}</p>
+              <ul class="step__list" role="list">
+                {servicesInGroup(g.id).map((s) => (
+                  <li>
+                    <a href={`/services/#${s.id}`}>
+                      <span class="roll">
+                        <span data-text={s.name}>{s.name}</span>
+                      </span>
+                      <Icon name="arrow" />
+                    </a>
+                  </li>
+                ))}
+              </ul>
+              <div class="step__screen" aria-hidden="true">
+                <div class="phone is-idle" data-inline-screen>
+                  <span class="phone__island" />
+                  <PhoneScreen kind={kinds[i]} />
+                </div>
+                <p class="path__note num">Example · fictional business</p>
+              </div>
+            </li>
+          ))
+        }
+      </ol>
+
+      <div class="path__device" aria-hidden="true">
+        <div class="path__sticky">
+          <div class="phone phone--lg">
+            <span class="phone__island"></span>
+            {
+              kinds.map((k, i) => (
+                <div class:list={['dev__screen', i === 0 ? 'is-active' : 'is-idle']} data-dev={k}>
+                  <PhoneScreen kind={k} />
+                </div>
+              ))
+            }
+          </div>
+          <div class="path__meta">
+            <p class="path__note num">Example · fictional business</p>
+            <ol class="path__dots" role="list">
+              {groups.map((g, i) => <li class:list={{ 'is-on': i === 0 }} data-dot={g.id}>{g.letter}</li>)}
+            </ol>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div class="path__extra" data-reveal>
+      <p class="path__addon">
+        <span class="eyebrow eyebrow--plain">Add-ons</span>
+        <span>{addOns.intro}</span>
+      </p>
+      <a class="link-arrow" href="/services/">
+        Every service, with what’s included and what isn’t
+        <Icon name="arrow" />
+      </a>
+    </div>
+  </div>
+</section>
+
+<script>
+  const root = document.querySelector<HTMLElement>('[data-path]');
+  if (root) {
+    const screens = [...root.querySelectorAll<HTMLElement>('[data-dev]')];
+    const dots = [...root.querySelectorAll<HTMLElement>('[data-dot]')];
+    const setActive = (id: string) => {
+      screens.forEach((s) => {
+        const on = s.dataset.dev === id;
+        s.classList.toggle('is-active', on);
+        s.classList.toggle('is-idle', !on);
+      });
+      dots.forEach((d) => d.classList.toggle('is-on', d.dataset.dot === id));
+    };
+    // The step crossing the middle of the viewport drives the phone.
+    const io = new IntersectionObserver(
+      (entries) => {
+        for (const e of entries) if (e.isIntersecting) setActive((e.target as HTMLElement).dataset.step!);
+      },
+      { rootMargin: '-45% 0px -45% 0px' },
+    );
+    root.querySelectorAll<HTMLElement>('[data-step]').forEach((s) => io.observe(s));
+
+    // Phones: each inline screen plays when it scrolls into view.
+    const io2 = new IntersectionObserver(
+      (entries) => {
+        for (const e of entries) {
+          if (!e.isIntersecting) continue;
+          e.target.classList.remove('is-idle');
+          io2.unobserve(e.target);
+        }
+      },
+      { threshold: 0.35 },
+    );
+    root.querySelectorAll('[data-inline-screen]').forEach((s) => io2.observe(s));
+  }
+</script>
+
+<style>
+  .path__grid {
+    display: grid;
+    gap: var(--s-8);
+  }
+  .path__steps {
+    display: grid;
+    gap: var(--s-9);
+  }
+  .step {
+    display: grid;
+    gap: var(--s-4);
+    align-content: start;
+  }
+  .step__head {
+    display: flex;
+    align-items: center;
+    gap: var(--s-4);
+  }
+  .step__letter {
+    display: grid;
+    place-items: center;
+    width: 3rem;
+    height: 3rem;
+    border-radius: 50%;
+    border: 1px solid var(--signal);
+    color: var(--signal);
+    font-weight: 700;
+    font-stretch: 120%;
+    font-size: 1.15rem;
+  }
+  .step__title {
+    font-size: clamp(1.75rem, 1.3rem + 1.8vw, 3rem);
+    font-weight: 700;
+    font-stretch: 112%;
+    letter-spacing: -0.035em;
+    line-height: 1.02;
+    max-width: 16ch;
+  }
+  .step__intro {
+    max-width: 48ch;
+  }
+  .step__list {
+    margin-top: var(--s-3);
+    border-top: 1px solid var(--line);
+  }
+  .step__list li {
+    border-bottom: 1px solid var(--line);
+  }
+  .step__list a {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: var(--s-4);
+    min-height: 3.25rem;
+    padding-block: var(--s-2);
+    text-decoration: none;
+    font-weight: 540;
+    color: var(--text);
+    transition: color var(--t-fast), padding var(--t-base) var(--ease-out);
+  }
+  .step__list .icon {
+    color: var(--text-3);
+    transition: transform var(--t-base) var(--ease-out), color var(--t-fast);
+  }
+  @media (hover: hover) {
+    .step__list a:hover {
+      color: var(--signal);
+      padding-left: var(--s-3);
+    }
+    .step__list a:hover .icon {
+      transform: translateX(4px);
+      color: var(--signal);
+    }
+  }
+  .step__screen {
+    margin-top: var(--s-5);
+    display: grid;
+    justify-items: center;
+    gap: var(--s-3);
+  }
+
+  /* ── Phone frame ── */
+  .phone {
+    position: relative;
+    width: min(18rem, 78vw);
+    aspect-ratio: 9 / 18.5;
+    border-radius: 2.6rem;
+    border: 9px solid #1c1c20;
+    box-shadow:
+      0 0 0 1px #34343a,
+      0 40px 80px -40px rgb(0 0 0 / 0.9),
+      0 0 120px -40px rgb(212 248 74 / 0.18);
+    background: var(--surface);
+    overflow: hidden;
+    isolation: isolate;
+  }
+  .phone__island {
+    position: absolute;
+    top: 0.6rem;
+    left: 50%;
+    z-index: 3;
+    width: 34%;
+    height: 1.35rem;
+    border-radius: var(--r-pill);
+    background: #000;
+    transform: translateX(-50%);
+  }
+  .phone--lg {
+    width: 20rem;
+  }
+  .dev__screen {
+    position: absolute;
+    inset: 0;
+    transition:
+      opacity 600ms var(--ease-out),
+      transform 700ms var(--ease-out);
+  }
+  .dev__screen.is-idle {
+    opacity: 0;
+    transform: translateY(4%) scale(0.98);
+  }
+  .path__device {
+    display: none;
+  }
+  .path__note {
+    font-size: 0.75rem;
+    letter-spacing: 0.04em;
+    color: var(--text-3);
+  }
+  .path__meta {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    width: 20rem;
+  }
+  .path__dots {
+    display: flex;
+    gap: var(--s-2);
+  }
+  .path__dots li {
+    display: grid;
+    place-items: center;
+    width: 1.75rem;
+    height: 1.75rem;
+    border-radius: 50%;
+    border: 1px solid var(--line);
+    font-family: var(--font-mono);
+    font-size: 0.7rem;
+    color: var(--text-3);
+    transition: background-color var(--t-base), color var(--t-base), border-color var(--t-base);
+  }
+  .path__dots li.is-on {
+    background: var(--signal);
+    border-color: var(--signal);
+    color: var(--on-signal);
+  }
+
+  .path__extra {
+    margin-top: var(--s-9);
+    padding-top: var(--s-6);
+    border-top: 1px solid var(--line);
+    display: grid;
+    gap: var(--s-4);
+  }
+  .path__addon {
+    display: grid;
+    gap: var(--s-2);
+    max-width: 62ch;
+    color: var(--text-2);
+  }
+  @media (min-width: 64em) {
+    .path__extra {
+      grid-template-columns: 1fr auto;
+      align-items: end;
+      gap: var(--s-8);
+    }
+  }
+
+  @media (min-width: 64em) {
+    .path__grid {
+      grid-template-columns: minmax(0, 1fr) minmax(0, 1fr);
+      gap: var(--s-8);
+    }
+    .path__steps {
+      gap: 0;
+    }
+    .step {
+      min-height: 88vh;
+      padding-block: 10vh;
+    }
+    .step:first-child {
+      padding-top: 0;
+    }
+    .step__screen {
+      display: none;
+    }
+    .path__device {
+      display: block;
+    }
+    .path__sticky {
+      position: sticky;
+      top: calc(var(--header-h) + 4vh);
+      display: grid;
+      justify-items: center;
+      gap: var(--s-4);
+    }
+    .phone--lg {
+      width: min(20rem, calc((100vh - var(--header-h) - 8rem) * 9 / 18.5));
+    }
+    .path__meta {
+      width: min(20rem, calc((100vh - var(--header-h) - 8rem) * 9 / 18.5));
+    }
+  }
+</style>

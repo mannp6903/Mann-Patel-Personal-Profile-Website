@@ -14,10 +14,10 @@ import { PUBLIC_GA4_ID } from 'astro:env/client';
         <a href="/privacy/#analytics">Details</a>
       </p>
       <div class="btn-row">
-        <button class="btn" type="button" data-consent-allow>
+        <button class="btn btn--sm btn--plain" type="button" data-consent-allow>
           Allow
         </button>
-        <button class="btn btn--secondary" type="button" data-consent-deny>
+        <button class="btn btn--sm btn--plain btn--ghost" type="button" data-consent-deny>
           No thanks
         </button>
       </div>
@@ -50,20 +50,23 @@ import { PUBLIC_GA4_ID } from 'astro:env/client';
   .consent {
     position: fixed;
     z-index: 60;
-    inset: auto var(--space-s) var(--space-s) auto;
+    inset: auto var(--s-4) var(--s-4) auto;
     max-width: 24rem;
-    padding: var(--space-m);
-    background: var(--card);
-    border: 1.5px solid var(--ink);
-    border-radius: var(--radius-m);
-    box-shadow: var(--shadow-ticket);
-    font-size: var(--step--1);
+    padding: var(--s-5);
+    background: var(--surface);
+    color: var(--text);
+    border-radius: var(--r-md);
+    box-shadow: var(--shadow-pop);
+    font-size: var(--fs-sm);
     display: grid;
-    gap: var(--space-s);
+    gap: var(--s-4);
+  }
+  .consent a {
+    color: var(--text);
   }
   @media (max-width: 30em) {
     .consent {
-      inset: auto var(--space-2xs) var(--space-2xs) var(--space-2xs);
+      inset: auto var(--s-2) var(--s-2) var(--s-2);
     }
   }
 </style>

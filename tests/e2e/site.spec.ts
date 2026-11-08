@@ -23,6 +23,10 @@ async function noHorizontalOverflow(page: Page) {
   expect(scrollW, 'page should not scroll sideways').toBeLessThanOrEqual(clientW);
 }
 
+/** Show everything that reveals on scroll, so checks see the final state. */
+const revealAll = (page: Page) =>
+  page.evaluate(() => document.querySelectorAll('[data-reveal], [data-split]').forEach((el) => el.classList.add('is-in')));
+
 test.describe('pages', () => {
   for (const path of PAGES) {
     test(`${path} renders one h1, has no console errors and passes axe (WCAG 2.2 A/AA rules)`, async ({ page }) => {
@@ -33,21 +37,23 @@ test.describe('pages', () => {
       expect(res?.status()).toBe(200);
       await expect(page.locator('h1')).toHaveCount(1);
       await expect(page.locator('meta[name="robots"]')).toHaveAttribute('content', 'noindex, nofollow');
-      // reveal everything so axe sees final colours
-      await page.evaluate(() => document.querySelectorAll('[data-reveal]').forEach((el) => el.classList.add('is-revealed')));
-      await page.waitForTimeout(600);
+      await revealAll(page);
+      await page.waitForTimeout(1300);
       // Cast: @axe-core/playwright 4.14 types target a newer Playwright than the 1.63 pinned to the preinstalled browsers.
-      const axe = await new AxeBuilder({ page } as unknown as ConstructorParameters<typeof AxeBuilder>[0]).withTags(['wcag2a', 'wcag2aa', 'wcag21a', 'wcag21aa', 'wcag22aa']).analyze();
+      const axe = await new AxeBuilder({ page } as unknown as ConstructorParameters<typeof AxeBuilder>[0])
+        .withTags(['wcag2a', 'wcag2aa', 'wcag21a', 'wcag21aa', 'wcag22aa'])
+        .analyze();
       const summary = axe.violations.map((v) => `${v.id} (${v.impact}): ${v.nodes.length} × ${v.nodes[0]?.target.join(' ')}`);
       expect(summary, summary.join('\n')).toEqual([]);
       expect(errors).toEqual([]);
     });
   }
 
-  test('404 page returns a real 404 status', async ({ page }) => {
+  test('404 page returns a real 404 status and offers a way back', async ({ page }) => {
     const res = await page.goto('/this-does-not-exist/');
     expect(res?.status()).toBe(404);
-    await expect(page.locator('h1')).toHaveText('This page doesn’t exist.');
+    await expect(page.locator('h1')).toHaveText('This page wasn’t found.');
+    await expect(page.getByRole('link', { name: 'Go to the home page' })).toHaveAttribute('href', '/');
   });
 
   test('every internal link resolves', async ({ page, request }) => {
@@ -64,7 +70,15 @@ test.describe('pages', () => {
     expect(seen.size).toBeGreaterThan(10);
   });
 
-  test('outbound link to Nest & Rest is present and correct on key pages', async ({ page }) => {
+  test('every in-page anchor on the home page has a target', async ({ page }) => {
+    await page.goto('/');
+    const missing = await page.$$eval('a[href^="#"]', (as) =>
+      as.map((a) => a.getAttribute('href')!.slice(1)).filter((id) => id && !document.getElementById(id)),
+    );
+    expect(missing).toEqual([]);
+  });
+
+  test('outbound link to Nest & Rest is present on key pages', async ({ page }) => {
     for (const path of ['/', '/about/', '/contact/']) {
       await page.goto(path);
       await expect(page.locator('a[href="https://nestnrestcleaning.com/"]').first()).toBeAttached();
@@ -77,12 +91,11 @@ test.describe('pages', () => {
   });
 
   test('structured data is valid JSON and makes no rating or address claims', async ({ page }) => {
-    await page.goto('/');
-    const blocks = await page.$$eval('script[type="application/ld+json"]', (s) => s.map((x) => x.textContent || ''));
-    expect(blocks.length).toBeGreaterThan(0);
-    for (const b of blocks) {
-      const data = JSON.parse(b);
-      expect(JSON.stringify(data)).not.toMatch(/aggregateRating|address|award/i);
+    for (const path of ['/', '/services/', '/about/']) {
+      await page.goto(path);
+      const blocks = await page.$$eval('script[type="application/ld+json"]', (s) => s.map((x) => x.textContent || ''));
+      expect(blocks.length).toBeGreaterThan(0);
+      for (const b of blocks) expect(JSON.stringify(JSON.parse(b))).not.toMatch(/aggregateRating|address|award/i);
     }
   });
 });
@@ -91,7 +104,7 @@ test.describe('layout', () => {
   for (const width of [320, 360, 390, 768, 1024, 1440]) {
     test(`no sideways scrolling at ${width}px`, async ({ page }) => {
       await page.setViewportSize({ width, height: 900 });
-      for (const path of PAGES) {
+      for (const path of [...PAGES, '/this-does-not-exist/']) {
         await page.goto(path);
         await noHorizontalOverflow(page);
       }
@@ -106,248 +119,209 @@ test.describe('layout', () => {
       await noHorizontalOverflow(page);
     }
   });
+
+  for (const [w, h] of [
+    [390, 844],
+    [768, 1024],
+    [1440, 900],
+  ]) {
+    test(`hero promise is the H1 and "Start a project" is visible without scrolling at ${w}px`, async ({ page }) => {
+      await page.setViewportSize({ width: w, height: h });
+      await page.goto('/');
+      const h1 = page.locator('h1');
+      await expect(h1).toContainText('Found.');
+      await expect(h1).toContainText('I help small businesses in Toronto and the GTA get all three.');
+      const cta = page.locator('.hero').getByRole('link', { name: 'Start a project' });
+      await expect(cta).toBeInViewport();
+    });
+  }
 });
 
 test.describe('navigation', () => {
-  test('menu panel opens, closes with Escape and returns focus', async ({ page }) => {
-    await page.setViewportSize({ width: 390, height: 800 });
+  test('phone menu opens as a dialog, closes with Escape and returns focus', async ({ page }) => {
+    await page.setViewportSize({ width: 390, height: 844 });
     await page.goto('/');
-    const toggle = page.locator('[data-menu-toggle]');
-    const panel = page.locator('[data-menu-panel]');
-    await expect(page.locator('#site-nav')).toBeHidden();
-    await toggle.click();
-    await expect(panel).toBeVisible();
+    const btn = page.locator('[data-menu-open]');
+    await btn.click();
+    const sheet = page.locator('#site-menu');
+    await expect(sheet).toBeVisible();
+    await expect(sheet.getByRole('link', { name: 'Services' })).toBeVisible();
+    await expect(sheet.locator('a[href="/terms/"]')).toBeVisible();
     await page.keyboard.press('Escape');
-    await expect(panel).toBeHidden();
-    await expect(toggle).toBeFocused();
-    await toggle.click();
-    await panel.getByRole('link', { name: 'Services' }).click();
-    await expect(page).toHaveURL(/\/services\/$/);
+    await expect(sheet).toBeHidden();
+    await expect(btn).toBeFocused();
   });
 
-  test('the header stays on screen while scrolling, and nothing floats over the footer', async ({ page }) => {
+  test('the header stays on screen while scrolling', async ({ page }) => {
     await page.goto('/services/');
-    await expect(page.locator('[data-menu-fab]')).toHaveCount(0);
-    await page.evaluate(() => window.scrollTo(0, document.body.scrollHeight));
-    const header = page.locator('[data-header]');
-    await expect(header).toHaveClass(/is-scrolled/);
-    expect((await header.boundingBox())!.y).toBe(0);
-    // Every footer control below the header is the top-most element at its own centre: nothing
-    // floats over it. (Controls that have simply scrolled up under the sticky header don't count.)
-    const covered = await page.evaluate(() =>
-      [...document.querySelectorAll<HTMLElement>('footer a, footer button')]
-        .filter((el) => {
-          const r = el.getBoundingClientRect();
-          const headerBottom = document.querySelector('[data-header]')!.getBoundingClientRect().bottom;
-          if (r.width < 2 || r.top < headerBottom || r.top > innerHeight) return false;
-          const hit = document.elementFromPoint(r.left + r.width / 2, r.top + r.height / 2);
-          return !(hit && (el === hit || el.contains(hit)));
-        })
-        .map((el) => el.textContent?.trim()),
-    );
-    expect(covered).toEqual([]);
+    await page.mouse.wheel(0, 3000);
+    await page.waitForTimeout(400);
+    const box = await page.locator('[data-header]').boundingBox();
+    expect(box?.y).toBe(0);
   });
 
   test('skip link moves focus to main content', async ({ page }) => {
     await page.goto('/');
     await page.keyboard.press('Tab');
-    await expect(page.locator('.skip-link')).toBeFocused();
+    const skip = page.getByRole('link', { name: 'Skip to content' });
+    await expect(skip).toBeFocused();
     await page.keyboard.press('Enter');
     await expect(page.locator('#main')).toBeFocused();
   });
+
+  test('quick menu: Ctrl+K opens it, typing filters, Enter goes there, Escape closes', async ({ page }) => {
+    await page.setViewportSize({ width: 1440, height: 900 });
+    await page.goto('/');
+    await page.keyboard.press('Control+k');
+    const qm = page.getByRole('dialog', { name: 'Quick menu' });
+    await expect(qm).toBeVisible();
+    const input = qm.getByRole('combobox');
+    await expect(input).toBeFocused();
+    await input.fill('samp');
+    await expect(qm.getByRole('option', { name: /Samp Hair/ })).toBeVisible();
+    await expect(qm.getByRole('option', { name: /Privacy/ })).toBeHidden();
+    await page.keyboard.press('Enter');
+    await expect(page).toHaveURL(/\/work\/samp-hair-spa\/$/);
+    // The header button opens it too; Escape closes it and returns focus.
+    const trigger = page.locator('[data-qm-open]');
+    await trigger.click();
+    await expect(qm).toBeVisible();
+    await page.keyboard.press('Escape');
+    await expect(qm).toBeHidden();
+    await expect(trigger).toBeFocused();
+  });
+
+  test('quick menu shows an honest empty state', async ({ page }) => {
+    await page.goto('/about/');
+    await page.keyboard.press('Control+k');
+    await page.getByRole('combobox').fill('zzzz');
+    await expect(page.locator('[data-qm-empty]')).toBeVisible();
+  });
 });
 
-test.describe('interactions', () => {
-  test('guide recommends a starting point and pre-fills the brief', async ({ page }) => {
-    await page.goto('/#guide');
-    await page.getByLabel('Just starting, or about to launch').check();
-    await page.getByLabel('Not missing calls, messages or enquiries').check();
-    await page.getByLabel('No', { exact: true }).check();
-    await page.getByRole('button', { name: 'Show my starting point' }).click();
-    const result = page.locator('[data-guide-result]');
-    await expect(result).toBeVisible();
-    await expect(result.locator('h3')).toHaveText('Start with Business Launch');
-    await expect(result).toBeFocused();
-    const cta = result.getByRole('link', { name: /Start a brief with this/ });
-    await expect(cta).toHaveAttribute('href', /package=launch/);
+test.describe('home interactions', () => {
+  test('halftone portrait draws, and "Show photo" switches to the real photo', async ({ page }) => {
+    await page.setViewportSize({ width: 1440, height: 900 });
+    await page.goto('/');
+    const fig = page.locator('[data-halftone]');
+    await expect(fig).toHaveClass(/is-ready/);
+    const toggle = page.getByRole('button', { name: 'Show photo' });
+    await expect(toggle).toHaveAttribute('aria-pressed', 'false');
+    await toggle.click();
+    await expect(toggle).toHaveAttribute('aria-pressed', 'true');
+    await expect(fig).toHaveClass(/is-photo/);
+    await expect(page.locator('.hp__img')).toHaveAttribute('alt', /Mann Patel smiling/);
+  });
+
+  test('the phone follows the step being read (desktop)', async ({ page }) => {
+    await page.setViewportSize({ width: 1440, height: 900 });
+    await page.goto('/');
+    await expect(page.locator('[data-dev="found"]')).toHaveClass(/is-active/);
+    await page.locator('#booked').scrollIntoViewIfNeeded();
+    await page.evaluate(() => {
+      const el = document.getElementById('booked')!;
+      scrollTo(0, el.getBoundingClientRect().top + scrollY - innerHeight * 0.3);
+    });
+    await expect(page.locator('[data-dev="booked"]')).toHaveClass(/is-active/);
+    await expect(page.locator('[data-dev="found"]')).toHaveClass(/is-idle/);
+  });
+
+  test('finder recommends a starting point live and pre-fills the brief', async ({ page }) => {
+    await page.goto('/');
+    const finder = page.locator('#finder');
+    await finder.getByText('Up and running').click();
+    await expect(finder.locator('[data-r-count]')).toHaveText('1 of 3 answered');
+    await expect(finder.locator('[data-r-full]')).toBeHidden();
+    await finder.getByText('Not missing calls, messages or enquiries').click();
+    await finder.getByText('Yes, and it works well').click();
+    await expect(finder.locator('[data-r-name]')).toHaveText('Never Miss an Enquiry fits best');
+    const cta = finder.locator('[data-r-cta]');
+    await expect(cta).toHaveAttribute('href', /\/contact\/\?package=answered&services=/);
     await cta.click();
-    await expect(page).toHaveURL(/\/contact\/\?package=launch/);
-    await expect(page.locator('#f-package')).toHaveValue('launch');
-    await expect(page.locator('input[name="services"][value="websites"]')).toBeChecked();
+    await expect(page.locator('#f-package')).toHaveValue('answered');
     await expect(page.locator('input[name="services"][value="missed-calls"]')).toBeChecked();
   });
 
-  test('guide asks for missing answers instead of guessing', async ({ page }) => {
-    await page.goto('/#guide');
-    await page.getByRole('button', { name: 'Show my starting point' }).click();
-    await expect(page.locator('[data-guide-hint]')).toHaveText(/answer all three/i);
-    await expect(page.locator('[data-guide-result]')).toBeHidden();
-  });
-
-  test('workflow demo works with the keyboard (ARIA tabs)', async ({ page }) => {
-    await page.goto('/services/#follow-up');
-    const tabs = page.getByRole('tab');
-    await expect(tabs).toHaveCount(4);
-    await tabs.first().focus();
-    await page.keyboard.press('ArrowRight');
-    await expect(tabs.nth(1)).toHaveAttribute('aria-selected', 'true');
-    await expect(tabs.nth(1)).toBeFocused();
-    await expect(page.locator('#panel-ack')).toBeVisible();
-    await expect(page.locator('#panel-enquiry')).toBeHidden();
-    await page.keyboard.press('End');
-    await expect(tabs.nth(3)).toHaveAttribute('aria-selected', 'true');
-    await page.getByRole('button', { name: /Start again/ }).click();
-    await expect(tabs.first()).toHaveAttribute('aria-selected', 'true');
-  });
-
-  test('without JavaScript, the demo shows all four steps and the nav is visible', async ({ browser }) => {
-    const ctx = await browser.newContext({ javaScriptEnabled: false, viewport: { width: 390, height: 800 } });
+  test('without JavaScript, the finder submits its answers to the brief', async ({ browser }) => {
+    const ctx = await browser.newContext({ javaScriptEnabled: false, baseURL: 'http://127.0.0.1:4321' });
     const page = await ctx.newPage();
-    await page.goto('/services/');
-    await expect(page.locator('.panel')).toHaveCount(4);
-    for (const id of ['enquiry', 'ack', 'notify', 'follow']) await expect(page.locator(`#panel-${id}`)).toBeVisible();
-    await expect(page.locator('#site-nav')).toBeVisible();
-    await expect(page.locator('h1')).toBeVisible();
+    await page.goto('/');
+    const finder = page.locator('#finder');
+    await finder.getByText('Just starting, or about to launch').click();
+    await finder.getByText('I’m not sure yet').click();
+    await finder.getByText('No', { exact: true }).click();
+    await finder.getByRole('button', { name: 'See my starting point' }).click();
+    await expect(page).toHaveURL(/\/contact\/\?stage=starting&problem=unsure&site=none/);
     await ctx.close();
   });
 
-  test('reduced motion: the hero sample does not rotate, its tabs still work, and content is visible immediately', async ({ browser }) => {
+  test('reduced motion: headings and reveals are visible immediately and the hero words do not animate', async ({ browser }) => {
     const ctx = await browser.newContext({ reducedMotion: 'reduce' });
     const page = await ctx.newPage();
     await page.goto('/');
+    expect(await page.locator('.hw').first().evaluate((e) => getComputedStyle(e).animationName)).toBe('none');
     expect(await page.evaluate(() => document.documentElement.classList.contains('js-motion'))).toBe(false);
-    const story = page.locator('[data-story]');
-    await expect(story).not.toHaveClass(/is-auto/);
-    await expect(page.locator('[data-story-pause]')).toBeHidden();
-    const tabs = story.getByRole('tab');
-    await expect(tabs).toHaveCount(3);
-    await expect(tabs.first()).toHaveAttribute('aria-selected', 'true');
-    await page.waitForTimeout(4500);
-    await expect(tabs.first()).toHaveAttribute('aria-selected', 'true');
-    await story.getByRole('tab', { name: /Booked/ }).click();
-    await expect(page.locator('#hs-panel-booked')).toBeVisible();
-    await expect(page.locator('#hs-panel-found')).toBeHidden();
-    const opacity = await page.locator('[data-reveal]').first().evaluate((el) => getComputedStyle(el).opacity);
-    expect(opacity).toBe('1');
+    const op = await page.locator('#finder [data-reveal]').first().evaluate((e) => getComputedStyle(e).opacity);
+    expect(op).toBe('1');
     await ctx.close();
   });
 
-  test('the hero sample plays found → answered → booked in sync with the H1, and can be paused', async ({ browser }) => {
-    const ctx = await browser.newContext({ reducedMotion: 'no-preference' });
+  test('without JavaScript, the header links show and content is visible', async ({ browser }) => {
+    const ctx = await browser.newContext({ javaScriptEnabled: false, viewport: { width: 390, height: 844 } });
     const page = await ctx.newPage();
     await page.goto('/');
-    const hero = page.locator('[data-hp]');
-    const story = page.locator('[data-story]');
-    await expect(hero).toHaveAttribute('data-step', '0');
-    await expect(story.getByRole('tab', { name: /Answered/ })).toHaveAttribute('aria-selected', 'true', { timeout: 7000 });
-    await expect(hero).toHaveAttribute('data-step', '1');
-    const color = (k: number) => page.locator(`.hp-k[data-k="${k}"]`).evaluate((el) => getComputedStyle(el).color);
-    expect(await color(1)).not.toBe(await color(0));
-    // Pause stops the rotation.
-    await page.getByRole('button', { name: 'Pause the sample' }).click();
-    await expect(page.getByRole('button', { name: 'Play the sample' })).toBeVisible();
-    // Move the pointer and focus away, so only the Pause choice is holding it.
-    await page.mouse.move(5, 300);
-    await page.evaluate(() => (document.activeElement as HTMLElement | null)?.blur());
-    await expect(story).not.toHaveClass(/is-playing/);
-    const step = await hero.getAttribute('data-step');
-    await page.waitForTimeout(4500);
-    await expect(hero).toHaveAttribute('data-step', step!);
-    // Arrow keys move between steps.
-    await story.getByRole('tab', { selected: true }).focus();
-    await page.keyboard.press('End');
-    await expect(story.getByRole('tab', { name: /Booked/ })).toBeFocused();
-    await expect(page.locator('#hs-panel-booked')).toBeVisible();
-    await ctx.close();
-  });
-
-  test('without JavaScript, the hero sample shows all three steps', async ({ browser }) => {
-    const ctx = await browser.newContext({ javaScriptEnabled: false });
-    const page = await ctx.newPage();
-    await page.goto('/');
-    for (const id of ['found', 'answered', 'booked']) await expect(page.locator(`#hs-panel-${id}`)).toBeVisible();
-    await expect(page.locator('[data-story] [role="tablist"]')).toBeHidden();
+    await expect(page.locator('.hdr__nav').getByRole('link', { name: 'Services' })).toBeVisible();
+    await expect(page.locator('[data-menu-open]')).toBeHidden();
+    await expect(page.locator('.hp__img')).toBeVisible();
     await ctx.close();
   });
 });
 
-test.describe('home and services (round 3)', () => {
-  for (const [w, h] of [[360, 640], [390, 844], [1440, 900]] as const) {
-    test(`hero promise is the H1 and "Start a project" is visible without scrolling at ${w}px`, async ({ page }) => {
-      await page.setViewportSize({ width: w, height: h });
-      await page.goto('/');
-      await expect(page.locator('h1')).toContainText('Get found. Answer fast. Get booked.');
-      const cta = page.locator('.hp-actions a[href="/contact/"]');
-      await expect(cta).toBeVisible();
-      const box = (await cta.boundingBox())!;
-      expect(box.y + box.height).toBeLessThanOrEqual(h);
-      await expect(page.locator('.hp-actions a[href*="package=check-up"]')).toBeVisible();
-    });
-  }
-
-  test('work rows show images and a case-study cue on touch screens', async ({ browser }) => {
-    const ctx = await browser.newContext({ viewport: { width: 390, height: 844 }, hasTouch: true, isMobile: true });
-    const page = await ctx.newPage();
-    await page.goto('/');
-    await expect(page.locator('.wl-thumb').first()).toBeVisible();
-    await expect(page.locator('.wl-row').first()).toContainText('Case study');
-    await ctx.close();
+test.describe('services', () => {
+  test('a link to a service opens it', async ({ page }) => {
+    await page.goto('/services/#booking');
+    await expect(page.locator('details#booking')).toHaveAttribute('open', '');
+    await expect(page.locator('#booking').getByRole('link', { name: 'Ask about this' })).toHaveAttribute('href', '/contact/?service=booking#brief');
   });
 
-  test('services compares packages at a glance and links to the follow-up demo', async ({ page }) => {
+  test('packages each ask for a quote with the package pre-selected', async ({ page }) => {
     await page.goto('/services/');
-    const table = page.locator('table.compare');
-    await expect(table.locator('tbody tr')).toHaveCount(5);
-    await expect(table.locator('caption')).toContainText('Compare at a glance');
-    await page.getByRole('link', { name: /See what follow-up looks like/ }).click();
-    await expect(page).toHaveURL(/#follow-up$/);
+    const links = page.locator('#packages').getByRole('link', { name: /Request a quote for/ });
+    await expect(links).toHaveCount(4);
+    await links.first().click();
+    await expect(page.locator('#f-package')).toHaveValue('launch');
   });
 });
 
-test.describe('hero photo and legal pages', () => {
-  for (const [w, h] of [[320, 640], [390, 844], [1024, 768], [1440, 900]] as const) {
-    test(`nothing covers the face in the hero photo at ${w}px, and the header is solid`, async ({ page }) => {
-      await page.setViewportSize({ width: w, height: h });
-      await page.goto('/');
-      const r = await page.evaluate(() => {
-        const box = (s: string) => document.querySelector(s)!.getBoundingClientRect();
-        const clip = box('.hp-clip');
-        // Hair to chin in the 4:5 crop: x 33-67%, y 11-47% of the photo.
-        const face = { l: clip.left + clip.width * 0.33, r: clip.left + clip.width * 0.67, t: clip.top + clip.height * 0.11, b: clip.top + clip.height * 0.47 };
-        const hit = (s: string) => {
-          const a = box(s);
-          return Math.max(0, Math.min(a.right, face.r) - Math.max(a.left, face.l)) * Math.max(0, Math.min(a.bottom, face.b) - Math.max(a.top, face.t));
-        };
-        return { badge: hit('.hp-badge'), ticket: hit('.hp-story'), headerBg: getComputedStyle(document.querySelector('.site-header')!).backgroundColor };
-      });
-      expect(r.badge).toBe(0);
-      expect(r.ticket).toBe(0);
-      expect(r.headerBg).toBe('rgb(244, 241, 234)');
-    });
-  }
-
+test.describe('legal pages', () => {
   test('Privacy Policy and Terms of Use are linked from the footer, the menu and the form', async ({ page }) => {
     await page.setViewportSize({ width: 390, height: 844 });
     await page.goto('/contact/');
-    const legal = page.getByRole('navigation', { name: 'Legal' });
-    await expect(legal.getByRole('link', { name: 'Privacy Policy' })).toHaveAttribute('href', '/privacy/');
-    await expect(legal.getByRole('link', { name: 'Terms of Use' })).toHaveAttribute('href', '/terms/');
+    const footer = page.locator('footer');
+    await expect(footer.getByRole('link', { name: 'Privacy' })).toHaveAttribute('href', '/privacy/');
+    await expect(footer.getByRole('link', { name: 'Terms' })).toHaveAttribute('href', '/terms/');
     await expect(page.locator('form .privacy a[href="/privacy/"]')).toHaveText('Privacy Policy');
     await expect(page.locator('form .privacy a[href="/terms/"]')).toHaveText('Terms of Use');
-    await page.locator('[data-menu-toggle]').click();
-    await expect(page.locator('[data-menu-panel] a[href="/terms/"]')).toBeVisible();
-    await page.keyboard.press('Escape');
-    await legal.getByRole('link', { name: 'Terms of Use' }).click();
+    await footer.getByRole('link', { name: 'Terms' }).click();
     await expect(page.locator('h1')).toHaveText('Terms of Use');
-    await page.getByRole('link', { name: 'Privacy Policy' }).first().click();
+    await footer.getByRole('link', { name: 'Privacy' }).click();
     await expect(page.locator('h1')).toHaveText('Privacy Policy');
+  });
+
+  test('legal pages list their sections on desktop', async ({ page }) => {
+    await page.setViewportSize({ width: 1440, height: 900 });
+    await page.goto('/privacy/');
+    const toc = page.getByRole('navigation', { name: 'On this page' });
+    await expect(toc).toBeVisible();
+    await toc.getByRole('link', { name: 'Who is responsible' }).click();
+    await expect(page).toHaveURL(/#who-is-responsible$/);
   });
 });
 
 test.describe('direct contact', () => {
   test('email, call, WhatsApp and text buttons work, and the full number is not in the HTML', async ({ page, request }) => {
     await page.goto('/');
-    const hero = page.locator('.hp-reach');
+    const hero = page.locator('.hero__reach');
     await expect(hero.getByRole('link', { name: /Email Mann/ })).toHaveAttribute('href', /^mailto:info@mannpatel\.me\?subject=/);
     const call = hero.getByRole('link', { name: 'Call Mann' });
     test.skip((await call.count()) === 0, 'Build with PUBLIC_CONTACT_PHONE (e.g. +16475550142) to test the phone buttons.');
@@ -358,72 +332,62 @@ test.describe('direct contact', () => {
     await expect(call).toHaveAttribute('href', `tel:+${digits}`);
     await expect(hero.getByRole('link', { name: /WhatsApp/ })).toHaveAttribute('href', new RegExp(`^https://wa\\.me/${digits}\\?text=`));
     await expect(hero.getByRole('link', { name: /text message/ })).toHaveAttribute('href', new RegExp(`^sms:\\+${digits}`));
-    // The contact page shows the number masked.
     await page.goto('/contact/');
-    await expect(page.locator('#reach .ca-number')).toContainText(/\d{3}-\d{2}X-XXXX/);
+    await expect(page.locator('#reach .ca__number')).toContainText(/\d{3}-\d{2}X-XXXX/);
+  });
+
+  test('copy buttons copy the email address and confirm it', async ({ browser }) => {
+    const ctx = await browser.newContext({ permissions: ['clipboard-read', 'clipboard-write'] });
+    const page = await ctx.newPage();
+    await page.goto('/contact/');
+    await page.locator('#reach').getByRole('button', { name: 'Copy' }).click();
+    await expect(page.locator('.toast')).toHaveText('Copied info@mannpatel.me');
+    expect(await page.evaluate(() => navigator.clipboard.readText())).toBe('info@mannpatel.me');
+    await ctx.close();
   });
 
   test('without JavaScript, the phone buttons fall back to the contact page', async ({ browser }) => {
     const ctx = await browser.newContext({ javaScriptEnabled: false });
     const page = await ctx.newPage();
     await page.goto('/');
-    const call = page.locator('.hp-reach a[data-reach="call"]');
+    const call = page.locator('.hero__reach a[data-reach="call"]');
     if ((await call.count()) > 0) await expect(call).toHaveAttribute('href', '/contact/#reach');
     await ctx.close();
   });
 });
 
-test.describe('logo', () => {
-  test('is the name only, with unique glint ids, and plays its intro once per visit', async ({ page }) => {
-    await page.goto('/');
-    const home = page.getByRole('link', { name: 'Mann Patel, home' }).first();
-    await expect(home).toBeVisible();
-    // Header: 9 letters (M a n n P a t e l) + the full stop. No monogram.
-    await expect(page.locator('.site-header .logo .logo-l')).toHaveCount(9);
-    await expect(page.locator('.site-header .logo .logo-stop')).toHaveCount(1);
-    const ids = await page.locator('svg[data-logo] linearGradient').evaluateAll((els) => els.map((e) => e.id));
-    expect(ids.length).toBeGreaterThanOrEqual(1);
-    expect(new Set(ids).size).toBe(ids.length);
-    expect(await page.evaluate(() => sessionStorage.getItem('mp-logo-intro'))).toBe('1');
-    // Second page of the visit: no intro.
-    await page.goto('/work/');
-    expect(await page.evaluate(() => document.documentElement.classList.contains('logo-intro'))).toBe(false);
-  });
-
-  test('reduced motion: the logo is static and fully visible', async ({ browser }) => {
-    const ctx = await browser.newContext({ reducedMotion: 'reduce' });
-    const page = await ctx.newPage();
-    await page.goto('/');
-    for (const sel of ['.site-header .logo .logo-l', '.site-header .logo .logo-stop']) {
-      const el = page.locator(sel).first();
-      expect(await el.evaluate((e) => getComputedStyle(e).animationName)).toBe('none');
-      expect(await el.evaluate((e) => getComputedStyle(e).transform)).toBe('none');
-      expect(await el.evaluate((e) => getComputedStyle(e).opacity)).toBe('1');
-    }
-    await ctx.close();
-  });
-});
-
 test.describe('enquiry form', () => {
+  const send = (page: Page) => page.getByRole('button', { name: 'Send my brief' });
+  const next = (page: Page) => page.getByRole('button', { name: 'Continue' });
   const fill = async (page: Page, msg = 'I run a two-chair salon in Scarborough and need a site that takes booking requests.') => {
     await page.locator('#f-name').fill('Test Owner');
     await page.locator('#f-email').fill('owner@example.ca');
     await page.locator('#f-business').fill('Example Salon');
     await page.locator('#f-website').fill('examplesalon.ca');
-    await page.locator('input[name="services"][value="area-found"]').check();
+    await next(page).click();
+    await page.locator('label.area', { hasText: 'Get found and chosen' }).click();
+    await next(page).click();
     await page.locator('#f-message').fill(msg);
   };
 
-  test('service choice starts with plain-language areas; links that pre-select a service open the detail', async ({ page }) => {
+  test('steps: progress, Back and Continue, and the plain-language areas come first', async ({ page }) => {
     await page.goto('/contact/');
-    // Three areas, the add-ons and "Not sure yet" are visible without opening anything.
-    for (const v of ['area-found', 'area-follow-up', 'area-website', 'area-content', 'not-sure']) {
-      await expect(page.locator(`input[name="services"][value="${v}"]`)).toBeVisible();
+    await expect(page.locator('[data-step-count]')).toHaveText('Step 1 of 3');
+    await expect(send(page)).toBeHidden();
+    await page.locator('#f-name').fill('Test Owner');
+    await page.locator('#f-email').fill('owner@example.ca');
+    await next(page).click();
+    await expect(page.locator('[data-step-count]')).toHaveText('Step 2 of 3');
+    for (const v of ['Get found and chosen', 'Never miss an enquiry', 'A website that books work', 'Print and social content', 'Not sure yet']) {
+      await expect(page.locator('label.area', { hasText: v })).toBeVisible();
     }
     await expect(page.locator('[data-svc-detail]')).not.toHaveAttribute('open', '');
-    // The verified email alternative sits beside the send button.
+    await page.getByRole('button', { name: 'Back' }).click();
+    await expect(page.locator('#f-name')).toHaveValue('Test Owner');
     await expect(page.locator('[data-alt-email]')).toBeVisible();
+  });
 
+  test('links that pre-select services tick them and their areas', async ({ page }) => {
     await page.goto('/contact/?services=reviews,missed-calls');
     await expect(page.locator('[data-svc-detail]')).toHaveAttribute('open', '');
     await expect(page.locator('input[name="services"][value="reviews"]')).toBeChecked();
@@ -439,23 +403,33 @@ test.describe('enquiry form', () => {
     await page.goto('/contact/');
     await page.waitForTimeout(500);
     await expect(page.locator('[data-not-connected]')).toBeHidden();
-    await expect(page.getByRole('button', { name: 'Send my brief' })).toBeEnabled();
+    await expect(next(page)).toBeEnabled();
   });
 
-  test('shows accessible errors for missing required fields', async ({ page }) => {
+  test('shows accessible errors for missing or wrong fields, step by step', async ({ page }) => {
     await page.goto('/contact/');
-    await page.getByRole('button', { name: 'Send my brief' }).click();
+    await next(page).click();
     const summary = page.locator('[data-error-summary]');
     await expect(summary).toBeVisible();
     await expect(summary).toBeFocused();
-    await expect(summary.locator('li')).toHaveCount(3);
+    await expect(summary.locator('li')).toHaveCount(2);
     await expect(page.locator('#f-name')).toHaveAttribute('aria-invalid', 'true');
     await expect(page.locator('#f-email')).toHaveAttribute('aria-invalid', 'true');
+    // Step 3: an empty message alone moves focus to the field.
+    await page.locator('#f-name').fill('Test Owner');
+    await page.locator('#f-email').fill('owner@example.ca');
+    await next(page).click();
+    await next(page).click();
+    await send(page).click();
+    await expect(page.locator('#f-message')).toBeFocused();
     await expect(page.locator('#e-message')).toContainText('tell me a little');
-    // a bad email alone moves focus to that field
-    await fill(page);
+    // A bad email found at the end takes you back to step 1, focused on the field.
+    await page.locator('#f-message').fill('I run a two-chair salon in Scarborough and need a booking site.');
+    await page.getByRole('button', { name: 'Back' }).click();
+    await page.getByRole('button', { name: 'Back' }).click();
     await page.locator('#f-email').fill('owner@');
-    await page.getByRole('button', { name: 'Send my brief' }).click();
+    await page.locator('#f-email').blur();
+    await next(page).click();
     await expect(page.locator('#f-email')).toBeFocused();
     await expect(page.locator('#e-email')).toContainText('doesn’t look complete');
   });
@@ -468,7 +442,7 @@ test.describe('enquiry form', () => {
     page.on('request', (r) => {
       if (r.method() === 'POST' && r.url().includes('/api/enquiry/')) sawSending = true;
     });
-    await page.getByRole('button', { name: 'Send my brief' }).click();
+    await send(page).click();
     const success = page.locator('[data-success]');
     await expect(success).toBeVisible();
     await expect(success).toBeFocused();
@@ -477,13 +451,17 @@ test.describe('enquiry form', () => {
     expect(id).toMatch(/^enq_\d{8}_[0-9a-f]{8}$/);
     const store = await readFile('.data/enquiries.jsonl', 'utf8');
     expect(store).toContain(id);
+    expect(store).toContain('area-found');
 
     // API-level duplicate protection
     const tokenRes = await (await request.get('/api/enquiry/')).json();
     await new Promise((r) => setTimeout(r, 3200));
     const payload = {
-      name: 'Dup Test', email: 'dup@example.ca', message: `Duplicate protection check ${Date.now()} for the e2e suite.`,
-      submissionId: `dup-${Date.now()}`, formToken: tokenRes.token,
+      name: 'Dup Test',
+      email: 'dup@example.ca',
+      message: `Duplicate protection check ${Date.now()} for the e2e suite.`,
+      submissionId: `dup-${Date.now()}`,
+      formToken: tokenRes.token,
     };
     const a = await (await request.post('/api/enquiry/', { data: payload })).json();
     const b = await (await request.post('/api/enquiry/', { data: payload })).json();
@@ -495,13 +473,13 @@ test.describe('enquiry form', () => {
     await page.goto('/contact/');
     await fill(page);
     await page.route('**/api/enquiry/', (route) => (route.request().method() === 'POST' ? route.abort() : route.continue()));
-    await page.getByRole('button', { name: 'Send my brief' }).click();
+    await send(page).click();
     const err = page.locator('[data-form-error]');
     await expect(err).toBeVisible();
     await expect(err).toContainText('wasn’t sent');
     await expect(err).toContainText('email me at');
     await expect(page.locator('#f-name')).toHaveValue('Test Owner');
-    await expect(page.getByRole('button', { name: 'Send my brief' })).toBeEnabled();
+    await expect(send(page)).toBeEnabled();
     await expect(page.locator('[data-success]')).toBeHidden();
   });
 
@@ -510,21 +488,23 @@ test.describe('enquiry form', () => {
     await expect(page.locator('[data-not-connected]')).toBeVisible();
     await fill(page);
     await page.waitForTimeout(3200);
-    await page.getByRole('button', { name: 'Send my brief' }).click();
+    await send(page).click();
     await expect(page.locator('[data-form-error]')).toContainText('isn’t connected');
     await expect(page.locator('[data-form-error]')).toContainText('email me at');
     await expect(page.locator('[data-success]')).toBeHidden();
     await expect(page.locator('#f-message')).not.toHaveValue('');
   });
 
-  test('works without JavaScript: posts the form and lands on the confirmation page', async ({ browser }) => {
+  test('works without JavaScript: one form, posts, and lands on the confirmation page', async ({ browser }) => {
     const ctx = await browser.newContext({ javaScriptEnabled: false, baseURL: 'http://127.0.0.1:4321' });
     const page = await ctx.newPage();
     await page.goto('/contact/');
+    await expect(page.locator('[data-steps-nav]')).toBeHidden();
+    await expect(page.locator('#f-message')).toBeVisible();
     await page.locator('#f-name').fill('No JS Owner');
     await page.locator('#f-email').fill('nojs@example.ca');
     await page.locator('#f-message').fill(`No-JavaScript path ${Date.now()}: please contact me about a landing page.`);
-    await page.getByRole('button', { name: 'Send my brief' }).click();
+    await send(page).click();
     await expect(page).toHaveURL(/\/contact\/received\/$/);
     await expect(page.locator('h1')).toHaveText('Thanks, your brief arrived.');
     const store = await readFile('.data/enquiries.jsonl', 'utf8');

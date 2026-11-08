@@ -1,0 +1,133 @@
+---
+/** A short introduction with the real street photo and the house rules. */
+import { Image } from 'astro:assets';
+import { profile, businesses } from '../../data/site';
+import Heading from '../ui/Heading.astro';
+import Button from '../ui/Button.astro';
+import Icon from '../ui/Icon.astro';
+
+const nest = businesses[0];
+const rules = [
+  { t: 'You own every account', d: 'Domains, Google profiles and logins are created in your name.' },
+  { t: 'Real reviews only', d: 'No bought, swapped or incentivised reviews. Ever.' },
+  { t: 'No promised rankings', d: 'Google decides rankings. I improve what you control.' },
+  { t: 'Plain language, in writing', d: 'A written scope with deliverables, exclusions and costs.' },
+];
+---
+
+<section class="about section section--rule" aria-labelledby="about-title">
+  <div class="container about__grid">
+    {
+      profile.portrait && (
+        <figure class="about__photo" data-reveal="scale">
+          <Image
+            src={profile.portrait.src}
+            alt={profile.portrait.alt}
+            widths={[400, 640, 900]}
+            sizes="(min-width: 64em) 36vw, 92vw"
+            loading="lazy"
+            decoding="async"
+          />
+          <figcaption class="num">
+            <span>Toronto, 2026</span>
+            <span>Photo: Mann’s own</span>
+          </figcaption>
+        </figure>
+      )
+    }
+    <div class="about__text">
+      <p class="eyebrow">About</p>
+      <Heading id="about-title" lines={['Hi, I’m Mann.', '<span class="serif">I’m building a business too.</span>']} />
+      <div class="stack about__copy" data-reveal style="--stack: var(--s-4)">
+        <p class="lead">
+          I’m starting <a class="link" href={nest.url} rel="noopener">{nest.name}</a>, a home-cleaning business in {nest.area}. I
+          built its website from scratch, and I clean every home myself when bookings open in summer 2027.
+        </p>
+        <p class="muted">
+          That’s where I learned what owners actually need: to be found, to answer quickly, and to make booking easy. Now I set
+          up the same foundations for other small businesses across {profile.serviceArea}.
+        </p>
+      </div>
+      <ul class="rules" role="list">
+        {
+          rules.map((r, i) => (
+            <li data-reveal style={`--d:${i * 70}`}>
+              <Icon name="check" />
+              <span>
+                <b>{r.t}.</b> {r.d}
+              </span>
+            </li>
+          ))
+        }
+      </ul>
+      <div class="btn-row" data-reveal>
+        <Button href="/about/" variant="ghost">Read my story</Button>
+      </div>
+    </div>
+  </div>
+</section>
+
+<style>
+  .about__grid {
+    display: grid;
+    gap: var(--s-7);
+  }
+  .about__photo {
+    display: grid;
+    gap: var(--s-3);
+  }
+  .about__photo :global(img) {
+    width: 100%;
+    aspect-ratio: 4 / 5;
+    object-fit: cover;
+    object-position: 50% 30%;
+    border-radius: var(--r-lg);
+  }
+  .about__photo figcaption {
+    display: flex;
+    justify-content: space-between;
+    font-size: 0.75rem;
+    letter-spacing: 0.04em;
+    color: var(--text-3);
+  }
+  .about__text {
+    display: grid;
+    gap: var(--s-5);
+    align-content: start;
+  }
+  .about__copy .lead {
+    max-width: 40ch;
+  }
+  .rules {
+    display: grid;
+    gap: var(--s-3);
+    padding-block: var(--s-3);
+  }
+  .rules li {
+    display: flex;
+    gap: var(--s-3);
+    align-items: flex-start;
+    color: var(--text-2);
+    padding-bottom: var(--s-3);
+    border-bottom: 1px solid var(--line);
+  }
+  .rules b {
+    color: var(--text);
+    font-weight: 620;
+  }
+  .rules .icon {
+    margin-top: 0.2em;
+    color: var(--signal);
+  }
+  @media (min-width: 64em) {
+    .about__grid {
+      grid-template-columns: minmax(0, 0.9fr) minmax(0, 1.1fr);
+      gap: var(--s-9);
+      align-items: center;
+    }
+    .rules {
+      grid-template-columns: 1fr 1fr;
+      column-gap: var(--s-6);
+    }
+  }
+</style>

@@ -1,0 +1,320 @@
+---
+/**
+ * "Find your starting point": three questions, a live recommendation (src/lib/guide.ts) and a
+ * link that pre-fills the brief. Without JavaScript it is a normal form that opens the brief
+ * with the answers, where the same logic runs.
+ */
+import { questions } from '../lib/guide';
+import { packages, checkUp } from '../data/packages';
+import { services } from '../data/services';
+import Heading from './ui/Heading.astro';
+import Button from './ui/Button.astro';
+import Icon from './ui/Icon.astro';
+
+interface Props {
+  id?: string;
+}
+const { id = 'finder' } = Astro.props;
+const pkgNames = Object.fromEntries([...packages, checkUp].map((p) => [p.id, p.name]));
+const svcNames = Object.fromEntries(services.map((s) => [s.id, s.name]));
+---
+
+<section class="finder section section--alt" id={id} aria-labelledby={`${id}-title`}>
+  <div class="container">
+    <div class="section-head section-head--split">
+      <div class="stack" style="--stack: var(--s-5)">
+        <p class="eyebrow">Find your starting point</p>
+        <Heading id={`${id}-title`} lines={['Three questions.', '<span class="serif">One clear first step.</span>']} />
+      </div>
+      <p class="lead" data-reveal>Answer honestly. You get a suggestion, the reasons for it, and a brief that’s already filled in.</p>
+    </div>
+
+    <div class="finder__grid">
+      <form class="finder__form" action="/contact/" method="get" data-finder data-pkg={JSON.stringify(pkgNames)} data-svc={JSON.stringify(svcNames)}>
+        {
+          questions.map((q, qi) => (
+            <fieldset class="finder__q" data-reveal style={`--d:${qi * 80}`}>
+              <legend class="finder__legend">
+                <span class="finder__qn num" aria-hidden="true">
+                  {String(qi + 1).padStart(2, '0')}
+                </span>
+                {q.legend}
+              </legend>
+              <div class="chips">
+                {q.options.map((o) => (
+                  <label class="chip chip--radio">
+                    <input type="radio" name={q.name} value={o.value} required />
+                    <span class="chip__box" aria-hidden="true">
+                      <svg viewBox="0 0 16 16">
+                        <path d="m3.5 8.5 3 3 6-7" />
+                      </svg>
+                    </span>
+                    {o.label}
+                  </label>
+                ))}
+              </div>
+            </fieldset>
+          ))
+        }
+        <input type="hidden" name="from" value="finder" />
+        <div class="finder__submit" data-finder-submit>
+          <Button type="submit">See my starting point</Button>
+        </div>
+      </form>
+
+      <aside class="finder__result" aria-labelledby={`${id}-result-label`}>
+        <div class="fr__sticky">
+          <p class="eyebrow eyebrow--plain" id={`${id}-result-label`}>Your starting point</p>
+          <div class="fr__body" aria-live="polite" data-result>
+            <div class="fr__empty" data-r-empty>
+              <p class="fr__name">Answer the three questions</p>
+              <p class="fr__progress">
+                <span class="fr__bar"><i data-r-bar></i></span>
+                <span class="num" data-r-count>0 of 3 answered</span>
+              </p>
+              <p class="muted small">No email needed. Nothing is sent until you choose to.</p>
+            </div>
+            <div class="fr__full" data-r-full hidden>
+              <p class="fr__name" data-r-name></p>
+              <ul class="fr__reasons" role="list" data-r-reasons></ul>
+              <p class="fr__svc-label subtle small">Likely to include</p>
+              <ul class="fr__svc" role="list" data-r-svc></ul>
+              <div class="fr__actions">
+                <Button href="/contact/#brief" data-r-cta>Start with this</Button>
+                <a class="link-arrow" href="/services/#packages">Compare packages <Icon name="arrow" /></a>
+              </div>
+            </div>
+          </div>
+        </div>
+      </aside>
+    </div>
+  </div>
+</section>
+
+<script>
+  import { parseAnswers, recommend, briefHref } from '../lib/guide';
+  import { sitePath } from '../scripts/paths';
+
+  document.querySelectorAll<HTMLFormElement>('[data-finder]').forEach((form) => {
+    const section = form.closest('section')!;
+    const pkg = JSON.parse(form.dataset.pkg ?? '{}') as Record<string, string>;
+    const svc = JSON.parse(form.dataset.svc ?? '{}') as Record<string, string>;
+    const empty = section.querySelector<HTMLElement>('[data-r-empty]')!;
+    const full = section.querySelector<HTMLElement>('[data-r-full]')!;
+    const count = section.querySelector<HTMLElement>('[data-r-count]')!;
+    const bar = section.querySelector<HTMLElement>('[data-r-bar]')!;
+    const name = section.querySelector<HTMLElement>('[data-r-name]')!;
+    const reasons = section.querySelector<HTMLElement>('[data-r-reasons]')!;
+    const svcList = section.querySelector<HTMLElement>('[data-r-svc]')!;
+    const cta = section.querySelector<HTMLAnchorElement>('[data-r-cta]')!;
+    // Live results replace the submit button.
+    section.querySelector<HTMLElement>('[data-finder-submit]')!.hidden = true;
+
+    let last = '';
+    const update = () => {
+      const data = Object.fromEntries(new FormData(form).entries());
+      const answered = ['stage', 'problem', 'site'].filter((k) => data[k]).length;
+      count.textContent = `${answered} of 3 answered`;
+      bar.style.transform = `scaleX(${answered / 3})`;
+      const answers = parseAnswers(data);
+      if (!answers) {
+        empty.hidden = false;
+        full.hidden = true;
+        return;
+      }
+      const rec = recommend(answers);
+      empty.hidden = true;
+      full.hidden = false;
+      if (rec.headline !== last) {
+        full.classList.remove('is-new');
+        void full.offsetWidth;
+        full.classList.add('is-new');
+        last = rec.headline;
+      }
+      name.textContent = rec.headline;
+      reasons.replaceChildren(
+        ...rec.reasons.map((r) => {
+          const li = document.createElement('li');
+          li.textContent = r;
+          return li;
+        }),
+      );
+      svcList.replaceChildren(
+        ...rec.serviceIds.map((id) => {
+          const li = document.createElement('li');
+          const a = document.createElement('a');
+          a.href = sitePath(`/services/#${id}`);
+          a.textContent = svc[id] ?? id;
+          li.append(a);
+          return li;
+        }),
+      );
+      cta.href = sitePath(briefHref(rec));
+      cta.querySelectorAll('[data-text]').forEach((el) => {
+        const label = rec.packageId === 'check-up' ? 'Request the free check' : `Start with ${pkg[rec.packageId] ?? 'this'}`;
+        el.textContent = label;
+        el.setAttribute('data-text', label);
+      });
+    };
+    form.addEventListener('change', update);
+    update();
+  });
+</script>
+
+<style>
+  .finder__grid {
+    display: grid;
+    gap: var(--s-7);
+  }
+  .finder__form {
+    display: grid;
+    gap: var(--s-7);
+  }
+  .finder__q {
+    display: grid;
+    gap: var(--s-4);
+  }
+  .finder__legend {
+    display: flex;
+    gap: var(--s-3);
+    align-items: baseline;
+    margin-bottom: var(--s-4);
+    font-size: clamp(1.2rem, 1.1rem + 0.5vw, 1.5rem);
+    font-weight: 640;
+    font-stretch: 106%;
+    letter-spacing: -0.02em;
+    line-height: 1.25;
+  }
+  .finder__qn {
+    font-size: var(--fs-xs);
+    color: var(--signal);
+    font-weight: 500;
+  }
+
+  .finder__result {
+    align-self: start;
+  }
+  .fr__sticky {
+    display: grid;
+    gap: var(--s-4);
+    padding: clamp(1.5rem, 3vw, 2.5rem);
+    border-radius: var(--r-lg);
+    background: var(--surface);
+    border: 1px solid var(--line);
+  }
+  .fr__body {
+    display: grid;
+  }
+  .fr__empty,
+  .fr__full {
+    display: grid;
+    gap: var(--s-4);
+  }
+  .fr__empty[hidden],
+  .fr__full[hidden] {
+    display: none;
+  }
+  .fr__name {
+    font-size: clamp(1.6rem, 1.2rem + 1.6vw, 2.5rem);
+    font-weight: 720;
+    font-stretch: 112%;
+    letter-spacing: -0.04em;
+    line-height: 1.02;
+  }
+  .fr__full .fr__name {
+    color: var(--signal);
+  }
+  .fr__progress {
+    display: flex;
+    align-items: center;
+    gap: var(--s-3);
+    font-size: var(--fs-xs);
+    color: var(--text-3);
+  }
+  .fr__bar {
+    flex: 1;
+    height: 4px;
+    border-radius: 4px;
+    background: var(--surface-2);
+    overflow: hidden;
+  }
+  .fr__bar i {
+    display: block;
+    height: 100%;
+    background: var(--signal);
+    transform: scaleX(0);
+    transform-origin: left;
+    transition: transform var(--t-slow) var(--ease-out);
+  }
+  .fr__reasons {
+    display: grid;
+    gap: var(--s-2);
+    color: var(--text-2);
+  }
+  .fr__reasons :global(li) {
+    position: relative;
+    padding-left: 1.2rem;
+  }
+  .fr__reasons :global(li)::before {
+    content: '';
+    position: absolute;
+    left: 0;
+    top: 0.65em;
+    width: 0.45rem;
+    height: 0.45rem;
+    border-radius: 50%;
+    background: var(--signal);
+  }
+  .fr__svc {
+    display: flex;
+    flex-wrap: wrap;
+    gap: var(--s-2);
+    margin-top: calc(var(--s-2) * -1);
+  }
+  .fr__svc :global(a) {
+    display: inline-flex;
+    align-items: center;
+    min-height: 2.25rem;
+    padding: 0.3rem 0.8rem;
+    border-radius: var(--r-pill);
+    border: 1px solid var(--line);
+    font-size: var(--fs-sm);
+    text-decoration: none;
+    color: var(--text-2);
+    transition: border-color var(--t-fast), color var(--t-fast);
+  }
+  .fr__svc :global(a:hover) {
+    border-color: var(--signal);
+    color: var(--text);
+  }
+  .fr__actions {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    gap: var(--s-3) var(--s-5);
+    margin-top: var(--s-3);
+  }
+  @media (prefers-reduced-motion: no-preference) {
+    .fr__full:global(.is-new) {
+      animation: fr-in 700ms var(--ease-out);
+    }
+  }
+  @keyframes fr-in {
+    from {
+      opacity: 0;
+      transform: translateY(10px);
+      filter: blur(4px);
+    }
+  }
+
+  @media (min-width: 64em) {
+    .finder__grid {
+      grid-template-columns: minmax(0, 1.15fr) minmax(0, 1fr);
+      gap: var(--s-8);
+    }
+    .fr__sticky {
+      position: sticky;
+      top: calc(var(--header-h) + 2rem);
+    }
+  }
+</style>

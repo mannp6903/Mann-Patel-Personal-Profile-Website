@@ -1,89 +1,137 @@
 ---
 import { getCollection } from 'astro:content';
 import BaseLayout from '../../layouts/BaseLayout.astro';
-import WorkCard from '../../components/WorkCard.astro';
-import CtaBand from '../../components/CtaBand.astro';
+import PageHead from '../../components/PageHead.astro';
+import Status from '../../components/work/Status.astro';
+import ProjectMedia from '../../components/work/ProjectMedia.astro';
+import Icon from '../../components/ui/Icon.astro';
+import { breadcrumbJsonLd } from '../../lib/seo';
 
 const work = (await getCollection('work')).sort((a, b) => a.data.order - b.data.order);
+const crumbs = breadcrumbJsonLd([
+  { name: 'Home', path: '/' },
+  { name: 'Work', path: '/work/' },
+]);
 ---
 
 <BaseLayout
   title="Work"
-  description="Real projects by Mann Patel: the Nest & Rest Cleaning business and website, and Samp Hair & Spa, a salon website in progress in Scarborough."
+  description="Real projects by Mann Patel, clearly labelled: Nest & Rest Cleaning (his own business, built from scratch) and Samp Hair & Spa (a client website in progress)."
+  jsonLd={crumbs ?? undefined}
 >
-  <section class="section page-head">
-    <div class="container head">
-      <p class="label">Work</p>
-      <h1>Real work, clearly labelled.</h1>
-      <p class="lead measure">My own business website, and a salon website I’m building for a client.</p>
-    </div>
-  </section>
+  <PageHead
+    eyebrow="Work"
+    lines={['Real projects.', '<span class="serif serif--signal">Honest labels.</span>']}
+    lead="Every project says whether it’s live or in progress and what I actually did. No invented results, no stock photos passed off as real work."
+  />
 
-  <section class="section section--tight projects" aria-labelledby="own-title">
+  <section class="section section--tight" aria-label="Projects">
     <div class="container">
-      <h2 id="own-title" class="visually-hidden">Projects</h2>
-      <div class="list">
-        {work.map((w) => <WorkCard entry={w} large headingLevel="h3" />)}
-      </div>
-      <dl class="legend" aria-label="How projects are labelled">
-        <div><dt><span class="chip chip--launched">Launched</span></dt><dd>Real and live.</dd></div>
-        <div><dt><span class="chip chip--in-progress">In progress</span></dt><dd>Real client work that isn’t finished yet.</dd></div>
-      </dl>
+      <ol class="rows" role="list">
+        {
+          work.map((w, i) => (
+            <li class="row" data-reveal style={`--d:${i * 100}`}>
+              <a class="row__link" href={`/work/${w.id}/`}>
+                <div class="row__text">
+                  <div class="row__meta">
+                    <span class="num subtle">{String(i + 1).padStart(2, '0')}</span>
+                    <Status status={w.data.status} />
+                  </div>
+                  <h2 class="row__title">{w.data.title}</h2>
+                  <p class="subtle small">
+                    {w.data.kind} · {w.data.year}
+                  </p>
+                  <p class="muted">{w.data.summary}</p>
+                  <span class="row__cta">
+                    Read the case study <Icon name="arrow" />
+                  </span>
+                </div>
+                <ProjectMedia scene={w.data.scene} eager={i === 0} />
+              </a>
+            </li>
+          ))
+        }
+      </ol>
+
+      <aside class="note" data-reveal>
+        <p class="eyebrow eyebrow--plain">What you won’t see here</p>
+        <p>
+          Made-up results, borrowed client logos, or concept mock-ups dressed up as clients. When there’s more real work to
+          show, it goes here with the same labels.
+        </p>
+      </aside>
     </div>
   </section>
-
-  <section class="section section--tight" aria-labelledby="yours-title">
-    <div class="container">
-      <h2 id="yours-title" class="sub">Your project could be next</h2>
-      <p class="muted measure">
-        I only show client work here with the client’s permission. If you want help and are happy to be a case study,
-        say so in your brief.
-      </p>
-    </div>
-  </section>
-
-  <CtaBand />
 </BaseLayout>
 
 <style>
-  .head {
+  .rows {
     display: grid;
-    gap: var(--space-m);
+    gap: var(--s-5);
   }
-  .page-head {
-    padding-bottom: var(--space-l);
-  }
-  .projects {
-    padding-top: 0;
-  }
-  .legend {
+  .row__link {
     display: grid;
-    gap: var(--space-xs);
-    margin-top: var(--space-l);
-    font-size: var(--step--1);
+    gap: var(--s-6);
+    padding: clamp(1.25rem, 3vw, 2.5rem);
+    border-radius: var(--r-lg);
+    border: 1px solid var(--line);
+    background: var(--surface);
+    text-decoration: none;
+    transition: border-color var(--t-base), background-color var(--t-base);
   }
-  .legend div {
+  .row__link:hover {
+    border-color: var(--control);
+    background: var(--surface-2);
+  }
+  .row__text {
     display: grid;
-    grid-template-columns: 9rem 1fr;
-    gap: var(--space-s);
+    gap: var(--s-4);
+    align-content: center;
+  }
+  .row__meta {
+    display: flex;
+    justify-content: space-between;
     align-items: center;
+    font-size: var(--fs-xs);
   }
-  @media (max-width: 30em) {
-    .legend div {
-      grid-template-columns: minmax(0, 1fr);
-      gap: var(--space-3xs);
-    }
+  .row__title {
+    font-size: clamp(2.2rem, 1.4rem + 3.4vw, 4.75rem);
+    font-weight: 760;
+    font-stretch: 112%;
+    letter-spacing: -0.05em;
+    line-height: 0.95;
+    transition: font-stretch 800ms var(--ease-out), color var(--t-base);
   }
-  .legend dd {
-    margin: 0;
-    color: var(--ink-2);
+  .row__link:hover .row__title {
+    font-stretch: 122%;
+    color: var(--signal);
   }
-  .sub {
-    font-size: var(--step-2);
-    margin-bottom: var(--space-l);
+  .row__cta {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.4em;
+    font-weight: 620;
+    margin-top: var(--s-2);
   }
-  .list {
+  .row__cta .icon {
+    transition: transform var(--t-base) var(--ease-out);
+  }
+  .row__link:hover .row__cta .icon {
+    transform: translateX(5px);
+  }
+  .note {
+    margin-top: var(--s-8);
+    padding-top: var(--s-6);
+    border-top: 1px solid var(--line);
     display: grid;
-    gap: var(--space-l);
+    gap: var(--s-3);
+    max-width: 60ch;
+    color: var(--text-2);
+  }
+  @media (min-width: 64em) {
+    .row__link {
+      grid-template-columns: minmax(0, 0.85fr) minmax(0, 1.15fr);
+      gap: var(--s-8);
+    }
   }
 </style>

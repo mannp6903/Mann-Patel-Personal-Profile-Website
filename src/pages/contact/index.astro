@@ -1,78 +1,61 @@
 ---
 import BaseLayout from '../../layouts/BaseLayout.astro';
+import PageHead from '../../components/PageHead.astro';
 import ContactForm from '../../components/ContactForm.astro';
-import SocialLinks from '../../components/SocialLinks.astro';
 import ContactActions from '../../components/ContactActions.astro';
-import { contact } from '../../lib/contact';
-import { Image } from 'astro:assets';
-import { profile, businesses } from '../../data/site';
+import Icon from '../../components/ui/Icon.astro';
+import { contact, emailHref } from '../../lib/contact';
+import { profile } from '../../data/site';
 
-const nest = businesses[0];
+const mail = emailHref();
 ---
 
 <BaseLayout
-  title="Start a project"
-  description="Send Mann Patel a short brief about your business. Websites, Google visibility, professional email, enquiry follow-up and content for Toronto small businesses."
+  title="Contact"
+  description="Send Mann Patel a short project brief, or reach him directly by email, phone, WhatsApp or text. Helping small businesses in Toronto and the GTA."
+  footerCta={false}
 >
-  <section class="section page-head">
-    <div class="container head">
-      <p class="label">Start a project</p>
-      <h1>Tell me about your business.</h1>
-      <p class="lead measure">
-        A short brief is enough. I’ll reply by email with questions or a suggested next step. If I’m not the right
-        fit, I’ll say so.
-      </p>
-      <ol class="next-inline" role="list" aria-label="What happens next">
-        <li><span class="n" aria-hidden="true">1</span> You send a short brief</li>
-        <li><span class="n" aria-hidden="true">2</span> I reply by email</li>
-        <li><span class="n" aria-hidden="true">3</span> You get a written scope before any work starts</li>
-      </ol>
-    </div>
-  </section>
+  <PageHead
+    eyebrow="Contact"
+    lines={['Tell me about', '<span class="serif serif--signal">your business.</span>']}
+    lead="Two minutes is enough. I read every brief myself and reply by email with questions or a suggested next step."
+  />
 
-  <section class="section body-section">
-    <div class="container layout">
-      <div class="form-col">
+  <section class="section contact" aria-label="Project brief and direct contact">
+    <div class="container contact__grid">
+      <div class="contact__form">
         <ContactForm />
       </div>
 
-      <aside class="aside" aria-label="About this form">
-        <div class="card">
+      <aside class="contact__aside" id="reach" aria-labelledby="reach-title">
+        <div class="aside__card">
+          <h2 id="reach-title" class="aside__title">Prefer to talk?</h2>
+          <ContactActions showNumber />
           {
-            profile.portrait && (
-              <div class="from-me">
-                <Image src={profile.portrait.src} alt="" width={112} height={112} class="avatar" loading="lazy" />
-                <p class="small"><strong>You’ll hear back from me, Mann.</strong> No assistants, no agency hand-off.</p>
-              </div>
+            contact.email && (
+              <p class="aside__email">
+                <a class="link" href={mail} data-contact="email" data-alt-email>
+                  {contact.email}
+                </a>
+                <button class="copy" type="button" data-copy={contact.email}>
+                  <Icon name="copy" />
+                  <span>Copy</span>
+                </button>
+              </p>
             )
           }
-          <h2>What happens next</h2>
-          <ol class="steps">
-            <li><strong>I read your brief</strong> and reply by email.</li>
-            <li><strong>We talk it through,</strong> on a call or by email.</li>
-            <li><strong>You get a written scope</strong> with deliverables, exclusions and a quote. Nothing starts without it.</li>
+          <p class="small subtle">
+            Toronto time <time class="num" data-clock>--:--</time>. Based in {profile.location}, working across {profile.serviceArea}.
+          </p>
+        </div>
+
+        <div class="aside__card">
+          <h2 class="aside__title">What happens next</h2>
+          <ol class="aside__steps" role="list">
+            <li><span class="num">01</span><span>I read your brief and reply by email, usually with a few questions.</span></li>
+            <li><span class="num">02</span><span>If it’s a fit, you get a written scope and quote. If not, I’ll say so.</span></li>
+            <li><span class="num">03</span><span>Nothing starts, and nothing is charged, until you agree.</span></li>
           </ol>
-        </div>
-
-        <div class="card" id="reach">
-          <h2>Prefer to talk?</h2>
-          <p class="small">
-            {
-              contact.phone
-                ? 'Call, WhatsApp or text me, or send an email. I’ll get back to you myself.'
-                : 'Email me directly. I’ll get back to you myself.'
-            }
-          </p>
-          <ContactActions showNumber />
-          <SocialLinks />
-        </div>
-
-        <div class="card cleaning">
-          <h2>Looking for home cleaning?</h2>
-          <p class="small">
-            This form is for websites and digital services. For home cleaning, see {nest.name} (bookings open in summer 2027).
-          </p>
-          <a class="btn btn--secondary" href={nest.url} rel="noopener">Visit {nest.name} <span aria-hidden="true">↗</span></a>
         </div>
       </aside>
     </div>
@@ -80,101 +63,87 @@ const nest = businesses[0];
 </BaseLayout>
 
 <style>
-  .next-inline {
-    list-style: none;
-    padding: 0;
+  .contact {
+    padding-top: var(--s-4);
+  }
+  .contact__grid {
+    display: grid;
+    gap: var(--s-8);
+  }
+  .contact__aside {
+    display: grid;
+    gap: var(--s-4);
+    align-content: start;
+  }
+  .aside__card {
+    display: grid;
+    gap: var(--s-4);
+    padding: clamp(1.25rem, 3vw, 2rem);
+    border-radius: var(--r-lg);
+    border: 1px solid var(--line);
+    background: var(--surface);
+  }
+  .aside__title {
+    font-size: 1.35rem;
+    font-weight: 680;
+    letter-spacing: -0.02em;
+  }
+  .aside__email {
     display: flex;
     flex-wrap: wrap;
-    gap: var(--space-2xs) var(--space-m);
-    font-weight: 600;
+    align-items: center;
+    gap: var(--s-3);
+    overflow-wrap: anywhere;
   }
-  .next-inline li {
+  .copy {
     display: inline-flex;
     align-items: center;
-    gap: var(--space-2xs);
+    gap: 0.4em;
+    min-height: var(--tap);
+    padding: 0 0.9rem;
+    border: 1px solid var(--control);
+    border-radius: var(--r-pill);
+    background: transparent;
+    font-size: var(--fs-sm);
+    font-weight: 600;
+    transition: background-color var(--t-fast), color var(--t-fast), border-color var(--t-fast);
   }
-  .next-inline .n {
-    display: inline-grid;
-    place-items: center;
-    width: 1.6rem;
-    height: 1.6rem;
-    border-radius: 50%;
-    background: var(--ink);
-    color: var(--paper);
-    font-family: var(--font-mono);
-    font-size: var(--step--1);
+  .copy:hover {
+    background: var(--surface-2);
   }
-  .page-head {
-    padding-bottom: var(--space-l);
+  .copy:global(.is-copied) {
+    background: var(--signal);
+    border-color: var(--signal);
+    color: var(--on-signal);
   }
-  .head {
+  .copy :global(.icon) {
+    width: 1rem;
+    height: 1rem;
+  }
+  .aside__steps {
     display: grid;
-    gap: var(--space-m);
+    gap: var(--s-3);
+    color: var(--text-2);
+    font-size: var(--fs-sm);
   }
-  .body-section {
-    padding-top: var(--space-m);
+  .aside__steps li {
+    display: flex;
+    gap: var(--s-3);
   }
-  .layout {
-    display: grid;
-    gap: var(--space-2xl);
+  .aside__steps .num {
+    color: var(--signal);
+    font-size: var(--fs-xs);
+    padding-top: 0.25em;
   }
   @media (min-width: 64em) {
-    .layout {
-      grid-template-columns: minmax(0, 1.7fr) minmax(0, 1fr);
-      align-items: start;
+    .contact__grid {
+      grid-template-columns: minmax(0, 1.5fr) minmax(0, 1fr);
+      gap: var(--s-9);
     }
-    .aside {
+    .contact__aside {
       position: sticky;
-      top: 6rem;
+      top: calc(var(--header-h) + 2rem);
+      align-self: start;
     }
-  }
-  .form-col {
-    background: var(--card);
-    border: 1px solid var(--line);
-    border-top: 4px solid var(--ink);
-    border-radius: 0 0 var(--radius-l) var(--radius-l);
-    padding: clamp(var(--space-m), 4vw, var(--space-xl));
-  }
-  .aside {
-    display: grid;
-    gap: var(--space-m);
-  }
-  .card {
-    display: grid;
-    gap: var(--space-s);
-    padding: var(--space-m);
-    border: 1px solid var(--line);
-    border-radius: var(--radius-m);
-  }
-  .card h2 {
-    font-size: var(--step-1);
-  }
-  .steps {
-    padding-left: 1.3em;
-    display: grid;
-    gap: var(--space-xs);
-    font-size: var(--step--1);
-  }
-  .cleaning {
-    background: var(--paper-2);
-  }
-  .from-me {
-    display: grid;
-    grid-template-columns: 3.5rem 1fr;
-    gap: var(--space-s);
-    align-items: center;
-    padding-bottom: var(--space-s);
-    border-bottom: 1px dashed var(--line);
-  }
-  .from-me :global(.avatar) {
-    width: 3.5rem;
-    height: 3.5rem;
-    border-radius: 50%;
-    object-fit: cover;
-    object-position: 50% 28%;
-  }
-  .cleaning .btn {
-    justify-self: start;
-    font-size: var(--step--1);
   }
 </style>

@@ -1,0 +1,33 @@
+---
+/**
+ * The site's button (DESIGN.md → Components). Renders a link when `href` is given, otherwise a
+ * <button>. The label "rolls" on hover: the text slides up and an identical copy follows.
+ */
+import Icon, { type IconName } from './Icon.astro';
+
+interface Props {
+  href?: string;
+  variant?: 'primary' | 'ghost' | 'ink';
+  size?: 'md' | 'sm';
+  icon?: IconName | false;
+  type?: 'button' | 'submit';
+  class?: string;
+  [key: string]: unknown;
+}
+const { href, variant = 'primary', size = 'md', icon = 'arrow', type = 'button', class: cls, ...rest } = Astro.props;
+const label = (await Astro.slots.render('default')).trim();
+const text = label.replace(/<[^>]+>/g, '').replace(/&amp;/g, '&').replace(/&#39;|&rsquo;/g, '’');
+const classes = ['btn', variant !== 'primary' && `btn--${variant}`, size === 'sm' && 'btn--sm', !icon && 'btn--plain', cls];
+const Tag = href ? 'a' : 'button';
+---
+
+<Tag class:list={classes} href={href} type={href ? undefined : type} {...rest}>
+  <span class="btn__label"><span data-text={text} set:html={label} /></span>
+  {
+    icon && (
+      <span class="btn__icon" aria-hidden="true">
+        <Icon name={icon} />
+      </span>
+    )
+  }
+</Tag>

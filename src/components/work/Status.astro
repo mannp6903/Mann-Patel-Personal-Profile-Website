@@ -1,0 +1,13 @@
+---
+/** Project status, shown on every card and case study: Live / In progress / Prototype. */
+interface Props {
+  status: 'launched' | 'in-progress' | 'prototype';
+}
+const { status } = Astro.props;
+const label = { launched: 'Live', 'in-progress': 'In progress', prototype: 'Prototype' }[status];
+---
+
+<span class:list={['status', status === 'launched' ? 'status--live' : 'status--progress']}>
+  <span class="status__dot" aria-hidden="true"></span>
+  <span><span class="visually-hidden">Status: </span>{label}</span>
+</span>

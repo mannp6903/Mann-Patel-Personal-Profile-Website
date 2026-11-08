@@ -1,14 +1,15 @@
 ---
-import BaseLayout from '../layouts/BaseLayout.astro';
-import CtaBand from '../components/CtaBand.astro';
-import PreviewNote from '../components/PreviewNote.astro';
-import { profile, businesses } from '../data/site';
-import { personJsonLd } from '../lib/seo';
 import { Image } from 'astro:assets';
-import Logo from '../components/Logo.astro';
-import SocialLinks from '../components/SocialLinks.astro';
+import BaseLayout from '../layouts/BaseLayout.astro';
+import Heading from '../components/ui/Heading.astro';
+import Button from '../components/ui/Button.astro';
+import Icon from '../components/ui/Icon.astro';
 import ContactActions from '../components/ContactActions.astro';
+import { profile, businesses, social } from '../data/site';
+import { personJsonLd } from '../lib/seo';
 
+const nest = businesses[0];
+const links = social.filter((s) => s.url);
 const principles = [
   {
     title: 'Plain language, written down.',
@@ -27,95 +28,125 @@ const principles = [
     text: 'No guaranteed rankings, followers, leads or inbox placement. I’ll tell you what I control, what Google or Meta control, and what you’ll need to keep doing.',
   },
 ];
-const nest = businesses[0];
+// Mann's story, in his words (confirmed for the site). Each chapter is tied to a place.
+const chapters = [
+  {
+    place: 'Palana, Gujarat → Toronto',
+    text: 'I grew up in Palana, a very small rural village in Gujarat, India. After immigrating to Canada, I studied computer programming at Seneca College and paid my way with low-wage jobs: first at Subway in North York, then as a security guard at the Pan Am Sports Centre in Scarborough.',
+  },
+  {
+    place: 'Toronto → Saint John, NB',
+    text: 'I failed C++ three times, and it pushed me into a very dark phase. I kept going and finished my studies, then moved to Saint John, New Brunswick, where I worked at a burrito restaurant and at a bubble tea shop in Rothesay.',
+  },
+  {
+    place: 'Thunder Bay, ON',
+    text: 'Next I moved back to Thunder Bay with no job lined up. I worked at Dairy Queen, then got a job as a housekeeper at a casino. That winter I fell into depression. I lost the job after missing shifts while I was unwell, and for about six months after that I was in a very bad place.',
+  },
+  {
+    place: 'North York',
+    text: 'I moved back to North York and struggled to find work. I took jobs at a few gas stations, but none of them lasted long. Slowly I came out of the depression and started learning new skills.',
+  },
+  {
+    place: 'Today',
+    text: 'Today I work overnight at Walmart Canada, with a second role as a modular associate. I was trained on power equipment within my first 45 days, and I’ve been trusted as acting lead for the dairy and frozen department. I still learn something new every day.',
+  },
+];
 const jsonLd = { '@context': 'https://schema.org', '@type': 'AboutPage', mainEntity: personJsonLd() };
 ---
 
 <BaseLayout
   title="About"
-  description="Mann Patel’s story, from Palana in Gujarat to Toronto: founder of Nest & Rest Cleaning, helping small businesses in Toronto and the GTA with websites, Google visibility, business email, follow-up and content."
+  description="Mann Patel’s story, from Palana in Gujarat to Toronto: founder of Nest & Rest Cleaning, helping small businesses in Toronto and the GTA get found on Google, answer every enquiry and get booked."
   jsonLd={jsonLd}
 >
-  <section class="section page-head">
-    <div class="container intro-grid">
-      <div class="stack" style="--stack: var(--space-m)">
-        <p class="label">About</p>
-        <h1>I’m Mann Patel. I’m building a small business, and I help other owners with theirs.</h1>
-        <p class="lead measure">
-          I’m starting {nest.name}, a home-cleaning business in {nest.area}, which opens for bookings in summer 2027.
-          I also help small-business owners in {profile.serviceArea} set up the website, Google presence, email and
-          simple routines that make a business easier to find and easier to reach.
+  <header class="ab-head">
+    <div class="container ab-head__grid">
+      <div class="ab-head__text">
+        <p class="eyebrow">About</p>
+        <Heading
+          as="h1"
+          class="ab-title"
+          lines={['I’m Mann Patel.', 'I’m building a small business,', '<span class="serif serif--signal">and I help other owners with theirs.</span>']}
+        />
+        <p class="lead" data-reveal style="--d:200">
+          I’m starting {nest.name}, a home-cleaning business in {nest.area}, which opens for bookings in summer 2027. I also
+          help small-business owners in {profile.serviceArea} get found on Google, answer every enquiry, and turn website
+          visits into bookings.
         </p>
-        <div class="reach">
-          <ContactActions />
-          <SocialLinks />
+        <div class="ab-reach" data-reveal style="--d:300">
+          <ContactActions label="Say hello" />
+          {
+            links.length > 0 && (
+              <p class="ab-links">
+                {links.map((s) => (
+                  <a class="link-arrow" href={s.url!} rel="me noopener" data-contact={s.id}>
+                    {s.label} <Icon name="arrow-ne" class="icon--ne" />
+                  </a>
+                ))}
+              </p>
+            )
+          }
         </div>
       </div>
-      <figure class="portrait">
-        {
-          profile.portrait ? (
+      {
+        profile.portrait && (
+          <figure class="ab-photo" data-reveal="scale" style="--d:150">
             <Image
               src={profile.portrait.src}
               alt={profile.portrait.alt}
-              widths={[320, 480, 640, 800]}
-              sizes="(min-width: 60em) 24rem, 86vw"
-              width={800}
-              height={1000}
+              widths={[360, 560, 800, 1060]}
+              sizes="(min-width: 64em) 38vw, 92vw"
               loading="eager"
               fetchpriority="high"
-              class="portrait-img"
             />
-          ) : (
-            <div class="mark" aria-hidden="true">
-              <span><Logo variant="stacked" /></span>
-            </div>
-          )
-        }
-        {!profile.portrait && <PreviewNote note="add a real portrait when you have one (never generated). Until then this typographic mark is used." />}
-      </figure>
+            <figcaption class="num">
+              <span>Mann Patel</span>
+              <span>Toronto · 2026</span>
+            </figcaption>
+          </figure>
+        )
+      }
     </div>
-  </section>
+  </header>
 
-  <section class="section section--tight" aria-labelledby="story-title">
+  <section class="section section--rule" aria-labelledby="story-title">
     <div class="container story">
-      <h2 id="story-title">My story</h2>
-      <div class="prose stack" style="--stack: var(--space-m)">
+      <div class="story__head">
+        <p class="eyebrow">My story</p>
+        <Heading id="story-title" lines={['Not a straight line.', '<span class="serif">Still going.</span>']} />
+      </div>
+      <ol class="chapters" role="list">
+        {
+          chapters.map((c, i) => (
+            <li class="chapter" data-reveal>
+              <p class="chapter__place num">
+                <span class="chapter__n">{String(i + 1).padStart(2, '0')}</span>
+                {c.place}
+              </p>
+              <p class="chapter__text">{c.text}</p>
+            </li>
+          ))
+        }
+        <li class="chapter chapter--now" data-reveal>
+          <p class="chapter__place num">
+            <span class="chapter__n">06</span>
+            {nest.name}
+          </p>
+          <p class="chapter__text text-links">
+            I also built <a href={nest.url} rel="noopener">nestnrestcleaning.com</a> from scratch for my own home-cleaning business,
+            {nest.name}. It starts taking clients in summer 2027, and I’ll clean every home myself.
+          </p>
+        </li>
+      </ol>
+
+      <div class="why" data-reveal>
+        <h3 class="why__title">Why I do this</h3>
         <p>
-          I grew up in Palana, a very small rural village in Gujarat, India. After immigrating to Canada, I studied
-          computer programming at Seneca College and paid my way with low-wage jobs: first at Subway in North York,
-          then as a security guard at the Pan Am Sports Centre in Scarborough.
-        </p>
-        <p>
-          I failed C++ three times, and it pushed me into a very dark phase. I kept going and finished my studies,
-          then moved to Saint John, New Brunswick, where I worked at a burrito restaurant and at a bubble tea shop in
-          Rothesay.
-        </p>
-        <p>
-          Next I moved back to Thunder Bay with no job lined up. I worked at Dairy Queen, then got a job as a
-          housekeeper at a casino. That winter I fell into depression. I lost the job after missing shifts while I was
-          unwell, and for about six months after that I was in a very bad place.
-        </p>
-        <p>
-          I moved back to North York and struggled to find work. I took jobs at a few gas stations, but none of them
-          lasted long. Slowly I came out of the depression and started learning new skills.
-        </p>
-        <p>
-          Today I work overnight at Walmart Canada, with a second role as a modular associate. I was trained on power
-          equipment within my first 45 days, and I’ve been trusted as acting lead for the dairy and frozen department.
-          I still learn something new every day.
-        </p>
-        <p>
-          I also built <a href={nest.url} rel="noopener">nestnrestcleaning.com</a> from scratch for my own
-          home-cleaning business, {nest.name}. It starts taking clients in summer 2027, and I’ll clean every home
-          myself.
-        </p>
-        <h3 class="story-sub">Why I do this</h3>
-        <p>
-          Building {nest.name} showed me how much the basics matter: a clear offer, a website people understand on
-          their phone, a simple way to ask for a booking, and a habit of answering every message. Many owners are stuck
-          with a page they can’t update, enquiries spread across DMs and voicemail, and no idea whether anyone finds
-          them on Google. That’s the work I offer: help small businesses get found and chosen on Google, answer every
-          enquiry, and turn website visits into bookings.
+          Building {nest.name} showed me how much the basics matter: a clear offer, a website people understand on their phone, a
+          simple way to ask for a booking, and a habit of answering every message. Many owners are stuck with a page they can’t
+          update, enquiries spread across DMs and voicemail, and no idea whether anyone finds them on Google. That’s the work I
+          offer: help small businesses get found and chosen on Google, answer every enquiry, and turn website visits into
+          bookings.
         </p>
       </div>
     </div>
@@ -124,14 +155,16 @@ const jsonLd = { '@context': 'https://schema.org', '@type': 'AboutPage', mainEnt
   <section class="section section--alt" aria-labelledby="principles-title">
     <div class="container">
       <div class="section-head">
-        <p class="label">How I work</p>
-        <h2 id="principles-title">Four house rules.</h2>
+        <p class="eyebrow">How I work</p>
+        <Heading id="principles-title" lines={['Four', '<span class="serif">house rules.</span>']} />
       </div>
-      <ol class="principles" role="list">
+      <ol class="rules" role="list">
         {
           principles.map((p, i) => (
-            <li data-reveal data-reveal-delay={i * 60}>
-              <p class="no" aria-hidden="true">{String(i + 1).padStart(2, '0')}</p>
+            <li data-reveal style={`--d:${i * 80}`}>
+              <span class="rules__n" aria-hidden="true">
+                {String(i + 1).padStart(2, '0')}
+              </span>
               <h3>{p.title}</h3>
               <p class="muted">{p.text}</p>
             </li>
@@ -143,187 +176,213 @@ const jsonLd = { '@context': 'https://schema.org', '@type': 'AboutPage', mainEnt
 
   <section class="section" aria-labelledby="vision-title">
     <div class="container vision">
-      <div class="stack" style="--stack: var(--space-m)">
-        <p class="label">Where I’m going</p>
-        <h2 id="vision-title">Foundations done properly, explained clearly.</h2>
-        <p class="lead measure">
-          My aim is to be the person Toronto’s small-business owners call when they want their website, Google
-          presence, email and follow-up set up properly and explained in plain language, while I grow {nest.name} into
-          a business that proves those foundations work.
-        </p>
-      </div>
+      <p class="eyebrow">Where I’m going</p>
+      <Heading id="vision-title" lines={['Foundations done properly,', '<span class="serif">explained clearly.</span>']} />
+      <p class="lead" data-reveal>
+        My aim is to be the person Toronto’s small-business owners call when they want their Google presence, website and
+        follow-up set up properly and explained in plain language, while I grow {nest.name} into a business that proves those
+        foundations work.
+      </p>
     </div>
   </section>
 
-  <section class="section section--alt" id="businesses" aria-labelledby="biz-title">
-    <div class="container">
-      <div class="section-head">
-        <p class="label">My businesses</p>
-        <h2 id="biz-title">What I’m building.</h2>
+  <section class="section section--rule" id="businesses" aria-labelledby="biz-title">
+    <div class="container biz">
+      <div class="stack" style="--stack: var(--s-4)">
+        <p class="eyebrow">My business</p>
+        <h2 id="biz-title" class="biz__title">{nest.name}</h2>
+        <p class="subtle small">{nest.role} · {nest.area}</p>
+        <p class="muted biz__desc">{nest.description}</p>
       </div>
-      <div class="biz">
-        {
-          businesses.map((b) => (
-            <article class="biz-card">
-              <p class="chip chip--launched">{b.role}</p>
-              <h3>{b.name}</h3>
-              <p class="muted small">{b.area}</p>
-              <p>{b.description}</p>
-              <p class="btn-row">
-                <a class="btn btn--secondary" href={b.url} rel="noopener">
-                  Visit {b.name} <span aria-hidden="true">↗</span>
-                </a>
-                <a class="link-accent" href="/work/nest-and-rest-cleaning/">Read the case study →</a>
-              </p>
-            </article>
-          ))
-        }
-        <article class="biz-card alt">
-          <p class="chip chip--in-progress">Starting now</p>
-          <h3>Digital services for small businesses</h3>
-          <p class="muted small">{profile.serviceArea}</p>
-          <p>Websites, Google visibility, professional email, enquiry follow-up and content: the work this site is for.</p>
-          <p><a class="link-accent" href="/services/">See the services →</a></p>
-        </article>
+      <div class="btn-row">
+        <Button href={nest.url} variant="ghost" icon="arrow-ne" rel="noopener">Visit {nest.name}</Button>
+        <Button href="/work/nest-and-rest-cleaning/">Read the case study</Button>
       </div>
     </div>
   </section>
-
-  <CtaBand title="Want to work together?" text="Whether you’re an owner who needs help or someone I could collaborate with, send a short note through the brief form." />
 </BaseLayout>
 
 <style>
-  .intro-grid {
+  .ab-head {
+    padding-block: clamp(var(--s-6), 6vw, var(--s-9)) var(--section);
+  }
+  .ab-head__grid {
     display: grid;
-    gap: var(--space-xl);
-    align-items: center;
+    gap: var(--s-7);
   }
-  @media (min-width: 60em) {
-    .intro-grid {
-      grid-template-columns: minmax(0, 1.6fr) minmax(0, 1fr);
-    }
-  }
-  h1 {
-    max-width: 20ch;
-  }
-  .portrait {
+  .ab-head__text {
     display: grid;
-    gap: var(--space-s);
-    justify-items: center;
+    gap: var(--s-5);
+    align-content: start;
   }
-  .portrait {
-    margin: 0;
+  .ab-head__text :global(.ab-title) {
+    font-size: clamp(2.4rem, 1.5rem + 3.6vw, 5.25rem);
+    max-width: 17ch;
   }
-  .portrait :global(.portrait-img) {
-    width: min(100%, 24rem);
-    height: auto;
+  .ab-reach {
+    display: grid;
+    gap: var(--s-4);
+  }
+  .ab-links {
+    display: flex;
+    flex-wrap: wrap;
+    gap: var(--s-5);
+  }
+  .ab-photo {
+    display: grid;
+    gap: var(--s-3);
+  }
+  .ab-photo :global(img) {
+    width: 100%;
     aspect-ratio: 4 / 5;
     object-fit: cover;
     object-position: 50% 30%;
-    border-radius: var(--radius-l);
-    box-shadow: var(--shadow-ticket);
-    border: 0.55rem solid var(--card);
-    transform: rotate(-1.2deg);
+    border-radius: var(--r-lg);
   }
-  .reach {
-    display: grid;
-    gap: var(--space-s);
-    justify-items: start;
-    overflow-wrap: anywhere;
+  .ab-photo figcaption {
+    display: flex;
+    justify-content: space-between;
+    font-size: 0.75rem;
+    letter-spacing: 0.04em;
+    color: var(--text-3);
   }
-  .mark {
-    width: min(100%, 20rem);
-    aspect-ratio: 4 / 5;
-    display: grid;
-    place-items: center;
-    background: var(--card);
-    border: 1px solid var(--line);
-    border-radius: var(--radius-l);
-    box-shadow: var(--shadow-card);
+  @media (min-width: 64em) {
+    .ab-head__grid {
+      grid-template-columns: minmax(0, 1.3fr) minmax(0, 0.9fr);
+      gap: var(--s-9);
+      align-items: end;
+    }
   }
-  .mark span {
-    display: grid;
-    place-items: center;
-    width: 62%;
-    aspect-ratio: 1;
-    padding: 16%;
-    border: 6px double var(--accent);
-    border-radius: var(--radius-l);
-    color: var(--ink);
-    transform: rotate(-4deg);
-  }
-  .mark span :global(.logo) {
-    width: 100%;
-    height: auto;
-  }
+
   .story {
     display: grid;
-    gap: var(--space-l);
+    gap: var(--s-7);
   }
-  @media (min-width: 60em) {
+  .chapters {
+    display: grid;
+    border-top: 1px solid var(--line);
+  }
+  .chapter {
+    display: grid;
+    gap: var(--s-3);
+    padding-block: var(--s-6);
+    border-bottom: 1px solid var(--line);
+  }
+  .chapter__place {
+    display: flex;
+    gap: var(--s-3);
+    font-size: var(--fs-xs);
+    letter-spacing: 0.06em;
+    text-transform: uppercase;
+    color: var(--text-2);
+  }
+  .chapter__n {
+    color: var(--signal);
+  }
+  .chapter__text {
+    overflow-wrap: anywhere;
+    font-size: clamp(1.1rem, 1rem + 0.45vw, 1.35rem);
+    line-height: 1.55;
+    max-width: 58ch;
+  }
+  .chapter--now .chapter__text {
+    color: var(--text);
+  }
+  .why {
+    display: grid;
+    gap: var(--s-4);
+    max-width: 62ch;
+    color: var(--text-2);
+  }
+  .why__title {
+    color: var(--text);
+  }
+  @media (min-width: 64em) {
     .story {
-      grid-template-columns: minmax(0, 0.8fr) minmax(0, 1.6fr);
+      grid-template-columns: minmax(0, 0.8fr) minmax(0, 1.4fr);
+      gap: var(--s-9);
+    }
+    .story__head {
+      position: sticky;
+      top: calc(var(--header-h) + 2rem);
+      align-self: start;
+      display: grid;
+      gap: var(--s-5);
+    }
+    .chapter {
+      grid-template-columns: 11rem minmax(0, 1fr);
+      gap: var(--s-6);
+    }
+    .why {
+      grid-column: 2;
     }
   }
-  .prose {
-    max-width: var(--container-text);
-    font-size: var(--step-1);
-    line-height: 1.55;
-  }
-  .story-sub {
-    font-size: var(--step-2);
-    margin-top: var(--space-s);
-  }
-  .principles {
-    list-style: none;
-    padding: 0;
+  .story__head {
     display: grid;
-    gap: var(--space-m);
-    grid-template-columns: repeat(auto-fit, minmax(min(100%, 15rem), 1fr));
+    gap: var(--s-5);
   }
-  .principles li {
+
+  .rules {
     display: grid;
-    gap: var(--space-s);
+    gap: var(--s-6);
+  }
+  .rules li {
+    display: grid;
+    gap: var(--s-3);
     align-content: start;
-    padding: var(--space-m);
-    background: var(--card);
-    border-radius: var(--radius-m);
-    border-top: 3px solid var(--ink);
+    padding-top: var(--s-5);
+    border-top: 1px solid var(--line);
   }
-  .principles .no {
-    font-family: var(--font-mono);
-    font-weight: 700;
-    color: var(--accent-text);
+  .rules__n {
+    font-size: clamp(2.5rem, 2rem + 2vw, 4rem);
+    font-weight: 800;
+    font-stretch: 125%;
+    letter-spacing: -0.05em;
+    line-height: 1;
+    color: transparent;
+    -webkit-text-stroke: 1px var(--signal);
   }
-  .principles h3 {
-    font-size: var(--step-1);
+  @media (min-width: 48em) {
+    .rules {
+      grid-template-columns: repeat(2, minmax(0, 1fr));
+    }
   }
+  @media (min-width: 80em) {
+    .rules {
+      grid-template-columns: repeat(4, minmax(0, 1fr));
+    }
+  }
+
+  .vision {
+    display: grid;
+    gap: var(--s-5);
+    justify-items: start;
+  }
+  .vision :global(h2) {
+    max-width: 18ch;
+  }
+  .vision .lead {
+    max-width: 56ch;
+  }
+
   .biz {
     display: grid;
-    gap: var(--space-m);
+    gap: var(--s-6);
   }
-  @media (min-width: 52em) {
+  .biz__title {
+    font-size: clamp(2.2rem, 1.4rem + 3.4vw, 4.75rem);
+    font-weight: 760;
+    font-stretch: 114%;
+    letter-spacing: -0.05em;
+    line-height: 0.95;
+  }
+  .biz__desc {
+    max-width: 56ch;
+  }
+  @media (min-width: 64em) {
     .biz {
-      grid-template-columns: 1.3fr 1fr;
+      grid-template-columns: 1fr auto;
+      align-items: end;
     }
-  }
-  .biz-card {
-    display: grid;
-    gap: var(--space-s);
-    align-content: start;
-    padding: var(--space-l);
-    background: var(--card);
-    border: 1px solid var(--line);
-    border-radius: var(--radius-l);
-  }
-  .biz-card .chip {
-    justify-self: start;
-  }
-  .biz-card h3 {
-    font-size: var(--step-2);
-  }
-  .biz-card.alt {
-    background: transparent;
-    border-style: dashed;
   }
 </style>

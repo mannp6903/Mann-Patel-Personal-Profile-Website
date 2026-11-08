@@ -1,0 +1,168 @@
+---
+/**
+ * How a project runs: five steps on a line that draws itself as you scroll (--p from
+ * src/scripts/motion.ts). Each step says what you do and what I do.
+ */
+import { process } from '../data/services';
+import Heading from './ui/Heading.astro';
+
+interface Props {
+  id?: string;
+}
+const { id = 'process' } = Astro.props;
+---
+
+<section class="proc section" id={id} aria-labelledby={`${id}-title`}>
+  <div class="container">
+    <div class="section-head section-head--split">
+      <div class="stack" style="--stack: var(--s-5)">
+        <p class="eyebrow">How a project runs</p>
+        <Heading id={`${id}-title`} lines={['Five steps.', '<span class="serif">Nothing hidden.</span>']} />
+      </div>
+      <p class="lead" data-reveal>
+        Every project gets a written scope before any work starts, and ends with a handover you can actually use.
+      </p>
+    </div>
+
+    <div class="proc__track" data-progress>
+    <span class="proc__line" aria-hidden="true"><i></i></span>
+    <ol class="proc__list" role="list">
+      {
+        process.map((step, i) => (
+          <li class="proc__step" data-reveal style={`--d:${i * 60}`}>
+            <span class="proc__dot num" aria-hidden="true">
+              {i + 1}
+            </span>
+            <h3 class="proc__title">
+              <span class="visually-hidden">Step {i + 1}: </span>
+              {step.title}
+            </h3>
+            <dl class="proc__who">
+              <div>
+                <dt>You</dt>
+                <dd>{step.you}</dd>
+              </div>
+              <div>
+                <dt>Me</dt>
+                <dd>{step.me}</dd>
+              </div>
+            </dl>
+          </li>
+        ))
+      }
+    </ol>
+    </div>
+  </div>
+</section>
+
+<style>
+  .proc__track {
+    position: relative;
+  }
+  .proc__list {
+    position: relative;
+    display: grid;
+    gap: var(--s-7);
+    padding-left: 3.5rem;
+  }
+  .proc__line {
+    position: absolute;
+    left: 1.2rem;
+    top: 0.5rem;
+    bottom: 0.5rem;
+    width: 1px;
+    background: var(--line);
+  }
+  .proc__line i {
+    position: absolute;
+    inset: 0;
+    background: var(--signal);
+    transform-origin: top;
+    transform: scaleY(var(--p, 1));
+  }
+  :global(.js) .proc__line i {
+    transform: scaleY(var(--p, 0));
+  }
+  .proc__step {
+    position: relative;
+    display: grid;
+    gap: var(--s-4);
+  }
+  .proc__dot {
+    position: absolute;
+    left: -3.5rem;
+    top: -0.1rem;
+    display: grid;
+    place-items: center;
+    width: 2.4rem;
+    height: 2.4rem;
+    border-radius: 50%;
+    background: var(--bg);
+    border: 1px solid var(--signal);
+    color: var(--signal);
+    font-size: 0.875rem;
+  }
+  .proc__title {
+    font-size: clamp(1.4rem, 1.2rem + 0.9vw, 2rem);
+    font-weight: 680;
+    font-stretch: 110%;
+    letter-spacing: -0.03em;
+    line-height: 1.1;
+  }
+  .proc__who {
+    display: grid;
+    gap: var(--s-3);
+    color: var(--text-2);
+  }
+  .proc__who div {
+    display: grid;
+    grid-template-columns: 2.75rem 1fr;
+    gap: var(--s-3);
+  }
+  .proc__who dt {
+    font-family: var(--font-mono);
+    font-size: var(--fs-xs);
+    letter-spacing: var(--track-label);
+    text-transform: uppercase;
+    color: var(--text-3);
+    padding-top: 0.3em;
+  }
+
+  @media (min-width: 64em) {
+    .proc__list {
+      grid-template-columns: repeat(5, minmax(0, 1fr));
+      grid-template-rows: auto auto;
+      gap: var(--s-4) var(--s-5);
+      padding-left: 0;
+      padding-top: 4rem;
+    }
+    /* Titles and the You/Me rows line up across all five steps. */
+    .proc__step {
+      grid-row: span 2;
+      grid-template-rows: subgrid;
+    }
+    .proc__line {
+      left: 0;
+      right: 0;
+      top: 1.2rem;
+      bottom: auto;
+      width: auto;
+      height: 1px;
+    }
+    .proc__line i {
+      transform-origin: left;
+      transform: scaleX(var(--p, 1));
+    }
+    :global(.js) .proc__line i {
+      transform: scaleX(var(--p, 0));
+    }
+    .proc__dot {
+      left: 0;
+      top: -4rem;
+    }
+    .proc__who div {
+      grid-template-columns: 1fr;
+      gap: var(--s-1);
+    }
+  }
+</style>

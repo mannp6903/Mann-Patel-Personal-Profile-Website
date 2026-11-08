@@ -1,465 +1,490 @@
 ---
 /**
- * Site header + menu.
- *
- * - Sticky at the top of every page: it tightens and gains a backdrop once you scroll, and
- *   a thin accent line under it shows how far down the page you are.
- * - Desktop: logo, inline links and a "Start a project" button. Nothing floats over content.
- * - Phones: a "Menu" button opens a sheet that drops down from the top, with the links and
- *   the direct contact buttons. The sheet is a native <dialog> (focus stays inside, Esc
- *   closes it, focus returns). Without JavaScript the inline links wrap under the logo.
+ * Sticky header. Desktop: wordmark + Toronto clock, links, ⌘K quick menu, "Start a project".
+ * Phones: a "Menu" button opens a full-screen sheet (native <dialog>: focus is contained,
+ * Esc closes, focus returns). Without JavaScript the links show as a plain row instead.
  */
-import { nav, primaryCta, social } from '../data/site';
-import Logo from './Logo.astro';
+import { nav, primaryCta, profile } from '../data/site';
 import ContactActions from './ContactActions.astro';
+import Button from './ui/Button.astro';
+import Icon from './ui/Icon.astro';
 
 const path = Astro.url.pathname;
-const isCurrent = (href: string) => path === href || (href !== '/' && path.startsWith(href));
-const panelLinks = [{ href: '/', label: 'Home' }, ...nav, { href: primaryCta.href, label: 'Contact' }];
-const socials = social.filter((s) => s.url);
+const isCurrent = (href: string) => (href === '/' ? path === '/' : path.startsWith(href));
+const sheetLinks = [{ href: '/', label: 'Home' }, ...nav, { href: '/contact/', label: 'Contact' }];
 ---
 
-<header class="site-header" data-header>
-  <div class="container bar">
-    <a class="wordmark" href="/" aria-label="Mann Patel, home">
-      <Logo master="text" motion="intro" />
+<header class="hdr" data-header>
+  <div class="hdr__bar container">
+    <a class="wordmark" href="/">
+      <span class="visually-hidden">{profile.name}, home</span>
+      <span class="wordmark__name" aria-hidden="true">
+        {[...profile.name].map((ch) => (ch === ' ' ? <span class="wm-space"> </span> : <span class="wm-ch">{ch}</span>))}
+      </span>
+      <span class="wordmark__dot" aria-hidden="true"></span>
     </a>
 
-    <nav id="site-nav" class="site-nav" aria-label="Main">
-      <ul class="nav-list" role="list">
+    <p class="hdr__clock num" aria-hidden="true">
+      <span>TOR</span>
+      <time data-clock>--:--</time>
+    </p>
+
+    <nav class="hdr__nav" aria-label="Main">
+      <ul role="list">
         {
           nav.map((item) => (
             <li>
               <a href={item.href} aria-current={isCurrent(item.href) ? 'page' : undefined}>
-                {item.label}
+                <span class="roll">
+                  <span data-text={item.label}>{item.label}</span>
+                </span>
               </a>
             </li>
           ))
         }
-        <li class="nav-cta">
-          <a class="hdr-cta" href={primaryCta.href} aria-current={isCurrent(primaryCta.href) ? 'page' : undefined}>
-            <span class="hdr-cta-dot" aria-hidden="true"></span>
-            {primaryCta.label}
-          </a>
-        </li>
       </ul>
     </nav>
 
-    <button class="menu-open" type="button" aria-haspopup="dialog" aria-controls="menu-panel" data-menu-toggle>
-      <span class="menu-lines" aria-hidden="true"><span></span><span></span></span>
-      Menu
-    </button>
-  </div>
-  <span class="hdr-progress" aria-hidden="true"></span>
-</header>
-
-<dialog id="menu-panel" class="menu-panel" aria-label="Menu" data-menu-panel>
-  <div class="panel-inner">
-    <div class="panel-top">
-      <span class="panel-label">Menu</span>
-      <button class="panel-close" type="button" data-menu-close>
-        <span class="menu-lines is-x" aria-hidden="true"><span></span><span></span></span>
-        Close
+    <div class="hdr__actions">
+      <button class="qm-trigger" type="button" data-qm-open aria-haspopup="dialog" aria-keyshortcuts="Control+K Meta+K">
+        <Icon name="search" />
+        <span class="visually-hidden">Open quick menu</span>
+        <kbd aria-hidden="true"><span data-mod>Ctrl</span> K</kbd>
+      </button>
+      <Button href={primaryCta.href} size="sm" class="hdr__cta">{primaryCta.label}</Button>
+      <button class="menu-btn" type="button" data-menu-open aria-haspopup="dialog" aria-controls="site-menu">
+        <span class="menu-btn__lines" aria-hidden="true"><i></i><i></i></span>
+        <span>Menu</span>
       </button>
     </div>
-    <nav aria-label="Menu">
-      <ul class="panel-links" role="list">
-        {
-          panelLinks.map((item, i) => (
-            <li style={`--i:${i}`}>
-              <a href={item.href} aria-current={isCurrent(item.href) && (item.href !== '/' || path === '/') ? 'page' : undefined}>
-                <span class="pl-num" aria-hidden="true">0{i + 1}</span>
-                {item.label}
-              </a>
-            </li>
-          ))
-        }
-      </ul>
-    </nav>
-    <div class="panel-foot">
-      <ContactActions label="Reach me directly" compact />
-      {
-        socials.length > 0 && (
-          <p class="panel-socials">
-            <span class="panel-label">Elsewhere</span>
-            {socials.map((s) => (
-              <a href={s.url!} rel="me noopener">
-                {s.label}
-              </a>
-            ))}
-          </p>
-        )
-      }
-      <p class="panel-legal">
-        <a href="/privacy/">Privacy Policy</a>
-        <a href="/terms/">Terms of Use</a>
-      </p>
-    </div>
   </div>
-</dialog>
+
+  <dialog class="sheet" id="site-menu" aria-label="Site menu" data-menu>
+    <div class="sheet__inner container">
+      <div class="sheet__top">
+        <p class="eyebrow">Menu</p>
+        <button class="icon-btn" type="button" data-menu-close>
+          <Icon name="close" />
+          <span class="visually-hidden">Close menu</span>
+        </button>
+      </div>
+      <nav aria-label="Menu">
+        <ol class="sheet__links" role="list">
+          {
+            sheetLinks.map((item, i) => (
+              <li style={`--i:${i}`}>
+                <a href={item.href} aria-current={isCurrent(item.href) && (item.href !== '/' || path === '/') ? 'page' : undefined}>
+                  <span class="sheet__no num" aria-hidden="true">
+                    {String(i + 1).padStart(2, '0')}
+                  </span>
+                  <span class="sheet__label">{item.label}</span>
+                </a>
+              </li>
+            ))
+          }
+        </ol>
+      </nav>
+      <div class="sheet__foot">
+        <Button href="/contact/">Start a project</Button>
+        <ContactActions label="Or reach me directly" showNumber />
+        <p class="small subtle">
+          <a class="link" href="/privacy/">Privacy</a> · <a class="link" href="/terms/">Terms</a>
+        </p>
+      </div>
+    </div>
+  </dialog>
+</header>
 
 <script>
-  const panel = document.querySelector<HTMLDialogElement>('[data-menu-panel]');
-  const opener = document.querySelector<HTMLButtonElement>('[data-menu-toggle]');
   const header = document.querySelector<HTMLElement>('[data-header]');
-
-  if (panel && typeof panel.showModal === 'function') {
-    const close = () => panel.close();
-    opener?.addEventListener('click', () => {
-      panel.showModal();
-      document.documentElement.classList.add('menu-is-open');
-    });
-    panel.querySelector('[data-menu-close]')?.addEventListener('click', close);
-    panel.addEventListener('close', () => document.documentElement.classList.remove('menu-is-open'));
-    // A click on the dimmed backdrop (outside the sheet) closes it.
-    panel.addEventListener('click', (e) => {
-      const r = panel.getBoundingClientRect();
-      const inside = e.clientX >= r.left && e.clientX <= r.right && e.clientY >= r.top && e.clientY <= r.bottom;
-      if (!inside) close();
-    });
-    panel.querySelectorAll('a').forEach((a) => a.addEventListener('click', close));
-  } else {
-    // Very old browsers: fall back to the inline links.
-    document.documentElement.classList.add('no-dialog');
-  }
-
-  // Scrolled state + reading progress (one passive listener, one frame per scroll burst).
   if (header) {
-    let ticking = false;
-    const update = () => {
-      ticking = false;
-      const y = window.scrollY;
-      header.classList.toggle('is-scrolled', y > 8);
-      const max = document.documentElement.scrollHeight - window.innerHeight;
-      header.style.setProperty('--progress', String(max > 0 ? Math.min(1, y / max) : 0));
+    // Solid background once the page scrolls.
+    const onScroll = () => header.classList.toggle('is-scrolled', window.scrollY > 8);
+    onScroll();
+    addEventListener('scroll', onScroll, { passive: true });
+
+    // Mobile sheet.
+    const sheet = header.querySelector<HTMLDialogElement>('[data-menu]')!;
+    const openBtn = header.querySelector<HTMLButtonElement>('[data-menu-open]')!;
+    const closeSheet = () => {
+      if (!sheet.open) return;
+      sheet.classList.add('is-closing');
+      const done = () => {
+        sheet.classList.remove('is-closing');
+        sheet.close();
+      };
+      if (matchMedia('(prefers-reduced-motion: reduce)').matches) done();
+      else setTimeout(done, 260);
     };
-    window.addEventListener(
-      'scroll',
-      () => {
-        if (!ticking) {
-          ticking = true;
-          requestAnimationFrame(update);
-        }
-      },
-      { passive: true },
-    );
-    update();
+    openBtn.addEventListener('click', () => {
+      sheet.showModal();
+      openBtn.setAttribute('aria-expanded', 'true');
+    });
+    sheet.addEventListener('close', () => {
+      openBtn.setAttribute('aria-expanded', 'false');
+      openBtn.focus();
+    });
+    sheet.addEventListener('cancel', (e) => {
+      e.preventDefault();
+      closeSheet();
+    });
+    sheet.querySelector('[data-menu-close]')?.addEventListener('click', closeSheet);
+    sheet.querySelectorAll('a').forEach((a) => a.addEventListener('click', () => sheet.close()));
+    // Wider than a phone? The sheet is not needed.
+    matchMedia('(min-width: 64em)').addEventListener('change', (e) => e.matches && sheet.open && sheet.close());
+
+    // Mac users see ⌘, everyone else Ctrl.
+    if (/Mac|iPhone|iPad/.test(navigator.platform || navigator.userAgent)) {
+      header.querySelectorAll('[data-mod]').forEach((el) => (el.textContent = '⌘'));
+    }
   }
 </script>
 
 <style>
-  /* Solid, never see-through: content (like the hero photo) scrolls cleanly underneath. */
-  .site-header {
+  .hdr {
     position: sticky;
     top: 0;
-    z-index: 40;
-    background: var(--paper);
+    z-index: 50;
+    /* The desktop layout depends on the header's own width in ems, so enlarged text
+       (browser zoom or text size) falls back to the compact Menu layout instead of overflowing. */
+    container: hdr / inline-size;
+    height: var(--header-h);
+    transition: background-color var(--t-base) var(--ease-out), border-color var(--t-base), backdrop-filter var(--t-base);
     border-bottom: 1px solid transparent;
-    transition: border-color var(--dur-base) var(--ease-out), box-shadow var(--dur-base) var(--ease-out);
   }
-  .site-header.is-scrolled {
+  .hdr.is-scrolled {
+    background: rgb(11 11 12 / 0.82);
+    backdrop-filter: blur(14px) saturate(140%);
     border-bottom-color: var(--line);
-    box-shadow: 0 8px 24px -22px rgb(21 23 26 / 0.6);
   }
-  .bar {
+  .hdr__bar {
+    height: 100%;
     display: flex;
-    flex-wrap: wrap;
     align-items: center;
-    justify-content: space-between;
-    gap: var(--space-2xs) var(--space-m);
-    min-height: 4.5rem;
-    transition: min-height var(--dur-base) var(--ease-out);
+    gap: var(--s-5);
   }
-  .is-scrolled .bar {
-    min-height: 3.75rem;
-  }
+
+  /* Wordmark: the letters widen one after another on hover. */
   .wordmark {
     display: inline-flex;
-    align-items: center;
+    align-items: baseline;
+    gap: 0.18em;
     min-height: var(--tap);
-    font-size: clamp(1.35rem, 1.2rem + 0.45vw, 1.6rem);
-    color: var(--ink);
-    text-decoration: none;
-  }
-  .nav-list {
-    display: flex;
-    flex-wrap: wrap;
     align-items: center;
-    gap: var(--space-2xs) var(--space-2xs);
-    list-style: none;
-    padding: 0;
+    text-decoration: none;
+    font-size: 1.1875rem;
+    font-weight: 760;
+    letter-spacing: -0.03em;
+    white-space: nowrap;
   }
-  .nav-list a {
+  .wordmark__name {
+    display: inline-flex;
+  }
+  .wm-ch {
+    display: inline-block;
+    font-stretch: 112%;
+    transition: font-stretch 600ms var(--ease-out), font-weight 600ms var(--ease-out);
+  }
+  .wm-space {
+    width: 0.28em;
+  }
+  .wordmark:hover .wm-ch {
+    font-stretch: 125%;
+    font-weight: 860;
+  }
+  .wm-ch:nth-child(2) {
+    transition-delay: 30ms;
+  }
+  .wm-ch:nth-child(3) {
+    transition-delay: 60ms;
+  }
+  .wm-ch:nth-child(4) {
+    transition-delay: 90ms;
+  }
+  .wm-ch:nth-child(6) {
+    transition-delay: 120ms;
+  }
+  .wm-ch:nth-child(7) {
+    transition-delay: 150ms;
+  }
+  .wm-ch:nth-child(8) {
+    transition-delay: 180ms;
+  }
+  .wm-ch:nth-child(9) {
+    transition-delay: 210ms;
+  }
+  .wm-ch:nth-child(10) {
+    transition-delay: 240ms;
+  }
+  .wordmark__dot {
+    width: 0.42em;
+    height: 0.42em;
+    border-radius: 50%;
+    background: var(--signal);
+    transform: translateY(0.12em);
+  }
+
+  .hdr__clock {
+    display: none;
+    gap: 0.6em;
+    font-size: var(--fs-xs);
+    color: var(--text-3);
+    letter-spacing: 0.06em;
+    padding-left: var(--s-4);
+    border-left: 1px solid var(--line);
+  }
+
+  .hdr__nav {
+    display: none;
+    margin-left: auto;
+  }
+  .hdr__nav ul {
+    display: flex;
+    gap: var(--s-1);
+  }
+  .hdr__nav a {
     position: relative;
     display: inline-flex;
     align-items: center;
     min-height: var(--tap);
-    padding-inline: var(--space-xs);
-    font-weight: 600;
+    padding-inline: var(--s-4);
+    border-radius: var(--r-pill);
+    font-size: 0.9375rem;
+    font-weight: 560;
     text-decoration: none;
-    border-radius: var(--radius-pill);
+    color: var(--text-2);
+    transition: color var(--t-fast);
   }
-  /* An underline draws in from the left on hover and stays under the current page. */
-  .nav-list li:not(.nav-cta) a::after {
+  @media (hover: hover) {
+    .hdr__nav a:hover {
+      color: var(--text);
+    }
+  }
+  .hdr__nav a[aria-current='page'] {
+    color: var(--text);
+  }
+  .hdr__nav a[aria-current='page']::before {
     content: '';
     position: absolute;
-    left: var(--space-xs);
-    right: var(--space-xs);
-    bottom: 0.45rem;
-    height: 2px;
-    border-radius: 2px;
-    background: currentColor;
-    transform: scaleX(0);
-    transform-origin: right;
-    transition: transform 380ms var(--ease-out);
-  }
-  .nav-list li:not(.nav-cta) a:hover::after,
-  .nav-list li:not(.nav-cta) a[aria-current='page']::after {
-    transform: scaleX(1);
-    transform-origin: left;
-  }
-  .nav-list a[aria-current='page']::after {
-    background: var(--accent);
-  }
-  .nav-cta {
-    margin-left: var(--space-2xs);
-  }
-  .nav-list .hdr-cta {
-    gap: 0.55em;
-    padding-inline: 1.1rem;
-    background: var(--ink);
-    color: var(--paper);
-    transition: background-color var(--dur-base) var(--ease-out);
-  }
-  .nav-list .hdr-cta:hover {
-    background: var(--accent-text);
-  }
-  .hdr-cta-dot {
-    width: 0.5rem;
-    height: 0.5rem;
+    left: 50%;
+    bottom: 0.35rem;
+    width: 4px;
+    height: 4px;
     border-radius: 50%;
-    background: #3ecf8e;
-    box-shadow: 0 0 0 0 rgb(62 207 142 / 0.6);
-  }
-  @media (prefers-reduced-motion: no-preference) {
-    .hdr-cta-dot {
-      animation: ping 2.4s var(--ease-out) infinite;
-    }
-  }
-  @keyframes ping {
-    70%,
-    100% {
-      box-shadow: 0 0 0 0.45rem rgb(62 207 142 / 0);
-    }
-  }
-  .hdr-progress {
-    position: absolute;
-    left: 0;
-    bottom: -1px;
-    width: 100%;
-    height: 2px;
-    background: var(--accent);
-    transform-origin: left;
-    transform: scaleX(var(--progress, 0));
-    pointer-events: none;
+    background: var(--signal);
+    transform: translateX(-50%);
   }
 
-  .menu-open {
+  .hdr__actions {
+    display: flex;
+    align-items: center;
+    gap: var(--s-2);
+    margin-left: auto;
+  }
+  .qm-trigger {
+    display: none;
+    align-items: center;
+    gap: var(--s-2);
+    min-height: var(--tap);
+    padding: 0 0.6rem 0 0.8rem;
+    border: 1px solid var(--line);
+    border-radius: var(--r-pill);
+    background: transparent;
+    color: var(--text-2);
+    transition: border-color var(--t-fast), color var(--t-fast), background-color var(--t-fast);
+  }
+  .qm-trigger:hover {
+    border-color: var(--control);
+    color: var(--text);
+    background: var(--surface);
+  }
+  .qm-trigger .icon {
+    width: 1.05rem;
+    height: 1.05rem;
+  }
+  kbd {
+    font-family: var(--font-mono);
+    font-size: 0.75rem;
+    padding: 0.15rem 0.4rem;
+    border: 1px solid var(--line);
+    border-radius: 6px;
+    color: var(--text-3);
+  }
+  .hdr__cta {
     display: none;
   }
-  .menu-lines {
+
+  .menu-btn {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.6rem;
+    min-height: var(--tap);
+    padding: 0 1rem 0 0.85rem;
+    border: 1px solid var(--control);
+    border-radius: var(--r-pill);
+    background: transparent;
+    font-weight: 600;
+    font-size: 0.9375rem;
+  }
+  .menu-btn__lines {
     display: grid;
     gap: 5px;
-    width: 18px;
   }
-  .menu-lines span {
+  .menu-btn__lines i {
     display: block;
-    height: 2px;
-    border-radius: 2px;
+    width: 16px;
+    height: 1.5px;
     background: currentColor;
-    transition: transform var(--dur-base) var(--ease-out);
+    transition: transform var(--t-base) var(--ease-out);
   }
-  .menu-lines span:last-child {
-    width: 70%;
+  .menu-btn:hover .menu-btn__lines i:last-child {
+    transform: scaleX(0.6);
+    transform-origin: left;
   }
-  .menu-lines.is-x span:first-child {
-    transform: translateY(3.5px) rotate(45deg);
+  /* No JavaScript: no sheet. Show the links as a plain row instead. */
+  :global(html:not(.js)) .menu-btn {
+    display: none;
   }
-  .menu-lines.is-x span:last-child {
+  :global(html:not(.js)) .hdr {
+    height: auto;
+  }
+  :global(html:not(.js)) .hdr__bar {
+    flex-wrap: wrap;
+    padding-block: var(--s-2);
+    height: auto;
+  }
+  :global(html:not(.js)) .hdr__nav {
+    display: block;
+    margin-left: 0;
+    order: 3;
     width: 100%;
-    transform: translateY(-3.5px) rotate(-45deg);
+  }
+  :global(html:not(.js)) .qm-trigger {
+    display: none !important;
   }
 
-  /* Phones (with JS): a Menu button replaces the inline links. */
-  @media (max-width: 47.99em) {
-    :global(.js:not(.no-dialog)) .site-nav {
+  @container hdr (min-width: 64em) {
+    .hdr__nav {
+      display: block;
+    }
+    .hdr__actions {
+      margin-left: var(--s-2);
+    }
+    .qm-trigger {
+      display: inline-flex;
+    }
+    .hdr__cta {
+      display: inline-flex;
+    }
+    .menu-btn {
       display: none;
     }
-    :global(.js:not(.no-dialog)) .menu-open {
+    .hdr__clock {
       display: inline-flex;
-      align-items: center;
-      gap: var(--space-2xs);
-      min-height: var(--tap);
-      padding: 0 var(--space-s);
-      border: 1.5px solid var(--line);
-      border-radius: var(--radius-pill);
-      background: var(--card);
-      font: inherit;
-      font-weight: 700;
-      color: var(--ink);
-      cursor: pointer;
     }
   }
 
-  /* Drop-down sheet */
-  .menu-panel {
+  /* ── Full-screen sheet ── */
+  .sheet {
     position: fixed;
-    inset: 0 0 auto 0;
+    inset: 0;
     width: 100%;
-    max-width: 100%;
-    max-height: 100dvh;
+    max-width: none;
+    height: 100dvh;
+    max-height: none;
     margin: 0;
     padding: 0;
     border: 0;
-    border-radius: 0 0 var(--radius-l) var(--radius-l);
-    background: var(--paper);
-    color: var(--ink);
-    overflow: auto;
-    box-shadow: 0 30px 60px -30px rgb(0 0 0 / 0.5);
+    background: var(--bg);
+    color: var(--text);
+    overflow-y: auto;
   }
-  .menu-panel::backdrop {
-    background: rgb(15 16 18 / 0.5);
+  .sheet::backdrop {
+    background: rgb(0 0 0 / 0.6);
   }
-  .panel-inner {
-    display: grid;
-    gap: var(--space-l);
-    width: min(100% - 2 * var(--gutter), var(--container));
-    margin-inline: auto;
-    padding: calc(env(safe-area-inset-top, 0px) + var(--space-s)) 0 var(--space-l);
-  }
-  .panel-top {
+  .sheet__inner {
+    min-height: 100%;
     display: flex;
-    align-items: center;
+    flex-direction: column;
+    gap: var(--s-6);
+    padding-block: var(--s-4) var(--s-6);
+  }
+  .sheet__top {
+    display: flex;
     justify-content: space-between;
-    min-height: 3.5rem;
+    align-items: center;
+    min-height: calc(var(--header-h) - var(--s-4));
+  }
+  .sheet__links {
+    display: grid;
+    border-top: 1px solid var(--line);
+  }
+  .sheet__links li {
     border-bottom: 1px solid var(--line);
   }
-  .panel-label {
-    display: block;
-    font-family: var(--font-mono);
-    font-size: var(--step--1);
-    letter-spacing: var(--tracking-label);
-    text-transform: uppercase;
-    color: var(--ink-2);
-  }
-  .panel-close {
-    display: inline-flex;
-    align-items: center;
-    gap: var(--space-2xs);
-    min-height: var(--tap);
-    padding: 0 var(--space-s);
-    border: 1.5px solid var(--line);
-    border-radius: var(--radius-pill);
-    background: var(--card);
-    color: var(--ink);
-    font: inherit;
-    font-weight: 700;
-    cursor: pointer;
-  }
-  .panel-links {
-    list-style: none;
-    padding: 0;
-    display: grid;
-  }
-  .panel-links li + li {
-    border-top: 1px solid var(--line);
-  }
-  .panel-links a {
+  .sheet__links a {
     display: flex;
     align-items: baseline;
-    gap: var(--space-s);
-    padding-block: 0.35rem;
-    font-family: var(--font-display);
-    font-size: clamp(2rem, 1.6rem + 2vw, 3rem);
-    font-weight: 600;
-    letter-spacing: -0.03em;
-    line-height: 1.2;
-    color: var(--ink);
+    gap: var(--s-4);
+    padding-block: var(--s-3);
     text-decoration: none;
   }
-  .pl-num {
-    font-family: var(--font-mono);
-    font-size: var(--step--1);
-    font-weight: 400;
-    letter-spacing: 0;
-    color: var(--ink-3);
+  .sheet__no {
+    font-size: var(--fs-xs);
+    color: var(--text-3);
+    width: 2ch;
   }
-  .panel-links a[aria-current='page'] {
-    color: var(--accent-text);
+  .sheet__label {
+    font-size: clamp(2.4rem, 10vw, 3.6rem);
+    font-weight: 760;
+    font-stretch: 115%;
+    letter-spacing: -0.045em;
+    line-height: 1.05;
+    transition: font-stretch var(--t-slow) var(--ease-out), color var(--t-fast);
   }
-  .panel-foot {
+  .sheet__links a:hover .sheet__label,
+  .sheet__links a:focus-visible .sheet__label {
+    font-stretch: 125%;
+    color: var(--signal);
+  }
+  .sheet__links a[aria-current='page'] .sheet__label {
+    color: var(--signal);
+  }
+  .sheet__foot {
+    margin-top: auto;
     display: grid;
-    gap: var(--space-m);
+    gap: var(--s-5);
+    justify-items: start;
   }
-  .panel-socials {
-    display: flex;
-    flex-wrap: wrap;
-    gap: var(--space-2xs) var(--space-s);
-    align-items: baseline;
-  }
-  .panel-socials .panel-label {
-    width: 100%;
-  }
-  .panel-legal {
-    display: flex;
-    flex-wrap: wrap;
-    gap: 0 var(--space-m);
-    padding-top: var(--space-s);
-    border-top: 1px solid var(--line);
-    font-size: var(--step--1);
-  }
-  .panel-legal a {
-    display: inline-flex;
-    align-items: center;
-    min-height: var(--tap);
-    color: var(--ink-2);
-  }
-  .panel-socials a {
-    display: inline-flex;
-    align-items: center;
-    min-height: var(--tap);
-    font-weight: 700;
-  }
-
   @media (prefers-reduced-motion: no-preference) {
-    .menu-panel[open] {
-      animation: sheet-in 460ms cubic-bezier(0.2, 0.9, 0.2, 1);
+    .sheet[open] {
+      animation: sheet-in 520ms var(--ease-out);
     }
-    .menu-panel[open] .panel-links li {
-      animation: link-in 520ms var(--ease-out) backwards;
-      animation-delay: calc(120ms + var(--i) * 50ms);
+    .sheet[open] .sheet__links li {
+      animation: link-in 700ms var(--ease-out) both;
+      animation-delay: calc(120ms + var(--i) * 55ms);
     }
-    .menu-panel[open]::backdrop {
-      animation: fade-in 300ms var(--ease-out);
+    .sheet.is-closing {
+      animation: sheet-out 260ms var(--ease-in-out) forwards;
     }
   }
   @keyframes sheet-in {
     from {
-      transform: translateY(-100%);
+      clip-path: inset(0 0 100% 0);
+    }
+    to {
+      clip-path: inset(0 0 0 0);
+    }
+  }
+  @keyframes sheet-out {
+    to {
+      clip-path: inset(0 0 100% 0);
     }
   }
   @keyframes link-in {
     from {
       opacity: 0;
-      transform: translateY(0.75rem);
+      transform: translateY(40%);
     }
-  }
-  @keyframes fade-in {
-    from {
-      opacity: 0;
-    }
-  }
-  :global(html.menu-is-open) {
-    overflow: hidden;
   }
 </style>

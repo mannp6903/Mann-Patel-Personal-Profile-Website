@@ -1,0 +1,93 @@
+---
+/**
+ * A project's real captures composed for a card: the desktop capture in a plain frame, with the
+ * phone capture overlapping its corner, on a panel tinted from the project's own palette.
+ */
+import { Image } from 'astro:assets';
+import { captures } from '../../data/captures';
+
+interface Props {
+  scene: 'nest-and-rest' | 'samp';
+  eager?: boolean;
+  /** The desktop image carries the alt text; the phone is decorative here. */
+  sizes?: string;
+}
+const { scene, eager = false, sizes = '(min-width: 64em) 44rem, 92vw' } = Astro.props;
+const c = captures[scene];
+const host = new URL(c.url).host;
+const loading = eager ? 'eager' : 'lazy';
+---
+
+<div class="pm" style={`--tint:${c.tint}`}>
+  <div class="pm__desk">
+    <span class="pm__bar" aria-hidden="true"><i></i><i></i><i></i><b>{host}</b></span>
+    <Image src={c.desktop.src} alt={c.desktop.alt} widths={[560, 880, 1200]} sizes={sizes} loading={loading} decoding="async" />
+  </div>
+  <div class="pm__phone">
+    <Image src={c.mobile.src} alt="" widths={[200, 320]} sizes="11rem" loading={loading} decoding="async" />
+  </div>
+</div>
+
+<style>
+  .pm {
+    position: relative;
+    padding: clamp(1rem, 4%, 2.5rem) clamp(1rem, 6%, 3.5rem) clamp(2.5rem, 12%, 5rem) clamp(1rem, 4%, 2.5rem);
+    border-radius: var(--r-lg);
+    background:
+      radial-gradient(120% 90% at 100% 100%, color-mix(in oklab, var(--tint) 38%, transparent), transparent 60%),
+      color-mix(in oklab, var(--tint) 10%, var(--bg-2));
+    overflow: hidden;
+    isolation: isolate;
+  }
+  .pm__desk {
+    border-radius: 12px;
+    overflow: hidden;
+    background: #fff;
+    box-shadow: 0 30px 60px -30px rgb(0 0 0 / 0.8);
+    transform-origin: 30% 100%;
+    transition: transform 900ms var(--ease-out);
+  }
+  .pm__bar {
+    display: flex;
+    align-items: center;
+    gap: 0.3rem;
+    height: 1.6rem;
+    padding-inline: 0.7rem;
+    background: #e9e9ec;
+  }
+  .pm__bar i {
+    width: 0.45rem;
+    height: 0.45rem;
+    border-radius: 50%;
+    background: #c4c4ca;
+  }
+  .pm__bar b {
+    margin-left: auto;
+    margin-right: auto;
+    font-family: var(--font-mono);
+    font-size: 0.65rem;
+    font-weight: 500;
+    color: #5b5b63;
+    transform: translateX(-1rem);
+  }
+  .pm__phone {
+    position: absolute;
+    right: clamp(0.75rem, 4%, 2rem);
+    bottom: clamp(-3rem, -6%, -1rem);
+    width: clamp(5.5rem, 24%, 11rem);
+    border-radius: 1.1rem;
+    border: 5px solid #18181b;
+    overflow: hidden;
+    background: #fff;
+    box-shadow: 0 30px 50px -20px rgb(0 0 0 / 0.85);
+    transition: transform 900ms var(--ease-out);
+  }
+  :global(a:hover) > .pm .pm__desk,
+  :global(.pm-host:hover) .pm__desk {
+    transform: scale(1.015) rotate(-0.4deg);
+  }
+  :global(a:hover) > .pm .pm__phone,
+  :global(.pm-host:hover) .pm__phone {
+    transform: translateY(-10px) rotate(2deg);
+  }
+</style>
