@@ -1,15 +1,71 @@
 ---
 // Confirmation page for the no-JavaScript form path (the API redirects here after acceptance).
 import BaseLayout from '../../layouts/BaseLayout.astro';
+import Button from '../../components/ui/Button.astro';
 ---
 
-<BaseLayout title="Brief received" description="Your brief arrived." noindex>
-  <section class="section">
-    <div class="container stack" style="--stack: var(--space-m)">
-      <p class="label">Received</p>
-      <h1>Thanks, your brief arrived.</h1>
-      <p class="lead measure">I read every brief myself and will reply by email with questions or a suggested next step.</p>
-      <p><a class="btn btn--secondary" href="/">Back to the home page</a></p>
+<BaseLayout title="Brief received" description="Your brief arrived." noindex footerCta={false}>
+  <section class="rc">
+    <div class="container rc__inner">
+      <svg class="rc__mark" viewBox="0 0 80 80" aria-hidden="true">
+        <circle cx="40" cy="40" r="36"></circle>
+        <path d="m25 41 10 10 21-23"></path>
+      </svg>
+      <p class="eyebrow">Received</p>
+      <h1 class="rc__title">Thanks, your brief <span class="serif serif--signal">arrived.</span></h1>
+      <p class="lead">I read every brief myself and will reply by email with questions or a suggested next step.</p>
+      <div class="btn-row">
+        <Button href="/work/">See my work</Button>
+        <Button href="/" variant="ghost">Back to the home page</Button>
+      </div>
     </div>
   </section>
 </BaseLayout>
+
+<style>
+  .rc {
+    padding-block: clamp(var(--s-7), 8vw, var(--s-10)) var(--section);
+  }
+  .rc__inner {
+    display: grid;
+    gap: var(--s-5);
+    justify-items: start;
+  }
+  .rc__title {
+    font-size: var(--fs-h1);
+    max-width: 14ch;
+  }
+  .rc__mark {
+    width: 5rem;
+    height: 5rem;
+    fill: none;
+    stroke: var(--signal);
+    stroke-width: 3.5;
+    stroke-linecap: round;
+    stroke-linejoin: round;
+  }
+  .rc__mark circle {
+    stroke-dasharray: 227;
+  }
+  .rc__mark path {
+    stroke-dasharray: 50;
+  }
+  @media (prefers-reduced-motion: no-preference) {
+    .rc__mark circle {
+      animation: draw-c 900ms var(--ease-out) both;
+    }
+    .rc__mark path {
+      animation: draw-p 600ms var(--ease-out) 500ms both;
+    }
+  }
+  @keyframes draw-c {
+    from {
+      stroke-dashoffset: 227;
+    }
+  }
+  @keyframes draw-p {
+    from {
+      stroke-dashoffset: 50;
+    }
+  }
+</style>

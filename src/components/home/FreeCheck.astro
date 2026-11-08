@@ -1,0 +1,188 @@
+---
+/**
+ * The free Found & Answered check: the one full-bleed signal-colour moment on the page.
+ * The circular badge turns as you scroll (user-driven, never on its own).
+ */
+import { checkUp } from '../../data/packages';
+import Button from '../ui/Button.astro';
+import Icon from '../ui/Icon.astro';
+
+interface Props {
+  id?: string;
+}
+const { id = 'check' } = Astro.props;
+const ring = 'FREE CHECK · NO OBLIGATION · ';
+---
+
+<section class="fc" id={id} aria-labelledby={`${id}-title`} data-progress>
+  <div class="fc__inner container">
+    <div class="fc__copy">
+      <p class="fc__label">Free · no obligation</p>
+      <h2 id={`${id}-title`} class="fc__title" data-split>
+        <span class="line-mask" style="--i:0"><span>Not sure what to fix first?</span></span>
+        <span class="line-mask" style="--i:1"><span>Get a free <em>Found &amp; Answered</em> check.</span></span>
+      </h2>
+      <p class="fc__lead">{checkUp.forWho}</p>
+      <div class="btn-row">
+        <Button href="/contact/?package=check-up#brief" variant="ink">Request the free check</Button>
+      </div>
+    </div>
+
+    <div class="fc__side">
+      <ol class="fc__list" role="list">
+        {
+          checkUp.includes.map((item, i) => (
+            <li data-reveal style={`--d:${i * 90}`}>
+              <span class="fc__n num">{String(i + 1).padStart(2, '0')}</span>
+              <span>{item}</span>
+            </li>
+          ))
+        }
+      </ol>
+      <p class="fc__small">Not included: {checkUp.notIncluded.join('; ')}.</p>
+    </div>
+
+    <div class="fc__badge" aria-hidden="true">
+      <svg viewBox="0 0 200 200">
+        <defs>
+          <path id={`${id}-ring`} d="M100,100 m-78,0 a78,78 0 1,1 156,0 a78,78 0 1,1 -156,0"></path>
+        </defs>
+        <text><textPath href={`#${id}-ring`} textLength="488" lengthAdjust="spacing">{ring}{ring}</textPath></text>
+      </svg>
+      <span class="fc__badge-icon"><Icon name="arrow-ne" /></span>
+    </div>
+  </div>
+</section>
+
+<style>
+  .fc {
+    position: relative;
+    background: var(--signal);
+    color: var(--on-signal);
+    overflow: clip;
+  }
+  .fc ::selection {
+    background: var(--ink);
+    color: var(--signal);
+  }
+  .fc__inner {
+    position: relative;
+    display: grid;
+    gap: var(--s-7);
+    padding-block: var(--section);
+  }
+  .fc__copy {
+    display: grid;
+    gap: var(--s-5);
+    align-content: start;
+  }
+  .fc__label {
+    font-family: var(--font-mono);
+    font-size: var(--fs-xs);
+    letter-spacing: var(--track-label);
+    text-transform: uppercase;
+    font-weight: 600;
+  }
+  .fc__title {
+    font-size: clamp(2.2rem, 1.4rem + 3.6vw, 5rem);
+    font-weight: 760;
+    font-stretch: 114%;
+    letter-spacing: -0.045em;
+    line-height: 0.96;
+    max-width: 15ch;
+  }
+  .fc__title em {
+    font-family: var(--font-serif);
+    font-weight: 400;
+    font-style: italic;
+    font-stretch: 100%;
+    letter-spacing: -0.01em;
+    font-size: 1.06em;
+  }
+  .fc__lead {
+    max-width: 40ch;
+    font-size: var(--fs-lead);
+    line-height: 1.4;
+    font-weight: 500;
+  }
+  .fc__side {
+    display: grid;
+    gap: var(--s-5);
+    align-content: start;
+  }
+  .fc__list {
+    display: grid;
+    border-top: 1.5px solid var(--ink);
+  }
+  .fc__list li {
+    display: grid;
+    grid-template-columns: 2.5rem 1fr;
+    gap: var(--s-3);
+    padding-block: var(--s-4);
+    border-bottom: 1.5px solid rgb(11 11 12 / 0.25);
+    font-weight: 560;
+    line-height: 1.45;
+  }
+  .fc__n {
+    font-size: var(--fs-xs);
+    padding-top: 0.25em;
+  }
+  .fc__small {
+    font-size: var(--fs-sm);
+    font-weight: 500;
+    opacity: 0.85;
+  }
+  .fc :global(.btn--ink:focus-visible) {
+    outline-color: var(--ink);
+  }
+  .fc :global(:focus-visible) {
+    outline-color: var(--ink);
+  }
+
+  .fc__badge {
+    position: absolute;
+    right: var(--gutter);
+    top: calc(var(--section) * 0.4);
+    width: clamp(7rem, 12vw, 11rem);
+    aspect-ratio: 1;
+    display: none;
+  }
+  .fc__badge svg {
+    width: 100%;
+    height: 100%;
+    fill: var(--ink);
+    font-family: var(--font-mono);
+    font-size: 12.5px;
+    font-weight: 600;
+  }
+  .fc__badge svg {
+    transform: rotate(calc(var(--p, 0) * 300deg));
+  }
+  .fc__badge-icon {
+    position: absolute;
+    inset: 32%;
+    display: grid;
+    place-items: center;
+    border-radius: 50%;
+    background: var(--ink);
+    color: var(--signal);
+  }
+  .fc__badge-icon :global(.icon) {
+    width: 45%;
+    height: 45%;
+    stroke-width: 2;
+  }
+
+  @media (min-width: 64em) {
+    .fc__inner {
+      grid-template-columns: minmax(0, 1.1fr) minmax(0, 1fr);
+      gap: var(--s-8);
+    }
+    .fc__side {
+      padding-top: calc(var(--s-9) + var(--s-6));
+    }
+    .fc__badge {
+      display: block;
+    }
+  }
+</style>

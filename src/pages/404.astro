@@ -1,56 +1,130 @@
 ---
 import BaseLayout from '../layouts/BaseLayout.astro';
+import Button from '../components/ui/Button.astro';
+import Icon from '../components/ui/Icon.astro';
 import { businesses } from '../data/site';
+
 const nest = businesses[0];
+const links = [
+  { href: '/', label: 'Home' },
+  { href: '/services/', label: 'Services' },
+  { href: '/work/', label: 'Work' },
+  { href: '/about/', label: 'About' },
+  { href: '/contact/', label: 'Start a project' },
+];
 ---
 
 <BaseLayout title="Page not found" description="This page doesn’t exist." noindex>
-  <section class="section">
-    <div class="container nf">
-      <p class="stamp" aria-hidden="true">Return to sender</p>
-      <h1>This page doesn’t exist.</h1>
-      <p class="lead measure">The link may be old, or the address mistyped. These pages do exist:</p>
-      <ul class="links" role="list">
-        <li><a href="/">Home</a></li>
-        <li><a href="/services/">Services</a></li>
-        <li><a href="/work/">Work</a></li>
-        <li><a href="/about/">About</a></li>
-        <li><a href="/contact/">Start a project</a></li>
-      </ul>
-      <p class="small muted">Looking for home cleaning? <a href={nest.url} rel="noopener">Visit {nest.name}&nbsp;↗</a></p>
-      <p><a class="btn" href="/">Go to the home page</a></p>
+  <section class="nf">
+    <div class="container nf__grid">
+      <figure class="nf__mark" data-halftone>
+        <div class="nf__stage">
+          <img src="/404-mark.svg" alt="" width="900" height="380" class="nf__img" data-ht-img />
+          <canvas class="nf__canvas" aria-hidden="true" data-ht-canvas></canvas>
+        </div>
+      </figure>
+      <div class="nf__text">
+        <p class="eyebrow">Error 404</p>
+        <h1 class="nf__title">This page wasn’t <span class="serif serif--signal">found.</span></h1>
+        <p class="lead">Which is a little ironic, given what I do. The link may be old, or the address mistyped. These pages do exist:</p>
+        <ul class="nf__links" role="list">
+          {
+            links.map((l) => (
+              <li>
+                <a href={l.href}>
+                  <span class="roll">
+                    <span data-text={l.label}>{l.label}</span>
+                  </span>
+                  <Icon name="arrow" />
+                </a>
+              </li>
+            ))
+          }
+        </ul>
+        <p class="small subtle text-links">Looking for home cleaning? <a href={nest.url} rel="noopener">Visit {nest.name}</a>.</p>
+        <div class="btn-row">
+          <Button href="/">Go to the home page</Button>
+        </div>
+      </div>
     </div>
   </section>
 </BaseLayout>
 
+<script>
+  import { mountHalftone } from '../scripts/halftone';
+  document.querySelectorAll<HTMLElement>('[data-halftone]').forEach(mountHalftone);
+</script>
+
 <style>
   .nf {
+    padding-block: clamp(var(--s-6), 6vw, var(--s-9)) var(--section);
+  }
+  .nf__grid {
     display: grid;
-    gap: var(--space-m);
+    gap: var(--s-7);
+    align-items: center;
+  }
+  .nf__mark {
+    cursor: crosshair;
+    touch-action: pan-y;
+  }
+  .nf__stage {
+    position: relative;
+    aspect-ratio: 900 / 380;
+  }
+  .nf__img,
+  .nf__canvas {
+    position: absolute;
+    inset: 0;
+    width: 100%;
+    height: 100%;
+    transition: opacity 700ms var(--ease-out);
+  }
+  .nf__img {
+    opacity: 0.12;
+  }
+  .nf__canvas {
+    opacity: 0;
+  }
+  .nf__mark:global(.is-ready) .nf__canvas {
+    opacity: 1;
+  }
+  .nf__mark:global(.is-ready) .nf__img {
+    opacity: 0;
+  }
+  .nf__text {
+    display: grid;
+    gap: var(--s-5);
     justify-items: start;
   }
-  .stamp {
-    font-family: var(--font-display);
-    font-weight: 800;
-    text-transform: uppercase;
-    letter-spacing: 0.06em;
-    color: var(--accent-text);
-    border: 4px double var(--accent-text);
-    border-radius: var(--radius-s);
-    padding: 0.15em 0.7em;
-    transform: rotate(-5deg);
+  .nf__title {
+    font-size: var(--fs-h1);
+    max-width: 14ch;
   }
-  .links {
+  .nf__links {
+    width: 100%;
+    max-width: 30rem;
+    border-top: 1px solid var(--line);
+  }
+  .nf__links li {
+    border-bottom: 1px solid var(--line);
+  }
+  .nf__links a {
     display: flex;
-    flex-wrap: wrap;
-    gap: var(--space-2xs) var(--space-m);
-    list-style: none;
-    padding: 0;
-    font-weight: 700;
-  }
-  .links a {
-    display: inline-flex;
-    min-height: var(--tap);
+    justify-content: space-between;
     align-items: center;
+    min-height: 3.25rem;
+    text-decoration: none;
+    font-weight: 560;
+    transition: color var(--t-fast);
+  }
+  .nf__links a:hover {
+    color: var(--signal);
+  }
+  @media (min-width: 64em) {
+    .nf__grid {
+      grid-template-columns: minmax(0, 1.1fr) minmax(0, 1fr);
+      gap: var(--s-9);
+    }
   }
 </style>

@@ -1,63 +1,76 @@
 ---
 import { getCollection, render, type CollectionEntry } from 'astro:content';
+import { Image } from 'astro:assets';
 import BaseLayout from '../../layouts/BaseLayout.astro';
-import Scene from '../../components/mocks/Scene.astro';
-import Details from '../../components/mocks/Details.astro';
-import StatusChip from '../../components/StatusChip.astro';
+import Heading from '../../components/ui/Heading.astro';
+import Button from '../../components/ui/Button.astro';
+import Icon from '../../components/ui/Icon.astro';
+import Status from '../../components/work/Status.astro';
+import ProjectMedia from '../../components/work/ProjectMedia.astro';
 import Confirm from '../../components/Confirm.astro';
-import CtaBand from '../../components/CtaBand.astro';
 import { serviceById } from '../../data/services';
+import { captures } from '../../data/captures';
 import { breadcrumbJsonLd } from '../../lib/seo';
 
 export async function getStaticPaths() {
-  const work = await getCollection('work');
-  return work.map((entry) => ({ params: { id: entry.id }, props: { entry } }));
+  const work = (await getCollection('work')).sort((a, b) => a.data.order - b.data.order);
+  return work.map((entry, i) => ({ params: { id: entry.id }, props: { entry, next: work[(i + 1) % work.length] } }));
 }
 
 interface Props {
   entry: CollectionEntry<'work'>;
+  next: CollectionEntry<'work'>;
 }
-const { entry } = Astro.props;
+const { entry, next } = Astro.props;
 const { Content } = await render(entry);
 const d = entry.data;
+const c = captures[d.scene];
 const services = d.serviceIds.map((id) => serviceById(id)).filter((s) => s !== undefined);
 const crumbs = breadcrumbJsonLd([
   { name: 'Home', path: '/' },
   { name: 'Work', path: '/work/' },
   { name: d.title, path: `/work/${entry.id}/` },
 ]);
+const gallery = [c.desktop, c.mobile, ...(c.earlier ? [c.earlier] : [])];
 ---
 
 <BaseLayout title={d.title} description={d.description} jsonLd={crumbs ?? undefined}>
   <article>
-    <header class="section page-head">
-      <div class="container head">
+    <header class="cs-head">
+      <div class="container cs-head__inner">
         <nav class="crumbs" aria-label="Breadcrumb">
           <ol role="list">
             <li><a href="/work/">Work</a></li>
             <li aria-current="page">{d.title}</li>
           </ol>
         </nav>
-        <div class="meta">
-          <StatusChip status={d.status} />
-          <span class="muted">{d.kind} · {d.year}</span>
+        <div class="cs-meta">
+          <Status status={d.status} />
+          <span class="subtle small">{d.kind} · {d.year}</span>
         </div>
         {d.statusConfirm && <Confirm note={d.statusConfirm} />}
-        <h1>{d.title}</h1>
-        <p class="lead measure">{d.summary}</p>
+        <Heading as="h1" lines={[d.title]} class="cs-title" />
+        <p class="lead" data-reveal style="--d:150">{d.summary}</p>
+        {
+          d.links.length > 0 && (
+            <div class="btn-row" data-reveal style="--d:250">
+              {d.links.map((l) => (
+                <Button href={l.url} variant="ghost" icon="arrow-ne" rel="noopener">
+                  {l.label}
+                </Button>
+              ))}
+            </div>
+          )
+        }
       </div>
     </header>
 
-    <section class="section section--tight visuals" aria-label="Captures">
-      <div class="container">
-        <Scene scene={d.scene} variant="full" eager />
-      </div>
-    </section>
+    <div class="container cs-hero" data-reveal="scale">
+      <ProjectMedia scene={d.scene} eager sizes="(min-width: 80em) 76rem, 94vw" />
+    </div>
 
-    <Details scene={d.scene} />
-
-    <section class="section section--tight">
-      <div class="container body-grid">
+    <section class="section cs-body-wrap" aria-label="Case study">
+      <div class="container cs-body">
         <aside class="facts" aria-label="Project facts">
           <dl>
             <div>
@@ -73,7 +86,9 @@ const crumbs = breadcrumbJsonLd([
                 <ul role="list">
                   {services.map((s) => (
                     <li>
-                      <a href={`/services/#${s.id}`}>{s.name}</a>
+                      <a class="link" href={`/services/#${s.id}`}>
+                        {s.name}
+                      </a>
                     </li>
                   ))}
                 </ul>
@@ -83,24 +98,15 @@ const crumbs = breadcrumbJsonLd([
               <dt>Highlights</dt>
               <dd>
                 <ul role="list" class="hl">
-                  {d.highlights.map((h) => <li>{h}</li>)}
+                  {d.highlights.map((h) => (
+                    <li>
+                      <Icon name="check" />
+                      <span>{h}</span>
+                    </li>
+                  ))}
                 </ul>
               </dd>
             </div>
-            {
-              d.links.length > 0 && (
-                <div>
-                  <dt>Links</dt>
-                  <dd>
-                    {d.links.map((l) => (
-                      <a class="link-accent" href={l.url} rel="noopener">
-                        {l.label}&nbsp;<span aria-hidden="true">↗</span>
-                      </a>
-                    ))}
-                  </dd>
-                </div>
-              )
-            }
           </dl>
         </aside>
         <div class="prose">
@@ -108,132 +114,263 @@ const crumbs = breadcrumbJsonLd([
         </div>
       </div>
     </section>
-  </article>
 
-  <CtaBand
-    title="Want foundations like these?"
-    text="Send a short brief. I’ll reply by email with questions or a suggested next step."
-    href={`/contact/?services=${d.serviceIds.join(',')}#brief`}
-    label="Start a similar project"
-  />
+    <section class="section section--alt" aria-labelledby="closer-title">
+      <div class="container">
+        <div class="section-head">
+          <p class="eyebrow">Look closer</p>
+          <Heading id="closer-title" lines={['The decisions,', '<span class="serif">up close.</span>']} />
+        </div>
+        <ol class="closer" role="list">
+          {
+            c.details.map((x, i) => (
+              <li data-reveal style={`--d:${i * 100}`}>
+                <figure>
+                  <div class="closer__img">
+                    <Image src={x.src} alt={x.alt} widths={[360, 560, 760]} sizes="(min-width: 56em) 40vw, 92vw" loading="lazy" decoding="async" />
+                  </div>
+                  <figcaption>
+                    <span class="num closer__n">{String(i + 1).padStart(2, '0')}</span>
+                    <span>
+                      <b>{x.title}.</b> {x.note}
+                    </span>
+                  </figcaption>
+                </figure>
+              </li>
+            ))
+          }
+        </ol>
+      </div>
+    </section>
+
+    <section class="section" aria-labelledby="captures-title">
+      <div class="container">
+        <div class="section-head">
+          <p class="eyebrow">Captures</p>
+          <h2 id="captures-title" class="cap-title">Screens, dated.</h2>
+        </div>
+        <div class="gallery">
+          {
+            gallery.map((g, i) => (
+              <figure class:list={['g', i === 1 && 'g--phone', i === 2 && 'g--earlier']} data-reveal style={`--d:${i * 80}`}>
+                <div class="g__frame">
+                  <Image
+                    src={g.src}
+                    alt={g.alt}
+                    widths={i === 1 ? [300, 460] : [600, 960, 1400]}
+                    sizes={i === 1 ? '18rem' : '(min-width: 64em) 60vw, 92vw'}
+                    loading="lazy"
+                    decoding="async"
+                  />
+                </div>
+                <figcaption class="small subtle">{g.caption}</figcaption>
+              </figure>
+            ))
+          }
+        </div>
+      </div>
+    </section>
+
+    <nav class="next section--rule" aria-label="Next project">
+      <a class="next__link container" href={`/work/${next.id}/`}>
+        <span class="eyebrow eyebrow--plain">Next project</span>
+        <span class="next__title">
+          {next.data.title}
+          <Icon name="arrow" />
+        </span>
+      </a>
+    </nav>
+  </article>
 </BaseLayout>
 
 <style>
-  .page-head {
-    padding-bottom: var(--space-l);
+  .cs-head {
+    padding-block: clamp(var(--s-6), 6vw, var(--s-9)) var(--s-7);
   }
-  .head {
+  .cs-head__inner {
     display: grid;
-    gap: var(--space-m);
+    gap: var(--s-5);
+    justify-items: start;
   }
   .crumbs ol {
     display: flex;
     flex-wrap: wrap;
-    gap: var(--space-2xs);
-    list-style: none;
-    padding: 0;
-    font-size: var(--step--1);
+    gap: var(--s-2);
+    font-size: var(--fs-sm);
+    color: var(--text-3);
   }
   .crumbs li + li::before {
     content: '/';
-    margin-right: var(--space-2xs);
-    color: var(--ink-3);
+    margin-right: var(--s-2);
   }
-  .crumbs [aria-current] {
-    color: var(--ink-2);
+  .crumbs a {
+    color: var(--text-2);
   }
-  .meta {
+  .cs-meta {
     display: flex;
     flex-wrap: wrap;
-    gap: var(--space-xs) var(--space-s);
+    gap: var(--s-3);
     align-items: center;
-    font-size: var(--step--1);
   }
-  .visuals {
-    padding-top: 0;
+  .cs-head__inner :global(.cs-title) {
+    font-size: clamp(3rem, 1.6rem + 6.4vw, 8.5rem);
+    font-weight: 780;
+    font-stretch: 116%;
+    letter-spacing: -0.055em;
+    line-height: 0.9;
   }
-  .body-grid {
+  .cs-head .lead {
+    max-width: 50ch;
+  }
+  .cs-hero {
+    max-width: 82rem;
+  }
+
+  .cs-body {
     display: grid;
-    gap: var(--space-2xl);
-    grid-template-columns: minmax(0, 1fr);
-  }
-  @media (min-width: 60em) {
-    .body-grid {
-      grid-template-columns: minmax(0, 0.75fr) minmax(0, 1.6fr);
-      align-items: start;
-    }
-    .facts {
-      position: sticky;
-      top: 6rem;
-    }
+    gap: var(--s-7);
   }
   .facts dl {
     display: grid;
-    gap: var(--space-m);
-    padding: var(--space-m);
-    border: 1px solid var(--line);
-    border-top: 3px solid var(--ink);
-    border-radius: 0 0 var(--radius-m) var(--radius-m);
-    background: var(--card);
+    gap: var(--s-5);
   }
   .facts dt {
+    margin-bottom: var(--s-2);
     font-family: var(--font-mono);
-    font-size: var(--step--1);
-    font-weight: 700;
+    font-size: var(--fs-xs);
+    letter-spacing: var(--track-label);
     text-transform: uppercase;
-    letter-spacing: 0.06em;
-    color: var(--ink-3);
-    margin-bottom: var(--space-3xs);
+    color: var(--text-3);
   }
   .facts dd {
-    margin: 0;
+    color: var(--text-2);
+    font-size: var(--fs-sm);
   }
   .facts ul {
-    list-style: none;
-    padding: 0;
     display: grid;
-    gap: var(--space-3xs);
+    gap: var(--s-2);
   }
-  .facts .hl {
-    list-style: disc;
-    padding-left: 1.2em;
+  .hl li {
+    display: flex;
+    gap: var(--s-2);
+    align-items: flex-start;
   }
-  .prose {
-    max-width: var(--container-text);
-    min-width: 0;
+  .hl .icon {
+    margin-top: 0.12em;
+    color: var(--signal);
   }
-  .prose :global(h2) {
-    font-size: var(--step-2);
-    margin-top: var(--space-xl);
-    margin-bottom: var(--space-s);
+  @media (min-width: 64em) {
+    .cs-body {
+      grid-template-columns: minmax(0, 0.7fr) minmax(0, 1.3fr);
+      gap: var(--s-9);
+    }
+    .facts {
+      position: sticky;
+      top: calc(var(--header-h) + 2rem);
+      align-self: start;
+    }
   }
-  .prose :global(h2:first-child) {
-    margin-top: 0;
-  }
-  .prose :global(p),
-  .prose :global(ul),
-  .prose :global(ol) {
-    margin-bottom: var(--space-s);
-  }
-  .prose :global(ul),
-  .prose :global(ol) {
-    padding-left: 1.3em;
+
+  .closer {
     display: grid;
-    gap: var(--space-2xs);
+    gap: var(--s-6);
   }
-  .prose :global(li::marker) {
-    color: var(--accent-text);
+  .closer figure {
+    display: grid;
+    gap: var(--s-4);
   }
-  .prose :global(table) {
-    width: 100%;
-    border-collapse: collapse;
-    font-size: var(--step--1);
+  .closer__img {
+    border-radius: var(--r-md);
+    overflow: hidden;
+    background: #fff;
+    border: 1px solid var(--line);
   }
-  .prose :global(th),
-  .prose :global(td) {
-    text-align: left;
-    padding: var(--space-2xs) var(--space-s) var(--space-2xs) 0;
-    border-bottom: 1px solid var(--line);
-    vertical-align: top;
+  .closer figcaption {
+    display: grid;
+    grid-template-columns: 2.5rem 1fr;
+    gap: var(--s-3);
+    color: var(--text-2);
+  }
+  .closer figcaption b {
+    color: var(--text);
+  }
+  .closer__n {
+    font-size: var(--fs-xs);
+    color: var(--signal);
+    padding-top: 0.25em;
+  }
+  @media (min-width: 56em) {
+    .closer {
+      grid-template-columns: 1fr 1fr;
+    }
+  }
+
+  .cap-title {
+    font-size: var(--fs-h2);
+  }
+  .gallery {
+    display: grid;
+    gap: var(--s-6);
+    align-items: start;
+  }
+  .g {
+    display: grid;
+    gap: var(--s-3);
+  }
+  .g__frame {
+    border-radius: var(--r-md);
+    overflow: hidden;
+    border: 1px solid var(--line);
+    background: #fff;
+  }
+  .g--phone {
+    max-width: 18rem;
+  }
+  .g--phone .g__frame {
+    border-radius: 1.6rem;
+    border: 6px solid #1c1c20;
+  }
+  @media (min-width: 64em) {
+    .gallery {
+      grid-template-columns: minmax(0, 1fr) 18rem;
+    }
+    .g--earlier {
+      grid-column: 1;
+      max-width: 40rem;
+    }
+  }
+
+  .next {
+    border-top: 1px solid var(--line);
+  }
+  .next__link {
+    display: grid;
+    gap: var(--s-3);
+    padding-block: var(--s-8);
+    text-decoration: none;
+  }
+  .next__title {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.25em;
+    font-size: clamp(2.2rem, 1.2rem + 4.4vw, 6rem);
+    font-weight: 760;
+    font-stretch: 112%;
+    letter-spacing: -0.05em;
+    line-height: 1;
+    transition: font-stretch 800ms var(--ease-out), color var(--t-base);
+  }
+  .next__title .icon {
+    width: 0.7em;
+    height: 0.7em;
+    stroke-width: 1.5;
+    transition: transform var(--t-slow) var(--ease-out);
+  }
+  .next__link:hover .next__title {
+    font-stretch: 122%;
+    color: var(--signal);
+  }
+  .next__link:hover .next__title .icon {
+    transform: translateX(0.15em);
   }
 </style>

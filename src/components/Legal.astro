@@ -1,0 +1,132 @@
+---
+/**
+ * Layout for legal pages: a large title, then the text with an "On this page" list built from
+ * its h2 headings (desktop: sticky beside the text).
+ */
+import Heading from './ui/Heading.astro';
+
+interface Props {
+  title: string;
+  lead: string;
+  updated: string;
+  see: { href: string; label: string };
+}
+const { title, lead, updated, see } = Astro.props;
+---
+
+<header class="lg-head">
+  <div class="container lg-head__inner">
+    <p class="eyebrow">Legal</p>
+    <Heading as="h1" lines={[title]} class="lg-title" />
+    <p class="lead">{lead}</p>
+    <p class="small subtle text-links">Last updated {updated}. See also the <a href={see.href}>{see.label}</a>.</p>
+  </div>
+</header>
+
+<section class="section section--rule lg">
+  <div class="container lg__grid">
+    <nav class="toc" aria-label="On this page" data-toc hidden>
+      <p class="eyebrow eyebrow--plain">On this page</p>
+      <ol role="list" data-toc-list></ol>
+    </nav>
+    <div class="prose lg__text" data-legal>
+      <slot />
+    </div>
+  </div>
+</section>
+
+<script>
+  const text = document.querySelector<HTMLElement>('[data-legal]');
+  const toc = document.querySelector<HTMLElement>('[data-toc]');
+  const list = document.querySelector<HTMLElement>('[data-toc-list]');
+  if (text && toc && list) {
+    const slug = (s: string) =>
+      s
+        .toLowerCase()
+        .replace(/[’']/g, '')
+        .replace(/[^a-z0-9]+/g, '-')
+        .replace(/^-|-$/g, '');
+    const heads = [...text.querySelectorAll('h2')];
+    heads.forEach((h) => {
+      if (!h.id) h.id = slug(h.textContent ?? '');
+      const li = document.createElement('li');
+      const a = document.createElement('a');
+      a.href = `#${h.id}`;
+      a.textContent = h.textContent ?? '';
+      li.append(a);
+      list.append(li);
+    });
+    if (heads.length > 2) toc.hidden = false;
+    const links = [...list.querySelectorAll('a')];
+    const io = new IntersectionObserver(
+      (entries) => {
+        for (const e of entries) {
+          if (!e.isIntersecting) continue;
+          links.forEach((a) => (a.hash === `#${e.target.id}` ? a.setAttribute('aria-current', 'location') : a.removeAttribute('aria-current')));
+        }
+      },
+      { rootMargin: '-20% 0px -70% 0px' },
+    );
+    heads.forEach((h) => io.observe(h));
+  }
+</script>
+
+<style>
+  .lg-head {
+    padding-block: clamp(var(--s-6), 6vw, var(--s-9)) var(--s-7);
+  }
+  .lg-head__inner {
+    display: grid;
+    gap: var(--s-4);
+    justify-items: start;
+  }
+  .lg-head__inner :global(.lg-title) {
+    font-size: var(--fs-h1);
+  }
+  .lg__grid {
+    display: grid;
+    gap: var(--s-6);
+  }
+  .lg__text :global(ul) {
+    display: grid;
+    gap: var(--s-2);
+  }
+  .toc {
+    display: none;
+  }
+  @media (min-width: 64em) {
+    .lg__grid {
+      grid-template-columns: 16rem minmax(0, 1fr);
+      gap: var(--s-9);
+    }
+    .toc:not([hidden]) {
+      display: grid;
+      gap: var(--s-4);
+      position: sticky;
+      top: calc(var(--header-h) + 2rem);
+      align-self: start;
+    }
+    .toc ol {
+      display: grid;
+      gap: var(--s-1);
+      border-left: 1px solid var(--line);
+    }
+    .toc a {
+      display: block;
+      padding: 0.35rem 0 0.35rem var(--s-4);
+      margin-left: -1px;
+      border-left: 1px solid transparent;
+      font-size: var(--fs-sm);
+      color: var(--text-3);
+      text-decoration: none;
+      transition: color var(--t-fast), border-color var(--t-fast);
+    }
+    .toc a:hover {
+      color: var(--text);
+    }
+    .toc a[aria-current] {
+      color: var(--signal);
+      border-left-color: var(--signal);
+    }
+  }
+</style>

@@ -1,0 +1,499 @@
+---
+/**
+ * Example phone screens for the three stages. Built in HTML, decorative (aria-hidden by the
+ * parent), with a fictional business ("Rosewood Hair Studio") and 555 numbers.
+ * Each screen animates its parts in when its parent has .is-active.
+ */
+import Icon from '../ui/Icon.astro';
+
+interface Props {
+  kind: 'found' | 'answered' | 'booked';
+}
+const { kind } = Astro.props;
+---
+
+<div class:list={['scr', `scr--${kind}`]} data-screen={kind}>
+  {
+    kind === 'found' && (
+      <>
+        <div class="scr__search">
+          <Icon name="search" />
+          <span>hair salon near me</span>
+        </div>
+        <div class="scr__map">
+          <span class="road r1" />
+          <span class="road r2" />
+          <span class="road r3" />
+          <span class="pin p1" />
+          <span class="pin p2" />
+          <span class="pin p3" />
+          <span class="pin pin--you">
+            <Icon name="pin" />
+          </span>
+        </div>
+        <div class="scr__sheet">
+          <p class="s-name">Rosewood Hair Studio</p>
+          <p class="s-meta">Hair salon · Scarborough</p>
+          <p class="s-open">
+            <b>Open</b> · Closes 7 PM
+          </p>
+          <div class="s-actions">
+            <span class="s-btn s-btn--main">
+              <Icon name="calendar" />
+              Book
+            </span>
+            <span class="s-btn">
+              <Icon name="phone" />
+              Call
+            </span>
+            <span class="s-btn">
+              <Icon name="pin" />
+              Directions
+            </span>
+          </div>
+          <p class="s-review">
+            <span class="s-tag">Owner replied</span> “Thanks for coming in, see you next month!”
+          </p>
+        </div>
+      </>
+    )
+  }
+  {
+    kind === 'answered' && (
+      <>
+        <div class="scr__top">
+          <span class="avatar">C</span>
+          <span>
+            <b>Customer</b>
+            <small>(416) 555-0148</small>
+          </span>
+        </div>
+        <div class="scr__thread">
+          <p class="sys">
+            <Icon name="phone" /> Missed call · 2:14 PM
+          </p>
+          <p class="bubble out b1">
+            Hi, it’s Rosewood Hair. Sorry we missed you, we’re with a client. What can we help with? We’ll call back within
+            the hour.
+            <small>Sent automatically</small>
+          </p>
+          <p class="bubble in b2">Do you have anything Saturday for a cut and colour?</p>
+          <p class="bubble out b3">Yes! Pick any open time here: rosewood.example/book</p>
+          <p class="typing b4" aria-hidden="true">
+            <i />
+            <i />
+            <i />
+          </p>
+        </div>
+      </>
+    )
+  }
+  {
+    kind === 'booked' && (
+      <>
+        <div class="scr__ok">
+          <svg class="ok-ring" viewBox="0 0 64 64">
+            <circle cx="32" cy="32" r="28" />
+            <path d="m21 33 7 7 15-16" />
+          </svg>
+          <p class="ok-title">You’re booked</p>
+          <p class="ok-sub">Rosewood Hair Studio</p>
+        </div>
+        <dl class="scr__details">
+          <div class="d1">
+            <dt>Service</dt>
+            <dd>Cut &amp; colour</dd>
+          </div>
+          <div class="d2">
+            <dt>When</dt>
+            <dd>Sat 10:30 AM</dd>
+          </div>
+          <div class="d3">
+            <dt>Reminder</dt>
+            <dd>Text the day before</dd>
+          </div>
+          <div class="d4">
+            <dt>Changes</dt>
+            <dd>Free up to 24 h before</dd>
+          </div>
+        </dl>
+        <span class="s-btn s-btn--main s-wide d5">
+          <Icon name="calendar" />
+          Add to calendar
+        </span>
+      </>
+    )
+  }
+</div>
+
+<style>
+  .scr {
+    position: absolute;
+    inset: 0;
+    display: flex;
+    flex-direction: column;
+    gap: 0.75rem;
+    padding: 2.6rem 0.9rem 1rem;
+    font-size: 0.8125rem;
+    line-height: 1.35;
+    color: var(--text);
+    background: var(--surface);
+    overflow: hidden;
+  }
+  .scr :global(.icon) {
+    width: 0.95rem;
+    height: 0.95rem;
+  }
+  /* Parts start hidden only when motion is allowed and the screen is not active. */
+  .scr > *,
+  .scr__thread > *,
+  .scr__details > *,
+  .scr__sheet > * {
+    transition:
+      opacity 600ms var(--ease-out),
+      transform 600ms var(--ease-out);
+  }
+
+  /* ── Found ── */
+  .scr__search {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    padding: 0.6rem 0.8rem;
+    border-radius: var(--r-pill);
+    background: var(--surface-2);
+    color: var(--text-2);
+  }
+  .scr__map {
+    position: relative;
+    flex: 1;
+    min-height: 7rem;
+    border-radius: 14px;
+    background:
+      linear-gradient(var(--line) 1px, transparent 1px) 0 0 / 22px 22px,
+      linear-gradient(90deg, var(--line) 1px, transparent 1px) 0 0 / 22px 22px,
+      #141417;
+    overflow: hidden;
+  }
+  .road {
+    position: absolute;
+    background: #2c2c32;
+    border-radius: 4px;
+  }
+  .r1 {
+    left: -10%;
+    right: -10%;
+    top: 42%;
+    height: 8px;
+    transform: rotate(-8deg);
+  }
+  .r2 {
+    top: -10%;
+    bottom: -10%;
+    left: 38%;
+    width: 7px;
+    transform: rotate(12deg);
+  }
+  .r3 {
+    left: -10%;
+    right: -10%;
+    top: 74%;
+    height: 5px;
+    transform: rotate(4deg);
+  }
+  .pin {
+    position: absolute;
+    width: 10px;
+    height: 10px;
+    border-radius: 50%;
+    background: var(--text-3);
+    border: 2px solid var(--surface);
+  }
+  .p1 {
+    left: 18%;
+    top: 22%;
+  }
+  .p2 {
+    left: 72%;
+    top: 30%;
+  }
+  .p3 {
+    left: 60%;
+    top: 78%;
+  }
+  .pin--you {
+    left: 44%;
+    top: 46%;
+    width: auto;
+    height: auto;
+    display: grid;
+    place-items: center;
+    padding: 0.35rem;
+    background: var(--signal);
+    color: var(--on-signal);
+    border: 0;
+    transform: translate(-50%, -50%);
+    box-shadow: 0 0 0 6px rgb(212 248 74 / 0.18);
+  }
+  .scr__sheet {
+    display: grid;
+    gap: 0.35rem;
+    padding: 0.85rem;
+    border-radius: 16px;
+    background: var(--bg-2);
+    border: 1px solid var(--line);
+  }
+  .s-name {
+    font-weight: 700;
+    font-size: 0.95rem;
+  }
+  .s-meta,
+  .s-open {
+    color: var(--text-2);
+  }
+  .s-open b {
+    color: var(--signal);
+    font-weight: 600;
+  }
+  .s-actions {
+    display: flex;
+    gap: 0.35rem;
+    margin-top: 0.25rem;
+  }
+  .s-btn {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.3rem;
+    padding: 0.35rem 0.6rem;
+    border-radius: var(--r-pill);
+    border: 1px solid var(--line);
+    font-size: 0.75rem;
+    font-weight: 600;
+    white-space: nowrap;
+  }
+  .s-btn--main {
+    background: var(--signal);
+    color: var(--on-signal);
+    border-color: var(--signal);
+  }
+  .s-wide {
+    justify-content: center;
+    padding-block: 0.65rem;
+    font-size: 0.8125rem;
+    margin-top: auto;
+  }
+  .s-review {
+    margin-top: 0.3rem;
+    padding-top: 0.5rem;
+    border-top: 1px solid var(--line);
+    color: var(--text-2);
+    font-size: 0.75rem;
+  }
+  .s-tag {
+    display: inline-block;
+    margin-right: 0.25rem;
+    padding: 0.05rem 0.4rem;
+    border-radius: 4px;
+    background: var(--signal-wash);
+    color: var(--signal);
+    font-weight: 600;
+  }
+
+  /* ── Answered ── */
+  .scr__top {
+    display: flex;
+    align-items: center;
+    gap: 0.6rem;
+    padding-bottom: 0.7rem;
+    border-bottom: 1px solid var(--line);
+  }
+  .scr__top span:last-child {
+    display: grid;
+  }
+  .scr__top small {
+    color: var(--text-3);
+    font-size: 0.7rem;
+  }
+  .avatar {
+    display: grid;
+    place-items: center;
+    width: 2rem;
+    height: 2rem;
+    border-radius: 50%;
+    background: var(--surface-2);
+    font-weight: 700;
+  }
+  .scr__thread {
+    display: flex;
+    flex-direction: column;
+    gap: 0.5rem;
+  }
+  .sys {
+    align-self: center;
+    display: inline-flex;
+    align-items: center;
+    gap: 0.35rem;
+    padding: 0.25rem 0.6rem;
+    border-radius: var(--r-pill);
+    background: var(--error-wash);
+    color: var(--error);
+    font-size: 0.7rem;
+    font-weight: 600;
+  }
+  .bubble {
+    max-width: 85%;
+    padding: 0.55rem 0.75rem;
+    border-radius: 16px;
+  }
+  .bubble small {
+    display: block;
+    margin-top: 0.3rem;
+    font-size: 0.65rem;
+    opacity: 0.7;
+  }
+  .out {
+    align-self: flex-end;
+    background: var(--signal);
+    color: var(--on-signal);
+    border-bottom-right-radius: 5px;
+  }
+  .in {
+    align-self: flex-start;
+    background: var(--surface-2);
+    border-bottom-left-radius: 5px;
+  }
+  .typing {
+    align-self: flex-start;
+    display: inline-flex;
+    gap: 3px;
+    padding: 0.6rem 0.75rem;
+    border-radius: 16px;
+    background: var(--surface-2);
+  }
+  .typing i {
+    width: 5px;
+    height: 5px;
+    border-radius: 50%;
+    background: var(--text-3);
+  }
+  @media (prefers-reduced-motion: no-preference) {
+    .typing i {
+      animation: dot 1.2s infinite ease-in-out;
+    }
+    .typing i:nth-child(2) {
+      animation-delay: 0.15s;
+    }
+    .typing i:nth-child(3) {
+      animation-delay: 0.3s;
+    }
+  }
+  @keyframes dot {
+    0%,
+    60%,
+    100% {
+      transform: none;
+      opacity: 0.5;
+    }
+    30% {
+      transform: translateY(-3px);
+      opacity: 1;
+    }
+  }
+
+  /* ── Booked ── */
+  .scr__ok {
+    display: grid;
+    justify-items: center;
+    gap: 0.25rem;
+    padding: 0.9rem 0 0.4rem;
+    text-align: center;
+  }
+  .ok-ring {
+    width: 4rem;
+    height: 4rem;
+    fill: none;
+    stroke: var(--signal);
+    stroke-width: 3;
+    stroke-linecap: round;
+    stroke-linejoin: round;
+  }
+  .ok-ring circle {
+    stroke-dasharray: 176;
+    stroke-dashoffset: 0;
+    transition: stroke-dashoffset 900ms var(--ease-out);
+  }
+  .ok-ring path {
+    stroke-dasharray: 40;
+    stroke-dashoffset: 0;
+    transition: stroke-dashoffset 600ms var(--ease-out) 600ms;
+  }
+  .ok-title {
+    font-size: 1.15rem;
+    font-weight: 750;
+    font-stretch: 110%;
+    letter-spacing: -0.02em;
+  }
+  .ok-sub {
+    color: var(--text-2);
+  }
+  .scr__details {
+    display: grid;
+    border-top: 1px solid var(--line);
+  }
+  .scr__details div {
+    display: flex;
+    justify-content: space-between;
+    gap: 0.5rem;
+    padding: 0.55rem 0;
+    border-bottom: 1px solid var(--line);
+  }
+  .scr__details dt {
+    color: var(--text-3);
+  }
+  .scr__details dd {
+    font-weight: 600;
+    text-align: right;
+  }
+
+  /* ── Entrance when the screen becomes active (motion only) ── */
+  :global(.js-motion) :global(.is-idle) .scr__sheet > *,
+  :global(.js-motion) :global(.is-idle) .scr__thread > *,
+  :global(.js-motion) :global(.is-idle) .scr__details > *,
+  :global(.js-motion) :global(.is-idle) .scr__search,
+  :global(.js-motion) :global(.is-idle) .s-wide {
+    opacity: 0;
+    transform: translateY(14px);
+  }
+  :global(.js-motion) :global(.is-idle) .ok-ring circle {
+    stroke-dashoffset: 176;
+  }
+  :global(.js-motion) :global(.is-idle) .ok-ring path {
+    stroke-dashoffset: 40;
+  }
+  :global(.js-motion) :global(.is-idle) .pin--you {
+    transform: translate(-50%, -50%) scale(0);
+  }
+  .pin--you {
+    transition: transform 700ms var(--ease-spring) 200ms;
+  }
+  .scr__sheet > :nth-child(2),
+  .scr__thread > :nth-child(2),
+  .scr__details > :nth-child(2) {
+    transition-delay: 0.12s;
+  }
+  .scr__sheet > :nth-child(3),
+  .scr__thread > :nth-child(3),
+  .scr__details > :nth-child(3) {
+    transition-delay: 0.6s;
+  }
+  .scr__sheet > :nth-child(4),
+  .scr__thread > :nth-child(4),
+  .scr__details > :nth-child(4) {
+    transition-delay: 1.1s;
+  }
+  .scr__sheet > :nth-child(5),
+  .scr__thread > :nth-child(5),
+  .s-wide {
+    transition-delay: 1.5s;
+  }
+</style>

@@ -33,7 +33,8 @@ export default defineConfig({
   integrations: INDEXING ? [sitemap({ filter: (page) => !page.includes('/api/') && !page.includes('/contact/received/') })] : [],
   prefetch: false,
   devToolbar: { enabled: false },
-  build: { inlineStylesheets: 'auto' },
+  // Inline all CSS: no render-blocking stylesheet requests (the whole site's CSS is small).
+  build: { inlineStylesheets: 'always' },
   image: { responsiveStyles: true },
   vite: {
     // Signs the form's time-check token when FORM_TOKEN_SECRET isn't set: random per build,

@@ -1,274 +1,326 @@
 ---
 /**
- * Footer: a closing invitation with the main action and every direct contact channel
- * (Email / Call / WhatsApp / Text), a copyable email, live Toronto time and the small print.
- * Plain document flow: nothing is absolutely positioned, so nothing can overlap.
+ * Footer: closing call to action (hidden on the contact page), link columns, the kinetic name
+ * (letters widen near the pointer) and the bottom bar with the Toronto clock.
  */
-import { profile, businesses, nav } from '../data/site';
-import SocialLinks from './SocialLinks.astro';
+import { profile, social, businesses, nav } from '../data/site';
+import { groups } from '../data/services';
+import { contact, emailHref } from '../lib/contact';
+import Button from './ui/Button.astro';
+import Heading from './ui/Heading.astro';
+import Icon from './ui/Icon.astro';
 import ContactActions from './ContactActions.astro';
 
+interface Props {
+  cta?: boolean;
+}
+const { cta = true } = Astro.props;
 const year = new Date().getFullYear();
-const email = profile.contact.email;
+const mail = emailHref();
+const links = social.filter((s) => s.url);
 const nest = businesses[0];
+const name = [...profile.name];
 ---
 
-<footer class="site-footer on-night">
-  <div class="container">
-    <div class="ft-cta">
-      <div class="ft-head">
-        <p class="ft-label">Have a project in mind?</p>
-        <h2 class="ft-title">Let’s make your business <span class="ft-accent">easy to choose.</span></h2>
-        <p class="ft-sub">Send a short brief, or reach me directly. I reply myself, usually with a question or two.</p>
-      </div>
-      <div class="ft-actions">
-        <a class="btn ft-start" href="/contact/">Start a project <span class="arrow" aria-hidden="true">→</span></a>
-        <ContactActions compact class="ft-reach" />
+<footer class="ftr">
+  {
+    cta && (
+      <section class="ftr__cta container" aria-labelledby="ftr-cta-title">
+        <p class="eyebrow">Next step</p>
+        <Heading id="ftr-cta-title" class="ftr__title" lines={['Tell me what isn’t working.', '<span class="serif serif--signal">I’ll tell you where to start.</span>']} />
+        <div class="ftr__cta-row">
+          <p class="lead" data-reveal>
+            A short brief takes two minutes. I read every one myself and reply by email, usually with a few questions or a
+            suggested first step.
+          </p>
+          <div class="ftr__actions" data-reveal style="--d:120">
+            <div class="btn-row">
+              <Button href="/contact/">Start a project</Button>
+              <Button href="/contact/?package=check-up#brief" variant="ghost">
+                Request the free check
+              </Button>
+            </div>
+            <ContactActions label="Or reach me directly" />
+          </div>
+        </div>
+      </section>
+    )
+  }
+
+  <div class="ftr__grid container">
+    <nav class="ftr__col" aria-label="Footer">
+      <h2 class="ftr__h">Pages</h2>
+      <ul role="list">
+        <li><a class="link-quiet" href="/">Home</a></li>
+        {nav.map((n) => <li><a class="link-quiet" href={n.href}>{n.label}</a></li>)}
+        <li><a class="link-quiet" href="/contact/">Contact</a></li>
+      </ul>
+    </nav>
+    <div class="ftr__col">
+      <h2 class="ftr__h">Services</h2>
+      <ul role="list">
+        {groups.map((g) => <li><a class="link-quiet" href={`/services/#${g.id}`}>{g.title}</a></li>)}
+        <li><a class="link-quiet" href="/services/#packages">Packages</a></li>
+        <li><a class="link-quiet" href="/services/#check">Free Found &amp; Answered check</a></li>
+      </ul>
+    </div>
+    <div class="ftr__col ftr__col--wide">
+      <h2 class="ftr__h">Contact</h2>
+      <ul role="list">
         {
-          email && (
-            <p class="ft-copy">
-              <a href={`mailto:${email}`} data-contact="email">{email}</a>
-              <button class="ft-copy-btn" type="button" data-copy-email={email}>
-                Copy email
+          contact.email && (
+            <li class="ftr__email">
+              <a class="link-quiet" href={mail} data-contact="email">
+                {contact.email}
+              </a>
+              <button class="copy" type="button" data-copy={contact.email}>
+                <Icon name="copy" />
+                <span class="visually-hidden">Copy email address</span>
               </button>
-              <span class="ft-copied" role="status" data-copy-email-status></span>
-            </p>
+            </li>
           )
         }
-      </div>
+        {
+          contact.phone && (
+            <li>
+              <a class="link-quiet num" href="/contact/#reach" data-reach="call" data-k={contact.phone.key} data-contact="phone">
+                <span class="visually-hidden">Call, number partly hidden for privacy: </span>
+                {contact.phone.masked}
+              </a>
+            </li>
+          )
+        }
+        <li class="subtle">Based in {profile.location}. Working across {profile.serviceArea}.</li>
+      </ul>
     </div>
+    <div class="ftr__col">
+      <h2 class="ftr__h">Elsewhere</h2>
+      <ul role="list">
+        {
+          links.map((s) => (
+            <li>
+              <a class="link-quiet" href={s.url!} rel="me noopener" data-contact={s.id}>
+                {s.label}
+                <Icon name="arrow-ne" />
+              </a>
+            </li>
+          ))
+        }
+        <li>
+          <a class="link-quiet" href={nest.url} rel="noopener">
+            {nest.name}
+            <Icon name="arrow-ne" />
+          </a>
+        </li>
+      </ul>
+    </div>
+  </div>
 
-    <div class="ft-bottom">
-      <div>
-        <p class="ft-label">Local time</p>
-        <p data-local-time>Toronto</p>
-      </div>
-      <nav aria-label="Footer">
-        <p class="ft-label">Pages</p>
-        <ul role="list">
-          <li><a href="/">Home</a></li>
-          {nav.map((item) => <li><a href={item.href}>{item.label}</a></li>)}
-          <li><a href="/contact/">Contact</a></li>
-          <li><a href="/privacy/">Privacy Policy</a></li>
-          <li><a href="/terms/">Terms of Use</a></li>
-        </ul>
-      </nav>
-      <div>
-        <p class="ft-label">Socials</p>
-        <SocialLinks />
-      </div>
-      <div>
-        <p class="ft-label">My business</p>
-        <p>
-          <a href={nest.url} rel="noopener" data-track="nest_and_rest">{nest.name}&nbsp;<span aria-hidden="true">↗</span></a>
-        </p>
-        <p class="small ft-muted">Home cleaning · bookings open summer 2027</p>
-      </div>
-    </div>
+  <div class="ftr__name" data-kinetic aria-hidden="true">
+    {name.map((ch) => (ch === ' ' ? <span class="k-space" /> : <span data-k-ch>{ch}</span>))}
+    <span class="k-dot" />
+  </div>
 
-    <div class="ft-legal">
-      <p>© {year} {profile.name} · Toronto, Ontario</p>
-      <nav class="ft-legal-links" aria-label="Legal">
-        <a href="/privacy/">Privacy Policy</a>
-        <a href="/terms/">Terms of Use</a>
-        <a href="/privacy/#analytics">Cookies</a>
-      </nav>
-      <a class="ft-top" href="#main">Back to top <span aria-hidden="true">↑</span></a>
-    </div>
+  <div class="ftr__bottom container">
+    <p>© {year} {profile.name} · Toronto, Canada</p>
+    <p class="num ftr__clock">
+      <span class="status__dot" aria-hidden="true"></span>
+      Toronto time <time data-clock>--:--</time>
+    </p>
+    <p class="ftr__legal">
+      <a class="link-quiet" href="/privacy/">Privacy</a>
+      <a class="link-quiet" href="/terms/">Terms</a>
+      <a class="link-quiet ftr__top" href="#main">Back to top <Icon name="arrow" class="up" /></a>
+    </p>
   </div>
 </footer>
 
-<script>
-  // Live local time in Toronto, e.g. "9:41 p.m. EST · Toronto".
-  const out = document.querySelector<HTMLElement>('[data-local-time]');
-  if (out) {
-    const fmt = new Intl.DateTimeFormat('en-CA', {
-      timeZone: 'America/Toronto',
-      hour: 'numeric',
-      minute: '2-digit',
-      timeZoneName: 'short',
-    });
-    const tick = () => (out.textContent = `${fmt.format(new Date())} · Toronto`);
-    tick();
-    window.setInterval(tick, 30_000);
-  }
-
-  const copy = document.querySelector<HTMLButtonElement>('[data-copy-email]');
-  const status = document.querySelector<HTMLElement>('[data-copy-email-status]');
-  copy?.addEventListener('click', async () => {
-    try {
-      await navigator.clipboard.writeText(copy.dataset.copyEmail ?? '');
-      if (status) status.textContent = 'Copied';
-      copy.classList.add('is-copied');
-      window.setTimeout(() => {
-        copy.classList.remove('is-copied');
-        if (status) status.textContent = '';
-      }, 2400);
-    } catch {
-      if (status) status.textContent = copy.dataset.copyEmail ?? '';
-    }
-  });
-</script>
-
 <style>
-  .site-footer {
-    padding-block: clamp(4rem, 3rem + 5vw, 7rem) var(--space-l);
-    overflow: hidden;
+  .ftr {
+    position: relative;
+    margin-top: auto;
+    border-top: 1px solid var(--line);
+    overflow: clip;
   }
-  .ft-cta {
+  .ftr__cta {
+    padding-block: var(--section) calc(var(--section) * 0.7);
     display: grid;
-    gap: var(--space-xl);
-    padding-bottom: clamp(3rem, 2rem + 4vw, 5rem);
+    gap: var(--s-6);
+  }
+  .ftr__title {
+    font-size: clamp(2.4rem, 1.4rem + 4.6vw, 6.25rem);
+    font-weight: 760;
+    font-stretch: 114%;
+    letter-spacing: -0.045em;
+    line-height: 0.95;
+    max-width: 18ch;
+  }
+  .ftr__cta-row {
+    display: grid;
+    gap: var(--s-6);
+    align-items: start;
+  }
+  .ftr__actions {
+    display: grid;
+    gap: var(--s-5);
   }
   @media (min-width: 64em) {
-    .ft-cta {
-      grid-template-columns: minmax(0, 1.25fr) minmax(0, 1fr);
-      align-items: end;
-      gap: var(--space-2xl);
+    .ftr__cta-row {
+      grid-template-columns: minmax(0, 1fr) minmax(0, 1fr);
+      gap: var(--s-8);
     }
   }
-  .ft-head {
+
+  .ftr__grid {
     display: grid;
-    gap: var(--space-s);
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: var(--s-7) var(--s-5);
+    padding-block: var(--s-8);
+    border-top: 1px solid var(--line);
   }
-  .ft-title {
-    font-size: clamp(2.4rem, 1.5rem + 4vw, 5rem);
-    font-weight: 650;
-    line-height: 1.02;
-    letter-spacing: -0.04em;
-    color: var(--night-ink);
-    max-width: 14ch;
-    text-wrap: balance;
+  .ftr__col--wide {
+    grid-column: 1 / -1;
   }
-  .ft-accent {
-    color: var(--accent-on-night);
-    font-style: italic;
+  @media (min-width: 56em) {
+    .ftr__grid {
+      grid-template-columns: repeat(4, minmax(0, 1fr));
+    }
+    .ftr__col--wide {
+      grid-column: auto;
+    }
+  }
+  .ftr__h {
+    margin-bottom: var(--s-4);
+    font-family: var(--font-mono);
+    font-size: var(--fs-xs);
     font-weight: 500;
+    letter-spacing: var(--track-label);
+    text-transform: uppercase;
+    color: var(--text-3);
+    font-stretch: 100%;
   }
-  .ft-sub {
-    max-width: 42ch;
-    color: var(--night-ink-2);
-  }
-  .ft-actions {
+  .ftr__col ul {
     display: grid;
-    gap: var(--space-m);
-    justify-items: start;
-    min-width: 0;
+    gap: var(--s-1);
+    font-size: 0.9875rem;
   }
-  .ft-actions :global(.ft-reach) {
-    width: min(100%, 28rem);
-  }
-  .ft-start {
-    font-size: var(--step-1);
-    padding: 0.8em 1.5em;
-  }
-  .ft-copy {
+  .ftr__col li {
+    min-height: 2rem;
     display: flex;
-    flex-wrap: wrap;
     align-items: center;
-    gap: var(--space-2xs) var(--space-s);
-    font-weight: 700;
   }
-  .ft-copy a {
+  .ftr__col li.subtle {
+    font-size: var(--fs-sm);
+    line-height: 1.45;
+    margin-top: var(--s-2);
+  }
+  .link-quiet {
     display: inline-flex;
     align-items: center;
-    min-height: var(--tap);
-    color: var(--night-ink);
+    gap: 0.35em;
+    min-height: 2rem;
+    color: var(--text-2);
+    text-decoration: none;
+    transition: color var(--t-fast);
     overflow-wrap: anywhere;
   }
-  .ft-copy-btn {
-    min-height: var(--tap);
-    padding: 0 var(--space-s);
-    border: 1px solid var(--night-line);
-    border-radius: var(--radius-pill);
+  .link-quiet:hover {
+    color: var(--signal);
+  }
+  .link-quiet .icon {
+    width: 0.95em;
+    height: 0.95em;
+  }
+  .ftr__email {
+    gap: var(--s-2);
+  }
+  .copy {
+    display: inline-grid;
+    place-items: center;
+    width: 2.25rem;
+    height: 2.25rem;
+    flex: none;
+    border: 1px solid var(--line);
+    border-radius: 50%;
     background: transparent;
-    color: var(--night-ink-2);
-    font: inherit;
-    font-size: var(--step--1);
-    cursor: pointer;
+    color: var(--text-2);
+    transition: border-color var(--t-fast), color var(--t-fast), background-color var(--t-fast);
   }
-  .ft-copy-btn:hover,
-  .ft-copy-btn.is-copied {
-    border-color: var(--night-ink);
-    color: var(--night-ink);
+  .copy:hover {
+    border-color: var(--control);
+    color: var(--text);
   }
-  .ft-copied {
-    font-size: var(--step--1);
-    color: var(--night-ink-2);
+  .copy:global(.is-copied) {
+    background: var(--signal);
+    border-color: var(--signal);
+    color: var(--on-signal);
   }
-  .ft-bottom {
-    display: grid;
-    gap: var(--space-l);
-    padding-block: var(--space-l);
-    border-top: 1px solid var(--night-line);
-    grid-template-columns: repeat(auto-fit, minmax(min(100%, 11rem), 1fr));
-    font-size: var(--step--1);
+  .copy .icon {
+    width: 1rem;
+    height: 1rem;
   }
-  .ft-label {
-    margin-bottom: var(--space-2xs);
-    font-family: var(--font-mono);
-    font-size: var(--step--1);
-    letter-spacing: var(--tracking-label);
-    text-transform: uppercase;
-    color: var(--night-ink-2);
+
+  /* The kinetic name: sized to the viewport; letters respond to the pointer through --g. */
+  .ftr__name {
+    display: flex;
+    justify-content: center;
+    align-items: baseline;
+    padding-inline: var(--gutter);
+    font-size: clamp(3.4rem, 16.2vw, 17.5rem);
+    font-weight: 800;
+    line-height: 0.78;
+    letter-spacing: -0.05em;
+    color: var(--text);
+    user-select: none;
+    white-space: nowrap;
+    padding-bottom: 0.06em;
   }
-  .ft-bottom ul {
-    list-style: none;
-    padding: 0;
-    display: grid;
+  .ftr__name [data-k-ch] {
+    --g: 0;
+    flex: none;
+    display: inline-block;
+    font-variation-settings:
+      'wdth' calc(96 + var(--g) * 29),
+      'wght' calc(760 + var(--g) * 140);
+    color: color-mix(in oklab, var(--text) calc(100% - var(--g) * 100%), var(--signal));
+    transition: font-variation-settings 420ms var(--ease-out), color 420ms var(--ease-out);
   }
-  .ft-bottom ul a {
-    display: inline-flex;
-    align-items: center;
-    min-height: 2rem;
+  .k-space {
+    width: 0.24em;
   }
-  .ft-bottom a {
-    color: var(--night-ink);
-    text-decoration: none;
+  .k-dot {
+    flex: none;
+    width: 0.16em;
+    height: 0.16em;
+    margin-left: 0.04em;
+    border-radius: 50%;
+    background: var(--signal);
   }
-  .ft-bottom a:hover {
-    text-decoration: underline;
-  }
-  .ft-muted {
-    color: var(--night-ink-2);
-  }
-  .ft-legal {
+
+  .ftr__bottom {
     display: flex;
     flex-wrap: wrap;
-    align-items: center;
     justify-content: space-between;
-    gap: var(--space-s);
-    padding-top: var(--space-m);
-    border-top: 1px solid var(--night-line);
-    font-size: var(--step--1);
-    color: var(--night-ink-2);
+    align-items: center;
+    gap: var(--s-3) var(--s-6);
+    padding-block: var(--s-5) var(--s-6);
+    border-top: 1px solid var(--line);
+    font-size: var(--fs-sm);
+    color: var(--text-3);
   }
-  .ft-legal-links {
+  .ftr__clock {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.6em;
+    font-size: var(--fs-xs);
+    letter-spacing: 0.04em;
+  }
+  .ftr__legal {
     display: flex;
     flex-wrap: wrap;
-    gap: 0 var(--space-m);
+    gap: var(--s-2) var(--s-5);
   }
-  .ft-legal-links a {
-    display: inline-flex;
-    align-items: center;
-    min-height: var(--tap);
-    color: var(--night-ink);
-    text-decoration: underline;
-    text-underline-offset: 0.2em;
-  }
-  .ft-legal-links a:hover {
-    color: var(--accent-on-night);
-  }
-  .ft-top {
-    display: inline-flex;
-    align-items: center;
-    gap: 0.4em;
-    min-height: var(--tap);
-    color: var(--night-ink);
-    font-weight: 700;
-    text-decoration: none;
-  }
-  .ft-top:hover {
-    text-decoration: underline;
+  .ftr__top .up {
+    transform: rotate(-90deg);
   }
 </style>

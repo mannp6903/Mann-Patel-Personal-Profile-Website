@@ -1,0 +1,366 @@
+---
+/**
+ * Quick menu (⌘K / Ctrl K, or the search button in the header): jump to any page or run an
+ * action (copy the email address, start a project, call, WhatsApp, text). A native <dialog>
+ * with an ARIA combobox + listbox, fully usable with the keyboard.
+ */
+import { getCollection } from 'astro:content';
+import { contact, emailHref } from '../lib/contact';
+import Icon, { type IconName } from './ui/Icon.astro';
+
+const work = (await getCollection('work')).sort((a, b) => a.data.order - b.data.order);
+const phone = contact.phone;
+const mail = emailHref();
+
+type Item = { id: string; label: string; hint: string; icon: IconName; href?: string; action?: string; reach?: string; keywords?: string };
+const groups: { title: string; items: Item[] }[] = [
+  {
+    title: 'Actions',
+    items: [
+      { id: 'start', label: 'Start a project', hint: 'Send a short brief', icon: 'arrow', href: '/contact/#brief', keywords: 'contact hire quote brief form' },
+      { id: 'check', label: 'Request the free check', hint: 'Found & Answered check', icon: 'sparkle', href: '/contact/?package=check-up#brief', keywords: 'free audit review' },
+      ...(contact.email
+        ? [
+            { id: 'copy', label: 'Copy email address', hint: contact.email, icon: 'copy' as IconName, action: 'copy-email', keywords: 'email mail address' },
+            { id: 'mail', label: 'Write an email', hint: contact.email, icon: 'mail' as IconName, href: mail!, keywords: 'email mail' },
+          ]
+        : []),
+      ...(phone
+        ? [
+            { id: 'call', label: 'Call Mann', hint: phone.masked, icon: 'phone' as IconName, reach: 'call', keywords: 'phone telephone' },
+            { id: 'wa', label: 'Message on WhatsApp', hint: 'Opens WhatsApp', icon: 'whatsapp' as IconName, reach: 'whatsapp', keywords: 'chat message' },
+            { id: 'sms', label: 'Send a text', hint: 'Opens Messages', icon: 'text' as IconName, reach: 'text', keywords: 'sms message' },
+          ]
+        : []),
+    ],
+  },
+  {
+    title: 'Pages',
+    items: [
+      { id: 'p-home', label: 'Home', hint: '/', icon: 'home', href: '/' },
+      { id: 'p-services', label: 'Services and packages', hint: '/services/', icon: 'layers', href: '/services/', keywords: 'pricing google website booking reviews' },
+      { id: 'p-work', label: 'Work', hint: '/work/', icon: 'grid', href: '/work/', keywords: 'projects portfolio case study' },
+      ...work.map((w) => ({ id: `w-${w.id}`, label: w.data.title, hint: 'Case study', icon: 'arrow-ne' as IconName, href: `/work/${w.id}/` })),
+      { id: 'p-about', label: 'About Mann', hint: '/about/', icon: 'user', href: '/about/', keywords: 'story bio' },
+      { id: 'p-contact', label: 'Contact', hint: '/contact/', icon: 'chat', href: '/contact/' },
+      { id: 'p-privacy', label: 'Privacy Policy', hint: '/privacy/', icon: 'shield', href: '/privacy/' },
+      { id: 'p-terms', label: 'Terms of Use', hint: '/terms/', icon: 'shield', href: '/terms/' },
+    ],
+  },
+];
+---
+
+<dialog class="qm" aria-label="Quick menu" data-qm>
+  <div class="qm__panel">
+    <div class="qm__search">
+      <Icon name="search" />
+      <input
+        class="qm__input"
+        type="text"
+        role="combobox"
+        aria-expanded="true"
+        aria-controls="qm-list"
+        aria-autocomplete="list"
+        aria-label="Search pages and actions"
+        placeholder="Search pages and actions…"
+        autocomplete="off"
+        spellcheck="false"
+        data-qm-input
+      />
+      <kbd>Esc</kbd>
+    </div>
+    <div class="qm__list" id="qm-list" role="listbox" aria-label="Pages and actions" data-qm-list>
+      {
+        groups.map((g) => (
+          <div role="group" aria-label={g.title} class="qm__group" data-qm-group>
+            <p class="qm__title" aria-hidden="true">
+              {g.title}
+            </p>
+            {g.items.map((it) => (
+              <a
+                class="qm__item"
+                id={`qm-${it.id}`}
+                role="option"
+                aria-selected="false"
+                href={it.href ?? (it.reach ? '/contact/#reach' : '#')}
+                data-qm-item
+                data-action={it.action}
+                data-reach={it.reach}
+                data-k={it.reach ? phone?.key : undefined}
+                data-contact={it.reach ? (it.reach === 'call' ? 'phone' : it.reach) : it.id === 'mail' ? 'email' : undefined}
+                data-search={`${it.label} ${it.hint} ${it.keywords ?? ''}`.toLowerCase()}
+                tabindex="-1"
+              >
+                <span class="qm__icon">
+                  <Icon name={it.icon} />
+                </span>
+                <span class="qm__label">{it.label}</span>
+                <span class="qm__hint">{it.hint}</span>
+              </a>
+            ))}
+          </div>
+        ))
+      }
+      <p class="qm__empty" data-qm-empty hidden>No matches. Try “services”, “email” or “work”.</p>
+    </div>
+    <p class="qm__foot" aria-hidden="true">
+      <span><kbd>↑</kbd><kbd>↓</kbd> move</span>
+      <span><kbd>Enter</kbd> open</span>
+      <span class="qm__status" data-qm-status></span>
+    </p>
+    <p class="visually-hidden" role="status" data-qm-live></p>
+  </div>
+</dialog>
+
+<script>
+  import { track } from '../scripts/analytics';
+
+  const dlg = document.querySelector<HTMLDialogElement>('[data-qm]');
+  if (dlg) {
+    const input = dlg.querySelector<HTMLInputElement>('[data-qm-input]')!;
+    const items = [...dlg.querySelectorAll<HTMLAnchorElement>('[data-qm-item]')];
+    const groups = [...dlg.querySelectorAll<HTMLElement>('[data-qm-group]')];
+    const empty = dlg.querySelector<HTMLElement>('[data-qm-empty]')!;
+    const live = dlg.querySelector<HTMLElement>('[data-qm-live]')!;
+    const status = dlg.querySelector<HTMLElement>('[data-qm-status]')!;
+    let visible = items;
+    let active = 0;
+    let opener: HTMLElement | null = null;
+
+    const setActive = (i: number) => {
+      if (!visible.length) {
+        input.removeAttribute('aria-activedescendant');
+        return;
+      }
+      active = (i + visible.length) % visible.length;
+      items.forEach((it) => it.setAttribute('aria-selected', 'false'));
+      const el = visible[active];
+      el.setAttribute('aria-selected', 'true');
+      input.setAttribute('aria-activedescendant', el.id);
+      el.scrollIntoView({ block: 'nearest' });
+    };
+    const filter = () => {
+      const q = input.value.trim().toLowerCase();
+      const words = q.split(/\s+/).filter(Boolean);
+      visible = items.filter((it) => {
+        const ok = words.every((w) => (it.dataset.search ?? '').includes(w));
+        it.hidden = !ok;
+        return ok;
+      });
+      groups.forEach((g) => (g.hidden = !g.querySelector('[data-qm-item]:not([hidden])')));
+      empty.hidden = visible.length > 0;
+      live.textContent = q ? `${visible.length} result${visible.length === 1 ? '' : 's'}` : '';
+      setActive(0);
+    };
+    const open = () => {
+      if (dlg.open) return;
+      opener = document.activeElement as HTMLElement | null;
+      input.value = '';
+      status.textContent = '';
+      filter();
+      dlg.showModal();
+      input.focus();
+      track('quick_menu_open', {});
+    };
+    const close = () => dlg.open && dlg.close();
+    dlg.addEventListener('close', () => opener?.focus());
+
+    const run = async (el: HTMLAnchorElement, e?: Event) => {
+      if (el.dataset.action === 'copy-email') {
+        e?.preventDefault();
+        const email = el.querySelector('.qm__hint')?.textContent ?? '';
+        try {
+          await navigator.clipboard.writeText(email);
+          status.textContent = live.textContent = 'Email address copied';
+        } catch {
+          status.textContent = live.textContent = email;
+        }
+        return;
+      }
+      if (!e) el.click();
+      close();
+    };
+
+    document.addEventListener('keydown', (e) => {
+      if ((e.metaKey || e.ctrlKey) && e.key.toLowerCase() === 'k') {
+        e.preventDefault();
+        dlg.open ? close() : open();
+      }
+    });
+    document.querySelectorAll('[data-qm-open]').forEach((b) => b.addEventListener('click', open));
+    input.addEventListener('input', filter);
+    input.addEventListener('keydown', (e) => {
+      if (e.key === 'ArrowDown') {
+        e.preventDefault();
+        setActive(active + 1);
+      } else if (e.key === 'ArrowUp') {
+        e.preventDefault();
+        setActive(active - 1);
+      } else if (e.key === 'Home' && e.ctrlKey) {
+        setActive(0);
+      } else if (e.key === 'Enter') {
+        e.preventDefault();
+        const el = visible[active];
+        if (el) run(el);
+      }
+    });
+    items.forEach((el) => {
+      el.addEventListener('click', (e) => run(el, e));
+      el.addEventListener('pointermove', () => {
+        const idx = visible.indexOf(el);
+        if (idx !== -1 && idx !== active) setActive(idx);
+      });
+    });
+    // Click on the backdrop closes.
+    dlg.addEventListener('click', (e) => {
+      if (e.target === dlg) close();
+    });
+  }
+</script>
+
+<style>
+  .qm {
+    width: min(40rem, calc(100% - 2rem));
+    max-height: min(34rem, calc(100dvh - 4rem));
+    margin: 12vh auto auto;
+    padding: 0;
+    border: 0;
+    border-radius: 20px;
+    background: var(--surface);
+    color: var(--text);
+    box-shadow: var(--shadow-pop);
+    overflow: hidden;
+  }
+  .qm::backdrop {
+    background: rgb(0 0 0 / 0.55);
+    backdrop-filter: blur(4px);
+  }
+  .qm[open] {
+    animation: qm-in 380ms var(--ease-out);
+  }
+  @keyframes qm-in {
+    from {
+      opacity: 0;
+      transform: translateY(-12px) scale(0.98);
+    }
+  }
+  .qm__panel {
+    display: flex;
+    flex-direction: column;
+    max-height: inherit;
+  }
+  .qm__search {
+    display: flex;
+    align-items: center;
+    gap: var(--s-3);
+    padding: 0 var(--s-5);
+    border-bottom: 1px solid var(--line);
+    color: var(--text-3);
+  }
+  .qm__input {
+    flex: 1;
+    min-height: 3.75rem;
+    border: 0;
+    background: transparent;
+    font-size: 1.0625rem;
+    color: var(--text);
+  }
+  .qm__input:focus {
+    outline: none;
+  }
+  .qm__list {
+    overflow-y: auto;
+    padding: var(--s-2);
+    overscroll-behavior: contain;
+  }
+  .qm__title {
+    padding: var(--s-3) var(--s-3) var(--s-2);
+    font-family: var(--font-mono);
+    font-size: 0.75rem;
+    letter-spacing: var(--track-label);
+    text-transform: uppercase;
+    color: var(--text-3);
+  }
+  .qm__item {
+    display: grid;
+    grid-template-columns: auto 1fr auto;
+    align-items: center;
+    gap: var(--s-3);
+    min-height: 3rem;
+    padding: var(--s-2) var(--s-3);
+    border-radius: 10px;
+    text-decoration: none;
+    color: var(--text-2);
+  }
+  .qm__item[aria-selected='true'] {
+    background: var(--surface-2);
+    color: var(--text);
+  }
+  .qm__item[aria-selected='true'] .qm__icon {
+    background: var(--signal);
+    color: var(--on-signal);
+    border-color: var(--signal);
+  }
+  .qm__icon {
+    display: grid;
+    place-items: center;
+    width: 2rem;
+    height: 2rem;
+    border-radius: 8px;
+    border: 1px solid var(--line);
+    transition: background-color var(--t-fast), color var(--t-fast);
+  }
+  .qm__icon .icon {
+    width: 1rem;
+    height: 1rem;
+  }
+  .qm__label {
+    font-weight: 560;
+  }
+  .qm__hint {
+    font-family: var(--font-mono);
+    font-size: 0.75rem;
+    color: var(--text-3);
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    max-width: 14rem;
+  }
+  .qm__empty {
+    padding: var(--s-6) var(--s-4);
+    color: var(--text-3);
+    text-align: center;
+  }
+  .qm__foot {
+    display: flex;
+    gap: var(--s-5);
+    padding: var(--s-3) var(--s-5);
+    border-top: 1px solid var(--line);
+    font-size: 0.75rem;
+    color: var(--text-3);
+  }
+  .qm__foot kbd + kbd {
+    margin-left: 2px;
+  }
+  .qm__status {
+    margin-left: auto;
+    color: var(--signal);
+  }
+  kbd {
+    font-family: var(--font-mono);
+    font-size: 0.7rem;
+    padding: 0.1rem 0.35rem;
+    border: 1px solid var(--line);
+    border-radius: 5px;
+    color: var(--text-3);
+    margin-right: 0.3em;
+  }
+  @media (max-width: 30em) {
+    .qm__hint {
+      display: none;
+    }
+    .qm__foot {
+      display: none;
+    }
+  }
+</style>

@@ -1,15 +1,17 @@
 ---
 import BaseLayout from '../layouts/BaseLayout.astro';
-import ServiceOverview from '../components/ServiceOverview.astro';
-import ProcessSteps from '../components/ProcessSteps.astro';
-import WorkflowDemo from '../components/WorkflowDemo.astro';
-import CtaBand from '../components/CtaBand.astro';
-import Confirm from '../components/Confirm.astro';
-import { groups, servicesInGroup, addOns } from '../data/services';
-import { packages, checkUp } from '../data/packages';
+import PageHead from '../components/PageHead.astro';
+import Heading from '../components/ui/Heading.astro';
+import Button from '../components/ui/Button.astro';
+import Icon from '../components/ui/Icon.astro';
+import FreeCheck from '../components/home/FreeCheck.astro';
+import Finder from '../components/Finder.astro';
+import Process from '../components/Process.astro';
+import Faq from '../components/Faq.astro';
+import { groups, servicesInGroup, addOns, type ServiceGroup } from '../data/services';
+import { packages } from '../data/packages';
 import { faqs } from '../data/faqs';
 
-const allPackages = [...packages, checkUp];
 const faqLd = {
   '@context': 'https://schema.org',
   '@type': 'FAQPage',
@@ -17,13 +19,14 @@ const faqLd = {
     .filter((f) => !f.confirm)
     .map((f) => ({ '@type': 'Question', name: f.q, acceptedAnswer: { '@type': 'Answer', text: f.a } })),
 };
-// "Compare at a glance": which areas each package covers, derived from its serviceIds.
-const areas = [
-  { label: 'A · Google & reviews', ids: ['business-profile', 'reviews', 'listings', 'local-plan'] },
-  { label: 'B · Replies & booking', ids: ['missed-calls', 'enquiry-workflows', 'booking', 'integrations'] },
-  { label: 'C · Website', ids: ['websites', 'seo', 'maintenance'] },
+const areaGroups: ServiceGroup[] = [...groups, addOns];
+const jump = [
+  ...areaGroups.map((g) => ({ href: `#${g.id}`, label: g.verb, letter: g.letter })),
+  { href: '#packages', label: 'Packages', letter: '' },
+  { href: '#check', label: 'Free check', letter: '' },
+  { href: '#process', label: 'Process', letter: '' },
+  { href: '#faq', label: 'Questions', letter: '' },
 ];
-const covers = (pkgIds: readonly string[], ids: string[]) => ids.some((id) => pkgIds.includes(id));
 ---
 
 <BaseLayout
@@ -31,158 +34,101 @@ const covers = (pkgIds: readonly string[], ids: string[]) => ids.some((id) => pk
   description="Get found and chosen on Google, never miss an enquiry, and a website that books work: Google Business Profile, reviews, missed-call text-back, online booking, websites, plus flyers and social content for Toronto and GTA small businesses."
   jsonLd={faqLd}
 >
-  <section class="section page-head">
-    <div class="container head">
-      <p class="label">Services</p>
-      <h1>Clear deliverables. Plain language. Yours to keep.</h1>
-      <p class="lead measure">
-        Three areas that follow your customer’s path: they find you, they contact you, they book. Start with one area or
-        a common package. Every service lists what’s included, what I need from you and what isn’t included, and every
-        project gets a written quote.
-      </p>
-      <nav class="jump" aria-label="On this page">
-        <ul role="list">
-          <li><a href="#packages">Packages</a></li>
-          {groups.map((g) => <li><a href={`#${g.id}`}><span class="jl">{g.letter}</span> {g.title}</a></li>)}
-          <li><a href={`#${addOns.id}`}><span class="jl">+</span> {addOns.title}</a></li>
-          <li><a href="#faq">Questions</a></li>
-        </ul>
-      </nav>
-    </div>
-  </section>
+  <PageHead
+    eyebrow="Services"
+    lines={['Clear deliverables.', 'Plain language.', '<span class="serif serif--signal">Yours to keep.</span>']}
+    lead="Three areas that follow your customer’s path: they find you, they contact you, they book. Every service lists what’s included, what I need from you and what isn’t included, and every project gets a written quote."
+  />
 
-  <section class="section section--tight" aria-labelledby="outcomes-title">
+  <nav class="jump" aria-label="On this page" data-jump>
     <div class="container">
-      <div class="section-head">
-        <p class="label">Three outcomes</p>
-        <h2 id="outcomes-title">Found. Answered. Booked.</h2>
-      </div>
-      <ServiceOverview />
-    </div>
-  </section>
-
-  <section class="section on-night" id="packages" aria-labelledby="pk-title">
-    <div class="container">
-      <div class="section-head">
-        <p class="label">Packages</p>
-        <h2 id="pk-title">Common starting points.</h2>
-        <p class="muted">
-          Packages bundle the services that usually go together. Every one is scoped and quoted in writing; nothing is
-          fixed until you’ve seen it.
-        </p>
-      </div>
-      <div class="compare-wrap" role="region" aria-labelledby="cmp-caption" tabindex="0">
-        <table class="compare">
-          <caption id="cmp-caption">Compare at a glance: what each starting point covers</caption>
-          <thead>
-            <tr>
-              <th scope="col">Package</th>
-              <th scope="col">Best for</th>
-              {areas.map((a) => <th scope="col">{a.label}</th>)}
-            </tr>
-          </thead>
-          <tbody>
-            {
-              allPackages.map((p) => (
-                <tr>
-                  <th scope="row"><a href={`#pk-${p.id}`}>{p.name}</a></th>
-                  <td class="fit">{p.forWho}</td>
-                  {p.id === 'check-up' ? (
-                    <td class="fit review" colspan={areas.length}>
-                      Free. A review, not a build: how you look on Google, Maps and AI assistants, your reviews against
-                      nearby competitors, and a test enquiry, then a written fix list.
-                    </td>
-                  ) : areas.map((a) => (
-                    <td class="mark">
-                      {covers(p.serviceIds, a.ids) ? (
-                        <>
-                          <span aria-hidden="true">●</span>
-                          <span class="visually-hidden">Included</span>
-                        </>
-                      ) : (
-                        <>
-                          <span aria-hidden="true" class="dim">–</span>
-                          <span class="visually-hidden">Not included</span>
-                        </>
-                      )}
-                    </td>
-                  ))}
-                </tr>
-              ))
-            }
-          </tbody>
-        </table>
-      </div>
-      <div class="packages">
+      <ul role="list">
         {
-          allPackages.map((p) => (
-            <article class:list={['pkg', { featured: p.featured, small: p.id === 'check-up' }]} aria-labelledby={`pk-${p.id}`}>
-              {p.featured && <p class="chip flag">Most common</p>}
-              {p.free && <p class="chip flag">Free</p>}
-              <h3 id={`pk-${p.id}`}>{p.name}</h3>
-              <p class="for">{p.forWho}</p>
-              <h4>Includes</h4>
-              <ul class="ticks" role="list">{p.includes.map((i) => <li>{i}</li>)}</ul>
-              <h4>Not included</h4>
-              <ul class="crosses" role="list">{p.notIncluded.map((i) => <li>{i}</li>)}</ul>
-              <h4>You provide</h4>
-              <p class="small">{p.youProvide.join(' · ')}</p>
-              {p.id === 'answered' && (
-                <a class="demo-link" href="#follow-up">See what follow-up looks like ↓</a>
-              )}
-              <a class="btn" href={`/contact/?package=${p.id}&services=${p.serviceIds.join(',')}#brief`}>
-                {p.free ? 'Request your free check' : 'Request a quote'}<span class="visually-hidden">: {p.name}</span>
+          jump.map((j) => (
+            <li>
+              <a href={j.href}>
+                {j.letter && (
+                  <span class="jump__l num" aria-hidden="true">
+                    {j.letter}
+                  </span>
+                )}
+                {j.label}
               </a>
-            </article>
+            </li>
           ))
         }
-      </div>
-      <div class="terms-box">
-        <h3>In every written scope</h3>
-        <ul role="list">
-          <li><strong>Two rounds of changes</strong> per deliverable are included. More are quoted.</li>
-          <li><strong>Third-party fees</strong> (domain, email, hosting, booking tools, phone and texting, printing) are billed to you by the provider, in your name.</li>
-          <li><strong>Ownership:</strong> your domain, accounts, content and final files are yours. I only show your project in my portfolio with your written permission.</li>
-          <li><strong>One-time vs ongoing:</strong> setup is a one-time fee. Monthly plans (Stay found, care) are separate, so you can stop any of them.</li>
-        </ul>
-      </div>
+      </ul>
     </div>
-  </section>
-
-  <section class="section section--tight catalogue-head" aria-labelledby="catalogue-title">
-    <div class="container">
-      <div class="section-head">
-        <p class="label">Every service in detail</p>
-        <h2 id="catalogue-title">What you get, what I need, what isn’t included.</h2>
-        <p class="muted measure">Use these when you already know what you need, or to see exactly what a package covers.</p>
-      </div>
-    </div>
-  </section>
+  </nav>
 
   {
-    [...groups, addOns].map((g) => (
-      <section class:list={['section', 'group', { 'section--alt': g.letter === 'B' || g.letter === '+' }]} id={g.id} aria-labelledby={`g-${g.id}`}>
-        <div class="container">
-          <header class="group-head">
-            <p class="letter" aria-hidden="true">{g.letter}</p>
-            <div class="stack" style="--stack: var(--space-xs)">
-              <p class="verb">{g.verb}</p>
-              <h2 id={`g-${g.id}`}>{g.title}</h2>
-              <p class="lead measure">{g.intro}</p>
-            </div>
-          </header>
-
-          <div class="services">
+    areaGroups.map((g) => (
+      <section class="area section section--rule" id={g.id} aria-labelledby={`${g.id}-title`}>
+        <div class="container area__grid">
+          <div class="area__head">
+            <span class="area__letter" aria-hidden="true">
+              {g.letter}
+            </span>
+            <p class="eyebrow">{g.verb}</p>
+            <h2 id={`${g.id}-title`} class="area__title" data-split>
+              <span class="line-mask">
+                <span>{g.title}</span>
+              </span>
+            </h2>
+            <p class="muted">{g.intro}</p>
+          </div>
+          <div class="area__list">
             {servicesInGroup(g.id).map((s) => (
-              <article class="service" id={s.id} aria-labelledby={`s-${s.id}`} data-reveal>
-                <div class="s-main">
-                  <h3 id={`s-${s.id}`}>{s.name}</h3>
-                  <p class="summary">{s.summary}</p>
-                  <p class="problem">
-                    <span class="tag">Sounds familiar?</span> {s.problem}
+              <details class="acc svc" id={s.id} data-svc>
+                <summary>
+                  <span class="svc__sum">
+                    <span class="svc__name">{s.name}</span>
+                    <span class="svc__one">{s.summary}</span>
+                  </span>
+                  <span class="acc__plus" aria-hidden="true" />
+                </summary>
+                <div class="svc__body">
+                  <p class="svc__problem">
+                    <span class="svc__k">Sounds familiar?</span> {s.problem}
+                  </p>
+                  <div class="svc__cols">
+                    <div>
+                      <h3 class="svc__h">What you get</h3>
+                      <ul class="svc__list svc__list--yes" role="list">
+                        {s.deliverables.map((d) => (
+                          <li>
+                            <Icon name="check" />
+                            <span>{d}</span>
+                          </li>
+                        ))}
+                      </ul>
+                    </div>
+                    <div>
+                      <h3 class="svc__h">What I need from you</h3>
+                      <ul class="svc__list" role="list">
+                        {s.inputs.map((d) => (
+                          <li>
+                            <Icon name="arrow" />
+                            <span>{d}</span>
+                          </li>
+                        ))}
+                      </ul>
+                      <h3 class="svc__h">Not included</h3>
+                      <ul class="svc__list svc__list--no" role="list">
+                        {s.exclusions.map((d) => (
+                          <li>
+                            <Icon name="close" />
+                            <span>{d}</span>
+                          </li>
+                        ))}
+                      </ul>
+                    </div>
+                  </div>
+                  <p class="svc__handover">
+                    <span class="svc__k">At handover</span> {s.handover}
                   </p>
                   {s.terms && (
-                    <dl class="terms">
+                    <dl class="svc__terms">
                       {s.terms.map((t) => (
                         <div>
                           <dt>{t.term}</dt>
@@ -191,31 +137,14 @@ const covers = (pkgIds: readonly string[], ids: string[]) => ids.some((id) => pk
                       ))}
                     </dl>
                   )}
+                  <div class="svc__cta">
+                    <Button href={`/contact/?service=${s.id}#brief`} size="sm">
+                      Ask about this
+                    </Button>
+                    <span class="small subtle">{s.nextStep}</span>
+                  </div>
                 </div>
-                <div class="s-detail">
-                  <h4>What you get</h4>
-                  <ul class="ticks" role="list">
-                    {s.deliverables.map((d) => <li>{d}</li>)}
-                  </ul>
-                  <details>
-                    <summary>What I need, what’s not included, handover</summary>
-                    <div class="more">
-                      <h4>What I need from you</h4>
-                      <ul>{s.inputs.map((i) => <li>{i}</li>)}</ul>
-                      <h4>Not included</h4>
-                      <ul class="crosses">{s.exclusions.map((x) => <li>{x}</li>)}</ul>
-                      <h4>Handover</h4>
-                      <p>{s.handover}</p>
-                    </div>
-                  </details>
-                  <p class="next">
-                    <span class="muted small">{s.nextStep}</span>
-                    <a class="btn btn--secondary btn-sm" href={`/contact/?service=${s.id}#brief`}>
-                      Request a quote<span class="visually-hidden">: {s.name}</span>
-                    </a>
-                  </p>
-                </div>
-              </article>
+              </details>
             ))}
           </div>
         </div>
@@ -223,413 +152,403 @@ const covers = (pkgIds: readonly string[], ids: string[]) => ids.some((id) => pk
     ))
   }
 
-  <section class="section on-night" id="follow-up" aria-labelledby="demo-title">
+  <section class="pkgs section section--alt" id="packages" aria-labelledby="packages-title">
     <div class="container">
-      <div class="section-head">
-        <p class="label">What “never miss an enquiry” looks like</p>
-        <h2 id="demo-title">From enquiry to answer, without anything slipping through.</h2>
-        <p class="muted measure">
-          This is the kind of simple routine I set up for owners: an honest acknowledgement, one place to see every
-          enquiry, and a reminder before anyone is forgotten.
+      <div class="section-head section-head--split">
+        <div class="stack" style="--stack: var(--s-5)">
+          <p class="eyebrow">Packages</p>
+          <Heading id="packages-title" lines={['Common starting points,', '<span class="serif">quoted for you.</span>']} />
+        </div>
+        <p class="lead" data-reveal>
+          Each package is a starting point. After a short brief you get a written scope and a quote for what your business
+          actually needs. Third-party fees (domain, email, booking tools) are billed to you by the provider.
         </p>
       </div>
-      <WorkflowDemo />
-    </div>
-  </section>
-
-  <section class="section" aria-labelledby="process-title">
-    <div class="container">
-      <div class="section-head">
-        <p class="label">Process</p>
-        <h2 id="process-title">How every project runs.</h2>
-      </div>
-      <ProcessSteps />
-    </div>
-  </section>
-
-  <section class="section section--alt" id="faq" aria-labelledby="faq-title">
-    <div class="container faq-wrap">
-      <div class="section-head">
-        <p class="label">Questions</p>
-        <h2 id="faq-title">Straight answers.</h2>
-      </div>
-      <div class="faqs">
+      <ol class="pkgs__grid" role="list">
         {
-          faqs.map((f) => (
-            <details class="faq">
-              <summary>{f.q}</summary>
-              <p>{f.a}</p>
-              {f.confirm && <Confirm note={f.confirm} />}
-            </details>
+          packages.map((p, i) => (
+            <li class:list={['pkg', { 'pkg--featured': p.featured }]} id={`pkg-${p.id}`} data-reveal style={`--d:${i * 80}`}>
+              <div class="pkg__top">
+                <span class="num subtle">{String(i + 1).padStart(2, '0')}</span>
+                {p.featured && <span class="pkg__badge">Most complete</span>}
+              </div>
+              <h3 class="pkg__name">{p.name}</h3>
+              <p class="pkg__for muted">{p.forWho}</p>
+              <ul class="pkg__list" role="list">
+                {p.includes.map((d) => (
+                  <li>
+                    <Icon name="check" />
+                    <span>{d}</span>
+                  </li>
+                ))}
+              </ul>
+              <details class="pkg__more">
+                <summary>Not included, and what you provide</summary>
+                <p class="small">
+                  <b>Not included:</b> {p.notIncluded.join('; ')}.
+                </p>
+                <p class="small">
+                  <b>You provide:</b> {p.youProvide.join('; ')}.
+                </p>
+              </details>
+              <div class="pkg__cta">
+                <Button href={`/contact/?package=${p.id}#brief`} size="sm" variant={p.featured ? 'primary' : 'ghost'} aria-label={`Request a quote for ${p.name}`}>
+                  Request a quote
+                </Button>
+              </div>
+            </li>
           ))
         }
-      </div>
+      </ol>
     </div>
   </section>
 
-  <CtaBand title="Not sure which service you need?" text="Describe the problem in your own words. I’ll suggest a starting point, and I’ll tell you if it isn’t something I do." />
+  <FreeCheck id="check" />
+  <Finder />
+  <Process />
+  <Faq />
 </BaseLayout>
 
+<script>
+  // Open the service named in the address (e.g. /services/#booking), now and on later hash changes.
+  const openFromHash = () => {
+    const id = decodeURIComponent(location.hash.slice(1));
+    if (!id) return;
+    const el = document.getElementById(id);
+    if (el instanceof HTMLDetailsElement && el.hasAttribute('data-svc')) {
+      el.open = true;
+      requestAnimationFrame(() => el.scrollIntoView({ block: 'start' }));
+    }
+  };
+  openFromHash();
+  addEventListener('hashchange', openFromHash);
+
+  // Highlight the section being read in the "On this page" bar.
+  const jump = document.querySelector<HTMLElement>('[data-jump]');
+  if (jump) {
+    const links = [...jump.querySelectorAll<HTMLAnchorElement>('a')];
+    const targets = links.map((a) => document.querySelector<HTMLElement>(a.hash)).filter(Boolean) as HTMLElement[];
+    const io = new IntersectionObserver(
+      (entries) => {
+        for (const e of entries) {
+          if (!e.isIntersecting) continue;
+          links.forEach((a) => {
+            const on = a.hash === `#${e.target.id}`;
+            if (on) {
+              a.setAttribute('aria-current', 'location');
+              // Keep the current item in view inside the bar (scrolls the bar only, never the page).
+              const bar = a.closest('ul')!;
+              bar.scrollTo({ left: a.offsetLeft - bar.clientWidth / 2 + a.offsetWidth / 2, behavior: 'smooth' });
+            } else a.removeAttribute('aria-current');
+          });
+        }
+      },
+      { rootMargin: '-35% 0px -60% 0px' },
+    );
+    targets.forEach((t) => io.observe(t));
+  }
+</script>
+
 <style>
-  .head {
-    display: grid;
-    gap: var(--space-m);
-  }
-  .page-head {
-    padding-bottom: var(--space-xl);
-  }
-  .compare-wrap {
-    /* Scrolls inside itself on phones; never widens the page. */
-    position: relative; /* keeps the screen-reader-only labels inside the scroll box */
-    min-width: 0;
-    max-width: 100%;
-    overflow-x: auto;
-    margin-bottom: var(--space-xl);
-    border: 1px solid var(--night-line);
-    border-radius: var(--radius-m);
-  }
-  .compare-wrap:focus-visible {
-    outline: 3px solid var(--accent-on-night);
-    outline-offset: 2px;
-  }
-  .compare {
-    width: 100%;
-    min-width: 44rem;
-    border-collapse: collapse;
-    font-size: var(--step--1);
-  }
-  .compare caption {
-    text-align: left;
-    padding: var(--space-s) var(--space-m);
-    font-family: var(--font-mono);
-    letter-spacing: var(--tracking-label);
-    text-transform: uppercase;
-    color: var(--night-ink-2);
-  }
-  .compare th,
-  .compare td {
-    padding: var(--space-xs) var(--space-m);
-    border-top: 1px solid var(--night-line);
-    text-align: left;
-    vertical-align: top;
-  }
-  .compare thead th {
-    color: var(--night-ink-2);
-    font-weight: 600;
-  }
-  .compare tbody th a {
-    color: var(--night-ink);
-    font-weight: 700;
-  }
-  .compare .fit {
-    color: var(--night-ink-2);
-    max-width: 22rem;
-  }
-  .compare .review {
-    max-width: none;
-    text-align: center;
-  }
-  .compare .mark {
-    text-align: center;
-    color: var(--accent-on-night);
-    font-size: var(--step-0);
-  }
-  .compare .mark .dim {
-    color: var(--night-ink-2);
-  }
-  .compare thead th:nth-child(n + 3) {
-    text-align: center;
-  }
-  .demo-link {
-    color: var(--accent-on-night);
-    font-weight: 700;
+  /* ── On this page ── */
+  .jump {
+    position: sticky;
+    top: var(--header-h);
+    z-index: 30;
+    background: rgb(11 11 12 / 0.88);
+    backdrop-filter: blur(12px);
+    border-block: 1px solid var(--line);
   }
   .jump ul {
     display: flex;
-    flex-wrap: wrap;
-    gap: var(--space-2xs);
-    list-style: none;
-    padding: 0;
+    gap: var(--s-1);
+    overflow-x: auto;
+    scrollbar-width: none;
+    padding-block: var(--s-2);
+  }
+  .jump ul::-webkit-scrollbar {
+    display: none;
   }
   .jump a {
     display: inline-flex;
     align-items: center;
-    gap: var(--space-2xs);
+    gap: 0.5em;
     min-height: var(--tap);
-    padding: 0.3em 1em;
-    border: 1.5px solid var(--ink);
-    border-radius: var(--radius-pill);
+    padding-inline: var(--s-4);
+    border-radius: var(--r-pill);
+    font-size: 0.9375rem;
+    font-weight: 560;
+    color: var(--text-2);
     text-decoration: none;
-    font-weight: 600;
+    white-space: nowrap;
+    transition: background-color var(--t-fast), color var(--t-fast);
   }
   .jump a:hover {
-    background: var(--card);
+    color: var(--text);
+    background: var(--surface);
   }
-  .jl {
-    font-family: var(--font-display);
-    font-weight: 800;
-    color: var(--accent-text);
+  .jump a[aria-current] {
+    background: var(--signal);
+    color: var(--on-signal);
   }
-  .group-head {
+  .jump__l {
+    font-size: 0.75rem;
+    opacity: 0.8;
+  }
+  :global(html) {
+    scroll-padding-top: calc(var(--header-h) + 4.5rem);
+  }
+
+  /* ── Areas ── */
+  .area__grid {
     display: grid;
-    grid-template-columns: auto 1fr;
-    gap: var(--space-m);
-    align-items: start;
-    margin-bottom: var(--space-xl);
+    gap: var(--s-7);
   }
-  .letter {
-    font-family: var(--font-display);
-    font-weight: 800;
-    font-size: clamp(4rem, 2rem + 8vw, 8rem);
+  .area__head {
+    position: relative;
+    display: grid;
+    gap: var(--s-4);
+    align-content: start;
+  }
+  .area__letter {
+    font-size: clamp(6rem, 4rem + 9vw, 13rem);
+    font-weight: 820;
+    font-stretch: 125%;
     line-height: 0.8;
-    color: var(--accent);
+    letter-spacing: -0.06em;
+    color: transparent;
+    -webkit-text-stroke: 1.5px var(--signal);
+    margin-bottom: var(--s-4);
   }
-  .verb {
-    font-family: var(--font-mono);
-    font-weight: 700;
-    text-transform: uppercase;
-    letter-spacing: var(--tracking-label);
-    color: var(--accent-text);
-    font-size: var(--step--1);
+  .area__title {
+    font-size: clamp(2rem, 1.4rem + 2.4vw, 3.5rem);
+    font-weight: 720;
+    font-stretch: 112%;
+    letter-spacing: -0.04em;
+    line-height: 1;
+    max-width: 14ch;
   }
-  .services {
-    border-top: 2px solid var(--ink);
+  .svc > summary {
+    align-items: flex-start;
+    padding-block: var(--s-5);
   }
-  .service {
+  .svc__sum {
     display: grid;
-    gap: var(--space-l);
-    padding-block: var(--space-xl);
-    border-bottom: 1px solid var(--line);
-    scroll-margin-top: 6rem;
+    gap: var(--s-2);
   }
-  @media (min-width: 60em) {
-    .service {
-      grid-template-columns: minmax(0, 1fr) minmax(0, 1.15fr);
-      gap: var(--space-2xl);
+  .svc__name {
+    font-size: clamp(1.15rem, 1.05rem + 0.5vw, 1.45rem);
+    font-weight: 640;
+    letter-spacing: -0.02em;
+  }
+  .svc__one {
+    font-size: var(--fs-sm);
+    font-weight: 400;
+    font-stretch: 100%;
+    color: var(--text-2);
+    line-height: 1.5;
+    letter-spacing: 0;
+    max-width: 60ch;
+  }
+  .svc > summary:hover .svc__one {
+    color: var(--text-2);
+  }
+  .svc__body {
+    display: grid;
+    gap: var(--s-5);
+    padding-bottom: var(--s-7);
+    color: var(--text-2);
+  }
+  .svc__k {
+    display: block;
+    margin-bottom: var(--s-1);
+    font-family: var(--font-mono);
+    font-size: var(--fs-xs);
+    letter-spacing: var(--track-label);
+    text-transform: uppercase;
+    color: var(--text-3);
+  }
+  .svc__problem {
+    padding: var(--s-4) var(--s-5);
+    border-left: 2px solid var(--signal);
+    background: var(--bg-2);
+    border-radius: 0 var(--r-md) var(--r-md) 0;
+    color: var(--text);
+  }
+  .svc__cols {
+    display: grid;
+    gap: var(--s-5);
+  }
+  .svc__h {
+    margin: var(--s-4) 0 var(--s-3);
+    font-family: var(--font-mono);
+    font-size: var(--fs-xs);
+    font-weight: 500;
+    font-stretch: 100%;
+    letter-spacing: var(--track-label);
+    text-transform: uppercase;
+    color: var(--text-3);
+  }
+  .svc__cols > div > .svc__h:first-child {
+    margin-top: 0;
+  }
+  .svc__list {
+    display: grid;
+    gap: var(--s-2);
+    font-size: var(--fs-sm);
+  }
+  .svc__list li {
+    display: flex;
+    gap: var(--s-2);
+    align-items: flex-start;
+  }
+  .svc__list .icon {
+    margin-top: 0.12em;
+    width: 1.05rem;
+    height: 1.05rem;
+    color: var(--text-3);
+  }
+  .svc__list--yes li {
+    color: var(--text);
+  }
+  .svc__list--yes .icon {
+    color: var(--signal);
+  }
+  .svc__list--no .icon {
+    color: var(--error);
+  }
+  .svc__terms {
+    display: grid;
+    gap: var(--s-3);
+    padding: var(--s-4) var(--s-5);
+    border: 1px dashed var(--line);
+    border-radius: var(--r-md);
+    font-size: var(--fs-sm);
+  }
+  .svc__terms dt {
+    color: var(--text);
+    font-weight: 620;
+  }
+  .svc__cta {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    gap: var(--s-3) var(--s-5);
+  }
+  @media (min-width: 48em) {
+    .svc__cols {
+      grid-template-columns: 1fr 1fr;
+      gap: var(--s-7);
     }
   }
-  .s-main {
+  @media (min-width: 64em) {
+    .area__grid {
+      grid-template-columns: minmax(0, 0.8fr) minmax(0, 1.2fr);
+      gap: var(--s-9);
+    }
+    .area__head {
+      position: sticky;
+      top: calc(var(--header-h) + 6rem);
+      align-self: start;
+    }
+  }
+
+  /* ── Packages ── */
+  .pkgs__grid {
     display: grid;
-    gap: var(--space-s);
-    align-content: start;
+    gap: var(--s-4);
   }
-  .s-main h3 {
-    font-size: var(--step-2);
+  .pkg {
+    display: flex;
+    flex-direction: column;
+    gap: var(--s-4);
+    padding: clamp(1.25rem, 2.5vw, 2rem);
+    border-radius: var(--r-lg);
+    background: var(--surface);
+    border: 1px solid var(--line);
   }
-  .summary {
-    font-size: var(--step-1);
-    line-height: 1.45;
+  .pkg--featured {
+    border-color: var(--signal);
+    box-shadow: 0 0 0 1px var(--signal), 0 0 80px -30px rgb(212 248 74 / 0.35);
   }
-  .problem {
-    color: var(--ink-2);
+  .pkg__top {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    font-size: var(--fs-xs);
   }
-  .tag {
+  .pkg__badge {
+    padding: 0.2rem 0.6rem;
+    border-radius: var(--r-pill);
+    background: var(--signal);
+    color: var(--on-signal);
     font-family: var(--font-mono);
-    font-weight: 700;
-    font-size: var(--step--1);
+    font-size: 0.7rem;
+    font-weight: 600;
+    letter-spacing: 0.04em;
     text-transform: uppercase;
-    letter-spacing: 0.05em;
-    color: var(--ink);
-    background: var(--accent-wash);
-    padding: 0.1em 0.4em;
-    border-radius: 4px;
   }
-  .terms {
+  .pkg__name {
+    font-size: clamp(1.5rem, 1.3rem + 0.8vw, 2rem);
+    font-weight: 720;
+    font-stretch: 112%;
+    letter-spacing: -0.035em;
+    line-height: 1.05;
+  }
+  .pkg__for {
+    font-size: var(--fs-sm);
+  }
+  .pkg__list {
     display: grid;
-    gap: var(--space-2xs);
-    padding: var(--space-s);
-    border-left: 3px solid var(--accent);
-    background: var(--card);
-    font-size: var(--step--1);
+    gap: var(--s-2);
+    font-size: var(--fs-sm);
+    padding-top: var(--s-4);
+    border-top: 1px solid var(--line);
   }
-  .terms dt {
-    font-weight: 700;
+  .pkg__list li {
+    display: flex;
+    gap: var(--s-2);
+    align-items: flex-start;
   }
-  .terms dd {
-    margin: 0;
-    color: var(--ink-2);
+  .pkg__list .icon {
+    margin-top: 0.12em;
+    width: 1rem;
+    height: 1rem;
+    color: var(--signal);
   }
-  .s-detail {
-    display: grid;
-    gap: var(--space-s);
-    align-content: start;
+  .pkg__more {
+    font-size: var(--fs-sm);
+    color: var(--text-2);
   }
-  h4 {
-    font-family: var(--font-mono);
-    font-size: var(--step--1);
-    font-weight: 700;
-    text-transform: uppercase;
-    letter-spacing: 0.06em;
-    color: var(--ink-2);
-  }
-  .on-night h4 {
-    color: var(--night-ink-2);
-  }
-  .ticks,
-  .crosses {
-    list-style: none;
-    padding: 0;
-    display: grid;
-    gap: var(--space-2xs);
-  }
-  .ticks li,
-  .crosses li {
-    position: relative;
-    padding-left: 1.6em;
-  }
-  .ticks li::before {
-    content: '✓';
-    position: absolute;
-    left: 0;
-    font-weight: 800;
-    color: var(--ok);
-  }
-  .crosses li::before {
-    content: '–';
-    position: absolute;
-    left: 0.2em;
-    font-weight: 800;
-    color: var(--ink-3);
-  }
-  .on-night .ticks li::before {
-    color: #7fd3ac;
-  }
-  .on-night .crosses li::before {
-    color: var(--night-ink-2);
-  }
-  details summary {
-    cursor: pointer;
-    font-weight: 700;
+  .pkg__more summary {
     min-height: var(--tap);
     display: flex;
     align-items: center;
+    cursor: pointer;
+    font-weight: 560;
+    color: var(--text);
+    text-decoration: underline;
+    text-decoration-color: var(--control);
+    text-underline-offset: 0.25em;
   }
-  .more {
-    display: grid;
-    gap: var(--space-xs);
-    padding: var(--space-s) 0 0;
+  .pkg__more p + p {
+    margin-top: var(--s-2);
   }
-  .more ul {
-    padding-left: 1.2em;
-    display: grid;
-    gap: var(--space-3xs);
+  .pkg__more b {
+    color: var(--text);
   }
-  .more h4 {
-    margin-top: var(--space-xs);
+  .pkg__cta {
+    margin-top: auto;
+    padding-top: var(--s-3);
   }
-  .next {
-    display: flex;
-    flex-wrap: wrap;
-    gap: var(--space-s);
-    align-items: center;
-    justify-content: space-between;
-    padding-top: var(--space-s);
-    border-top: 1px dashed var(--line);
-  }
-  .btn-sm {
-    font-size: var(--step--1);
-    padding: 0.5em 1em;
-  }
-
-  .packages {
-    display: grid;
-    gap: var(--space-m);
-    grid-template-columns: repeat(auto-fit, minmax(min(100%, 17rem), 1fr));
-  }
-  /* The check is the low-commitment first step: a full-width strip under the four packages. */
-  @media (min-width: 64em) {
-    .pkg.small {
-      grid-column: 1 / -1;
-    }
-    .pkg.small .ticks {
+  @media (min-width: 48em) {
+    .pkgs__grid {
       grid-template-columns: repeat(2, minmax(0, 1fr));
-      column-gap: var(--space-xl);
-    }
-    .pkg.small .btn {
-      justify-self: start;
     }
   }
-  .pkg {
-    position: relative;
-    display: grid;
-    gap: var(--space-s);
-    align-content: start;
-    padding: var(--space-l) var(--space-m);
-    border: 1.5px solid var(--night-line);
-    border-radius: var(--radius-l);
-    background: var(--night-2);
-  }
-  .pkg.featured {
-    border-color: var(--accent-on-night);
-  }
-  .pkg h3 {
-    font-size: var(--step-2);
-  }
-  .pkg .for {
-    color: var(--night-ink-2);
-  }
-  .pkg .btn {
-    margin-top: var(--space-s);
-    justify-self: start;
-  }
-  .flag {
-    justify-self: start;
-    color: var(--accent-on-night);
-  }
-  .terms-box {
-    margin-top: var(--space-xl);
-    padding: var(--space-l);
-    border: 1.5px dashed var(--night-line);
-    border-radius: var(--radius-l);
-    display: grid;
-    gap: var(--space-s);
-  }
-  .terms-box ul {
-    display: grid;
-    gap: var(--space-xs);
-    padding-left: 1.2em;
-  }
-  .faq-wrap {
-    display: grid;
-    gap: var(--space-l);
-  }
-  @media (min-width: 64em) {
-    .faq-wrap {
-      grid-template-columns: minmax(0, 0.8fr) minmax(0, 1.5fr);
+  @media (min-width: 80em) {
+    .pkgs__grid {
+      grid-template-columns: repeat(4, minmax(0, 1fr));
     }
-  }
-  .faqs {
-    border-top: 2px solid var(--ink);
-  }
-  .faq {
-    border-bottom: 1px solid var(--line);
-    padding-block: var(--space-2xs);
-  }
-  .faq summary {
-    font-family: var(--font-display);
-    font-size: var(--step-1);
-    letter-spacing: -0.01em;
-    padding-block: var(--space-xs);
-    list-style: none;
-    justify-content: space-between;
-    gap: var(--space-s);
-  }
-  .faq summary::-webkit-details-marker {
-    display: none;
-  }
-  .faq summary::after {
-    content: '+';
-    font-family: var(--font-mono);
-    font-size: var(--step-1);
-    color: var(--accent-text);
-    transition: transform var(--dur-fast) var(--ease-out);
-  }
-  .faq[open] summary::after {
-    transform: rotate(45deg);
-  }
-  .faq p {
-    padding-bottom: var(--space-s);
-    color: var(--ink-2);
-    max-width: 62ch;
   }
 </style>

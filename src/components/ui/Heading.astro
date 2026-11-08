@@ -1,0 +1,29 @@
+---
+/**
+ * A heading revealed line by line (each line rises out of a mask when scrolled into view).
+ * `lines` may contain inline HTML such as <span class="serif">…</span>. The text reads as one
+ * sentence to screen readers; without motion it is simply visible.
+ */
+interface Props {
+  as?: 'h1' | 'h2' | 'h3' | 'p';
+  lines: string[];
+  id?: string;
+  class?: string;
+  /** Extra delay in ms before the first line. */
+  delay?: number;
+}
+const { as: Tag = 'h2', lines, id, class: cls, delay = 0 } = Astro.props;
+---
+
+<Tag id={id} class={cls} data-split style={delay ? `--d:${delay}` : undefined}>
+  {
+    lines.map((line, i) => (
+      <>
+        <span class="line-mask" style={`--i:${i}`}>
+          <span set:html={line} />
+        </span>
+        {i < lines.length - 1 ? ' ' : ''}
+      </>
+    ))
+  }
+</Tag>

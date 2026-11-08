@@ -1,12 +1,13 @@
 ---
 import BaseLayout from '../layouts/BaseLayout.astro';
 import Hero from '../components/home/Hero.astro';
-import Intro from '../components/home/Intro.astro';
-import WorkList from '../components/home/WorkList.astro';
-import Rails from '../components/home/Rails.astro';
-import Marquee from '../components/Marquee.astro';
-import ServiceOverview from '../components/ServiceOverview.astro';
-import Guide from '../components/Guide.astro';
+import Path from '../components/home/Path.astro';
+import WorkStack from '../components/home/WorkStack.astro';
+import FreeCheck from '../components/home/FreeCheck.astro';
+import Finder from '../components/Finder.astro';
+import Process from '../components/Process.astro';
+import AboutTeaser from '../components/home/AboutTeaser.astro';
+import Faq from '../components/Faq.astro';
 import { personJsonLd } from '../lib/seo';
 import { absoluteUrl } from '../lib/mode';
 
@@ -20,81 +21,16 @@ const jsonLd = {
 
 <BaseLayout
   title="Home"
-  fullTitle="Mann Patel · Websites, Google visibility & follow-up for Toronto small businesses"
-  description="Mann Patel helps Toronto and GTA small businesses get found and chosen on Google, never miss an enquiry, and turn website visits into bookings."
+  fullTitle="Mann Patel · Get found, answer every enquiry, get booked · Toronto small businesses"
+  description="Mann Patel helps small businesses in Toronto and the GTA get found and chosen on Google, answer every call and message, and turn website visits into bookings. Free Found & Answered check."
   jsonLd={jsonLd}
 >
   <Hero />
-  <div class="ribbon">
-    <Marquee />
-  </div>
-  <Intro />
-  <WorkList />
-  <Rails />
-
-  <!-- ── What I do ────────────────────────────────────── -->
-  <section class="section section--alt" aria-labelledby="what-title">
-    <div class="container">
-      <div class="section-head">
-        <p class="label">What I do</p>
-        <h2 id="what-title" class="big">Get found. Answer fast. Get booked.</h2>
-        <p class="muted measure">
-          Three areas that follow your customer’s path, from search to booking. Every service has written deliverables,
-          a list of what I need from you, and what isn’t included. <a
-            class="link-accent"
-            href="/services/">See every service in detail</a
-          >, or <a class="link-accent" href="/services/#follow-up">see what enquiry follow-up looks like</a>.
-        </p>
-      </div>
-      <ServiceOverview />
-    </div>
-  </section>
-
-  <!-- ── Guide ────────────────────────────────────────── -->
-  <section class="section" id="guide" aria-labelledby="guide-title">
-    <div class="container guide-grid">
-      <div class="section-head sticky">
-        <p class="label">Not sure where to start?</p>
-        <h2 id="guide-title" class="big">What does your business need?</h2>
-        <p class="muted">
-          Three quick questions. You’ll get a suggested starting point with the reasons, and you can pass it straight
-          into a brief.
-        </p>
-      </div>
-      <Guide />
-    </div>
-  </section>
+  <Path />
+  <WorkStack />
+  <FreeCheck />
+  <Finder />
+  <Process />
+  <AboutTeaser />
+  <Faq limit={6} more />
 </BaseLayout>
-
-<style>
-  /* The services marquee as a slightly tilted ribbon between the hero and the intro. */
-  .ribbon {
-    overflow: hidden;
-    padding-block: 1.25rem;
-    margin-block: -1.25rem;
-  }
-  .ribbon :global(.marquee) {
-    transform: rotate(-1.4deg) scaleX(1.04);
-  }
-  .big {
-    font-size: clamp(2rem, 1.4rem + 2.4vw, 3.5rem);
-    font-weight: 600;
-    letter-spacing: -0.035em;
-    line-height: 1.05;
-    max-width: 18ch;
-  }
-  .guide-grid {
-    display: grid;
-    gap: var(--space-xl);
-  }
-  @media (min-width: 64em) {
-    .guide-grid {
-      grid-template-columns: minmax(0, 0.8fr) minmax(0, 1.4fr);
-      align-items: start;
-    }
-    .sticky {
-      position: sticky;
-      top: 6rem;
-    }
-  }
-</style>

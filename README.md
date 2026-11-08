@@ -4,6 +4,8 @@ Personal profile and digital-services site for Mann Patel (production domain: **
 
 Built with **Astro 7** (static pages + one server endpoint for the project-brief form), vanilla TypeScript islands, and self-hosted OFL fonts. No CMS, no client framework, no tracking unless configured.
 
+**Design: "Signal" (round 5, 8 Nov 2026).** A dark, kinetic design: a halftone portrait that reacts to the pointer, variable-font type that stretches into place, a phone that follows the story as you scroll, stacking project cards, a 3-step brief and a ⌘K quick menu. The system (colours, type, spacing, components, motion) is in [`DESIGN.md`](DESIGN.md); what changed and how it was checked is in [`docs/12-round-5-signal.md`](docs/12-round-5-signal.md).
+
 > **Status: content confirmed (31 Oct 2026).** All "To confirm" items are answered. Production deploys still run the pre-launch check, and the form's inbox address (`ENQUIRY_TO_EMAIL`) and phone number (`PUBLIC_CONTACT_PHONE`) are added in Cloudflare. See [`docs/OWNER-INPUTS.md`](docs/OWNER-INPUTS.md).
 
 ## Quick start
@@ -32,12 +34,11 @@ npm run preview             # node ./dist/server/entry.mjs → http://localhost:
 | `npm run preview` | Serve the built site, including the enquiry endpoint |
 | `npm run check` | Astro + TypeScript diagnostics |
 | `npm test` | Unit tests (Vitest): validation, guide logic, spam, limits, delivery, handler |
-| `npm run test:e2e` | Browser tests (Playwright + axe): pages, accessibility, layout 320–1440 px, navigation, interactions, every form path. Run `npm run build` first. |
+| `npm run test:e2e` | Browser tests (Playwright + axe): pages, accessibility, layout 320–1440 px and 200% text, menu, ⌘K menu, halftone, finder, reduced motion, no-JS, every form path. Run `npm run build` first. |
 | `npm run qa:captures` | Full-page screenshots at 360/390/768/1024/1440 + overflow report (server must be running) |
 | `npm run qa:lighthouse` | Lighthouse mobile run (`npm i --no-save lighthouse` first) |
-| `npm run images` | Regenerate favicons and the Open Graph image (uses the portrait and logo) |
+| `npm run images` | Regenerate favicons and the Open Graph image (halftone portrait + headline) |
 | `npm run preview:static` | Export a server-less copy with relative links to `preview-static/` (for private previews; the form shows "not connected") |
-| `python scripts/make-logo.py` | Regenerate the Fraunces wordmark logo files and favicon (needs `fonttools brotli uharfbuzz`) |
 | `npm run prelaunch` | Production gate: env, preview markers, canonicals, robots/sitemap, internal links |
 
 ## Editing content
@@ -77,8 +78,10 @@ Cloudflare Workers, connected to GitHub: build command `npm run build:cloudflare
 | [`docs/09-audit-round-3.md`](docs/09-audit-round-3.md) | Audit round 3: contact warning diagnosed, hero actions, touch work rows, package comparison |
 | [`docs/10-round-4-original-design.md`](docs/10-round-4-original-design.md) | Round 4: original "front desk" design, Cloudflare Email form delivery, info@ + Call/WhatsApp/Text, zero overlaps, scorecard |
 | [`docs/11-service-areas.md`](docs/11-service-areas.md) | Service areas rebuilt from research: A Get found and chosen, B Never miss an enquiry, C A website that books work |
+| [`DESIGN.md`](DESIGN.md) | Round 5 design system "Signal": colour roles and contrast, type, spacing, components, imagery, motion |
+| [`docs/12-round-5-signal.md`](docs/12-round-5-signal.md) | Round 5: research, direction, every new feature, verification (tests, axe, Lighthouse), owner notes |
 | [`docs/OWNER-INPUTS.md`](docs/OWNER-INPUTS.md) | Questions and owner actions |
 
 ## Licences
 
-Fonts: Bricolage Grotesque and Atkinson Hyperlegible Next/Mono, SIL Open Font License 1.1 (`public/fonts/LICENSES.txt`). The logo wordmark is outlined from Fraunces (SIL OFL 1.1). The portrait is Mann's own photo. Nest & Rest captures are archived screenshots of Mann's own website (Internet Archive, 19 Oct 2026).
+Fonts: Mona Sans, Instrument Serif and Geist Mono, SIL Open Font License 1.1 (`public/fonts/LICENSES.txt`). The earlier wordmark files in `public/brand/` are outlined from Fraunces (SIL OFL 1.1). The portrait is Mann's own photo. Nest & Rest captures are archived screenshots of Mann's own website (Internet Archive, 19 Oct 2026).

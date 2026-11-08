@@ -1,12 +1,18 @@
 ---
+/**
+ * The project brief. Three short steps with JavaScript (you → what you need → your message);
+ * one ordinary form without it (it posts to /api/enquiry/ and lands on /contact/received/).
+ * The same validation runs in the browser and on the server (src/lib/enquiry/validate.ts).
+ */
 import { SERVICE_OPTIONS, PACKAGE_OPTIONS, BUDGET_OPTIONS, TIMEFRAME_OPTIONS } from '../lib/enquiry/options';
 import { LIMITS } from '../lib/enquiry/validate';
 import { HONEYPOT_FIELD } from '../lib/enquiry/spam';
 import { PUBLIC_TURNSTILE_SITE_KEY } from 'astro:env/client';
 import { profile } from '../data/site';
+import Button from './ui/Button.astro';
+import Icon from './ui/Icon.astro';
 
 const email = profile.contact.email;
-
 const groups = [
   { id: 'A', title: 'Get found and chosen' },
   { id: 'B', title: 'Never miss an enquiry' },
@@ -14,7 +20,6 @@ const groups = [
   { id: 'D', title: 'Add-ons: print and social' },
   { id: 'other', title: 'Other' },
 ];
-// The three outcomes plus "Not sure yet" come first, in owners' words.
 const areaHints: Record<string, string> = {
   'area-found': 'Correct details on Google and Maps, and more recent, real reviews.',
   'area-follow-up': 'Missed calls texted back, every enquiry in one list, booking reminders.',
@@ -23,10 +28,22 @@ const areaHints: Record<string, string> = {
   'not-sure': 'Describe the problem and I’ll suggest where to start.',
 };
 const areas = SERVICE_OPTIONS.filter((o) => o.group === 'area' || o.id === 'not-sure');
+const steps = ['About you', 'What you need', 'Your message'];
+const tick = '<svg viewBox="0 0 16 16"><path d="m3.5 8.5 3 3 6-7" /></svg>';
 ---
 
 <div class="brief" data-brief>
   <form class="form" id="brief" action="/api/enquiry/" method="post" data-brief-form>
+    <div class="steps-nav" data-steps-nav hidden>
+      <p class="steps-nav__label">
+        <span class="num" data-step-count>Step 1 of 3</span>
+        <span data-step-name>{steps[0]}</span>
+      </p>
+      <ol class="steps-nav__bar" role="list" aria-hidden="true">
+        {steps.map((_, i) => <li data-bar={i} class:list={{ 'is-on': i === 0 }} />)}
+      </ol>
+    </div>
+
     <div class="error-summary" role="alert" tabindex="-1" data-error-summary hidden>
       <h2 class="es-title">Please check these fields</h2>
       <ul data-error-list></ul>
@@ -38,156 +55,185 @@ const areas = SERVICE_OPTIONS.filter((o) => o.group === 'area' || o.id === 'not-
       </p>
     </div>
 
-    <p class="small muted req-note">Fields marked <span class="req" aria-hidden="true">*</span><span class="visually-hidden">with an asterisk</span> are required.</p>
-
-    <div class="grid two">
-      <div class="field">
-        <label for="f-name">Your name <span class="req" aria-hidden="true">*</span></label>
-        <input class="input" id="f-name" name="name" type="text" autocomplete="name" required maxlength={LIMITS.name} aria-describedby="e-name" />
-        <p class="error-text" id="e-name" data-error-for="name"></p>
-      </div>
-      <div class="field">
-        <label for="f-email">Email <span class="req" aria-hidden="true">*</span></label>
-        <input class="input" id="f-email" name="email" type="email" autocomplete="email" required maxlength={LIMITS.email} aria-describedby="h-email e-email" />
-        <p class="hint" id="h-email">I’ll reply here.</p>
-        <p class="error-text" id="e-email" data-error-for="email"></p>
-      </div>
-      <div class="field">
-        <label for="f-business">Business name</label>
-        <input class="input" id="f-business" name="business" type="text" autocomplete="organization" maxlength={LIMITS.business} aria-describedby="e-business" />
-        <p class="error-text" id="e-business" data-error-for="business"></p>
-      </div>
-      <div class="field">
-        <label for="f-website">Website, if you have one</label>
-        <input class="input" id="f-website" name="website" type="text" inputmode="url" autocomplete="url" placeholder="yourbusiness.ca" maxlength={LIMITS.website} aria-describedby="e-website" />
-        <p class="error-text" id="e-website" data-error-for="website"></p>
-      </div>
-    </div>
-
-    <fieldset class="field services" aria-describedby="h-services e-services">
-      <legend>What would you like help with?</legend>
-      <p class="hint" id="h-services">Pick what sounds closest. You don’t need to know the technical names.</p>
-      <div class="areas">
-        {
-          areas.map((o) => (
-            <label class="check area">
-              <input type="checkbox" name="services" value={o.id} data-area={'area' in o ? o.area : undefined} />
-              <span>
-                <strong>{o.id === 'not-sure' ? 'Not sure yet' : o.label.split(':')[0]}</strong>
-                <span class="area-hint">{areaHints[o.id]}</span>
-              </span>
-            </label>
-          ))
-        }
-      </div>
-      <details class="svc-detail" data-svc-detail>
-        <summary>Know exactly what you need? Choose specific services (optional)</summary>
-        <div class="svc-groups">
-          {
-            groups.map((g) => (
-              <div class="svc-group">
-                <p class="svc-title">{g.title}</p>
-                {SERVICE_OPTIONS.filter((o) => o.group === g.id && o.id !== 'not-sure').map((o) => (
-                  <label class="check">
-                    <input type="checkbox" name="services" value={o.id} data-group={g.id} />
-                    <span>{o.label}</span>
-                  </label>
-                ))}
-              </div>
-            ))
-          }
-        </div>
-      </details>
-      <p class="error-text" id="e-services" data-error-for="services"></p>
-    </fieldset>
-
-    <div class="field package" data-package-field hidden>
-      <label for="f-package">Suggested starting point</label>
-      <select class="select" id="f-package" name="packageId" aria-describedby="h-package">
-        <option value="">None</option>
-        {PACKAGE_OPTIONS.map((p) => <option value={p.id}>{p.label}</option>)}
-      </select>
-      <p class="hint" id="h-package">Pre-filled from the guide. Change it or choose “None”.</p>
-    </div>
-
-    <div class="field">
-      <label for="f-message">Tell me about your business and what you’d like to change <span class="req" aria-hidden="true">*</span></label>
-      <textarea class="textarea" id="f-message" name="message" required minlength={LIMITS.messageMin} maxlength={LIMITS.message} rows="6" aria-describedby="h-message e-message c-message"></textarea>
-      <p class="hint" id="h-message">For example: what you do, where, what isn’t working, and what you already have (website, Google profile, booking tool).</p>
-      <p class="hint counter" id="c-message" data-counter aria-live="polite"></p>
-      <p class="error-text" id="e-message" data-error-for="message"></p>
-    </div>
-
-    <details class="optional">
-      <summary>Optional: phone, budget and timing</summary>
-      <div class="grid three">
+    <!-- ── Step 1 ── -->
+    <fieldset class="step" data-step="0">
+      <legend class="step__legend"><span class="step__n num" aria-hidden="true">01</span>About you</legend>
+      <p class="hint req-note">Fields marked <span class="req" aria-hidden="true">*</span><span class="visually-hidden">with an asterisk</span> are required.</p>
+      <div class="grid two">
         <div class="field">
-          <label for="f-phone">Phone</label>
+          <label for="f-name">Your name <span class="req" aria-hidden="true">*</span></label>
+          <input class="input" id="f-name" name="name" type="text" autocomplete="name" required maxlength={LIMITS.name} aria-describedby="e-name" />
+          <p class="error-text" id="e-name" data-error-for="name"></p>
+        </div>
+        <div class="field">
+          <label for="f-email">Email <span class="req" aria-hidden="true">*</span></label>
+          <input class="input" id="f-email" name="email" type="email" autocomplete="email" required maxlength={LIMITS.email} aria-describedby="h-email e-email" />
+          <p class="hint" id="h-email">I’ll reply here.</p>
+          <p class="error-text" id="e-email" data-error-for="email"></p>
+        </div>
+        <div class="field">
+          <label for="f-business">Business name</label>
+          <input class="input" id="f-business" name="business" type="text" autocomplete="organization" maxlength={LIMITS.business} aria-describedby="e-business" />
+          <p class="error-text" id="e-business" data-error-for="business"></p>
+        </div>
+        <div class="field">
+          <label for="f-website">Website, if you have one</label>
+          <input class="input" id="f-website" name="website" type="text" inputmode="url" autocomplete="url" placeholder="yourbusiness.ca" maxlength={LIMITS.website} aria-describedby="e-website" />
+          <p class="error-text" id="e-website" data-error-for="website"></p>
+        </div>
+        <div class="field span-2">
+          <label for="f-phone">Phone <span class="opt">optional</span></label>
           <input class="input" id="f-phone" name="phone" type="tel" autocomplete="tel" maxlength={LIMITS.phone} aria-describedby="h-phone e-phone" />
           <p class="hint" id="h-phone">Only if you’d rather talk.</p>
           <p class="error-text" id="e-phone" data-error-for="phone"></p>
         </div>
-        <div class="field">
-          <label for="f-budget">Budget range (CAD)</label>
-          <select class="select" id="f-budget" name="budget">
-            <option value="">Prefer not to say</option>
-            {BUDGET_OPTIONS.map((b) => <option value={b.id}>{b.label}</option>)}
-          </select>
-        </div>
-        <div class="field">
-          <label for="f-timeframe">Timeframe</label>
-          <select class="select" id="f-timeframe" name="timeframe">
-            <option value="">Not sure</option>
-            {TIMEFRAME_OPTIONS.map((t) => <option value={t.id}>{t.label}</option>)}
-          </select>
-        </div>
       </div>
-    </details>
+    </fieldset>
 
-    <div class="hp" aria-hidden="true">
-      <label for="f-hp">Leave this field empty</label>
-      <input id="f-hp" type="text" name={HONEYPOT_FIELD} tabindex="-1" autocomplete="off" />
-    </div>
-    <input type="hidden" name="formToken" data-token />
-    <input type="hidden" name="submissionId" data-submission-id />
+    <!-- ── Step 2 ── -->
+    <fieldset class="step" data-step="1">
+      <legend class="step__legend"><span class="step__n num" aria-hidden="true">02</span>What you need</legend>
+      <fieldset class="field services" aria-describedby="h-services e-services">
+        <legend class="legend">What would you like help with?</legend>
+        <p class="hint" id="h-services">Pick what sounds closest. You don’t need to know the technical names.</p>
+        <div class="areas">
+          {
+            areas.map((o) => (
+              <label class="area">
+                <input type="checkbox" name="services" value={o.id} data-area={'area' in o ? o.area : undefined} />
+                <span class="chip__box" aria-hidden="true" set:html={tick} />
+                <span class="area__text">
+                  <strong>{o.id === 'not-sure' ? 'Not sure yet' : o.label.split(':')[0]}</strong>
+                  <span class="area__hint">{areaHints[o.id]}</span>
+                </span>
+              </label>
+            ))
+          }
+        </div>
+        <details class="more" data-svc-detail>
+          <summary><Icon name="plus" /> Know exactly what you need? Choose specific services (optional)</summary>
+          <div class="svc-groups">
+            {
+              groups.map((g) => (
+                <div class="svc-group">
+                  <p class="svc-title">{g.title}</p>
+                  <div class="chips">
+                    {SERVICE_OPTIONS.filter((o) => o.group === g.id && o.id !== 'not-sure').map((o) => (
+                      <label class="chip">
+                        <input type="checkbox" name="services" value={o.id} data-group={g.id} />
+                        <span class="chip__box" aria-hidden="true" set:html={tick} />
+                        {o.label}
+                      </label>
+                    ))}
+                  </div>
+                </div>
+              ))
+            }
+          </div>
+        </details>
+        <p class="error-text" id="e-services" data-error-for="services"></p>
+      </fieldset>
 
-    {PUBLIC_TURNSTILE_SITE_KEY && <div class="cf-turnstile" data-sitekey={PUBLIC_TURNSTILE_SITE_KEY} />}
+      <div class="field package" data-package-field hidden>
+        <label for="f-package">Suggested starting point</label>
+        <select class="select" id="f-package" name="packageId" aria-describedby="h-package">
+          <option value="">None</option>
+          {PACKAGE_OPTIONS.map((p) => <option value={p.id}>{p.label}</option>)}
+        </select>
+        <p class="hint" id="h-package">Pre-filled from the link you followed. Change it or choose “None”.</p>
+      </div>
 
-    <p class="small muted privacy">
-      I use these details only to reply to this enquiry. Nothing you type here is sent to analytics. Read the <a href="/privacy/">Privacy Policy</a> and <a href="/terms/">Terms of Use</a>.
-    </p>
+      <fieldset class="field">
+        <legend class="legend">Budget range (CAD) <span class="opt">optional</span></legend>
+        <div class="chips">
+          {
+            BUDGET_OPTIONS.map((b) => (
+              <label class="chip chip--radio">
+                <input type="radio" name="budget" value={b.id} />
+                <span class="chip__box" aria-hidden="true" set:html={tick} />
+                {b.label}
+              </label>
+            ))
+          }
+        </div>
+      </fieldset>
+      <fieldset class="field">
+        <legend class="legend">Timeframe <span class="opt">optional</span></legend>
+        <div class="chips">
+          {
+            TIMEFRAME_OPTIONS.map((t) => (
+              <label class="chip chip--radio">
+                <input type="radio" name="timeframe" value={t.id} />
+                <span class="chip__box" aria-hidden="true" set:html={tick} />
+                {t.label}
+              </label>
+            ))
+          }
+        </div>
+      </fieldset>
+    </fieldset>
 
-    <div class="submit-row">
-      <button class="btn" type="submit" data-submit>
-        <span class="spinner" aria-hidden="true" hidden data-spinner></span>
-        <span data-submit-label>Send my brief</span>
+    <!-- ── Step 3 ── -->
+    <fieldset class="step" data-step="2">
+      <legend class="step__legend"><span class="step__n num" aria-hidden="true">03</span>Your message</legend>
+      <div class="field">
+        <label for="f-message">Tell me about your business and what you’d like to change <span class="req" aria-hidden="true">*</span></label>
+        <textarea class="textarea" id="f-message" name="message" required minlength={LIMITS.messageMin} maxlength={LIMITS.message} rows="7" aria-describedby="h-message e-message c-message"></textarea>
+        <div class="msg-meta">
+          <p class="hint" id="h-message">For example: what you do, where, what isn’t working, and what you already have (website, Google profile, booking tool).</p>
+          <p class="hint counter num" id="c-message" data-counter aria-live="polite"></p>
+        </div>
+        <p class="error-text" id="e-message" data-error-for="message"></p>
+      </div>
+
+      <div class="hp" aria-hidden="true">
+        <label for="f-hp">Leave this field empty</label>
+        <input id="f-hp" type="text" name={HONEYPOT_FIELD} tabindex="-1" autocomplete="off" />
+      </div>
+      <input type="hidden" name="formToken" data-token />
+      <input type="hidden" name="submissionId" data-submission-id />
+
+      {PUBLIC_TURNSTILE_SITE_KEY && <div class="cf-turnstile" data-sitekey={PUBLIC_TURNSTILE_SITE_KEY} />}
+
+      <p class="small subtle privacy text-links">
+        I use these details only to reply to this enquiry. Nothing you type here is sent to analytics. Read the <a href="/privacy/">Privacy Policy</a> and <a href="/terms/">Terms of Use</a>.
+      </p>
+    </fieldset>
+
+    <div class="form-actions">
+      <button class="back" type="button" data-back hidden>
+        <Icon name="arrow-left" /> Back
       </button>
-      <p class="small muted">This asks for a conversation; it doesn’t book an appointment.</p>
+      <span class="form-actions__main">
+        <Button type="button" data-next hidden>Continue</Button>
+        <button class="btn" type="submit" data-submit>
+          <span class="btn__label"><span data-text="Send my brief" data-submit-label>Send my brief</span></span>
+          <span class="btn__icon" aria-hidden="true">
+            <span class="spinner" data-spinner hidden></span>
+            <Icon name="arrow" />
+          </span>
+        </button>
+      </span>
+      <p class="small subtle form-actions__note">This asks for a conversation; it doesn’t book an appointment.</p>
     </div>
-    {
-      email && (
-        <p class="alt-contact">
-          <span>Prefer email?</span>
-          <a href={`mailto:${email}`} data-contact="email" data-alt-email>{email}</a>
-          <button class="copy-btn" type="button" data-copy={email} aria-describedby="copy-status">Copy</button>
-          <span class="copy-status small muted" id="copy-status" role="status" data-copy-status></span>
-        </p>
-      )
-    }
     <div class="notice notice--error" role="alert" tabindex="-1" data-form-error hidden></div>
   </form>
 
   <section class="success" data-success hidden tabindex="-1" aria-labelledby="success-title">
-    <p class="stamp-ok" aria-hidden="true">Received</p>
+    <svg class="success__mark" viewBox="0 0 80 80" aria-hidden="true">
+      <circle cx="40" cy="40" r="36"></circle>
+      <path d="m25 41 10 10 21-23"></path>
+    </svg>
+    <p class="eyebrow">Received</p>
     <h2 id="success-title">Thanks, <span data-success-name></span>. Your brief arrived.</h2>
-    <p data-success-ack></p>
-    <ol class="next">
-      <li>I read every brief myself.</li>
-      <li>I reply by email with questions or a suggested next step.</li>
-      <li>If we go ahead, you get a written scope before any work starts.</li>
+    <p class="muted" data-success-ack></p>
+    <ol class="next" role="list">
+      <li><span class="num">01</span> I read every brief myself.</li>
+      <li><span class="num">02</span> I reply by email with questions or a suggested next step.</li>
+      <li><span class="num">03</span> If we go ahead, you get a written scope before any work starts.</li>
     </ol>
-    <p class="small muted">Reference: <span class="mono" data-success-id></span></p>
-    <p><a class="link-accent" href="/work/">While you wait, see my work →</a></p>
+    <p class="small subtle">Reference: <span class="num" data-success-id></span></p>
+    <p><a class="link-arrow" href="/work/">While you wait, see my work <Icon name="arrow" /></a></p>
   </section>
 </div>
 
@@ -214,23 +260,8 @@ const areas = SERVICE_OPTIONS.filter((o) => o.group === 'area' || o.id === 'not-
     const message = form.elements.namedItem('message') as HTMLTextAreaElement;
     const success = root.querySelector<HTMLElement>('[data-success]')!;
     const notConnected = root.querySelector<HTMLElement>('[data-not-connected]')!;
-    const altEmail = root.querySelector<HTMLAnchorElement>('[data-alt-email]')?.textContent ?? '';
+    const altEmail = document.querySelector<HTMLElement>('[data-alt-email]')?.textContent?.trim() ?? '';
     const withEmail = (text: string) => (altEmail ? `${text} You can also email me at ${altEmail}.` : text);
-
-    // Copy the fallback address (mailto links don't work for everyone).
-    const copyBtn = root.querySelector<HTMLButtonElement>('[data-copy]');
-    const copyStatus = root.querySelector<HTMLElement>('[data-copy-status]');
-    copyBtn?.addEventListener('click', async () => {
-      const value = copyBtn.dataset.copy ?? '';
-      try {
-        await navigator.clipboard.writeText(value);
-        if (copyStatus) copyStatus.textContent = 'Copied';
-      } catch {
-        const link = root.querySelector('[data-alt-email]');
-        if (link) window.getSelection()?.selectAllChildren(link);
-        if (copyStatus) copyStatus.textContent = 'Selected: press Ctrl+C or ⌘C to copy';
-      }
-    });
 
     const newId = () => (crypto.randomUUID ? crypto.randomUUID() : `${Date.now()}-${Math.random().toString(36).slice(2, 10)}`);
     idInput.value = newId();
@@ -239,12 +270,44 @@ const areas = SERVICE_OPTIONS.filter((o) => o.group === 'area' || o.id === 'not-
       name: 'Your name', email: 'Email', business: 'Business name', website: 'Website', phone: 'Phone',
       services: 'Services', packageId: 'Starting point', budget: 'Budget', timeframe: 'Timeframe', message: 'About your business',
     };
-    const fieldTarget: Record<string, string> = { services: 'input[name="services"]' };
+    const fieldTarget: Record<string, string> = { services: 'input[name="services"]', budget: 'input[name="budget"]', timeframe: 'input[name="timeframe"]' };
+    const stepOf: Record<string, number> = { name: 0, email: 0, business: 0, website: 0, phone: 0, services: 1, packageId: 1, budget: 1, timeframe: 1, message: 2 };
+
+    // ── Steps (enhancement; without JS all three show as one form) ──
+    const stepEls = [...form.querySelectorAll<HTMLElement>('[data-step]')];
+    const nav = form.querySelector<HTMLElement>('[data-steps-nav]')!;
+    const stepCount = form.querySelector<HTMLElement>('[data-step-count]')!;
+    const stepName = form.querySelector<HTMLElement>('[data-step-name]')!;
+    const bars = [...form.querySelectorAll<HTMLElement>('[data-bar]')];
+    const back = form.querySelector<HTMLButtonElement>('[data-back]')!;
+    const next = form.querySelector<HTMLElement>('[data-next]')!;
+    const names = ['About you', 'What you need', 'Your message'];
+    let current = 0;
+    root.classList.add('is-stepped');
+    nav.hidden = false;
+
+    const goTo = (i: number, focus = true) => {
+      current = Math.max(0, Math.min(stepEls.length - 1, i));
+      stepEls.forEach((el, k) => {
+        el.hidden = k !== current;
+        el.classList.toggle('is-entering', k === current);
+      });
+      bars.forEach((b, k) => b.classList.toggle('is-on', k <= current));
+      stepCount.textContent = `Step ${current + 1} of ${stepEls.length}`;
+      stepName.textContent = names[current];
+      back.hidden = current === 0;
+      next.hidden = current === stepEls.length - 1;
+      submit.hidden = current !== stepEls.length - 1;
+      if (focus) {
+        const legend = stepEls[current].querySelector<HTMLElement>('.step__legend');
+        legend?.setAttribute('tabindex', '-1');
+        legend?.focus({ preventScroll: true });
+        nav.scrollIntoView({ block: 'nearest', behavior: matchMedia('(prefers-reduced-motion: reduce)').matches ? 'auto' : 'smooth' });
+      }
+    };
 
     // ── Status + time-check token ──
     // Only a definite answer from the server ("not_configured") shows the not-connected notice.
-    // If the check itself fails (offline, blocked, static preview), the form stays usable: the send
-    // attempt reports its own result, and the email fallback is always on the page.
     let tokenFetched = false;
     async function refreshToken() {
       try {
@@ -260,7 +323,7 @@ const areas = SERVICE_OPTIONS.filter((o) => o.group === 'area' || o.id === 'not-
     }
     refreshToken();
 
-    // ── Pre-fill from the guide (?package=…&services=…  or  ?stage=…&problem=…&site=…) ──
+    // ── Pre-fill (?package=…&services=…, ?service=…, or ?stage=…&problem=…&site=…) ──
     const params = new URLSearchParams(location.search);
     let pkg = params.get('package') ?? '';
     let svcs = (params.get('services') ?? '').split(',').filter(Boolean);
@@ -293,11 +356,12 @@ const areas = SERVICE_OPTIONS.filter((o) => o.group === 'area' || o.id === 'not-
     const updateCounter = () => {
       const n = message.value.trim().length;
       counter.textContent = n < LIMITS.messageMin ? `${LIMITS.messageMin - n} more characters needed` : `${n} / ${LIMITS.message}`;
+      counter.classList.toggle('is-ok', n >= LIMITS.messageMin);
     };
     let counterTimer: number | undefined;
     message.addEventListener('input', () => {
       window.clearTimeout(counterTimer);
-      counterTimer = window.setTimeout(updateCounter, 400);
+      counterTimer = window.setTimeout(updateCounter, 300);
     });
     updateCounter();
 
@@ -317,15 +381,21 @@ const areas = SERVICE_OPTIONS.filter((o) => o.group === 'area' || o.id === 'not-
       summary.hidden = true;
       summaryList.replaceChildren();
     };
+    const targetFor = (field: string) => form.querySelector<HTMLElement>(fieldTarget[field] ?? `[name="${field}"]`);
     const showErrors = (errors: FieldErrors) => {
       clearErrors();
       const entries = Object.entries(errors) as [string, string][];
+      if (!entries.length) return;
+      // Go to the first step that has a problem.
+      const firstStep = Math.min(...entries.map(([f]) => stepOf[f] ?? 2));
+      if (firstStep !== current) goTo(firstStep, false);
       for (const [field, msg] of entries) {
         const out = form.querySelector<HTMLElement>(`[data-error-for="${field}"]`);
         if (out) out.textContent = msg;
-        const input = form.querySelector<HTMLElement>(fieldTarget[field] ?? `[name="${field}"]`);
+        const input = targetFor(field);
         input?.setAttribute('aria-invalid', 'true');
         if (input?.closest('details')) (input.closest('details') as HTMLDetailsElement).open = true;
+        if ((stepOf[field] ?? 2) !== firstStep) continue;
         const li = document.createElement('li');
         const a = document.createElement('a');
         a.href = `#${input?.id || 'brief'}`;
@@ -337,15 +407,17 @@ const areas = SERVICE_OPTIONS.filter((o) => o.group === 'area' || o.id === 'not-
         li.append(a);
         summaryList.append(li);
       }
-      if (entries.length > 1) {
+      const inStep = entries.filter(([f]) => (stepOf[f] ?? 2) === firstStep);
+      if (inStep.length > 1) {
         summary.hidden = false;
         summary.focus();
       } else {
-        form.querySelector<HTMLElement>(fieldTarget[entries[0][0]] ?? `[name="${entries[0][0]}"]`)?.focus();
+        targetFor(inStep[0][0])?.focus();
       }
     };
-    // Re-validate a field when it changes after an error.
-    form.addEventListener('change', (e) => {
+    // Clear a field's error as soon as it is fixed (while typing), so nothing moves under the
+    // pointer when the visitor then clicks Continue or Send.
+    form.addEventListener('input', (e) => {
       const t = e.target as HTMLInputElement;
       if (t.getAttribute('aria-invalid') !== 'true') return;
       const res = validateEnquiry(read());
@@ -357,10 +429,40 @@ const areas = SERVICE_OPTIONS.filter((o) => o.group === 'area' || o.id === 'not-
       }
     });
 
+    // ── Step buttons ──
+    const stepErrors = (i: number): FieldErrors => {
+      const res = validateEnquiry(read());
+      if (res.ok) return {};
+      return Object.fromEntries(Object.entries(res.errors).filter(([f]) => (stepOf[f] ?? 2) === i)) as FieldErrors;
+    };
+    next.addEventListener('click', () => {
+      const errs = stepErrors(current);
+      if (Object.keys(errs).length) {
+        showErrors(errs);
+        return;
+      }
+      clearErrors();
+      goTo(current + 1);
+    });
+    back.addEventListener('click', () => {
+      clearErrors();
+      goTo(current - 1);
+    });
+    // Enter in a text field moves forward instead of submitting early.
+    form.addEventListener('keydown', (e) => {
+      const t = e.target as HTMLElement;
+      if (e.key === 'Enter' && t instanceof HTMLInputElement && current < stepEls.length - 1) {
+        e.preventDefault();
+        next.click();
+      }
+    });
+    goTo(0, false);
+
     const setSending = (on: boolean) => {
       submit.disabled = on;
       spinner.hidden = !on;
       submitLabel.textContent = on ? 'Sending…' : 'Send my brief';
+      submitLabel.dataset.text = submitLabel.textContent;
       form.setAttribute('aria-busy', String(on));
     };
     const showFormError = (text: string) => {
@@ -454,151 +556,252 @@ const areas = SERVICE_OPTIONS.filter((o) => o.group === 'area' || o.id === 'not-
   }
   .form {
     display: grid;
-    gap: var(--space-l);
+    gap: var(--s-6);
   }
   .grid {
     display: grid;
-    gap: var(--space-m);
+    gap: var(--s-5);
   }
   @media (min-width: 40em) {
     .grid.two {
       grid-template-columns: repeat(2, minmax(0, 1fr));
     }
-    .grid.three {
-      grid-template-columns: repeat(3, 1fr);
+    .span-2 {
+      grid-column: 1 / -1;
     }
   }
-  .req-note {
-    margin-bottom: calc(var(--space-s) * -1);
+  .opt {
+    margin-left: 0.35em;
+    font-family: var(--font-mono);
+    font-size: 0.7rem;
+    font-weight: 500;
+    letter-spacing: 0.06em;
+    text-transform: uppercase;
+    color: var(--text-3);
   }
-  fieldset {
-    border: 0;
-    padding: 0;
-    margin: 0;
-    min-width: 0;
+
+  /* Steps */
+  .steps-nav {
+    display: grid;
+    gap: var(--s-3);
   }
-  .services legend {
-    margin-bottom: var(--space-3xs);
+  .steps-nav[hidden] {
+    display: none;
   }
+  .steps-nav__label {
+    display: flex;
+    justify-content: space-between;
+    gap: var(--s-3);
+    font-size: var(--fs-sm);
+    font-weight: 560;
+  }
+  .steps-nav__label .num {
+    color: var(--signal);
+    font-size: var(--fs-xs);
+    letter-spacing: 0.06em;
+    text-transform: uppercase;
+  }
+  .steps-nav__bar {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 6px;
+  }
+  .steps-nav__bar li {
+    height: 4px;
+    border-radius: 4px;
+    background: var(--surface-2);
+    position: relative;
+    overflow: hidden;
+  }
+  .steps-nav__bar li::after {
+    content: '';
+    position: absolute;
+    inset: 0;
+    background: var(--signal);
+    transform: scaleX(0);
+    transform-origin: left;
+    transition: transform var(--t-slow) var(--ease-out);
+  }
+  .steps-nav__bar li.is-on::after {
+    transform: none;
+  }
+  .step {
+    display: grid;
+    gap: var(--s-6);
+    padding-bottom: var(--s-6);
+    border-bottom: 1px solid var(--line);
+  }
+  .is-stepped .step {
+    padding-bottom: 0;
+    border-bottom: 0;
+  }
+  .step[hidden] {
+    display: none;
+  }
+  @media (prefers-reduced-motion: no-preference) {
+    .step:global(.is-entering) {
+      animation: step-in 600ms var(--ease-out);
+    }
+  }
+  @keyframes step-in {
+    from {
+      opacity: 0;
+      transform: translateY(14px);
+    }
+  }
+  .step__legend {
+    display: flex;
+    align-items: baseline;
+    gap: var(--s-3);
+    margin-bottom: var(--s-2);
+    font-size: clamp(1.6rem, 1.3rem + 1.2vw, 2.4rem);
+    font-weight: 720;
+    font-stretch: 112%;
+    letter-spacing: -0.04em;
+    line-height: 1.05;
+  }
+  .step__legend:focus {
+    outline: none;
+  }
+  .step__n {
+    font-size: var(--fs-xs);
+    font-weight: 500;
+    letter-spacing: 0.04em;
+    color: var(--signal);
+  }
+
   /* Plain-language areas: large tap targets with a one-line explanation. */
+  .services {
+    display: grid;
+    gap: var(--s-2);
+  }
   .areas {
     display: grid;
-    gap: var(--space-xs);
-    margin-top: var(--space-xs);
+    gap: var(--s-2);
+    margin-top: var(--s-2);
   }
   @media (min-width: 40em) {
     .areas {
       grid-template-columns: repeat(2, minmax(0, 1fr));
     }
   }
-  .check.area {
+  .area {
+    position: relative;
+    display: flex;
+    gap: var(--s-3);
     align-items: flex-start;
-    padding: var(--space-s);
-    border: 1.5px solid var(--line);
-    border-radius: var(--radius-m);
-    background: var(--card);
-    transition: border-color var(--dur-fast) var(--ease-out), background-color var(--dur-fast) var(--ease-out);
+    padding: var(--s-4);
+    border: 1px solid var(--control);
+    border-radius: var(--r-md);
+    cursor: pointer;
+    transition: border-color var(--t-fast), background-color var(--t-fast);
   }
-  .check.area input {
+  .area input {
+    position: absolute;
+    opacity: 0;
+    width: 1px;
+    height: 1px;
+  }
+  .area .chip__box {
     margin-top: 0.15em;
   }
-  .check.area > span {
+  .area__text {
     display: grid;
-    gap: var(--space-3xs);
+    gap: var(--s-1);
   }
-  .check.area:has(input:checked) {
-    border-color: var(--ink);
-    background: var(--paper);
+  .area__text strong {
+    font-weight: 620;
   }
-  .check.area:has(input:focus-visible) {
-    outline: 3px solid var(--focus);
-    outline-offset: 2px;
+  .area__hint {
+    font-size: var(--fs-sm);
+    color: var(--text-2);
+    line-height: 1.45;
   }
-  .area-hint {
-    font-size: var(--step--1);
-    color: var(--ink-2);
+  .area:hover {
+    border-color: var(--text-3);
+    background: var(--surface);
   }
-  .svc-detail {
-    margin-top: var(--space-s);
+  .area:has(input:checked) {
+    border-color: var(--signal);
+    background: var(--signal-wash);
   }
-  .svc-detail > summary {
-    cursor: pointer;
-    font-weight: 700;
-    min-height: var(--tap);
+  .area:has(input:checked) .chip__box {
+    background: var(--signal);
+    border-color: var(--signal);
+  }
+  .area:has(input:checked) .chip__box :global(svg) {
+    stroke-dashoffset: 0;
+  }
+  .area:has(input:focus-visible) {
+    outline: 2px solid var(--focus);
+    outline-offset: 3px;
+  }
+  .area:has(input[aria-invalid='true']) {
+    border-color: var(--error);
+  }
+  .chip__box :global(svg) {
+    width: 0.8rem;
+    height: 0.8rem;
+    stroke: var(--on-signal);
+    stroke-width: 3;
+    fill: none;
+    stroke-dasharray: 20;
+    stroke-dashoffset: 20;
+    transition: stroke-dashoffset var(--t-base) var(--ease-out);
+  }
+  .more {
+    margin-top: var(--s-3);
+  }
+  .more > summary {
     display: flex;
     align-items: center;
-    gap: var(--space-xs);
+    gap: var(--s-2);
+    min-height: var(--tap);
+    cursor: pointer;
     list-style: none;
+    font-weight: 600;
+    font-size: var(--fs-sm);
   }
-  .svc-detail > summary::-webkit-details-marker {
+  .more > summary::-webkit-details-marker {
     display: none;
   }
-  .svc-detail > summary::before {
-    content: '+';
-    display: inline-grid;
-    place-items: center;
-    flex: none;
-    width: 1.5rem;
-    height: 1.5rem;
-    border: 1.5px solid var(--ink);
-    border-radius: 50%;
-    font-weight: 700;
-    line-height: 1;
+  .more > summary :global(.icon) {
+    color: var(--signal);
+    transition: transform var(--t-base) var(--ease-out);
   }
-  .svc-detail[open] > summary::before {
-    content: '−';
+  .more[open] > summary :global(.icon) {
+    transform: rotate(45deg);
   }
   .svc-groups {
     display: grid;
-    gap: var(--space-m);
-    margin-top: var(--space-s);
-  }
-  @media (min-width: 40em) {
-    .svc-groups {
-      grid-template-columns: repeat(2, minmax(0, 1fr));
-    }
+    gap: var(--s-5);
+    margin-top: var(--s-4);
   }
   .svc-group {
     display: grid;
-    gap: var(--space-3xs);
-    align-content: start;
+    gap: var(--s-3);
   }
   .svc-title {
     font-family: var(--font-mono);
-    font-size: var(--step--1);
-    font-weight: 700;
+    font-size: var(--fs-xs);
+    letter-spacing: var(--track-label);
     text-transform: uppercase;
-    letter-spacing: 0.06em;
-    color: var(--ink-3);
+    color: var(--text-3);
   }
-  .check {
+
+  .msg-meta {
     display: flex;
-    gap: var(--space-xs);
-    align-items: center;
-    min-height: var(--tap);
-    cursor: pointer;
-    line-height: 1.3;
-  }
-  .check input {
-    width: 1.25rem;
-    height: 1.25rem;
-    accent-color: var(--ink);
-    flex: none;
-    margin: 0;
-  }
-  .optional summary {
-    cursor: pointer;
-    font-weight: 700;
-    min-height: var(--tap);
-    display: flex;
-    align-items: center;
-  }
-  .optional[open] summary {
-    margin-bottom: var(--space-m);
+    justify-content: space-between;
+    gap: var(--s-4);
+    align-items: flex-start;
   }
   .counter {
+    flex: none;
+    font-size: 0.75rem;
     text-align: right;
-    margin-top: calc(var(--space-2xs) * -1);
+  }
+  .counter:global(.is-ok) {
+    color: var(--signal);
   }
   .hp {
     position: absolute;
@@ -607,117 +810,138 @@ const areas = SERVICE_OPTIONS.filter((o) => o.group === 'area' || o.id === 'not-
     height: 1px;
     overflow: hidden;
   }
-  .submit-row {
-    display: flex;
-    flex-wrap: wrap;
-    gap: var(--space-s) var(--space-m);
-    align-items: center;
-  }
-  .submit-row .btn {
-    min-width: 12rem;
-  }
-  /* Always-visible fallback beside the send button. */
-  .alt-contact {
+
+  .form-actions {
     display: flex;
     flex-wrap: wrap;
     align-items: center;
-    gap: var(--space-2xs) var(--space-s);
-    padding: var(--space-s) var(--space-m);
-    border: 1px solid var(--line);
-    border-radius: var(--radius-m);
-    background: var(--card);
+    gap: var(--s-4);
   }
-  .alt-contact a {
-    font-weight: 700;
-    overflow-wrap: anywhere;
+  .form-actions__main {
+    display: inline-flex;
   }
-  .copy-btn {
-    min-height: var(--tap);
-    padding: 0 var(--space-s);
-    border: 1.5px solid var(--ink);
-    border-radius: var(--radius-pill);
+  .form-actions__main [hidden] {
+    display: none;
+  }
+  .form-actions__note {
+    flex-basis: 100%;
+  }
+  .back {
+    display: inline-flex;
+    align-items: center;
+    gap: var(--s-2);
+    min-height: 3.5rem;
+    padding: 0 1.25rem;
+    border: 1px solid var(--control);
+    border-radius: var(--r-pill);
     background: transparent;
-    font: inherit;
-    font-weight: 700;
-    font-size: var(--step--1);
-    cursor: pointer;
-  }
-  .copy-btn:hover {
-    background: var(--paper-2);
-  }
-  .notice p + p {
-    margin-top: var(--space-2xs);
-  }
-  .notice {
-    padding: var(--space-s) var(--space-m);
-    border-radius: var(--radius-m);
-    border: 1.5px solid currentColor;
     font-weight: 600;
   }
-  .notice:focus {
-    outline: 3px solid var(--focus);
-    outline-offset: 3px;
+  .back[hidden] {
+    display: none;
   }
-  .notice--error {
-    color: var(--error);
-    background: var(--error-wash);
+  .back:hover {
+    background: var(--surface);
   }
-  .notice--warn {
-    color: #5c3c00;
-    background: var(--warn-wash);
+  .spinner {
+    width: 1rem;
+    height: 1rem;
+    border-radius: 50%;
+    border: 2px solid currentColor;
+    border-right-color: transparent;
+    animation: spin 0.8s linear infinite;
   }
+  .spinner:not([hidden]) + :global(.icon) {
+    display: none;
+  }
+  @keyframes spin {
+    to {
+      transform: rotate(360deg);
+    }
+  }
+
   .error-summary {
-    padding: var(--space-m);
-    border: 2px solid var(--error);
-    border-radius: var(--radius-m);
+    padding: var(--s-5);
+    border: 1px solid var(--error);
+    border-radius: var(--r-md);
     background: var(--error-wash);
   }
   .error-summary:focus {
-    outline: 3px solid var(--focus);
+    outline: 2px solid var(--focus);
     outline-offset: 3px;
   }
   .es-title {
-    font-size: var(--step-1);
+    font-size: 1.125rem;
     color: var(--error);
-    margin-bottom: var(--space-2xs);
+    margin-bottom: var(--s-2);
   }
-  .error-summary a {
+  .error-summary ul {
+    padding-left: 1.2em;
+  }
+  .error-summary :global(a) {
     color: var(--error);
     font-weight: 600;
   }
+
   .success {
     display: grid;
-    gap: var(--space-m);
-    padding: var(--space-l);
-    background: var(--card);
-    border: 2px solid var(--ink);
-    border-radius: var(--radius-l);
-    box-shadow: 6px 6px 0 var(--ok);
+    gap: var(--s-5);
+    padding: clamp(1.5rem, 4vw, 3rem);
+    border-radius: var(--r-lg);
+    background: var(--surface);
+    border: 1px solid var(--signal);
   }
   .success:focus {
     outline: none;
   }
   .success h2 {
-    font-size: var(--step-3);
+    font-size: clamp(1.8rem, 1.4rem + 1.8vw, 3rem);
+    max-width: 20ch;
   }
-  .stamp-ok {
-    justify-self: start;
-    font-family: var(--font-display);
-    font-weight: 800;
-    text-transform: uppercase;
-    letter-spacing: 0.06em;
-    color: var(--ok);
-    border: 3px double var(--ok);
-    border-radius: var(--radius-s);
-    padding: 0.1em 0.6em;
-    transform: rotate(-4deg);
+  .success__mark {
+    width: 4.5rem;
+    height: 4.5rem;
+    fill: none;
+    stroke: var(--signal);
+    stroke-width: 3.5;
+    stroke-linecap: round;
+    stroke-linejoin: round;
+  }
+  .success__mark circle {
+    stroke-dasharray: 227;
+  }
+  .success__mark path {
+    stroke-dasharray: 50;
+  }
+  @media (prefers-reduced-motion: no-preference) {
+    .success:not([hidden]) .success__mark circle {
+      animation: draw-c 900ms var(--ease-out) both;
+    }
+    .success:not([hidden]) .success__mark path {
+      animation: draw-p 600ms var(--ease-out) 500ms both;
+    }
+  }
+  @keyframes draw-c {
+    from {
+      stroke-dashoffset: 227;
+    }
+  }
+  @keyframes draw-p {
+    from {
+      stroke-dashoffset: 50;
+    }
   }
   .next {
-    padding-left: 1.3em;
     display: grid;
-    gap: var(--space-2xs);
+    gap: var(--s-2);
   }
-  .mono {
-    font-family: var(--font-mono);
+  .next li {
+    display: flex;
+    gap: var(--s-3);
+  }
+  .next .num {
+    color: var(--signal);
+    font-size: var(--fs-xs);
+    padding-top: 0.3em;
   }
 </style>
