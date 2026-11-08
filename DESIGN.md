@@ -78,14 +78,15 @@ Content width `--container` 90rem with `--gutter` 1 → 3rem; text `--measure` 6
 desktop, one column on phones. Layouts alternate (split, full-bleed, sticky, list) so no two sections
 in a row look the same.
 
-**Home order (round 7).** Compact hero (outcome headline + service descriptor, two actions) →
-**selected work** (both projects) → three service summaries → free check → how I work → questions →
-closing call to action. Real work starts by y≈930 at 1440×1000 and y≈910 at 390×844 (tested).
+**Home order (round 7, hero changed in round 8).** Hero (outcome headline + service descriptor, two
+actions, and the **Tune in** photo) → **selected work** (both projects) → three service summaries →
+free check → how I work → questions → closing call to action. Real work starts by y≈920 at 1440×1000
+and y≈1410 at 390×844 (tested; on phones the tuner sits between the buttons and the work).
 
 **Phones (under 48em) stay short.** A client should get the whole story in a few thumb-flicks:
 
 - **Both projects are always in the normal reading order** (stacked cards, never a sideways rail),
-  so neither can be missed. The large portrait art opens on request; the first screen has a small photo.
+  so neither can be missed. The tuner follows the hero buttons and starts when it scrolls into view.
 - **Swipe rails** (`.rail` + `data-rail`) for secondary groups: house rules, packages, the five
   project steps, About chapters, and the close-ups and captures on case studies. Snap points, the
   next card peeking, dots underneath. A rail with no links gets a tab stop only while it scrolls.
@@ -93,7 +94,7 @@ closing call to action. Real work starts by y≈930 at 1440×1000 and y≈910 at
   show their opening and "Read the full case study"; case-study evidence previews its first check.
   Keyboard focus moving into folded text opens it, and without JavaScript everything is shown.
 - Smaller section padding, one line per service until it is opened, and a compact footer.
-- Budgets (in 390 × 844 screens) are tested in `tests/e2e/site.spec.ts`: Home 10, Services 12,
+- Budgets (in 390 × 844 screens) are tested in `tests/e2e/site.spec.ts`: Home 10.5, Services 12,
   case studies 7 (they carry the evidence section), About 6.5, Work 4.5, Contact 3.5.
 
 ## Shape and depth
@@ -120,9 +121,8 @@ shadow only: `--shadow-pop` for floating layers (menu, ⌘K palette, toast).
 
 ## Imagery and icons
 
-- The only photo is Mann's real portrait: on Home it is drawn as the signal-line portrait (with a
-  "Show photo" switch and a small round face photo on phones); the full street photo is on About.
-  Never generated or stock.
+- The only photo is Mann's real portrait: on Home it is the **Tune in** radio (below); the full street
+  photo is also on About. Never generated or stock. The signal-line drawing now lives only on the 404 page.
 - Project images are real captures of real sites, shown in plain rounded frames, captioned with
   dates.
 - Example screens (phone mock-ups) are built in HTML, labelled "Example", and use fictional names.
@@ -136,10 +136,37 @@ shadow only: `--shadow-pop` for floating layers (menu, ⌘K palette, toast).
 | `--ease-in-out` | `cubic-bezier(0.65, 0, 0.35, 1)` |
 | `--t-fast` / `--t-base` / `--t-slow` / `--t-reveal` | 160 / 320 / 700 / 1100 ms |
 
-Signature moments: the signal-line portrait (Mann's face drawn by ~120 oscillating scan lines that
-trace in on load and swell and glow lime around the pointer), kinetic hero words (width and weight
-animate in), headings revealed line by line, the process line that draws itself on Services, and the
-footer name. Everything is off under `prefers-reduced-motion`; content never waits on JavaScript.
+Signature moments: **Tune in** (below), kinetic hero words (width and weight animate in, and flash
+lime when the signal locks), headings revealed line by line, the process line that draws itself on
+Services, and the footer name. Everything is off under `prefers-reduced-motion`; content never waits
+on JavaScript.
+
+### Tune in (round 8)
+
+`components/home/TuneIn.astro` + `scripts/tune.ts`. Mann's real photo is a radio station. It arrives
+as a lost signal (lime-on-black static, scanlines, colour split, tearing, a slow roll; "No signal")
+and the visitor tunes an FM dial, or drags sideways across the photo, toward **104.3**, where a small
+lime "Mann" flag marks the station. The picture clears as the dial gets close and snaps on within
+0.3 MHz. On lock: full colour, the three headline words flash lime in turn, a radar ping crosses the
+hero's dot field (`signal:ping` event, `field.ts`), and three true lines type over the photo. Then
+"Who is this guy?" leads to About. Why this works: `docs/15-round-8-tune-in.md`.
+
+| State | What shows |
+| --- | --- |
+| Searching (before lock) | Static over a lime silhouette; frequency, signal bars, "On air" dot red; status "No signal. Drag the dial, or the photo, to tune in." |
+| Getting closer | Picture clears; status "Getting closer…" then "Almost there…"; bars fill |
+| Locked | Clear photo, lime frequency, full bars, transmission lines, status "Signal locked: Mann Patel, Toronto." |
+| Lost again | Status "Signal lost. Tune back to 104.3." |
+| Left alone | A short sweep when it first comes into view, then it tunes itself in after 6.5 s |
+| Reduced motion | Starts locked, no animation; the dial still works |
+| No WebGL / CPU-only GPU | Same story in CSS filters over the real image |
+| No JavaScript | Just the clear photo, its lines and "Who is this guy?"; no dial or readouts |
+
+The dial is a native range input (keyboard: arrows 0.2 MHz, Page Up/Down 2 MHz, Home/End), named
+"Tune in", with `aria-valuetext` ("104.3 FM, signal locked") and a polite live status. The animation
+runs only while something changes and pauses off screen. The photo is the image itself (alt text,
+eager, high priority); on phones the tuner follows the buttons so the first-screen LCP stays the
+headline.
 
 ## Effects layer (round 6, pared back in round 7)
 
@@ -149,10 +176,10 @@ only for a mouse or trackpad. Round 7 kept one effect per job, after the audit a
 
 | Kept | Where | Behaviour |
 | --- | --- | --- |
-| **Signal field** (`Field.astro`, `field.ts`) | Home hero, 404 | WebGL dot map with a faint aurora toward the portrait; dots swell near the pointer; a click or tap sends a radar ping. Static CSS dots without a GPU or with reduced motion. Time stops a few seconds after the last interaction. |
+| **Signal field** (`Field.astro`, `field.ts`) | Home hero, 404 | WebGL dot map with a faint aurora toward the portrait; dots swell near the pointer; a click or tap sends a radar ping, and so does the tuner when it locks (`signal:ping`). Static CSS dots without a GPU or with reduced motion. Time stops a few seconds after the last interaction. |
 | **Magnetic buttons** (`pointer.ts`) | `.btn`, `.icon-btn`, menu buttons | Lean toward the pointer and spring back (CSS `translate`). |
 | **Spotlight** | `[data-spotlight]`: project cards, work rows, packages, contact panels | A soft light and a lit border follow the pointer. |
-| **Decoding** (`text.ts`) | `[data-scramble]` only: the hero coordinates | Glyphs lock in left to right; screen readers get the real text. |
+| **Decoding** (`text.ts`) | `[data-scramble]` only: the coordinates on the tuner | Glyphs lock in left to right; screen readers get the real text. |
 | **Reading line** | Header | 2 px lime scroll progress (CSS scroll timeline). |
 | **Page transitions** | Between pages | Old page recedes, new one wipes up, header holds still. |
 | **Image reveals** | Case-study close-ups and captures | Frames open as they scroll in (CSS view timeline). |

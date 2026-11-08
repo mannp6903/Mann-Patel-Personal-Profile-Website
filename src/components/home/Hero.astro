@@ -1,25 +1,22 @@
 ---
 /**
- * Home hero (round 7: compact). The H1 is the outcome in three words plus the service descriptor.
- * Two actions with different jobs: Start a project (main) and See selected work (the next
- * section). The portrait is drawn as a live signal (src/scripts/signal-portrait.ts) on wide
- * screens; on phones and tablets the first screen shows a small round photo and the larger
- * portrait art opens on request, so the real work comes sooner.
+ * Home hero (round 8: "Tune in"). The H1 is the outcome in three words plus the service
+ * descriptor. Two actions with different jobs: Start a project (main) and See selected work (the
+ * next section). Mann's real photo is a radio station the visitor tunes in (TuneIn.astro): it
+ * arrives as a lost signal and locks at 104.3, which flashes the headline and pings the dot field.
+ * Beside the copy on tablets and desktops; right after the buttons on phones.
  */
-import { Image } from 'astro:assets';
-import cutout from '../../assets/mann-patel-cutout.png';
-import face from '../../assets/mann-patel-face.jpg';
 import { profile } from '../../data/site';
 import Button from '../ui/Button.astro';
 import ContactActions from '../ContactActions.astro';
 import Field from '../fx/Field.astro';
+import TuneIn from './TuneIn.astro';
 ---
 
 <section class="hero" aria-labelledby="hero-title" data-field-zone>
   <Field preset="hero" class="hero__field" />
   <div class="hero__inner container">
     <div class="hero__meta">
-      <Image src={face} alt="" widths={[96, 144]} sizes="3rem" format="webp" loading="eager" class="hero__avatar" />
       <p class="eyebrow hero__where">{profile.name} · {profile.location}, Canada</p>
       <p class="status status--live hero__status"><span class="status__dot" aria-hidden="true"></span>Taking new projects</p>
     </div>
@@ -45,72 +42,17 @@ import Field from '../fx/Field.astro';
       </div>
     </div>
 
-    {
-      profile.portrait && (
-        <figure class="hero__photo">
-          <Image
-            src={profile.portrait.src}
-            alt={profile.portrait.alt}
-            widths={[360, 560, 720, 1060]}
-            sizes="(min-width: 40em) 28rem, 92vw"
-            format="webp"
-            quality={80}
-            loading="eager"
-            class="hero__photo-img"
-          />
-          <figcaption class="hero__photo-cap num subtle">Mann Patel · Toronto · 43.65° N · 79.38° W</figcaption>
-        </figure>
-      )
-    }
-
-    <figure class="hero__portrait" id="hero-art" data-portrait>
-      <div class="hp__stage">
-        <Image
-          src={cutout}
-          alt="Mann Patel smiling, in a dark green sweatshirt."
-          widths={[360, 540, 720, 914]}
-          sizes="(min-width: 64em) 40vw, 92vw"
-          format="webp"
-          quality={82}
-          loading="eager"
-          fetchpriority="high"
-          class="hp__img"
-          data-portrait-img
-        />
-        <canvas class="hp__canvas" aria-hidden="true" data-portrait-canvas></canvas>
-        {
-          profile.portrait && (
-            <Image
-              src={profile.portrait.src}
-              alt={profile.portrait.alt}
-              widths={[540, 720, 1060]}
-              sizes="(min-width: 64em) 40vw, 0px"
-              format="webp"
-              quality={80}
-              loading="lazy"
-              class="hp__real"
-            />
-          )
-        }
-      </div>
-      <figcaption class="hp__cap">
-        <span class="hp__who">
-          <span>Mann Patel</span>
-          <span class="num subtle" data-scramble>43.65° N · 79.38° W</span>
-        </span>
-        <button class="hp__toggle" type="button" aria-pressed="false" data-portrait-toggle>
-          <span class="hp__switch" aria-hidden="true"><i></i></span>
-          Show photo
-        </button>
-      </figcaption>
-    </figure>
+    <TuneIn class="hero__tune" />
   </div>
 
 </section>
 
 <script>
-  import { mountSignalPortrait } from '../../scripts/signal-portrait';
-  document.querySelectorAll<HTMLElement>('[data-portrait]').forEach(mountSignalPortrait);
+  import { mountTuner } from '../../scripts/tune';
+  import { track } from '../../scripts/analytics';
+  document.querySelectorAll<HTMLElement>('[data-tune]').forEach(mountTuner);
+  // How people find him: by hand or left to the auto-tune. Only the method, nothing else.
+  addEventListener('tune:locked', (e) => track('tune_in', { method: (e as CustomEvent<{ how: string }>).detail.how }));
 </script>
 
 <style>
@@ -142,48 +84,12 @@ import Field from '../fx/Field.astro';
     display: grid;
     gap: var(--s-6);
   }
-  /* Phones: a small round photo beside the name and status (two short lines). */
   .hero__meta {
-    display: grid;
-    grid-template-columns: auto 1fr;
-    column-gap: var(--s-3);
-    row-gap: 0.15rem;
+    display: flex;
+    flex-wrap: wrap;
+    justify-content: space-between;
     align-items: center;
-  }
-  .hero__meta :global(.hero__avatar) {
-    grid-row: span 2;
-    width: 3rem;
-    height: 3rem;
-    border-radius: 50%;
-    object-fit: cover;
-    background: var(--surface-2);
-    box-shadow: 0 0 0 2px var(--bg), 0 0 0 3px var(--signal);
-  }
-  .hero__where::before {
-    content: none;
-  }
-  .hero__status {
-    justify-self: start;
-    padding: 0;
-    border: 0;
-  }
-  @media (min-width: 40em) {
-    .hero__meta {
-      display: flex;
-      flex-wrap: wrap;
-      justify-content: space-between;
-      gap: var(--s-3);
-    }
-    .hero__meta :global(.hero__avatar) {
-      display: none;
-    }
-    .hero__where::before {
-      content: '';
-    }
-    .hero__status {
-      padding: 0.35em 0.8em 0.35em 0.65em;
-      border: 1px solid var(--line);
-    }
+    gap: var(--s-2) var(--s-3);
   }
 
   /* ── Title ── */
@@ -254,6 +160,38 @@ import Field from '../fx/Field.astro';
       filter: blur(6px);
     }
   }
+  /* Signal locked: the three words flash lime in turn, like a station light coming on. */
+  @media (prefers-reduced-motion: no-preference) {
+    :global(.js) .hero:global(.is-locked) .hw {
+      animation:
+        hw-stretch 1500ms var(--ease-out) both,
+        hw-flash 1100ms var(--ease-out) both;
+      animation-delay: calc(var(--i) * 120ms), calc(var(--i) * 160ms);
+    }
+    :global(.js) .hero:global(.is-locked) .hw--serif {
+      animation-name: hw-serif, hw-flash-serif;
+    }
+  }
+  @keyframes hw-flash {
+    0%,
+    100% {
+      color: var(--text);
+      text-shadow: none;
+    }
+    18% {
+      color: var(--signal);
+      text-shadow: 0 0 0.35em rgb(212 248 74 / 0.45);
+    }
+  }
+  @keyframes hw-flash-serif {
+    0%,
+    100% {
+      text-shadow: none;
+    }
+    18% {
+      text-shadow: 0 0 0.35em rgb(212 248 74 / 0.6);
+    }
+  }
   .hero__sub {
     display: block;
     margin-top: var(--s-5);
@@ -289,158 +227,32 @@ import Field from '../fx/Field.astro';
     gap: var(--s-2) var(--s-4);
   }
 
-  /* ── Portrait ── */
-  .hero__portrait {
-    position: relative;
-    z-index: 1;
-    width: 100%;
-    max-width: min(34rem, 84vw);
-    justify-self: center;
-    cursor: crosshair;
-    touch-action: pan-y;
+  /* ── Tuner ── */
+  .hero :global(.hero__tune) {
+    justify-self: start;
   }
-  .hp__stage {
-    position: relative;
-    aspect-ratio: 914 / 964;
-  }
-  .hp__img,
-  .hp__canvas {
-    position: absolute;
-    inset: 0;
-    width: 100%;
-    height: 100%;
-    object-fit: contain;
-    object-position: bottom;
-    transition: opacity 900ms var(--ease-out);
-  }
-  .hp__canvas {
-    opacity: 0;
-  }
-  .hero__portrait:global(.is-ready) .hp__canvas {
-    opacity: 1;
-  }
-  .hero__portrait:global(.is-ready) .hp__img {
-    opacity: 0;
-  }
-  .hero__portrait:global(.is-ready.is-photo) .hp__canvas {
-    opacity: 0;
-  }
-  .hero__portrait:global(.is-ready.is-photo) .hp__img {
-    opacity: 0;
-  }
-  .hp__cap {
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
-    gap: var(--s-3);
-    padding-top: var(--s-3);
-    border-top: 1px solid var(--line);
-    font-size: var(--fs-sm);
-    font-weight: 560;
-  }
-  .hp__who {
-    display: grid;
-    gap: 0.1rem;
-  }
-  .hp__who .num {
-    font-size: 0.75rem;
-    font-weight: 400;
-    letter-spacing: 0.04em;
-  }
-  .hp__toggle {
-    display: none;
-    align-items: center;
-    gap: 0.6rem;
-    min-height: var(--tap);
-    padding: 0 0.9rem 0 0.6rem;
-    border: 1px solid var(--line);
-    border-radius: var(--r-pill);
-    background: transparent;
-    font-size: 0.875rem;
-    font-weight: 560;
-    color: var(--text-2);
-    cursor: pointer;
-    transition: border-color var(--t-fast), color var(--t-fast);
-  }
-  .hero__portrait:global(.is-ready) .hp__toggle {
-    display: inline-flex;
-  }
-  .hp__toggle:hover {
-    border-color: var(--control);
-    color: var(--text);
-  }
-  .hp__switch {
-    position: relative;
-    width: 2rem;
-    height: 1.125rem;
-    border-radius: var(--r-pill);
-    background: var(--surface-2);
-    border: 1px solid var(--control);
-    transition: background-color var(--t-base);
-  }
-  .hp__switch i {
-    position: absolute;
-    top: 2px;
-    left: 2px;
-    width: 0.8rem;
-    height: 0.8rem;
-    border-radius: 50%;
-    background: var(--text-2);
-    transition: transform var(--t-base) var(--ease-spring), background-color var(--t-base);
-  }
-  .hp__toggle[aria-pressed='true'] .hp__switch {
-    background: var(--signal);
-    border-color: var(--signal);
-  }
-  .hp__toggle[aria-pressed='true'] .hp__switch i {
-    transform: translateX(0.85rem);
-    background: var(--on-signal);
+  /* Phones: the tuner follows the buttons and starts its show when it scrolls into view. (Placed
+     higher, the photo becomes the largest first-screen element and slows the measured LCP.) */
+  /* Tablets: the copy and the tuner side by side under the headline. */
+  @media (min-width: 40em) and (max-width: 63.99em) {
+    .hero__inner {
+      grid-template-columns: minmax(0, 1fr) minmax(0, 19rem);
+      column-gap: var(--s-6);
+    }
+    .hero__meta,
+    .hero__title {
+      grid-column: 1 / -1;
+    }
+    .hero__copy {
+      grid-column: 1;
+      align-self: start;
+    }
+    .hero :global(.hero__tune) {
+      grid-column: 2;
+      align-self: start;
+    }
   }
 
-  /* ── Phones and tablets: the real, whole photo. Wide screens: the signal portrait (photo on switch). ── */
-  .hero__photo {
-    justify-self: start;
-    width: 100%;
-    max-width: 26rem;
-    display: grid;
-    gap: var(--s-2);
-  }
-  .hero__photo :global(.hero__photo-img) {
-    width: 100%;
-    aspect-ratio: 1;
-    object-fit: cover;
-    border-radius: var(--r-lg);
-    background: var(--surface);
-  }
-  .hero__photo-cap {
-    font-size: 0.75rem;
-    letter-spacing: 0.04em;
-  }
-  @media (max-width: 63.99em) {
-    .hero__portrait {
-      display: none;
-    }
-  }
-  @media (min-width: 64em) {
-    .hero__photo {
-      display: none;
-    }
-  }
-  /* Desktop "Show photo": the real photo fades in over the signal drawing. */
-  .hp__stage :global(.hp__real) {
-    position: absolute;
-    inset: 0;
-    width: 100%;
-    height: 100%;
-    object-fit: cover;
-    border-radius: var(--r-lg);
-    opacity: 0;
-    transition: opacity 900ms var(--ease-out);
-    pointer-events: none;
-  }
-  .hero__portrait:global(.is-photo) .hp__stage :global(.hp__real) {
-    opacity: 1;
-  }
   /* Phones: the header's Contact button and the footer already carry direct contact. */
   @media (max-width: 39.99em) {
     .hero__actions :global(.hero__reach) {
@@ -493,12 +305,12 @@ import Field from '../fx/Field.astro';
       align-self: start;
       gap: var(--s-5);
     }
-    .hero__portrait {
-      grid-column: 7 / 13;
+    .hero :global(.hero__tune) {
+      grid-column: 8 / 13;
       grid-row: 2 / 4;
-      align-self: end;
+      align-self: center;
       justify-self: end;
-      max-width: 34rem;
+      max-width: 30rem;
     }
     .hero__actions {
       gap: var(--s-4);
