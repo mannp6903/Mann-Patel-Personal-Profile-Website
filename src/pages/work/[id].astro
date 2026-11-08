@@ -478,9 +478,10 @@ const gallery = [c.desktop, c.mobile, ...(c.earlier ? [c.earlier] : [])];
       transform: rotate(90deg);
       color: var(--signal);
     }
+    /* Keep each close-up's own shape (wide crops would lose their sides in a fixed box); cap tall ones. */
     .closer__img :global(img) {
       width: 100%;
-      aspect-ratio: 4 / 3;
+      max-height: 18rem;
       object-fit: cover;
       object-position: top;
     }

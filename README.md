@@ -86,4 +86,4 @@ Cloudflare Workers, connected to GitHub: build command `npm run build:cloudflare
 
 ## Licences
 
-Fonts: Mona Sans (served as the subset "Signal Sans", renamed as its Reserved Font Name requires), Instrument Serif and Geist Mono, SIL Open Font License 1.1 (`public/fonts/LICENSES.txt`). The earlier wordmark files in `public/brand/` are outlined from Fraunces (SIL OFL 1.1). The portrait is Mann's own photo. Nest & Rest captures are archived screenshots of Mann's own website (Internet Archive, 19 Oct 2026).
+Fonts: Mona Sans (served as the subset "Signal Sans", renamed as its Reserved Font Name requires), Instrument Serif and Geist Mono, SIL Open Font License 1.1 (`public/fonts/LICENSES.txt`). The earlier wordmark files in `public/brand/` are outlined from Fraunces (SIL OFL 1.1). The portrait is Mann's own photo. Nest & Rest captures are screenshots of Mann's own website, nestnrestcleaning.com (live site, 31 Oct and 8 Nov 2026).

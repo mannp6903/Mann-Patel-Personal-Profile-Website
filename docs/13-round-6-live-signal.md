@@ -83,7 +83,24 @@ to 3.3 s, TBT up to 240 ms.
 
 Captures: `docs/captures/r6-*.jpg` (the WebGL field is shown with the software renderer forced on).
 
-## 5. Notes for Mann
+## 5. Nest & Rest case study updated to the new version (8 Nov 2026)
+
+Mann asked for the Work section to show the new nestnrestcleaning.com. The live site was captured
+again on 8 Nov 2026 (it was redesigned on 4–6 Nov and is in "Opening soon" mode until bookings open).
+
+| What | Change | Files |
+| --- | --- | --- |
+| Captures | New desktop (1440 px) and phone (360 px, 2×) captures of the live home page; the 31 Oct capture is now the "earlier version"; the unused 19 Oct archive captures and old close-ups were removed | `src/assets/work/nest-and-rest/`, `src/data/captures.ts` |
+| Close-ups | Four "Look closer" details from the live site: the price box, the "Opening soon" notice, the postal-code check and the owner line | same |
+| Case study text | Kind "opening summer 2027"; summary, highlights, scope and decisions match the site as it is now: booking request, quote forms and "text me this price" are built and switch on at launch; answer-first pages for Google and AI assistants; "Honest about timing" added as a decision; the November redesign in "How it evolved". Nothing is claimed that the live site doesn't show | `src/content/work/nest-and-rest-cleaning.md` |
+| Business description | No longer says the site takes booking requests today | `src/data/site.ts` |
+| Close-ups on phones | Keep each image's own shape (wide crops were being cut to 4:3), capped at 18rem tall | `src/pages/work/[id].astro` |
+
+Facts were checked against the site's own repository (`mannp6903/nestnrestcleaning`, `main` at 6 Nov 2026)
+and the live pages. Checks after the update: unit 39/39, Playwright + axe 81 passed (1 skipped), case
+study Lighthouse mobile 99 / 100 / 100 / 100 (LCP 2.0–2.1 s).
+
+## 6. Notes for Mann
 
 - **Seeing the WebGL field:** it runs on any device with a real GPU. Browsers without one (and some
   locked-down office computers) show the static dot grid instead, by design. To preview it on such a
