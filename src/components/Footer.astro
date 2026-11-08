@@ -29,9 +29,9 @@ const name = [...profile.name];
         <p class="eyebrow">Next step</p>
         <Heading id="ftr-cta-title" class="ftr__title" lines={['Tell me what isn’t working.', '<span class="serif serif--signal">I’ll tell you where to start.</span>']} />
         <div class="ftr__cta-row">
-          <p class="lead" data-reveal>
-            A short brief takes two minutes. I read every one myself and reply by email, usually with a few questions or a
-            suggested first step.
+          <p class="lead ftr__lead" data-reveal>
+            A short brief takes two minutes. I read every one myself and reply by email<span class="ftr__more">, usually with a few questions or a
+            suggested first step</span>.
           </p>
           <div class="ftr__actions" data-reveal style="--d:120">
             <div class="btn-row">
@@ -40,7 +40,7 @@ const name = [...profile.name];
                 Request the free check
               </Button>
             </div>
-            <ContactActions label="Or reach me directly" />
+            <ContactActions label="Or reach me directly" class="ftr__reach" />
           </div>
         </div>
       </section>
@@ -48,7 +48,7 @@ const name = [...profile.name];
   }
 
   <div class="ftr__grid container">
-    <nav class="ftr__col" aria-label="Footer">
+    <nav class="ftr__col ftr__col--pages" aria-label="Footer">
       <h2 class="ftr__h">Pages</h2>
       <ul role="list">
         <li><a class="link-quiet" href="/">Home</a></li>
@@ -56,7 +56,7 @@ const name = [...profile.name];
         <li><a class="link-quiet" href="/contact/">Contact</a></li>
       </ul>
     </nav>
-    <div class="ftr__col">
+    <div class="ftr__col ftr__col--services">
       <h2 class="ftr__h">Services</h2>
       <ul role="list">
         {groups.map((g) => <li><a class="link-quiet" href={`/services/#${g.id}`}>{g.title}</a></li>)}
@@ -145,10 +145,10 @@ const name = [...profile.name];
   .ftr__cta {
     padding-block: var(--section) calc(var(--section) * 0.7);
     display: grid;
-    gap: var(--s-6);
+    gap: var(--s-5);
   }
   .ftr__title {
-    font-size: clamp(2.4rem, 1.4rem + 4.6vw, 6.25rem);
+    font-size: clamp(2.1rem, 1.2rem + 4.8vw, 6.25rem);
     font-weight: 760;
     font-stretch: 114%;
     letter-spacing: -0.045em;
@@ -157,12 +157,12 @@ const name = [...profile.name];
   }
   .ftr__cta-row {
     display: grid;
-    gap: var(--s-6);
+    gap: var(--s-5);
     align-items: start;
   }
   .ftr__actions {
     display: grid;
-    gap: var(--s-5);
+    gap: var(--s-4);
   }
   @media (min-width: 64em) {
     .ftr__cta-row {
@@ -174,12 +174,18 @@ const name = [...profile.name];
   .ftr__grid {
     display: grid;
     grid-template-columns: repeat(2, minmax(0, 1fr));
-    gap: var(--s-7) var(--s-5);
-    padding-block: var(--s-8);
+    gap: var(--s-5) var(--s-5);
+    padding-block: var(--s-6);
     border-top: 1px solid var(--line);
   }
   .ftr__col--wide {
     grid-column: 1 / -1;
+  }
+    @media (min-width: 48em) {
+    .ftr__grid {
+      gap: var(--s-7) var(--s-5);
+      padding-block: var(--s-8);
+    }
   }
   @media (min-width: 56em) {
     .ftr__grid {
@@ -322,5 +328,54 @@ const name = [...profile.name];
   }
   .ftr__top .up {
     transform: rotate(-90deg);
+  }
+  /* Phones: contact first, pages as one wrapped line, services left to the menu and Services page. */
+  @media (max-width: 47.99em) {
+    .ftr__col--wide {
+      order: -1;
+    }
+    .ftr__col--services {
+      display: none;
+    }
+    .ftr__col--pages {
+      grid-column: 1 / -1;
+    }
+    .ftr__col--pages ul {
+      display: flex;
+      row-gap: 0;
+      flex-wrap: wrap;
+      column-gap: var(--s-5);
+    }
+    .ftr__more {
+      display: none;
+    }
+    .ftr__actions :global(.ftr__reach .ca__label) {
+      display: none;
+    }
+    .ftr__cta {
+      padding-bottom: var(--s-7);
+    }
+    .ftr__grid {
+      gap: var(--s-4) var(--s-5);
+      padding-block: var(--s-5);
+    }
+    .ftr__h {
+      margin-bottom: var(--s-2);
+    }
+    .ftr__col li.subtle {
+      display: none;
+    }
+    .ftr__col:not(.ftr__col--wide) {
+      grid-column: 1 / -1;
+    }
+    .ftr__col:not(.ftr__col--wide) ul {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 0 var(--s-5);
+    }
+    .ftr__bottom {
+      padding-block: var(--s-4) var(--s-5);
+      gap: var(--s-2) var(--s-5);
+    }
   }
 </style>

@@ -115,7 +115,7 @@ const jsonLd = { '@context': 'https://schema.org', '@type': 'AboutPage', mainEnt
         <p class="eyebrow">My story</p>
         <Heading id="story-title" lines={['Not a straight line.', '<span class="serif">Still going.</span>']} />
       </div>
-      <ol class="chapters" role="list">
+      <ol class="chapters rail" role="list" aria-label="My story, in six chapters" data-rail>
         {
           chapters.map((c, i) => (
             <li class="chapter" data-reveal>
@@ -158,7 +158,7 @@ const jsonLd = { '@context': 'https://schema.org', '@type': 'AboutPage', mainEnt
         <p class="eyebrow">How I work</p>
         <Heading id="principles-title" lines={['Four', '<span class="serif">house rules.</span>']} />
       </div>
-      <ol class="rules" role="list">
+      <ol class="rules rail" role="list" aria-label="House rules" data-rail>
         {
           principles.map((p, i) => (
             <li data-reveal style={`--d:${i * 80}`}>
@@ -383,6 +383,43 @@ const jsonLd = { '@context': 'https://schema.org', '@type': 'AboutPage', mainEnt
     .biz {
       grid-template-columns: 1fr auto;
       align-items: end;
+    }
+  }
+
+  /* Phones: the story and the rules become swipeable cards, so the page reads in a few screens. */
+  @media (max-width: 47.99em) {
+    .ab-head__grid {
+      gap: var(--s-6);
+    }
+    .ab-photo :global(img) {
+      aspect-ratio: 4 / 3;
+      object-position: 50% 22%;
+    }
+    .story {
+      gap: var(--s-6);
+    }
+    .chapters {
+      border-top: 0;
+    }
+    .chapter {
+      align-content: start;
+      padding: var(--s-5);
+      border: 1px solid var(--line);
+      border-radius: var(--r-md);
+      background: var(--surface);
+    }
+    .chapter__text {
+      font-size: 1rem;
+      overflow-wrap: break-word;
+    }
+    .rules li {
+      padding: var(--s-5);
+      border: 1px solid var(--line);
+      border-radius: var(--r-md);
+      background: var(--surface);
+    }
+    .rules__n {
+      font-size: 2rem;
     }
   }
 </style>

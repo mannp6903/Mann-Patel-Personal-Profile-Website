@@ -224,8 +224,63 @@ p {
 }
 .section-head {
   display: grid;
-  gap: var(--s-5);
-  margin-bottom: clamp(var(--s-7), 5vw, var(--s-9));
+  gap: var(--s-4);
+  margin-bottom: clamp(var(--s-6), 5vw, var(--s-9));
+}
+@media (min-width: 48em) {
+  .section-head {
+    gap: var(--s-5);
+  }
+}
+
+/* ═══════════════ Swipe rail (phones) ═══════════════ */
+/* A row of cards you swipe sideways on phones (scroll snap, the next card peeks in).
+   Wider screens keep the component's own grid. Dots are added by src/scripts/motion.ts. */
+@media (max-width: 47.99em) {
+  .rail {
+    display: flex !important;
+    gap: var(--s-3);
+    overflow-x: auto;
+    overscroll-behavior-x: contain;
+    scroll-snap-type: x mandatory;
+    scroll-padding-inline: var(--gutter);
+    padding-inline: var(--gutter);
+    margin-inline: calc(var(--gutter) * -1);
+    scrollbar-width: none;
+  }
+  .rail::-webkit-scrollbar {
+    display: none;
+  }
+  .rail > * {
+    flex: 0 0 min(86%, 22rem);
+    min-width: 0;
+    scroll-snap-align: start;
+  }
+  .rail--wide > * {
+    flex-basis: 90%;
+  }
+}
+.rail-dots {
+  display: none;
+}
+@media (max-width: 47.99em) {
+  .rail-dots {
+    display: flex;
+    justify-content: center;
+    gap: 6px;
+    margin-top: var(--s-4);
+  }
+  .rail-dots i {
+    width: 6px;
+    height: 6px;
+    border-radius: var(--r-pill);
+    background: var(--control);
+    transition: width var(--t-base) var(--ease-out), background-color var(--t-base);
+  }
+  .rail-dots i.is-on {
+    width: 20px;
+    background: var(--signal);
+  }
 }
 @media (min-width: 64em) {
   .section-head--split {

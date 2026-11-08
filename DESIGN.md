@@ -69,10 +69,26 @@ Display tracking −0.04em; headings −0.03em; body 0. Body line length 60–72
 ## Spacing and layout
 
 4-px base: `--s-1` 0.25rem, `--s-2` 0.5rem, `--s-3` 0.75rem, `--s-4` 1rem, `--s-5` 1.5rem, `--s-6` 2rem,
-`--s-7` 3rem, `--s-8` 4rem, `--s-9` 6rem, `--s-10` 8rem. Sections: `--section` 5 → 10rem.
+`--s-7` 3rem, `--s-8` 4rem, `--s-9` 6rem, `--s-10` 8rem. Sections: `--section` 3.5 → 10rem.
 Content width `--container` 90rem with `--gutter` 1 → 3rem; text `--measure` 68ch. 12-column grid on
 desktop, one column on phones. Layouts alternate (split, full-bleed, sticky, list) so no two sections
 in a row look the same.
+
+**Phones (under 48em) stay short.** A client should get the whole story in a few thumb-flicks, so
+groups of cards never stack into a long column:
+
+- **Swipe rails** (`.rail` + `data-rail`): a row of cards that scrolls sideways with snap points,
+  the next card peeking at the edge and dots underneath (`.rail-dots`, lime for the current card).
+  Used for the work cards, house rules, packages, the five project steps, About chapters and rules,
+  and the decisions and captures on case studies. A rail with no links inside gets a tab stop only
+  while it scrolls, so it can be moved with the arrow keys.
+- **Tabs** for the three service areas on Home (ARIA tabs, arrow keys, phones and tablets only).
+- **Folds**: long question lists show five questions and a "Show all" button; case-study write-ups
+  show their opening and "Read the full case study". Keyboard focus moving into folded text opens it,
+  and without JavaScript everything is shown.
+- Smaller section padding, one line per service until it is opened, and a compact footer.
+- Budgets (in 390 × 844 screens) are tested in `tests/e2e/site.spec.ts`: Home 10, Services 12,
+  case studies and About 6.5, Work 4.5, Contact 3.5.
 
 ## Shape and depth
 

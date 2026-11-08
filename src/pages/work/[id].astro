@@ -109,8 +109,14 @@ const gallery = [c.desktop, c.mobile, ...(c.earlier ? [c.earlier] : [])];
             </div>
           </dl>
         </aside>
-        <div class="prose">
-          <Content />
+        <div class="cs-story">
+          <div class="prose" id="cs-story" data-fold>
+            <Content />
+          </div>
+          <button class="fold-btn" type="button" aria-controls="cs-story" aria-expanded="false" data-fold-btn hidden>
+            Read the full case study
+            <Icon name="arrow" class="fold-btn__icon" />
+          </button>
         </div>
       </div>
     </section>
@@ -121,7 +127,7 @@ const gallery = [c.desktop, c.mobile, ...(c.earlier ? [c.earlier] : [])];
           <p class="eyebrow">Look closer</p>
           <Heading id="closer-title" lines={['The decisions,', '<span class="serif">up close.</span>']} />
         </div>
-        <ol class="closer" role="list">
+        <ol class="closer rail rail--wide" role="list" aria-label="Design decisions" data-rail>
           {
             c.details.map((x, i) => (
               <li data-reveal style={`--d:${i * 100}`}>
@@ -149,7 +155,7 @@ const gallery = [c.desktop, c.mobile, ...(c.earlier ? [c.earlier] : [])];
           <p class="eyebrow">Captures</p>
           <h2 id="captures-title" class="cap-title">Screens, dated.</h2>
         </div>
-        <div class="gallery">
+        <div class="gallery rail" role="group" aria-label="Screen captures" data-rail>
           {
             gallery.map((g, i) => (
               <figure class:list={['g', i === 1 && 'g--phone', i === 2 && 'g--earlier']} data-reveal style={`--d:${i * 80}`}>
@@ -182,6 +188,43 @@ const gallery = [c.desktop, c.mobile, ...(c.earlier ? [c.earlier] : [])];
     </nav>
   </article>
 </BaseLayout>
+
+<script>
+  // Phones: show the opening of the write-up with a button for the rest. Without JavaScript, or
+  // when keyboard focus moves into it, the whole text is shown.
+  const mq = window.matchMedia('(max-width: 47.99em)');
+  document.querySelectorAll<HTMLElement>('[data-fold]').forEach((prose) => {
+    const btn = prose.parentElement?.querySelector<HTMLButtonElement>('[data-fold-btn]');
+    if (!btn) return;
+    let opened = false;
+    const apply = () => {
+      prose.classList.remove('is-folded');
+      const fold = mq.matches && !opened && prose.scrollHeight > window.innerHeight * 1.4;
+      prose.classList.toggle('is-folded', fold);
+      btn.hidden = !fold;
+    };
+    const open = () => {
+      if (opened) return;
+      opened = true;
+      btn.setAttribute('aria-expanded', 'true');
+      apply();
+    };
+    btn.addEventListener('click', () => {
+      const cut = prose.clientHeight * 0.6;
+      open();
+      const top = prose.getBoundingClientRect().top;
+      // Keep keyboard and screen-reader users in place: focus the first heading that was hidden.
+      const next = [...prose.querySelectorAll<HTMLElement>('h2, h3')].find((h) => h.getBoundingClientRect().top - top > cut);
+      if (next) {
+        next.tabIndex = -1;
+        next.focus({ preventScroll: true });
+      }
+    });
+    prose.addEventListener('focusin', open);
+    mq.addEventListener('change', apply);
+    apply();
+  });
+</script>
 
 <style>
   .cs-head {
@@ -372,5 +415,73 @@ const gallery = [c.desktop, c.mobile, ...(c.earlier ? [c.earlier] : [])];
   }
   .next__link:hover .next__title .icon {
     transform: translateX(0.15em);
+  }
+
+  /* Phones: decisions and captures swipe sideways instead of stacking. */
+  @media (max-width: 47.99em) {
+    .cs-head {
+      padding-bottom: var(--s-6);
+    }
+    .cs-body {
+      gap: var(--s-6);
+    }
+    .facts dl {
+      grid-template-columns: repeat(2, minmax(0, 1fr));
+      gap: var(--s-4) var(--s-5);
+    }
+    .facts dl > div:last-child {
+      grid-column: 1 / -1;
+    }
+    .closer figcaption {
+      grid-template-columns: 1.75rem 1fr;
+      font-size: var(--fs-sm);
+    }
+    .gallery {
+      align-items: start;
+    }
+    .gallery > .g--phone {
+      flex-basis: 58%;
+      max-width: none;
+    }
+    .next__link {
+      padding-block: var(--s-7);
+    }
+  }
+
+  .fold-btn {
+    display: none;
+  }
+  @media (max-width: 47.99em) {
+    .prose:global(.is-folded) {
+      max-height: 34rem;
+      overflow: hidden;
+      -webkit-mask-image: linear-gradient(#000 62%, transparent);
+      mask-image: linear-gradient(#000 62%, transparent);
+    }
+    .fold-btn:not([hidden]) {
+      display: inline-flex;
+      align-items: center;
+      gap: var(--s-2);
+      min-height: 3rem;
+      margin-top: var(--s-2);
+      padding: 0 var(--s-5);
+      border: 1px solid var(--control);
+      border-radius: var(--r-pill);
+      background: none;
+      color: var(--text);
+      font: inherit;
+      font-weight: 600;
+      cursor: pointer;
+    }
+    .fold-btn :global(.fold-btn__icon) {
+      transform: rotate(90deg);
+      color: var(--signal);
+    }
+    .closer__img :global(img) {
+      width: 100%;
+      aspect-ratio: 4 / 3;
+      object-fit: cover;
+      object-position: top;
+    }
   }
 </style>

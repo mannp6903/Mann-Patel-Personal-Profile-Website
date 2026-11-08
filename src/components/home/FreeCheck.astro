@@ -127,7 +127,7 @@ const ring = 'FREE CHECK · NO OBLIGATION · ';
     display: grid;
     border-top: 1.5px solid var(--ink);
   }
-  .fc__list li {
+    .fc__list li {
     display: grid;
     grid-template-columns: 2.5rem 1fr;
     gap: var(--s-3);
@@ -196,6 +196,15 @@ const ring = 'FREE CHECK · NO OBLIGATION · ';
     }
     .fc__badge {
       display: block;
+    }
+  }
+  @media (max-width: 47.99em) {
+    .fc__inner {
+      gap: var(--s-6);
+    }
+    .fc__list li {
+      padding-block: var(--s-3);
+      font-size: var(--fs-sm);
     }
   }
 </style>

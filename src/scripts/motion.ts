@@ -146,6 +146,43 @@ document.querySelectorAll<HTMLElement>('[data-kinetic]').forEach((el) => {
   addEventListener('resize', measure, { passive: true });
 });
 
+/* ── Swipe rails: dots under each rail on phones ─────────── */
+document.querySelectorAll<HTMLElement>('[data-rail]').forEach((rail) => {
+  const items = [...rail.children] as HTMLElement[];
+  if (items.length < 2) return;
+  const dots = document.createElement('div');
+  dots.className = 'rail-dots';
+  dots.setAttribute('aria-hidden', 'true');
+  items.forEach(() => dots.append(document.createElement('i')));
+  rail.after(dots);
+  let raf = 0;
+  const update = () => {
+    raf = 0;
+    const left = rail.scrollLeft;
+    const first = items[0].offsetLeft;
+    let current = 0;
+    items.forEach((it, i) => {
+      if (Math.abs(it.offsetLeft - first - left) < Math.abs(items[current].offsetLeft - first - left)) current = i;
+    });
+    // At the far end, the last card is current even if it can't snap to the start.
+    if (left + rail.clientWidth >= rail.scrollWidth - 4) current = items.length - 1;
+    [...dots.children].forEach((d, i) => d.classList.toggle('is-on', i === current));
+  };
+  rail.addEventListener('scroll', () => {
+    if (!raf) raf = requestAnimationFrame(update);
+  }, { passive: true });
+  update();
+  // A rail with nothing focusable inside gets a tab stop only while it actually scrolls, so
+  // keyboard users can move it with the arrow keys and desktop keeps no empty tab stops.
+  if (!rail.querySelector('a, button, input, select, textarea, summary')) {
+    const sync = () => {
+      if (rail.scrollWidth > rail.clientWidth + 1) rail.tabIndex = 0;
+      else rail.removeAttribute('tabindex');
+    };
+    new ResizeObserver(sync).observe(rail);
+  }
+});
+
 /* ── Scroll progress (--p) ──────────────────────────────── */
 const progressEls = [...document.querySelectorAll<HTMLElement>('[data-progress]')];
 if (progressEls.length) {
