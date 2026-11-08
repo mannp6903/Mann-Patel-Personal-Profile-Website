@@ -94,6 +94,9 @@ and y≈1410 at 390×844 (tested; on phones the tuner sits between the buttons a
   show their opening and "Read the full case study"; case-study evidence previews its first check.
   Keyboard focus moving into folded text opens it, and without JavaScript everything is shown.
 - Smaller section padding, one line per service until it is opened, and a compact footer.
+- **The menu sheet fits one screen** at any phone height (tested at 320×568, 375×667 and 390×844):
+  link size and spacing scale with the screen height, and on short phones the contact buttons
+  become round icons (each keeps its name) so every link down to Privacy and Terms is visible.
 - Budgets (in 390 × 844 screens) are tested in `tests/e2e/site.spec.ts`: Home 10.5, Services 12,
   case studies 7 (they carry the evidence section), About 6.5, Work 4.5, Contact 3.5.
 
@@ -136,10 +139,26 @@ shadow only: `--shadow-pop` for floating layers (menu, ⌘K palette, toast).
 | `--ease-in-out` | `cubic-bezier(0.65, 0, 0.35, 1)` |
 | `--t-fast` / `--t-base` / `--t-slow` / `--t-reveal` | 160 / 320 / 700 / 1100 ms |
 
-Signature moments: **Tune in** (below), kinetic hero words (width and weight animate in, and flash
-lime when the signal locks), headings revealed line by line, the process line that draws itself on
+Signature moments: **Tune in** (below), the **headline that acts out its words** (below), kinetic
+hero words (width and weight animate in, and flash lime when the signal locks), headings revealed line by line, the process line that draws itself on
 Services, and the footer name. Everything is off under `prefers-reduced-motion`; content never waits
 on JavaScript.
+
+### The headline acts out its words (round 9)
+
+`Hero.astro` (markup and CSS) + `scripts/hero-words.ts` (replay). Each word plays a two-second
+scene that shows what it means, one after another, once, on arrival:
+
+| Word | Scene | Finished state |
+| --- | --- | --- |
+| **Found.** | Highlighted like a search match (lime box, ink text), then a map pin drops onto the full stop with a ripple | Lime pin standing on the full stop |
+| **Answered.** | A chat bubble with typing dots pops up over the end of the word, then the reply is read | Lime double "read" ticks over the full stop |
+| **Booked.** | Circled by hand, like a date on a calendar | Off-white hand-drawn circle |
+
+Hovering a word (mouse) or tapping it (touch) plays its scene again. The words are real text from
+the first frame (the headline stays the LCP element); the pin, bubble, ticks and circle are
+`aria-hidden` decoration with no text. Reduced motion and no JavaScript show the finished state. The
+tuner's lock flash still runs over the top. Why: `docs/16-round-9-headline.md`.
 
 ### Tune in (round 8)
 
