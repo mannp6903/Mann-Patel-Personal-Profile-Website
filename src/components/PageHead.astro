@@ -1,7 +1,6 @@
 ---
 /** Opening block of inner pages: label, a large line-by-line title, intro, optional extras. */
 import Heading from './ui/Heading.astro';
-import Field from './fx/Field.astro';
 
 interface Props {
   eyebrow: string;
@@ -12,8 +11,7 @@ interface Props {
 const { eyebrow, lines, lead, class: cls } = Astro.props;
 ---
 
-<header class:list={['ph', cls]} data-field-zone>
-  <Field preset="head" class="ph__field" />
+<header class:list={['ph', cls]}>
   <div class="container ph__inner">
     <p class="eyebrow">{eyebrow}</p>
     <Heading as="h1" lines={lines} class="ph__title" load />
@@ -27,20 +25,6 @@ const { eyebrow, lines, lead, class: cls } = Astro.props;
     position: relative;
     overflow: clip;
     padding-block: clamp(var(--s-7), 7vw, var(--s-10)) clamp(var(--s-6), 5vw, var(--s-8));
-  }
-  .ph :global(.ph__field) {
-    --fx: 88%;
-    --fy: 40%;
-    --fw: 70%;
-    --fh: 120%;
-  }
-  @media (max-width: 47.99em) {
-    .ph :global(.ph__field) {
-      --fx: 100%;
-      --fy: 10%;
-      --fw: 90%;
-      --fh: 70%;
-    }
   }
   .ph__inner {
     position: relative;

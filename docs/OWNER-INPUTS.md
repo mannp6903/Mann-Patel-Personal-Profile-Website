@@ -4,6 +4,12 @@ Everything below is tracked in code. Unverified **claims** are wrapped in `<Conf
 
 ## The short set of questions (highest impact first)
 
+0. **Switch on direct enquiry delivery (the main blocker, 8 Nov 2026 audit).** The live form reports
+   `connected: false` because the Worker secret **`ENQUIRY_TO_EMAIL`** isn't set. Turn on Email Routing,
+   verify your inbox as a destination, add the secret, then send one real free check and one real brief
+   to yourself (`docs/14` §5, `docs/05` §1). Until then the forms say so honestly and offer the email app
+   or “Copy my brief”.
+
 1. ~~Nest & Rest website is down~~ **Resolved:** the site was back online later on 31 Oct 2026. The case study now uses fresh captures of the live site. (Still recommended: add the domain as a *verified domain* in GitHub Pages settings.)
 2. ~~How was the Nest & Rest site built?~~ **Answered (31 Oct 2026): built from scratch by Mann.** Nest & Rest has no paying clients yet; bookings open in summer 2027, and the site now says so everywhere.
 3. ~~Concept samples~~ **Answered (31 Oct 2026): removed.** Kettle & Crumb and Northline Plumbing are gone from the site; the Work page shows only real projects (Nest & Rest, Samp Hair & Spa).

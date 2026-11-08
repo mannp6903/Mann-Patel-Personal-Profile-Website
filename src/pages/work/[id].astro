@@ -32,9 +32,20 @@ const crumbs = breadcrumbJsonLd([
   { name: d.title, path: `/work/${entry.id}/` },
 ]);
 const gallery = [c.desktop, c.mobile, ...(c.earlier ? [c.earlier] : [])];
+const checked = new Intl.DateTimeFormat('en-CA', { day: 'numeric', month: 'long', year: 'numeric', timeZone: 'UTC' }).format(
+  new Date(`${d.checked}T12:00:00Z`),
+);
+const where = d.status === 'launched' ? 'the live site' : 'the preview';
 ---
 
-<BaseLayout title={d.title} description={d.description} jsonLd={crumbs ?? undefined} preloadSerif={false}>
+<BaseLayout
+  title={d.title}
+  description={d.description}
+  jsonLd={crumbs ?? undefined}
+  preloadSerif={false}
+  ogImage={`/og/work-${entry.id}.png`}
+  ogAlt={`Case study: ${d.title}. ${[d.relationship, d.websiteStatus, d.businessStatus].filter(Boolean).join(', ')}.`}
+>
   <article>
     <header class="cs-head">
       <div class="container cs-head__inner">
@@ -68,6 +79,41 @@ const gallery = [c.desktop, c.mobile, ...(c.earlier ? [c.earlier] : [])];
     <div class="container cs-hero" data-reveal="load-media" style="--d:120">
       <ProjectMedia scene={d.scene} eager sizes="(min-width: 80em) 76rem, 94vw" />
     </div>
+
+    <!-- The short version first (round 7): relationship, status, role and the problem. -->
+    <section class="container glance" aria-labelledby="glance-title">
+      <h2 id="glance-title" class="visually-hidden">At a glance</h2>
+      <dl class="glance__grid">
+        <div>
+          <dt>Relationship</dt>
+          <dd>{d.relationship}</dd>
+        </div>
+        <div>
+          <dt>Website</dt>
+          <dd>{d.websiteStatus}</dd>
+        </div>
+        {
+          d.businessStatus && (
+            <div>
+              <dt>Business</dt>
+              <dd>{d.businessStatus}</dd>
+            </div>
+          )
+        }
+        <div>
+          <dt>Checked</dt>
+          <dd><time datetime={d.checked}>{checked}</time></dd>
+        </div>
+        <div class="glance__wide">
+          <dt>My role</dt>
+          <dd>{d.roleShort}</dd>
+        </div>
+        <div class="glance__wide">
+          <dt>The problem</dt>
+          <dd>{d.problem}</dd>
+        </div>
+      </dl>
+    </section>
 
     <section class="section cs-body-wrap" aria-label="Case study">
       <div class="container cs-body">
@@ -149,6 +195,64 @@ const gallery = [c.desktop, c.mobile, ...(c.earlier ? [c.earlier] : [])];
       </div>
     </section>
 
+    <section class="section tested" aria-labelledby="tested-title">
+      <div class="container">
+        <div class="section-head">
+          <p class="eyebrow">Evidence</p>
+          <h2 id="tested-title" class="cap-title">Tested on {where}.</h2>
+          <p class="muted tested__note">
+            Checked on <time datetime={d.checked}>{checked}</time> with automated browser tests (Playwright) and an automated
+            accessibility scan (axe-core). Only what was actually run is listed.
+          </p>
+        </div>
+        <div class="tested__body" id="cs-tests" data-fold="tight">
+        {
+          d.verification.length > 0 && (
+            <div class="table-wrap">
+              {/* Explicit roles keep it a table for screen readers when phones stack the rows. */}
+              <table class="tests" role="table" aria-labelledby="tested-title">
+                <thead role="rowgroup">
+                  <tr role="row">
+                    <th scope="col" role="columnheader">Behaviour</th>
+                    <th scope="col" role="columnheader">How it was checked</th>
+                    <th scope="col" role="columnheader">Result</th>
+                  </tr>
+                </thead>
+                <tbody role="rowgroup">
+                  {d.verification.map((v) => (
+                    <tr role="row">
+                      <th scope="row" role="rowheader">{v.behaviour}</th>
+                      <td role="cell" data-label="How">{v.how}</td>
+                      <td role="cell" data-label="Result">{v.result}</td>
+                    </tr>
+                  ))}
+                </tbody>
+              </table>
+            </div>
+          )
+        }
+        <div class="tested__more">
+          <div>
+            <h3 class="tested__h">Limitations</h3>
+            <ul class="tested__list" role="list">
+              {d.limitations.map((l) => <li>{l}</li>)}
+            </ul>
+          </div>
+          <div>
+            <h3 class="tested__h">Outcomes</h3>
+            <p>{d.outcomes}</p>
+            <h3 class="tested__h">Next step</h3>
+            <p>{d.nextStep}</p>
+          </div>
+        </div>
+        </div>
+        <button class="fold-btn" type="button" aria-controls="cs-tests" aria-expanded="false" data-fold-btn hidden>
+          Show all checks and limitations
+          <Icon name="arrow" class="fold-btn__icon" />
+        </button>
+      </div>
+    </section>
+
     <section class="section" aria-labelledby="captures-title">
       <div class="container">
         <div class="section-head">
@@ -199,7 +303,9 @@ const gallery = [c.desktop, c.mobile, ...(c.earlier ? [c.earlier] : [])];
     let opened = false;
     const apply = () => {
       prose.classList.remove('is-folded');
-      const fold = mq.matches && !opened && prose.scrollHeight > window.innerHeight * 1.4;
+      // The evidence ("tight") folds sooner than the story: its first check is enough as a preview.
+      const limit = prose.dataset.fold === 'tight' ? 0.6 : 1.4;
+      const fold = mq.matches && !opened && prose.scrollHeight > window.innerHeight * limit;
       prose.classList.toggle('is-folded', fold);
       btn.hidden = !fold;
     };
@@ -214,7 +320,7 @@ const gallery = [c.desktop, c.mobile, ...(c.earlier ? [c.earlier] : [])];
       open();
       const top = prose.getBoundingClientRect().top;
       // Keep keyboard and screen-reader users in place: focus the first heading that was hidden.
-      const next = [...prose.querySelectorAll<HTMLElement>('h2, h3')].find((h) => h.getBoundingClientRect().top - top > cut);
+      const next = [...prose.querySelectorAll<HTMLElement>('h2, h3, tbody th')].find((h) => h.getBoundingClientRect().top - top > cut);
       if (next) {
         next.tabIndex = -1;
         next.focus({ preventScroll: true });
@@ -348,6 +454,178 @@ const gallery = [c.desktop, c.mobile, ...(c.earlier ? [c.earlier] : [])];
     }
   }
 
+  /* ── At a glance ── */
+  .glance {
+    margin-top: clamp(var(--s-6), 4vw, var(--s-8));
+  }
+  .glance__grid {
+    display: grid;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: var(--s-4) var(--s-5);
+    padding-block: var(--s-5);
+    border-block: 1px solid var(--line);
+  }
+  .glance__grid dt {
+    font-family: var(--font-mono);
+    font-size: var(--fs-xs);
+    letter-spacing: var(--track-label);
+    text-transform: uppercase;
+    color: var(--text-3);
+    margin-bottom: 0.2rem;
+  }
+  .glance__grid dd {
+    font-weight: 560;
+  }
+  .glance__wide {
+    grid-column: 1 / -1;
+  }
+  .glance__wide dd {
+    font-weight: 400;
+    color: var(--text-2);
+    max-width: 60ch;
+  }
+  /* Wide screens: one row; short facts take their width, role and problem share the rest. */
+  @media (min-width: 64em) {
+    .glance__grid {
+      display: flex;
+      gap: var(--s-5) var(--s-7);
+    }
+    .glance__grid > div {
+      flex: 0 0 auto;
+      max-width: 14rem;
+    }
+    .glance__grid > .glance__wide {
+      flex: 1 1 0;
+      max-width: none;
+    }
+  }
+
+  /* ── Evidence ── */
+  .tested__note {
+    max-width: 60ch;
+  }
+  .table-wrap {
+    border: 1px solid var(--line);
+    border-radius: var(--r-md);
+    overflow: hidden;
+  }
+  .tests {
+    width: 100%;
+    border-collapse: collapse;
+    font-size: var(--fs-sm);
+    line-height: 1.5;
+  }
+  .tests th,
+  .tests td {
+    padding: var(--s-3) var(--s-4);
+    text-align: left;
+    vertical-align: top;
+    border-bottom: 1px solid var(--line);
+  }
+  .tests tbody tr:last-child > * {
+    border-bottom: 0;
+  }
+  .tests thead th {
+    font-family: var(--font-mono);
+    font-size: var(--fs-xs);
+    font-weight: 500;
+    letter-spacing: var(--track-label);
+    text-transform: uppercase;
+    color: var(--text-3);
+    background: var(--bg-2);
+  }
+  .tests tbody th {
+    font-weight: 620;
+    width: 22%;
+  }
+  .tests td {
+    color: var(--text-2);
+  }
+  /* Phones: each check becomes a small block (behaviour, then how and result with labels). */
+  @media (max-width: 47.99em) {
+    .tests thead {
+      position: absolute;
+      width: 1px;
+      height: 1px;
+      overflow: hidden;
+      clip-path: inset(50%);
+    }
+    .tests tr,
+    .tests th,
+    .tests td {
+      display: block;
+    }
+    .tests tbody tr {
+      padding: var(--s-4);
+      border-bottom: 1px solid var(--line);
+    }
+    .tests tbody tr:last-child {
+      border-bottom: 0;
+    }
+    .tests tbody th,
+    .tests td {
+      width: auto;
+      padding: 0;
+      border: 0;
+    }
+    .tests td {
+      margin-top: var(--s-2);
+    }
+    .tests td::before {
+      content: attr(data-label) ': ';
+      font-family: var(--font-mono);
+      font-size: var(--fs-xs);
+      letter-spacing: 0.04em;
+      text-transform: uppercase;
+      color: var(--text-3);
+    }
+  }
+  .tested__more {
+    display: grid;
+    gap: var(--s-6);
+    margin-top: var(--s-7);
+  }
+  .tested__h {
+    font-family: var(--font-mono);
+    font-size: var(--fs-xs);
+    font-weight: 500;
+    letter-spacing: var(--track-label);
+    text-transform: uppercase;
+    color: var(--text-3);
+    margin-bottom: var(--s-2);
+  }
+  .tested__more p + .tested__h {
+    margin-top: var(--s-5);
+  }
+  .tested__more p {
+    color: var(--text-2);
+    max-width: 60ch;
+  }
+  .tested__list {
+    display: grid;
+    gap: var(--s-2);
+    color: var(--text-2);
+  }
+  .tested__list li {
+    padding-left: 1.1em;
+    position: relative;
+  }
+  .tested__list li::before {
+    content: '';
+    position: absolute;
+    left: 0;
+    top: 0.7em;
+    width: 0.4rem;
+    height: 1px;
+    background: var(--signal);
+  }
+  @media (min-width: 56em) {
+    .tested__more {
+      grid-template-columns: 1fr 1fr;
+      gap: var(--s-8);
+    }
+  }
+
   .cap-title {
     font-size: var(--fs-h2);
   }
@@ -453,11 +731,15 @@ const gallery = [c.desktop, c.mobile, ...(c.earlier ? [c.earlier] : [])];
     display: none;
   }
   @media (max-width: 47.99em) {
-    .prose:global(.is-folded) {
+    [data-fold]:global(.is-folded) {
       max-height: 34rem;
       overflow: hidden;
       -webkit-mask-image: linear-gradient(#000 62%, transparent);
       mask-image: linear-gradient(#000 62%, transparent);
+    }
+    /* The evidence previews its first check; the button shows the rest. */
+    .tested__body:global(.is-folded) {
+      max-height: 17rem;
     }
     .fold-btn:not([hidden]) {
       display: inline-flex;

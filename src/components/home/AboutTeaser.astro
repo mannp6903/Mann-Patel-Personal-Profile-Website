@@ -1,51 +1,67 @@
 ---
-/** A short introduction and the house rules (no photo here: the portrait lives in the hero). */
+/**
+ * Process and founder: a short introduction (the full story lives on About), how a project runs
+ * in five steps, and the ownership/handover commitments. No photo here: the portrait is in the hero.
+ */
 import { profile, businesses } from '../../data/site';
-import Heading from '../ui/Heading.astro';
-import Button from '../ui/Button.astro';
+import { process } from '../../data/services';
 import Icon from '../ui/Icon.astro';
 
 const nest = businesses[0];
 const rules = [
   { t: 'You own every account', d: 'Domains, Google profiles and logins are created in your name.' },
+  { t: 'A handover you can use', d: 'Access, what changed and what’s left to do, written down.' },
   { t: 'Real reviews only', d: 'No bought, swapped or incentivised reviews. Ever.' },
   { t: 'No promised rankings', d: 'Google decides rankings. I improve what you control.' },
-  { t: 'Plain language, in writing', d: 'A written scope with deliverables, exclusions and costs.' },
 ];
 ---
 
-<section class="about section section--rule" aria-labelledby="about-title">
+<section class="about section section--rule" id="how-i-work" aria-labelledby="about-title">
   <div class="container about__grid">
     <div class="about__head">
-      <p class="eyebrow">About</p>
-      <Heading id="about-title" lines={['Hi, I’m Mann.', '<span class="serif">I’m building a business too.</span>']} />
-      <div class="btn-row" data-reveal>
-        <Button href="/about/" variant="ghost">Read my story</Button>
-      </div>
+      <p class="eyebrow">How I work</p>
+      <h2 id="about-title" class="about__title">Hi, I’m Mann. <span class="serif">I’m building a business too.</span></h2>
+      <p class="lead about__lead">
+        I’m starting <a class="link" href={nest.url} rel="noopener">{nest.name}</a> in {nest.area}, and built its website from
+        scratch. I set up the same foundations for other small businesses across {profile.serviceArea}, and explain them in plain
+        language.
+      </p>
+      <a class="link-arrow" href="/about/">More about me <Icon name="arrow" /></a>
     </div>
-    <div class="about__text">
-      <div class="stack about__copy" data-reveal style="--stack: var(--s-4)">
-        <p class="lead" data-scrub>
-          I’m starting <a class="link" href={nest.url} rel="noopener">{nest.name}</a>, a home-cleaning business in {nest.area}. I
-          built its website from scratch, and I clean every home myself when bookings open in summer 2027.
-        </p>
-        <p class="muted about__more">
-          That’s where I learned what owners actually need: to be found, to answer quickly, and to make booking easy. Now I set
-          up the same foundations for other small businesses across {profile.serviceArea}.
-        </p>
+
+    <div class="about__side">
+      <div>
+        <h3 class="about__h">How a project runs</h3>
+        <ol class="steps" role="list">
+          {
+            process.map((s, i) => (
+              <li>
+                <span class="num steps__n" aria-hidden="true">
+                  {String(i + 1).padStart(2, '0')}
+                </span>
+                <span>
+                  <b>{s.title}.</b> <span class="muted">{s.me}</span>
+                </span>
+              </li>
+            ))
+          }
+        </ol>
       </div>
-      <ul class="rules rail" role="list" aria-label="House rules" data-rail>
-        {
-          rules.map((r, i) => (
-            <li data-reveal style={`--d:${i * 70}`}>
-              <Icon name="check" />
-              <span>
-                <b>{r.t}.</b> {r.d}
-              </span>
-            </li>
-          ))
-        }
-      </ul>
+      <div>
+        <h3 class="about__h">What you can count on</h3>
+        <ul class="rules" role="list">
+          {
+            rules.map((r) => (
+              <li>
+                <Icon name="check" />
+                <span>
+                  <b>{r.t}.</b> {r.d}
+                </span>
+              </li>
+            ))
+          }
+        </ul>
+      </div>
     </div>
   </div>
 </section>
@@ -53,46 +69,69 @@ const rules = [
 <style>
   .about__grid {
     display: grid;
-    gap: var(--s-6);
+    gap: var(--s-7);
   }
   .about__head {
     display: grid;
-    gap: var(--s-5);
+    gap: var(--s-4);
     align-content: start;
     justify-items: start;
   }
-  .about__text {
-    display: grid;
-    gap: var(--s-5);
-    align-content: start;
+  .about__title {
+    font-size: var(--fs-h2);
+    max-width: 14ch;
   }
-  .about__copy .lead {
+  .about__lead {
     max-width: 40ch;
   }
+  .about__side {
+    display: grid;
+    gap: var(--s-7);
+  }
+  .about__h {
+    font-family: var(--font-mono);
+    font-size: var(--fs-xs);
+    font-weight: 500;
+    letter-spacing: var(--track-label);
+    text-transform: uppercase;
+    color: var(--text-3);
+    margin-bottom: var(--s-3);
+  }
+  .steps,
   .rules {
     display: grid;
-    gap: var(--s-3);
-    padding-block: var(--s-3);
+    border-top: 1px solid var(--line);
   }
-    .rules li {
+  .steps li,
+  .rules li {
     display: flex;
     gap: var(--s-3);
-    align-items: flex-start;
-    color: var(--text-2);
-    padding-bottom: var(--s-3);
+    align-items: baseline;
+    padding-block: var(--s-3);
     border-bottom: 1px solid var(--line);
   }
+  .steps b,
   .rules b {
     color: var(--text);
     font-weight: 620;
   }
-  .rules .icon {
+  .steps__n {
+    flex: none;
+    width: 2ch;
+    font-size: var(--fs-xs);
+    color: var(--signal);
+  }
+  .rules li {
+    align-items: flex-start;
+    color: var(--text-2);
+  }
+  .rules :global(.icon) {
     margin-top: 0.2em;
     color: var(--signal);
   }
   @media (min-width: 64em) {
     .about__grid {
-      grid-template-columns: minmax(0, 0.9fr) minmax(0, 1.1fr);
+      grid-template-columns: minmax(0, 0.8fr) minmax(0, 1.2fr);
       gap: var(--s-9);
     }
     .about__head {
@@ -100,22 +139,11 @@ const rules = [
       top: calc(var(--header-h) + 2rem);
       align-self: start;
     }
+  }
+  @media (min-width: 48em) {
     .rules {
       grid-template-columns: 1fr 1fr;
       column-gap: var(--s-6);
-    }
-  }
-  @media (max-width: 47.99em) {
-    .rules li {
-      padding: var(--s-4);
-      border: 1px solid var(--line);
-      border-radius: var(--r-md);
-      background: var(--surface);
-    }
-  }
-  @media (max-width: 47.99em) {
-    .about__more {
-      display: none;
     }
   }
 </style>

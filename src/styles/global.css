@@ -1159,66 +1159,6 @@ fieldset > legend + * {
   opacity: 1;
 }
 
-/* Cursor follower (mouse only; created by fx/cursor.ts). */
-.cursor,
-.cursor-tag {
-  position: fixed;
-  left: 0;
-  top: 0;
-  z-index: 300;
-  pointer-events: none;
-}
-.cursor {
-  width: 2.25rem;
-  height: 2.25rem;
-  margin: -1.125rem 0 0 -1.125rem;
-  border: 1px solid rgb(242 241 236 / 0.5);
-  border-radius: 50%;
-  opacity: 0;
-  transition:
-    opacity 300ms var(--ease-out),
-    scale 450ms var(--ease-out),
-    border-color 300ms var(--ease-out),
-    background-color 300ms var(--ease-out);
-}
-.has-cursor .cursor {
-  opacity: 1;
-}
-.has-cursor .cursor.is-hidden {
-  opacity: 0;
-}
-.cursor.is-link {
-  scale: 1.65;
-  border-color: var(--signal);
-  background: rgb(212 248 74 / 0.08);
-}
-.cursor.is-down {
-  scale: 0.8;
-}
-.cursor.is-link.is-down {
-  scale: 1.35;
-}
-.cursor-tag span {
-  display: grid;
-  place-items: center;
-  width: 5.25rem;
-  height: 5.25rem;
-  margin: -2.625rem 0 0 -2.625rem;
-  border-radius: 50%;
-  background: var(--signal);
-  color: var(--on-signal);
-  font-family: var(--font-mono);
-  font-size: 0.75rem;
-  font-weight: 600;
-  letter-spacing: 0.08em;
-  text-transform: uppercase;
-  scale: 0;
-  transition: scale 480ms var(--ease-out);
-}
-.has-cursor .cursor-tag.is-on span {
-  scale: 1;
-}
-
 /* Magnetic pull (fx/pointer.ts sets `translate`; it composes with hover and press transforms). */
 .btn,
 .icon-btn,
@@ -1278,41 +1218,6 @@ fieldset > legend + * {
   [data-spotlight]:hover::after {
     opacity: 1;
   }
-}
-
-/* 3D tilt with a moving glare (fx/pointer.ts sets --rx/--ry/--gx/--gy). */
-[data-tilt] {
-  transform: perspective(1200px) rotateX(var(--rx, 0deg)) rotateY(var(--ry, 0deg));
-  transition: transform 900ms var(--ease-out);
-}
-[data-tilt].is-tilting {
-  transition-duration: 220ms;
-}
-[data-tilt]::after {
-  content: '';
-  position: absolute;
-  inset: 0;
-  z-index: 3;
-  border-radius: inherit;
-  background: radial-gradient(36rem circle at var(--gx, 50%) var(--gy, 0%), rgb(255 255 255 / 0.14), transparent 45%);
-  opacity: 0;
-  pointer-events: none;
-  transition: opacity 600ms var(--ease-out);
-}
-[data-tilt].is-tilting::after {
-  opacity: 1;
-}
-
-/* Scroll-lit statements (fx/text.ts): unlit words stay at --text-3 (5.8:1, AA). */
-.is-scrub .sw {
-  color: var(--text-3);
-  transition: color 450ms var(--ease-out);
-}
-.is-scrub .sw.is-lit {
-  color: var(--text);
-}
-.is-scrub a .sw.is-lit {
-  color: inherit;
 }
 
 /* Images that open from a frame as they scroll into view (CSS scroll-driven, no JavaScript). */

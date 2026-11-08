@@ -1,0 +1,199 @@
+---
+/**
+ * Selected work, straight after the hero: both real projects as image-led cards, side by side on
+ * wide screens and stacked on phones (no sideways rail, so neither project can be missed).
+ * Each card says what the relationship is, the website status (kept apart from whether the
+ * business is trading), the customer problem and my role, then links to the case study.
+ */
+import { getCollection } from 'astro:content';
+import Icon from '../ui/Icon.astro';
+import ProjectMedia from '../work/ProjectMedia.astro';
+
+const work = (await getCollection('work')).sort((a, b) => a.data.order - b.data.order);
+const fmtDate = (iso: string) =>
+  new Intl.DateTimeFormat('en-CA', { day: 'numeric', month: 'short', year: 'numeric', timeZone: 'UTC' }).format(new Date(`${iso}T12:00:00Z`));
+---
+
+<section class="sw section" id="work" aria-labelledby="work-title">
+  <div class="container">
+    <div class="sw__head">
+      <p class="eyebrow">Selected work</p>
+      <h2 id="work-title" class="sw__title">Real projects, <span class="serif">clearly labelled.</span></h2>
+      <a class="link-arrow sw__all" href="/work/">All work <Icon name="arrow" /></a>
+    </div>
+
+    <ol class="sw__list" role="list">
+      {
+        work.map((w) => (
+          <li>
+            <article class="sw__card" aria-labelledby={`sw-${w.id}`} data-spotlight>
+              <a class="sw__media" href={`/work/${w.id}/`} tabindex="-1" aria-hidden="true">
+                <ProjectMedia scene={w.data.scene} sizes="(min-width: 64em) 42rem, 92vw" />
+              </a>
+              <div class="sw__body">
+                <p class="sw__labels">
+                  <span class="sw__tag">{w.data.relationship}</span>
+                  <span class:list={['sw__tag', w.data.status === 'launched' ? 'sw__tag--live' : 'sw__tag--wip']}>
+                    <span class="sw__dot" aria-hidden="true" />
+                    {w.data.websiteStatus}
+                  </span>
+                  {w.data.businessStatus && <span class="sw__tag">{w.data.businessStatus}</span>}
+                </p>
+                <h3 class="sw__name" id={`sw-${w.id}`}>
+                  <a href={`/work/${w.id}/`}>{w.data.title}</a>
+                </h3>
+                <dl class="sw__facts">
+                  <div>
+                    <dt>The problem</dt>
+                    <dd>{w.data.problem}</dd>
+                  </div>
+                  <div>
+                    <dt>My role</dt>
+                    <dd>{w.data.roleShort}</dd>
+                  </div>
+                </dl>
+                <p class="sw__foot">
+                  <a class="link-arrow" href={`/work/${w.id}/`}>
+                    Read the case study <span class="visually-hidden">: {w.data.title}</span>
+                    <Icon name="arrow" />
+                  </a>
+                  <span class="num sw__date">Checked {fmtDate(w.data.checked)}</span>
+                </p>
+              </div>
+            </article>
+          </li>
+        ))
+      }
+    </ol>
+  </div>
+</section>
+
+<style>
+  .sw {
+    padding-top: clamp(var(--s-6), 4vw, var(--s-8));
+  }
+  .sw__head {
+    display: grid;
+    grid-template-columns: 1fr auto;
+    align-items: end;
+    gap: var(--s-3) var(--s-5);
+    margin-bottom: clamp(var(--s-5), 3vw, var(--s-7));
+    padding-top: var(--s-5);
+    border-top: 1px solid var(--line);
+  }
+  .sw__head .eyebrow {
+    grid-column: 1 / -1;
+  }
+  .sw__title {
+    font-size: var(--fs-h2);
+    max-width: 18ch;
+  }
+  .sw__all {
+    white-space: nowrap;
+  }
+  .sw__list {
+    display: grid;
+    gap: var(--s-5);
+  }
+  @media (min-width: 64em) {
+    .sw__list {
+      grid-template-columns: 1fr 1fr;
+      gap: var(--s-6);
+    }
+  }
+  .sw__list > li {
+    display: grid;
+  }
+  .sw__card {
+    display: grid;
+    grid-template-rows: auto 1fr;
+    border: 1px solid var(--line);
+    border-radius: var(--r-lg);
+    background: var(--surface);
+    overflow: hidden;
+    transition: border-color var(--t-base) var(--ease-out);
+  }
+  .sw__card:hover {
+    border-color: var(--control);
+  }
+  .sw__media {
+    display: block;
+    text-decoration: none;
+  }
+  .sw__media :global(.pm) {
+    border-radius: 0;
+  }
+  .sw__body {
+    display: grid;
+    align-content: start;
+    gap: var(--s-4);
+    padding: clamp(1.25rem, 2.5vw, 2rem);
+  }
+  .sw__labels {
+    display: flex;
+    flex-wrap: wrap;
+    gap: var(--s-2);
+  }
+  .sw__tag {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.45em;
+    padding: 0.3em 0.7em;
+    border: 1px solid var(--line);
+    border-radius: var(--r-pill);
+    font-family: var(--font-mono);
+    font-size: 0.75rem;
+    letter-spacing: 0.03em;
+    color: var(--text-2);
+    line-height: 1.3;
+  }
+  .sw__dot {
+    width: 0.45rem;
+    height: 0.45rem;
+    border-radius: 50%;
+    background: var(--warn);
+  }
+  .sw__tag--live .sw__dot {
+    background: var(--signal);
+  }
+  .sw__name {
+    font-size: clamp(1.75rem, 1.3rem + 1.6vw, 2.6rem);
+    font-weight: 740;
+    font-stretch: 112%;
+    letter-spacing: -0.04em;
+    line-height: 1;
+  }
+  .sw__name a {
+    text-decoration: none;
+  }
+  .sw__name a:hover {
+    color: var(--signal);
+  }
+  .sw__facts {
+    display: grid;
+    gap: var(--s-3);
+  }
+  .sw__facts dt {
+    font-family: var(--font-mono);
+    font-size: var(--fs-xs);
+    letter-spacing: var(--track-label);
+    text-transform: uppercase;
+    color: var(--text-3);
+  }
+  .sw__facts dd {
+    color: var(--text-2);
+    max-width: 58ch;
+  }
+  .sw__foot {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    justify-content: space-between;
+    gap: var(--s-2) var(--s-4);
+    margin-top: var(--s-2);
+  }
+  .sw__date {
+    font-size: var(--fs-xs);
+    color: var(--text-3);
+  }
+</style>

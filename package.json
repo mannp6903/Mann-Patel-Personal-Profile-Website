@@ -15,7 +15,7 @@
     "test:e2e": "playwright test",
     "qa:captures": "node scripts/capture.mjs http://127.0.0.1:4321 qa-output/captures / /services/ /work/ /work/nest-and-rest-cleaning/ /about/ /contact/ /privacy/",
     "qa:lighthouse": "node scripts/lighthouse.mjs http://127.0.0.1:4321 / /services/ /work/nest-and-rest-cleaning/ /contact/",
-    "images": "node scripts/make-images.mjs",
+    "images": "node scripts/make-images.mjs && node scripts/make-project-cards.mjs",
     "prelaunch": "node scripts/prelaunch-check.mjs",
     "preview:static": "npm run build && node scripts/export-static-preview.mjs",
     "build:cloudflare": "node scripts/build-cloudflare.mjs",

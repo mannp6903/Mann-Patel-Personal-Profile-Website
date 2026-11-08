@@ -16,6 +16,31 @@ scene: samp
 links:
   - label: See the work-in-progress preview
     url: https://samp-hair-spa.lovable.app/
+relationship: Client website
+websiteStatus: In progress, preview online
+checked: '2026-11-08'
+roleShort: Wrote the brief from verified facts; building it with Lovable.
+problem: People choosing a salon on their phone need the services, starting prices, opening hours and an easy way to ask for an appointment.
+verification:
+  - behaviour: “Open now” badge, in Toronto time
+    how: Clock fixed at Mon 11:00, Wed 19:30, Thu 19:30 and Sat 18:30 Toronto time, with the visitor’s computer set to India time
+    result: Open until 7 PM; closed, opens Thu 10 AM; open until 8 PM; closed, opens Mon 10 AM. All four match the posted hours.
+  - behaviour: Appointment request, steps 1 and 2
+    how: Continue with no service chosen, then choose a service and open the day list
+    result: It asks for a service before moving on; Sundays show as closed and can’t be chosen.
+  - behaviour: Layout
+    how: Preview home page at 360, 390, 768 and 1440 px
+    result: No sideways scrolling.
+  - behaviour: Automated accessibility scan
+    how: axe-core, WCAG 2.2 A/AA rules, at 390 and 1440 px
+    result: 31 low-contrast text items and 1 invalid ARIA attribute found. Open, to fix before launch.
+limitations:
+  - Work in progress; content and design can still change before launch.
+  - Photography is stock, labelled “Illustrative photography” on the site.
+  - The appointment form prepares a request; it never confirms a booking. Its final step wasn’t submitted in testing, so nothing was sent to the salon.
+  - The accessibility findings above are still open.
+outcomes: None yet. The site hasn’t launched.
+nextStep: Fix the contrast and ARIA findings, confirm the final content with the salon, then launch and re-test.
 description: A work-in-progress website for Samp Hair & Spa in Scarborough, built from verified business facts with a clear service menu, live opening status and an honest appointment-request flow.
 ---
 

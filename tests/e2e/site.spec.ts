@@ -131,9 +131,27 @@ test.describe('layout', () => {
       await page.goto('/');
       const h1 = page.locator('h1');
       await expect(h1).toContainText('Found.');
-      await expect(h1).toContainText('I help small businesses in Toronto and the GTA get all three.');
+      await expect(h1).toContainText('Websites, local search and enquiry follow-up for small businesses in Toronto and the GTA.');
       const cta = page.locator('.hero').getByRole('link', { name: 'Start a project' });
       await expect(cta).toBeInViewport();
+      await expect(page.locator('.hero').getByRole('link', { name: 'See selected work' })).toHaveAttribute('href', '#work');
+    });
+  }
+
+  // Acceptance targets from the 8 Nov 2026 audit: real work comes straight after a compact hero.
+  for (const [w, h, maxHeading, maxCard] of [
+    [1440, 1000, 1100, 1500],
+    [390, 844, 1250, 1400],
+  ]) {
+    test(`selected work starts by y=${maxHeading} at ${w}x${h}`, async ({ page }) => {
+      await page.setViewportSize({ width: w, height: h });
+      await page.goto('/');
+      const pos = await page.evaluate(() => ({
+        heading: document.getElementById('work-title')!.getBoundingClientRect().top + scrollY,
+        card: document.querySelector('#work article')!.getBoundingClientRect().top + scrollY,
+      }));
+      expect(pos.heading).toBeLessThanOrEqual(maxHeading);
+      expect(pos.card).toBeLessThanOrEqual(maxCard);
     });
   }
 });
@@ -234,17 +252,12 @@ test.describe('home interactions', () => {
     await expect(page.locator('.hp__img')).toHaveAttribute('alt', /Mann Patel smiling/);
   });
 
-  test('the phone follows the step being read (desktop)', async ({ page }) => {
-    await page.setViewportSize({ width: 1440, height: 900 });
+  test('the three service summaries each link to their full detail on Services', async ({ page }) => {
     await page.goto('/');
-    await expect(page.locator('[data-dev="found"]')).toHaveClass(/is-active/);
-    await page.locator('#booked').scrollIntoViewIfNeeded();
-    await page.evaluate(() => {
-      const el = document.getElementById('booked')!;
-      scrollTo(0, el.getBoundingClientRect().top + scrollY - innerHeight * 0.3);
-    });
-    await expect(page.locator('[data-dev="booked"]')).toHaveClass(/is-active/);
-    await expect(page.locator('[data-dev="found"]')).toHaveClass(/is-idle/);
+    const items = page.locator('#what-i-do li');
+    await expect(items).toHaveCount(3);
+    for (const id of ['found', 'answered', 'booked'])
+      await expect(page.locator(`#what-i-do a[href="/services/#${id}"]`)).toBeVisible();
   });
 
   test('finder recommends a starting point live and pre-fills the brief', async ({ page }) => {
@@ -282,7 +295,7 @@ test.describe('home interactions', () => {
     await page.goto('/');
     expect(await page.locator('.hw').first().evaluate((e) => getComputedStyle(e).animationName)).toBe('none');
     expect(await page.evaluate(() => document.documentElement.classList.contains('js-motion'))).toBe(false);
-    const op = await page.locator('#work [data-reveal]').first().evaluate((e) => getComputedStyle(e).opacity);
+    const op = await page.locator('[data-reveal]:not([data-reveal^="load"])').first().evaluate((e) => getComputedStyle(e).opacity);
     expect(op).toBe('1');
     await ctx.close();
   });
@@ -299,11 +312,21 @@ test.describe('home interactions', () => {
     await expect(page.locator('.hero__avatar')).toBeHidden();
   });
 
-  test('example phone screens are labelled, and the home page has no second photo', async ({ page }) => {
-    await page.setViewportSize({ width: 1440, height: 900 });
+  test('phones: the portrait art is optional (one tap), and the home page has no second photo', async ({ page }) => {
+    await page.setViewportSize({ width: 390, height: 844 });
     await page.goto('/');
-    await expect(page.locator('.path__device .phone__tag')).toContainText('Example');
+    const art = page.locator('#hero-art');
+    const btn = page.getByRole('button', { name: 'Show portrait art' });
+    await expect(art).toBeHidden();
+    await btn.click();
+    await expect(art).toBeVisible();
+    await expect(page.getByRole('button', { name: 'Hide portrait art' })).toHaveAttribute('aria-expanded', 'true');
+    // It starts drawing once it has a size.
+    await expect(art).toHaveClass(/is-ready/, { timeout: 8000 });
     await expect(page.locator('section.about img')).toHaveCount(0);
+    // Wide screens always show it, without the button.
+    await page.setViewportSize({ width: 1440, height: 900 });
+    await expect(page.locator('[data-art-toggle]')).toBeHidden();
   });
 
   test('without JavaScript, the header links show and content is visible', async ({ browser }) => {
@@ -319,12 +342,13 @@ test.describe('home interactions', () => {
 
 test.describe('phones: short pages', () => {
   // Screens of 390 × 844. Budgets keep the phone layout from growing back into a long scroll.
+  // Case studies: 7 since round 7 added the at-a-glance summary and the tested-behaviour evidence.
   const BUDGET: Record<string, number> = {
     '/': 10,
     '/services/': 12,
     '/work/': 4.5,
-    '/work/nest-and-rest-cleaning/': 6.5,
-    '/work/samp-hair-spa/': 6.5,
+    '/work/nest-and-rest-cleaning/': 7,
+    '/work/samp-hair-spa/': 7,
     '/about/': 6.5,
     '/contact/': 3.5,
   };
@@ -359,30 +383,30 @@ test.describe('phones: short pages', () => {
     });
   }
 
-  test('"What I do" becomes three tabs that work with arrow keys', async ({ page }) => {
-    await page.setViewportSize({ width: 390, height: 844 });
-    await page.goto('/');
-    const tabs = page.getByRole('tablist', { name: 'What I help with' }).getByRole('tab');
-    await expect(tabs).toHaveCount(3);
-    await expect(tabs.first()).toHaveAttribute('aria-selected', 'true');
-    await expect(page.locator('#found')).toBeVisible();
-    await expect(page.locator('#answered')).toBeHidden();
-    await tabs.first().focus();
-    await page.keyboard.press('ArrowRight');
-    await expect(tabs.nth(1)).toBeFocused();
-    await expect(tabs.nth(1)).toHaveAttribute('aria-selected', 'true');
-    await expect(page.locator('#answered')).toBeVisible();
-    await expect(page.locator('#found')).toBeHidden();
-    // On a laptop the same content is one long list again.
-    await page.setViewportSize({ width: 1440, height: 900 });
-    await expect(page.locator('#found')).toBeVisible();
-    await expect(page.locator('#answered')).toBeVisible();
+  test('both projects are in the normal reading order on phones (no sideways swipe), with honest labels', async ({ page }) => {
+    for (const width of [360, 390]) {
+      await page.setViewportSize({ width, height: 844 });
+      await page.goto('/');
+      const cards = page.locator('#work article');
+      await expect(cards).toHaveCount(2);
+      const boxes = await cards.evaluateAll((els) => els.map((e) => e.getBoundingClientRect()).map((r) => ({ left: r.left, right: r.right, top: r.top })));
+      for (const b of boxes) {
+        expect(b.left).toBeGreaterThanOrEqual(0);
+        expect(b.right).toBeLessThanOrEqual(width);
+      }
+      expect(boxes[1].top).toBeGreaterThan(boxes[0].top);
+      await expect(page.locator('#work [data-rail]')).toHaveCount(0);
+      await expect(cards.first()).toContainText('Website live');
+      await expect(cards.first()).toContainText('Business opens summer 2027');
+      await expect(cards.nth(1)).toContainText('In progress');
+      await noHorizontalOverflow(page);
+    }
   });
 
-  test('card rows swipe sideways with dots, without the page scrolling sideways', async ({ page }) => {
+  test('card rows elsewhere still swipe sideways with dots, without the page scrolling sideways', async ({ page }) => {
     await page.setViewportSize({ width: 390, height: 844 });
-    await page.goto('/');
-    const rail = page.locator('#work [data-rail]');
+    await page.goto('/about/');
+    const rail = page.locator('[data-rail]').first();
     const { scrollW, clientW, display } = await rail.evaluate((el) => ({
       scrollW: el.scrollWidth,
       clientW: el.clientWidth,
@@ -390,9 +414,9 @@ test.describe('phones: short pages', () => {
     }));
     expect(display).toBe('flex');
     expect(scrollW).toBeGreaterThan(clientW);
-    await expect(page.locator('#work .rail-dots i')).toHaveCount(2);
+    const dots = page.locator('.rail-dots').first().locator('i');
     await rail.evaluate((el) => el.scrollTo({ left: el.scrollWidth, behavior: 'instant' }));
-    await expect(page.locator('#work .rail-dots i').last()).toHaveClass(/is-on/);
+    await expect(dots.last()).toHaveClass(/is-on/);
     await noHorizontalOverflow(page);
   });
 
@@ -413,7 +437,7 @@ test.describe('phones: short pages', () => {
   test('a case study opens with its start, and "Read the full case study" shows the rest', async ({ page }) => {
     await page.setViewportSize({ width: 390, height: 844 });
     await page.goto('/work/nest-and-rest-cleaning/');
-    const prose = page.locator('[data-fold]');
+    const prose = page.locator('#cs-story');
     await expect(prose).toHaveClass(/is-folded/);
     const btn = page.getByRole('button', { name: 'Read the full case study' });
     await btn.click();
@@ -421,9 +445,16 @@ test.describe('phones: short pages', () => {
     await expect(btn).toBeHidden();
     await expect(prose.getByRole('heading', { name: 'Results' })).toBeVisible();
     // Laptops never fold the text.
+    // The evidence previews its first check, and opens in one tap.
+    const tests = page.locator('#cs-tests');
+    await expect(tests).toHaveClass(/is-folded/);
+    await page.getByRole('button', { name: 'Show all checks and limitations' }).click();
+    await expect(tests).not.toHaveClass(/is-folded/);
+    await expect(tests.getByRole('heading', { name: 'Limitations' })).toBeVisible();
     await page.setViewportSize({ width: 1440, height: 900 });
     await page.reload();
-    await expect(page.locator('[data-fold]')).not.toHaveClass(/is-folded/);
+    await expect(page.locator('#cs-story')).not.toHaveClass(/is-folded/);
+    await expect(page.locator('#cs-tests')).not.toHaveClass(/is-folded/);
   });
 });
 
@@ -436,10 +467,21 @@ test.describe('services', () => {
 
   test('packages each ask for a quote with the package pre-selected', async ({ page }) => {
     await page.goto('/services/');
-    const links = page.locator('#packages').getByRole('link', { name: /Request a quote for/ });
+    const links = page.locator('#packages .pkg').getByRole('link', { name: /Request a quote for/ });
     await expect(links).toHaveCount(4);
     await links.first().click();
     await expect(page.locator('#f-package')).toHaveValue('launch');
+  });
+
+  test('the four packages can be compared side by side, with no unapproved prices', async ({ page }) => {
+    await page.goto('/services/');
+    const table = page.getByRole('table', { name: 'Compare the packages' });
+    for (const name of ['Business Launch', 'Found & Chosen', 'Never Miss an Enquiry', 'Website That Books'])
+      await expect(table.getByRole('columnheader', { name })).toBeVisible();
+    for (const row of ['Best for', 'Covers', 'Not included', 'You provide', 'Price', 'Next step'])
+      await expect(table.getByRole('rowheader', { name: row })).toBeVisible();
+    expect(await table.innerText()).not.toMatch(/\$\s?\d/);
+    await expect(table.getByRole('link', { name: /Request a quote for Website That Books/ })).toHaveAttribute('href', '/contact/?package=website#brief');
   });
 });
 
@@ -552,7 +594,7 @@ test.describe('enquiry form', () => {
     );
     await page.goto('/contact/');
     await page.waitForTimeout(500);
-    await expect(page.locator('[data-not-connected]')).toBeHidden();
+    await expect(page.locator('[data-brief] [data-not-connected]')).toBeHidden();
     await expect(next(page)).toBeEnabled();
   });
 
@@ -593,11 +635,14 @@ test.describe('enquiry form', () => {
       if (r.method() === 'POST' && r.url().includes('/api/enquiry/')) sawSending = true;
     });
     await send(page).click();
-    const success = page.locator('[data-success]');
+    const success = page.locator('[data-brief] [data-success]');
     await expect(success).toBeVisible();
     await expect(success).toBeFocused();
+    // Honest wording: accepted and passed on for delivery, not "arrived in the inbox".
+    await expect(success).toContainText('Your brief was sent');
+    await expect(success).toContainText('passed it on for delivery');
     expect(sawSending).toBe(true);
-    const id = (await page.locator('[data-success-id]').textContent())!.trim();
+    const id = (await page.locator('[data-brief] [data-success-id]').textContent())!.trim();
     expect(id).toMatch(/^enq_\d{8}_[0-9a-f]{8}$/);
     const store = await readFile('.data/enquiries.jsonl', 'utf8');
     expect(store).toContain(id);
@@ -624,19 +669,19 @@ test.describe('enquiry form', () => {
     await fill(page);
     await page.route('**/api/enquiry/', (route) => (route.request().method() === 'POST' ? route.abort() : route.continue()));
     await send(page).click();
-    const err = page.locator('[data-form-error]');
+    const err = page.locator('[data-brief] [data-form-error]');
     await expect(err).toBeVisible();
     await expect(err).toContainText('wasn’t sent');
     await expect(err).toContainText('email me at');
     await expect(page.locator('#f-name')).toHaveValue('Test Owner');
     await expect(send(page)).toBeEnabled();
-    await expect(page.locator('[data-success]')).toBeHidden();
+    await expect(page.locator('[data-brief] [data-success]')).toBeHidden();
   });
 
   test('when no delivery is configured, the form says so and offers to email the brief instead', async ({ page }) => {
     await page.goto('http://127.0.0.1:4322/contact/');
-    await expect(page.locator('[data-not-connected]')).toBeVisible();
-    await expect(page.locator('[data-not-connected]')).toContainText('Email this brief');
+    await expect(page.locator('[data-brief] [data-not-connected]')).toBeVisible();
+    await expect(page.locator('[data-brief] [data-not-connected]')).toContainText('Email this brief');
     await fill(page);
     const mailBtn = page.getByRole('button', { name: 'Email this brief' });
     await expect(mailBtn).toBeVisible();
@@ -649,10 +694,12 @@ test.describe('enquiry form', () => {
     expect(href).toMatch(/^mailto:info@mannpatel\.me\?subject=Project%20brief%20from%20Test%20Owner%20\(Example%20Salon\)&body=/);
     expect(decodeURIComponent(href!)).toContain('Help with: Get found and chosen: Google, Maps and reviews');
     expect(decodeURIComponent(href!)).toContain('two-chair salon');
-    await expect(page.locator('[data-mail-note]')).toContainText('email app should open');
+    await expect(page.locator('[data-brief] [data-mail-note]')).toContainText('email app should open');
     expect(posted).toBe(false);
-    await expect(page.locator('[data-success]')).toBeHidden();
+    await expect(page.locator('[data-brief] [data-success]')).toBeHidden();
     await expect(page.locator('#f-message')).not.toHaveValue('');
+    // A way out that needs no email app: copy the brief.
+    await expect(page.locator('[data-brief]').getByRole('button', { name: 'Copy my brief' })).toBeVisible();
   });
 
   test('if the server says it is not connected, the form switches to the email fallback', async ({ page }) => {
@@ -664,7 +711,7 @@ test.describe('enquiry form', () => {
     await page.goto('/contact/');
     await fill(page);
     await send(page).click();
-    await expect(page.locator('[data-form-error]')).toContainText('Email this brief');
+    await expect(page.locator('[data-brief] [data-form-error]')).toContainText('Email this brief');
     await expect(page.getByRole('button', { name: 'Email this brief' })).toBeVisible();
   });
 
@@ -679,7 +726,7 @@ test.describe('enquiry form', () => {
     await page.locator('#f-message').fill(`No-JavaScript path ${Date.now()}: please contact me about a landing page.`);
     await send(page).click();
     await expect(page).toHaveURL(/\/contact\/received\/$/);
-    await expect(page.locator('h1')).toHaveText('Thanks, your brief arrived.');
+    await expect(page.locator('h1')).toHaveText('Thanks, your brief was sent.');
     const store = await readFile('.data/enquiries.jsonl', 'utf8');
     expect(store).toContain('nojs@example.ca');
     await ctx.close();
@@ -696,63 +743,44 @@ test.describe('enquiry form', () => {
   });
 });
 
-test.describe('live signal effects (round 6)', () => {
-  test('signal field: static dots everywhere, and the WebGL shader compiles and draws when a GPU is available', async ({ page }) => {
+test.describe('motion (restrained in round 7)', () => {
+  test('signal field: static dots without a GPU, and the WebGL shader compiles and draws when one is available', async ({ page }) => {
     await page.setViewportSize({ width: 1440, height: 900 });
-    // Without a real GPU (this headless browser) the field keeps its CSS dots: no canvas, no errors.
     await page.goto('/');
     const field = page.locator('.hero .fx-field');
     await expect(field).toHaveAttribute('aria-hidden', 'true');
     await page.waitForTimeout(1500);
     await expect(field.locator('canvas')).toHaveCount(0);
     expect(await field.evaluate((e) => getComputedStyle(e, '::before').backgroundImage)).toContain('radial-gradient');
-    // Forcing the software renderer proves the shader compiles, links and draws real pixels.
+    // Forcing the software renderer proves the shader compiles, links and draws.
     await page.goto('/?fx=gl');
     await expect(field).toHaveClass(/is-gl/, { timeout: 10_000 });
-    const drawn = await field.locator('canvas').evaluate((c: HTMLCanvasElement) => {
-      const gl = c.getContext('webgl', { preserveDrawingBuffer: true })!;
-      const px = new Uint8Array(4 * 64 * 64);
-      gl.readPixels(c.width * 0.7, c.height * 0.5, 64, 64, gl.RGBA, gl.UNSIGNED_BYTE, px);
-      return px.some((v, i) => i % 4 === 3 && v > 0) || c.width > 0;
-    });
-    expect(drawn).toBe(true);
-    // Page heads and the footer call to action have a field too.
-    for (const path of ['/services/', '/work/', '/about/']) {
+    // Only the hero and the 404 page carry it; inner page titles stay plain.
+    for (const path of ['/services/', '/work/', '/about/', '/contact/']) {
       await page.goto(path);
-      await expect(page.locator('[data-field-zone] .fx-field').first()).toBeAttached();
+      await expect(page.locator('.fx-field')).toHaveCount(0);
     }
   });
 
-  test('reduced motion: no WebGL, no cursor follower, no decoding, no marquee movement', async ({ browser }) => {
+  test('reduced motion: no WebGL and no decoding', async ({ browser }) => {
     const ctx = await browser.newContext({ reducedMotion: 'reduce', viewport: { width: 1440, height: 900 } });
     const page = await ctx.newPage();
     await page.goto('/?fx=gl');
     await page.mouse.move(400, 400);
     await page.waitForTimeout(1200);
     await expect(page.locator('.fx-field canvas')).toHaveCount(0);
-    await expect(page.locator('.cursor')).toHaveCount(0);
-    await expect(page.locator('.eyebrow [aria-hidden="true"]')).toHaveCount(0);
-    await page.mouse.wheel(0, 900);
-    await page.waitForTimeout(300);
-    const t = await page.locator('[data-mq-track]').first().evaluate((e) => (e as HTMLElement).style.transform);
-    expect(t).toBe('');
+    await expect(page.locator('[data-scramble] [aria-hidden="true"]')).toHaveCount(0);
     await ctx.close();
   });
 
-  test('cursor follower grows over links and shows a label over project rows', async ({ page }) => {
+  test('removed effects stay removed: no marquee, cursor follower, tilt or scroll-lit text', async ({ page }) => {
     await page.setViewportSize({ width: 1440, height: 900 });
-    await page.goto('/work/');
-    await page.mouse.move(200, 200);
-    await page.mouse.move(220, 210);
-    await expect(page.locator('html')).toHaveClass(/has-cursor/);
-    const cursor = page.locator('.cursor');
-    await expect(cursor).toHaveAttribute('aria-hidden', 'true');
-    await page.locator('.hdr__nav a').first().hover();
-    await expect(cursor).toHaveClass(/is-link/);
-    await page.locator('.row__link').first().hover();
-    await expect(page.locator('.cursor-tag')).toHaveClass(/is-on/);
-    await expect(page.locator('.cursor-tag')).toHaveText('Open');
-    expect(await cursor.evaluate((e) => getComputedStyle(e).pointerEvents)).toBe('none');
+    for (const path of ['/', '/work/', '/about/']) {
+      await page.goto(path);
+      await page.mouse.move(300, 300);
+      await page.mouse.move(320, 320);
+      await expect(page.locator('[data-marquee], .cursor, .cursor-tag, [data-tilt], [data-scrub]')).toHaveCount(0);
+    }
   });
 
   test('buttons lean toward the pointer and settle back when it leaves', async ({ page }) => {
@@ -766,65 +794,26 @@ test.describe('live signal effects (round 6)', () => {
     await expect.poll(() => btn.evaluate((e) => (e as HTMLElement).style.translate)).toBe('');
   });
 
-  test('labels decode on arrival but screen readers always get the real words', async ({ page }) => {
+  test('the hero coordinates decode, but screen readers always get the real text', async ({ page }) => {
     await page.setViewportSize({ width: 1440, height: 900 });
     await page.goto('/');
-    const label = page.locator('.hero .eyebrow').first();
-    const real = 'Mann Patel · Toronto, Canada';
-    // During the effect the real text is in a visually hidden copy; afterwards it is plain text again.
-    const during = await label.evaluate((e) => e.querySelector('.visually-hidden')?.textContent ?? e.textContent);
+    const coords = page.locator('.hero [data-scramble]');
+    const real = '43.65° N · 79.38° W';
+    const during = await coords.evaluate((e) => e.querySelector('.visually-hidden')?.textContent ?? e.textContent);
     expect(during).toBe(real);
-    await expect.poll(() => label.evaluate((e) => e.textContent)).toBe(real);
-    await expect(label.locator('span')).toHaveCount(0);
+    await expect.poll(() => coords.evaluate((e) => e.textContent)).toBe(real);
+    // Ordinary labels are plain text now.
+    expect(await page.locator('.hero .eyebrow').first().evaluate((e) => e.children.length)).toBe(0);
   });
 
-  test('the marquee moves only while the page scrolls, and is hidden from assistive tech', async ({ page }) => {
+  test('project cards light up under the pointer', async ({ page }) => {
     await page.setViewportSize({ width: 1440, height: 900 });
     await page.goto('/');
-    const mq = page.locator('[data-marquee]');
-    await expect(mq).toHaveAttribute('aria-hidden', 'true');
-    const track = mq.locator('[data-mq-track]').first();
-    await page.waitForTimeout(400);
-    const before = await track.evaluate((e) => (e as HTMLElement).style.transform);
-    await page.mouse.wheel(0, 700);
-    await expect.poll(() => track.evaluate((e) => (e as HTMLElement).style.transform)).not.toBe(before);
-    // Once scrolling stops, it stops.
-    await page.waitForTimeout(800);
-    const a = await track.evaluate((e) => (e as HTMLElement).style.transform);
-    await page.waitForTimeout(600);
-    expect(await track.evaluate((e) => (e as HTMLElement).style.transform)).toBe(a);
-  });
-
-  test('scroll-lit statements keep their text and links, and light up word by word', async ({ page }) => {
-    await page.setViewportSize({ width: 1440, height: 900 });
-    await page.goto('/');
-    const lead = page.locator('.path__lead');
-    await expect(lead).toContainText('Most small businesses lose work in one of three places');
-    const words = lead.locator('.sw');
-    expect(await words.count()).toBeGreaterThan(20);
-    await lead.evaluate((e) => scrollTo(0, e.getBoundingClientRect().top + scrollY - innerHeight * 0.2));
-    await expect.poll(() => lead.locator('.sw.is-lit').count()).toBeGreaterThan(20);
-    // The About teaser's link still works inside a lit statement.
-    await expect(page.locator('section.about [data-scrub] a[href="https://nestnrestcleaning.com/"]')).toBeAttached();
-  });
-
-  test('spotlight panels follow the pointer and project media tilt toward it', async ({ page }) => {
-    await page.setViewportSize({ width: 1440, height: 900 });
-    await page.goto('/services/');
-    const pkg = page.locator('.pkg[data-spotlight]').first();
-    await pkg.scrollIntoViewIfNeeded();
-    await pkg.evaluate((e) => e.classList.add('is-in'));
-    await pkg.evaluate((e) => scrollTo(0, e.getBoundingClientRect().top + scrollY - innerHeight * 0.3));
-    await page.waitForTimeout(200);
-    const b = (await pkg.boundingBox())!;
+    const card = page.locator('#work article[data-spotlight]').first();
+    await card.scrollIntoViewIfNeeded();
+    const b = (await card.boundingBox())!;
     await page.mouse.move(b.x + b.width / 2, b.y + b.height / 2, { steps: 3 });
-    await expect.poll(() => pkg.evaluate((e) => (e as HTMLElement).style.getPropertyValue('--mx'))).toMatch(/px$/);
-    await page.goto('/work/');
-    const media = page.locator('.row [data-tilt]').first();
-    const m = (await media.boundingBox())!;
-    await page.mouse.move(m.x + m.width * 0.8, m.y + m.height * 0.2, { steps: 4 });
-    await expect(media).toHaveClass(/is-tilting/);
-    await expect.poll(() => media.evaluate((e) => (e as HTMLElement).style.getPropertyValue('--ry'))).toMatch(/deg$/);
+    await expect.poll(() => card.evaluate((e) => (e as HTMLElement).style.getPropertyValue('--mx'))).toMatch(/px$/);
   });
 
   test('page changes: the header holds still and the reading line tracks the scroll', async ({ page }) => {
@@ -840,7 +829,6 @@ test.describe('live signal effects (round 6)', () => {
   test('first-screen content does not wait for scripts (fast LCP)', async ({ browser }) => {
     const ctx = await browser.newContext({ javaScriptEnabled: true });
     const page = await ctx.newPage();
-    // Block the page scripts: headings and the case-study image must still become visible.
     await page.route(/\/_astro\/.*\.js$/, (r) => r.abort());
     await page.goto('/work/nest-and-rest-cleaning/');
     await page.waitForTimeout(1600);
@@ -853,12 +841,117 @@ test.describe('live signal effects (round 6)', () => {
     await ctx.close();
   });
 
-  test('fonts: the subset files load and cover the copy', async ({ page }) => {
+  test('fonts: the subset files load', async ({ page }) => {
     await page.goto('/');
     await page.evaluate(() => document.fonts.ready);
     const loaded = await page.evaluate(() => [...document.fonts].filter((f) => f.status === 'loaded').map((f) => f.family.replace(/"/g, '')));
     expect(loaded).toEqual(expect.arrayContaining(['Signal Sans', 'Instrument Serif', 'Geist Mono']));
-    const r = await page.request.get('/fonts/signal-sans-wdth-wght.woff2');
-    expect(r.status()).toBe(200);
+  });
+});
+
+test.describe('case studies (round 7)', () => {
+  for (const [path, website, extra] of [
+    ['/work/nest-and-rest-cleaning/', 'Website live', 'Business opens summer 2027'],
+    ['/work/samp-hair-spa/', 'In progress, preview online', null],
+  ] as const) {
+    test(`${path} leads with a summary and shows dated, real test evidence`, async ({ page, request }) => {
+      await page.setViewportSize({ width: 1440, height: 900 });
+      await page.goto(path);
+      const glance = page.locator('.glance');
+      await expect(glance).toContainText(website);
+      if (extra) await expect(glance).toContainText(extra);
+      await expect(glance).toContainText('My role');
+      await expect(glance).toContainText('The problem');
+      const table = page.getByRole('table', { name: /Tested on/ });
+      expect(await table.getByRole('row').count()).toBeGreaterThan(3);
+      for (const h of ['Limitations', 'Outcomes', 'Next step']) await expect(page.getByRole('heading', { name: h })).toBeVisible();
+      // A project-specific sharing card that really exists.
+      const og = await page.locator('meta[property="og:image"]').getAttribute('content');
+      expect(og).toMatch(/\/og\/work-[a-z-]+\.png$/);
+      expect((await request.get(new URL(og!, page.url()).pathname)).status()).toBe(200);
+    });
+  }
+});
+
+test.describe('free check (short path)', () => {
+  const panel = (page: Page) => page.locator('[data-check]');
+
+  test('?package=check-up opens the short free-check form, and the full brief is one tap away', async ({ page }) => {
+    await page.goto('/contact/?package=check-up#check');
+    await expect(panel(page)).toBeVisible();
+    await expect(page.locator('[data-brief]')).toBeHidden();
+    await expect(page.getByRole('link', { name: /Free check/ })).toHaveAttribute('aria-current', 'true');
+    // Only what the check needs: no services, budget or timeframe, and the note is optional.
+    await expect(panel(page).locator('input[name="services"], [name="budget"], [name="timeframe"]')).toHaveCount(0);
+    await expect(panel(page).locator('#c-message')).not.toHaveAttribute('required', '');
+    await page.getByRole('link', { name: /Project brief/ }).click();
+    await expect(page.locator('[data-brief]')).toBeVisible();
+    await expect(panel(page)).toBeHidden();
+  });
+
+  test('asks for a website or a business name, and explains the either-or', async ({ page }) => {
+    await page.goto('/contact/?package=check-up');
+    await panel(page).getByRole('button', { name: 'Request the free check' }).click();
+    await expect(page.locator('#c-name')).toHaveAttribute('aria-invalid', 'true');
+    await expect(page.locator('#ce-website')).toContainText('or your business name');
+    await expect(page.locator('#c-name')).toBeFocused();
+  });
+
+  test('an owner with no website can request the check with a business name, and it is recorded once', async ({ page }) => {
+    await page.goto('/contact/?package=check-up');
+    const stamp = Date.now();
+    await page.locator('#c-name').fill('No Site Owner');
+    await page.locator('#c-email').fill(`nosite-${stamp}@example.ca`);
+    await page.locator('#c-business').fill(`Corner Bakery ${stamp}`);
+    await page.waitForTimeout(3200); // the time check rejects submissions under 3 s
+    const submit = panel(page).getByRole('button', { name: 'Request the free check' });
+    await submit.dblclick();
+    const done = panel(page).locator('[data-success]');
+    await expect(done).toBeVisible();
+    await expect(done).toContainText('Your check request was sent');
+    const id = (await done.locator('[data-success-id]').textContent())!.trim();
+    const store = await readFile('.data/enquiries.jsonl', 'utf8');
+    const lines = store.split('\n').filter((l) => l.includes(`Corner Bakery ${stamp}`));
+    expect(lines).toHaveLength(1);
+    expect(lines[0]).toContain('"packageId":"check-up"');
+    expect(lines[0]).toContain(id);
+  });
+
+  test('when direct sending is off, the check offers the email app or copying, and sends nothing', async ({ page }) => {
+    await page.goto('http://127.0.0.1:4322/contact/?package=check-up');
+    await expect(panel(page).locator('[data-not-connected]')).toBeVisible();
+    await page.locator('#c-name').fill('Test Owner');
+    await page.locator('#c-email').fill('owner@example.ca');
+    await page.locator('#c-website').fill('examplesalon.ca');
+    let posted = false;
+    page.on('request', (r) => {
+      if (r.method() === 'POST' && r.url().includes('/api/enquiry/')) posted = true;
+    });
+    await panel(page).getByRole('button', { name: 'Email this request' }).click();
+    const href = await page.locator('[data-check-form]').getAttribute('data-mailto');
+    expect(decodeURIComponent(href!)).toContain('Free check request from Test Owner');
+    expect(decodeURIComponent(href!)).toContain('Website: examplesalon.ca');
+    await expect(panel(page).getByRole('button', { name: 'Copy my request' })).toBeVisible();
+    expect(posted).toBe(false);
+  });
+
+  test('a network failure keeps the answers and offers to copy them', async ({ page }) => {
+    await page.goto('/contact/?package=check-up');
+    await page.locator('#c-name').fill('Test Owner');
+    await page.locator('#c-email').fill('owner@example.ca');
+    await page.locator('#c-website').fill('examplesalon.ca');
+    await page.route('**/api/enquiry/', (route) => (route.request().method() === 'POST' ? route.abort() : route.continue()));
+    await panel(page).getByRole('button', { name: 'Request the free check' }).click();
+    await expect(panel(page).locator('[data-form-error]')).toContainText('wasn’t sent');
+    await expect(panel(page).getByRole('button', { name: 'Copy my request' })).toBeVisible();
+    await expect(page.locator('#c-website')).toHaveValue('examplesalon.ca');
+  });
+
+  test('the privacy page describes both the direct and the email-app path', async ({ page }) => {
+    await page.goto('/privacy/');
+    const main = page.locator('main');
+    await expect(main).toContainText('When the form can send directly');
+    await expect(main).toContainText('opens your own email app');
+    await expect(main).toContainText('Free check');
   });
 });

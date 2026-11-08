@@ -1,5 +1,5 @@
 /**
- * Signal field: a WebGL dot map behind the hero, page titles and the closing call to action.
+ * Signal field: a WebGL dot map behind the home hero and the 404 page.
  *
  * Every dot is a point on a "map". A slow, domain-warped noise field (the carrier) makes some
  * dots brighter and draws a soft lime aurora toward the focus point (the portrait side). Around
@@ -107,8 +107,6 @@ interface FieldOptions {
 
 const PRESETS: Record<string, FieldOptions> = {
   hero: { fx: 0.74, fy: 0.55, glow: 1, gap: 22 },
-  head: { fx: 0.86, fy: 0.5, glow: 0.8, gap: 22 },
-  cta: { fx: 0.5, fy: 0.2, glow: 0.9, gap: 24 },
   lost: { fx: 0.5, fy: 0.5, glow: 0.9, gap: 20 },
 };
 

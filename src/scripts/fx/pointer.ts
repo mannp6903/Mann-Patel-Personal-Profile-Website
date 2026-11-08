@@ -6,7 +6,6 @@
  *   buttons' own hover and press transforms.
  * - Spotlight: `[data-spotlight]` panels get --mx / --my (pointer position inside them), which the
  *   CSS turns into a soft lime light and a lit border that follow the pointer.
- * - Tilt: `[data-tilt]` media lean in 3D toward the pointer, with a moving glare.
  *
  * One delegated listener each; nothing runs while the pointer is still.
  */
@@ -54,7 +53,7 @@ export function initPointer() {
     }
   });
 
-  /* ── Spotlight and tilt ───────────────────────────────── */
+  /* ── Spotlight ───────────────────────────────────────── */
   let raf = 0;
   let last: PointerEvent | null = null;
   const paint = () => {
@@ -68,17 +67,6 @@ export function initPointer() {
       spot.style.setProperty('--mx', `${(e.clientX - r.left).toFixed(1)}px`);
       spot.style.setProperty('--my', `${(e.clientY - r.top).toFixed(1)}px`);
     }
-    const tilt = t?.closest<HTMLElement>('[data-tilt]');
-    if (tilt) {
-      const r = tilt.getBoundingClientRect();
-      const px = (e.clientX - r.left) / r.width - 0.5;
-      const py = (e.clientY - r.top) / r.height - 0.5;
-      tilt.classList.add('is-tilting');
-      tilt.style.setProperty('--ry', `${(px * 7).toFixed(2)}deg`);
-      tilt.style.setProperty('--rx', `${(-py * 6).toFixed(2)}deg`);
-      tilt.style.setProperty('--gx', `${((px + 0.5) * 100).toFixed(1)}%`);
-      tilt.style.setProperty('--gy', `${((py + 0.5) * 100).toFixed(1)}%`);
-    }
   };
   document.addEventListener(
     'pointermove',
@@ -89,13 +77,4 @@ export function initPointer() {
     },
     { passive: true },
   );
-  document.addEventListener('pointerout', (e) => {
-    const from = (e.target as Element | null)?.closest<HTMLElement>('[data-tilt]');
-    const to = e.relatedTarget as Node | null;
-    if (from && (!to || !from.contains(to))) {
-      from.classList.remove('is-tilting');
-      from.style.removeProperty('--rx');
-      from.style.removeProperty('--ry');
-    }
-  });
 }

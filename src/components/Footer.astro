@@ -10,7 +10,6 @@ import Button from './ui/Button.astro';
 import Heading from './ui/Heading.astro';
 import Icon from './ui/Icon.astro';
 import ContactActions from './ContactActions.astro';
-import Field from './fx/Field.astro';
 
 interface Props {
   cta?: boolean;
@@ -26,8 +25,7 @@ const name = [...profile.name];
 <footer class="ftr">
   {
     cta && (
-      <section class="ftr__cta container" aria-labelledby="ftr-cta-title" data-field-zone>
-        <Field preset="cta" class="ftr__field" />
+      <section class="ftr__cta container" aria-labelledby="ftr-cta-title">
         <p class="eyebrow">Next step</p>
         <Heading id="ftr-cta-title" class="ftr__title" lines={['Tell me what isn’t working.', '<span class="serif serif--signal">I’ll tell you where to start.</span>']} />
         <div class="ftr__cta-row">
@@ -38,7 +36,7 @@ const name = [...profile.name];
           <div class="ftr__actions" data-reveal style="--d:120">
             <div class="btn-row">
               <Button href="/contact/">Start a project</Button>
-              <Button href="/contact/?package=check-up#brief" variant="ghost">
+              <Button href="/contact/?package=check-up#check" variant="ghost">
                 Request the free check
               </Button>
             </div>
@@ -143,12 +141,6 @@ const name = [...profile.name];
     margin-top: auto;
     border-top: 1px solid var(--line);
     overflow: clip;
-  }
-  .ftr__cta :global(.ftr__field) {
-    --fx: 82%;
-    --fy: 55%;
-    --fw: 60%;
-    --fh: 95%;
   }
   .ftr__cta {
     padding-block: var(--section) calc(var(--section) * 0.7);

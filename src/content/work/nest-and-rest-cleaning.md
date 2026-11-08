@@ -16,6 +16,34 @@ scene: nest-and-rest
 links:
   - label: Visit Nest & Rest Cleaning
     url: https://nestnrestcleaning.com/
+relationship: Own business
+websiteStatus: Website live
+businessStatus: Business opens summer 2027
+checked: '2026-11-08'
+roleShort: Designed and built it from scratch; I run the business.
+problem: A brand-new cleaning business with no reviews has to answer price, area and trust before anyone has heard of it.
+verification:
+  - behaviour: Price on the first screen
+    how: Home page, 1-bedroom condo, then one more bedroom
+    result: $116 first visit, then $140. The minus button is disabled at 1 bedroom.
+  - behaviour: Postal-code check
+    how: M1B 2K3, M2N 5W9 and L4C 1A1
+    result: Scarborough and North York codes are accepted; L4C is declined politely, with a waitlist offer.
+  - behaviour: “Opening soon” mode
+    how: Booking page
+    result: Says it isn’t taking bookings yet, and shows no form.
+  - behaviour: Layout
+    how: Home page at 360, 390, 768 and 1440 px
+    result: No sideways scrolling.
+  - behaviour: Automated accessibility scan
+    how: axe-core, WCAG 2.2 A/AA rules, home page at 390 and 1440 px
+    result: No violations found. This is not a full manual audit.
+limitations:
+  - No customers yet, so there are no reviews, bookings or conversion figures.
+  - Booking, quote and gift-card forms are switched off until launch; their delivery is tested end to end at launch.
+  - The checks above are automated browser tests on the live site, not a manual accessibility audit.
+outcomes: Not yet measured. The business takes its first clients in summer 2027.
+nextStep: At launch, switch the forms on, send a real test booking end to end, and add measured results here.
 description: How Nest & Rest Cleaning presents prices, service areas and the owner so a brand-new cleaning business can earn trust online, how the site was redesigned in its first month, and why it says “Opening soon” until bookings open.
 ---
 
