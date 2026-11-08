@@ -3,11 +3,13 @@
  * Keyed by the `scene` field of each work entry (src/content/work/*.md).
  */
 import type { ImageMetadata } from 'astro';
-import nrDesktop from '../assets/work/nest-and-rest/live-2026-10-31-desktop.png';
-import nrMobile from '../assets/work/nest-and-rest/live-2026-10-31-mobile.png';
-import nrEarlier from '../assets/work/nest-and-rest/archive-2026-10-19-desktop.png';
-import nrPrice from '../assets/work/nest-and-rest/detail-price-estimate.png';
-import nrPostal from '../assets/work/nest-and-rest/detail-postal-check.png';
+import nrDesktop from '../assets/work/nest-and-rest/live-2026-11-08-desktop.png';
+import nrMobile from '../assets/work/nest-and-rest/live-2026-11-08-mobile.png';
+import nrEarlier from '../assets/work/nest-and-rest/live-2026-10-31-desktop.png';
+import nrPrice from '../assets/work/nest-and-rest/detail-2026-11-08-price.png';
+import nrSoon from '../assets/work/nest-and-rest/detail-2026-11-08-opening-soon.png';
+import nrPostal from '../assets/work/nest-and-rest/detail-2026-11-08-postal-check.png';
+import nrOwner from '../assets/work/nest-and-rest/detail-2026-11-08-owner.png';
 import sampDesktop from '../assets/work/samp-hair-spa/preview-2026-10-31-desktop.png';
 import sampMobile from '../assets/work/samp-hair-spa/preview-2026-10-31-mobile.png';
 import sampType from '../assets/work/samp-hair-spa/detail-type.png';
@@ -40,32 +42,44 @@ export const captures: Record<'nest-and-rest' | 'samp', CaptureSet> = {
     tint: '#9cc7d8',
     desktop: {
       src: nrDesktop,
-      alt: 'Nest & Rest Cleaning home page on desktop: “We clean. You rest.” with a postal-code check, a “Request a clean” button and a “Your price, in seconds” estimator.',
-      caption: 'Live site on desktop, 1440 px, captured 31 Oct 2026.',
+      alt: 'Nest & Rest Cleaning home page on desktop: an “Opening soon” notice above “We clean. You rest.” over a photo of the Toronto skyline and CN Tower at dawn, with a See prices button and a “Your price, in seconds” box showing $116 for a first regular clean.',
+      caption: 'Live site on desktop, 1440 px, captured 8 Nov 2026, in “Opening soon” mode.',
     },
     mobile: {
       src: nrMobile,
-      alt: 'Nest & Rest Cleaning home page on a phone: an Airbnb turnovers banner, the headline, illustrated Toronto skyline and Scarborough Bluffs, and a fixed “Request a clean” bar.',
+      alt: 'Nest & Rest Cleaning home page on a phone: an “Opening soon: no bookings yet” bar, the Opening soon notice, “We clean. You rest.” over the Toronto skyline, a See prices button and an Opening soon bar at the bottom.',
       caption: 'Live site on a phone, 360 px, same day.',
     },
     earlier: {
       src: nrEarlier,
-      alt: 'Earlier Nest & Rest home page from 19 October 2026 with a navy headline and a price estimator card.',
+      alt: 'Earlier Nest & Rest home page from 31 October 2026: a light hero with “We clean. You rest.”, a postal-code check, an illustrated Toronto skyline and a price estimator card.',
       caption:
-        'Earlier version, 19 Oct 2026 (Internet Archive). Two weeks later the site had Airbnb turnovers, a room-by-room checklist, gift cards and neighbourhood pages.',
+        'Earlier version, 31 Oct 2026. A week later: a redesigned, answer-first site with a photo hero, a colour per service, and “Opening soon” mode until bookings open.',
     },
     details: [
       {
         src: nrPrice,
-        alt: 'Nest & Rest price card: Regular Cleaning for a 1-bedroom, 1-bathroom condo shows $116 for the first visit and a regular price of $145, with service, home type, bedroom and bathroom controls and a Choose a preferred day button.',
+        alt: 'Nest & Rest price box: “Your price, in seconds”, Regular Cleaning for a 1-bedroom, 1-bathroom condo at $116 for the first visit, regular price $145, about 2 hours on site, 20% off for the first 50 households.',
         title: 'Price first',
-        note: 'The home page opens with an instant estimate built from the service, home type, bedrooms and bathrooms. The regular price and the booking terms are visible before any form.',
+        note: 'The first screen gives a real price with no contact details asked: service, home type, bedrooms and bathrooms, the regular price and the time on site.',
+      },
+      {
+        src: nrSoon,
+        alt: 'Nest & Rest “Opening soon” notice: “I’m still getting Nest & Rest ready, so I’m not taking bookings yet. Have a look around: prices and services are all here.”',
+        title: 'Honest about timing',
+        note: 'Until launch the site says plainly that it isn’t taking bookings. One setting pauses every form; prices, services and guides stay up so people can see what to expect.',
       },
       {
         src: nrPostal,
-        alt: 'Nest & Rest postal-code check: “Do I come to you? Check your postal code” with a Check button, followed by Request a clean and How it works.',
+        alt: 'Nest & Rest postal-code check: “Do I come to you? Check your postal code” with a Check button.',
         title: 'Do I come to you?',
-        note: 'A postal-code check answers the service-area question in one step, right above the main action.',
+        note: 'A postal-code check answers the service-area question in one step, for Scarborough and North York only.',
+      },
+      {
+        src: nrOwner,
+        alt: 'Nest & Rest owner line with Mann’s photo: “Every clean is done by Mann Patel, the owner. The person at your door runs the business.”',
+        title: 'The owner is the brand',
+        note: 'With no reviews yet, the proof is the person: Mann’s photo and a promise that he cleans every home himself.',
       },
     ],
   },

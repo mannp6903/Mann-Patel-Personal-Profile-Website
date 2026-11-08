@@ -1,4 +1,4 @@
-# DESIGN.md · "Signal" (round 5, Nov 2026)
+# DESIGN.md · "Signal" (round 5, Nov 2026) + "Live Signal" motion layer (round 6)
 
 The design system for mannpatel.me. Every page uses these tokens through the CSS variables in
 `src/styles/tokens.css`; components never use raw colours or one-off sizes.
@@ -47,9 +47,13 @@ current state, the focus ring). No gradients on text, no purple, no glass.
 
 | Family | File | Use |
 | --- | --- | --- |
-| **Mona Sans** (variable: weight 200–900, width 75–125) | `mona-sans-latin-wdth-wght.woff2`, 98 KB | Everything: display (expanded, heavy) and body (normal width) |
-| **Instrument Serif Italic** | `instrument-serif-latin-400-italic.woff2`, 22 KB | One or two accent words per heading, never body text |
-| **Geist Mono** (variable weight) | `geist-mono-latin-wght.woff2`, 23 KB | Labels, metadata, numbers, the live clock |
+| **Mona Sans** (variable: weight 200–900, width 75–125), served as **"Signal Sans"** | `signal-sans-wdth-wght.woff2`, 69 KB | Everything: display (expanded, heavy) and body (normal width) |
+| **Instrument Serif Italic** | `instrument-serif-italic.sub.woff2`, 11 KB | One or two accent words per heading, never body text |
+| **Geist Mono** (variable weight) | `geist-mono-wght.sub.woff2`, 15 KB | Labels, metadata, numbers, the live clock |
+
+The served files are subsets cut to the characters the copy uses (`scripts/subset-fonts.py`: 143 KB →
+95 KB). Mona Sans is renamed "Signal Sans" in the subset because "Mona" is a Reserved Font Name under
+the OFL. New characters in the copy: add them to the script and to `unicode-range` in `tokens.css`.
 
 Self-hosted, SIL OFL 1.1, `font-display: swap`, metric-adjusted fallbacks.
 
@@ -135,3 +139,25 @@ trace in on load and swell and glow lime around the pointer), kinetic
 hero words (width and weight animate in), headings revealed line by line, the phone that changes
 screen as you scroll, project cards that stack, a timeline that draws itself, and the footer name.
 Everything is off under `prefers-reduced-motion`; content never waits on JavaScript.
+
+## Live Signal: the effects layer (round 6)
+
+Everything below lives in `src/scripts/fx/` and `src/components/fx/`, is progressive enhancement
+(the page is complete without it), never delays the first paint, and is **off under reduced motion**.
+Pointer effects run only for a mouse or trackpad (`hover: hover` and `pointer: fine`).
+
+| Component | Where | Behaviour |
+| --- | --- | --- |
+| **Signal field** (`Field.astro`, `field.ts`) | Home hero, every page head, About, footer call to action, 404 | A WebGL dot map. A slow domain-warped noise "carrier" brightens dots and lays a faint lime aurora toward a focus point (`--fx`/`--fy` in CSS, per breakpoint). Dots swell and turn lime near the pointer; a click or tap sends a **radar ping**. Static CSS dots without WebGL, on CPU-only renderers, or with reduced motion. Time runs during the intro and while someone interacts, then eases to a stop. |
+| **Cursor follower** (`cursor.ts`) | Site-wide | A ring trails the real cursor (which stays visible), grows over links, and becomes a lime disc with a word over `[data-cursor="Open"]` (work rows). |
+| **Magnetic buttons** (`pointer.ts`) | `.btn`, `.icon-btn`, quick-menu and menu buttons | Lean toward the pointer (arrow disc a little more) and spring back. Uses the `translate` property so it composes with hover/press. |
+| **Spotlight panels** | `[data-spotlight]`: work cards and rows, packages, contact panels | A lime light and a lit 1 px border follow the pointer (one masked layer under the content). |
+| **3D tilt + glare** | `[data-tilt]`: project media | Up to 7° toward the pointer with a moving glare. |
+| **Decoding labels** (`text.ts`) | Every mono `.eyebrow`, `[data-scramble]` | Letters cycle through signal glyphs and lock in left to right on arrival. Screen readers get the real text throughout. |
+| **Scroll-lit statements** | `[data-scrub]` | Words light from `--text-3` (AA) to `--text` as you scroll through. |
+| **Scroll marquee** (`Marquee.astro`, `marquee.ts`) | Home, after the hero | Giant "Found. Answered. Booked." (solid, outline, lime serif) and a mono services row, moving in opposite directions **only while the page scrolls**, leaning with scroll speed. Hidden from assistive tech. |
+| **Reading line** | Header | A 2 px lime line tracks scroll progress (CSS scroll timeline, no JS). |
+| **Page transitions** | Between pages | The old page recedes and dims while the new one wipes up; the header holds still (`view-transition-name: site-header`). |
+| **Image reveals** | Case-study close-ups and captures | Frames open from an inset and the image settles from 1.16× (CSS view timeline, no JS). |
+| **Load-time intros** | First screen of every page | `data-reveal="load"` / `Heading load` / `data-reveal="load-media"` animate in CSS from first paint, so they never wait for a script (fast LCP). |
+

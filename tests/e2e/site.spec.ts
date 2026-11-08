@@ -695,3 +695,170 @@ test.describe('enquiry form', () => {
     expect((await fast.json()).code).toBe('too_fast');
   });
 });
+
+test.describe('live signal effects (round 6)', () => {
+  test('signal field: static dots everywhere, and the WebGL shader compiles and draws when a GPU is available', async ({ page }) => {
+    await page.setViewportSize({ width: 1440, height: 900 });
+    // Without a real GPU (this headless browser) the field keeps its CSS dots: no canvas, no errors.
+    await page.goto('/');
+    const field = page.locator('.hero .fx-field');
+    await expect(field).toHaveAttribute('aria-hidden', 'true');
+    await page.waitForTimeout(1500);
+    await expect(field.locator('canvas')).toHaveCount(0);
+    expect(await field.evaluate((e) => getComputedStyle(e, '::before').backgroundImage)).toContain('radial-gradient');
+    // Forcing the software renderer proves the shader compiles, links and draws real pixels.
+    await page.goto('/?fx=gl');
+    await expect(field).toHaveClass(/is-gl/, { timeout: 10_000 });
+    const drawn = await field.locator('canvas').evaluate((c: HTMLCanvasElement) => {
+      const gl = c.getContext('webgl', { preserveDrawingBuffer: true })!;
+      const px = new Uint8Array(4 * 64 * 64);
+      gl.readPixels(c.width * 0.7, c.height * 0.5, 64, 64, gl.RGBA, gl.UNSIGNED_BYTE, px);
+      return px.some((v, i) => i % 4 === 3 && v > 0) || c.width > 0;
+    });
+    expect(drawn).toBe(true);
+    // Page heads and the footer call to action have a field too.
+    for (const path of ['/services/', '/work/', '/about/']) {
+      await page.goto(path);
+      await expect(page.locator('[data-field-zone] .fx-field').first()).toBeAttached();
+    }
+  });
+
+  test('reduced motion: no WebGL, no cursor follower, no decoding, no marquee movement', async ({ browser }) => {
+    const ctx = await browser.newContext({ reducedMotion: 'reduce', viewport: { width: 1440, height: 900 } });
+    const page = await ctx.newPage();
+    await page.goto('/?fx=gl');
+    await page.mouse.move(400, 400);
+    await page.waitForTimeout(1200);
+    await expect(page.locator('.fx-field canvas')).toHaveCount(0);
+    await expect(page.locator('.cursor')).toHaveCount(0);
+    await expect(page.locator('.eyebrow [aria-hidden="true"]')).toHaveCount(0);
+    await page.mouse.wheel(0, 900);
+    await page.waitForTimeout(300);
+    const t = await page.locator('[data-mq-track]').first().evaluate((e) => (e as HTMLElement).style.transform);
+    expect(t).toBe('');
+    await ctx.close();
+  });
+
+  test('cursor follower grows over links and shows a label over project rows', async ({ page }) => {
+    await page.setViewportSize({ width: 1440, height: 900 });
+    await page.goto('/work/');
+    await page.mouse.move(200, 200);
+    await page.mouse.move(220, 210);
+    await expect(page.locator('html')).toHaveClass(/has-cursor/);
+    const cursor = page.locator('.cursor');
+    await expect(cursor).toHaveAttribute('aria-hidden', 'true');
+    await page.locator('.hdr__nav a').first().hover();
+    await expect(cursor).toHaveClass(/is-link/);
+    await page.locator('.row__link').first().hover();
+    await expect(page.locator('.cursor-tag')).toHaveClass(/is-on/);
+    await expect(page.locator('.cursor-tag')).toHaveText('Open');
+    expect(await cursor.evaluate((e) => getComputedStyle(e).pointerEvents)).toBe('none');
+  });
+
+  test('buttons lean toward the pointer and settle back when it leaves', async ({ page }) => {
+    await page.setViewportSize({ width: 1440, height: 900 });
+    await page.goto('/');
+    const btn = page.locator('.hero').getByRole('link', { name: 'Start a project' });
+    const box = (await btn.boundingBox())!;
+    await page.mouse.move(box.x + box.width * 0.9, box.y + box.height * 0.8, { steps: 4 });
+    await expect.poll(() => btn.evaluate((e) => (e as HTMLElement).style.translate)).not.toBe('');
+    await page.mouse.move(10, 600, { steps: 4 });
+    await expect.poll(() => btn.evaluate((e) => (e as HTMLElement).style.translate)).toBe('');
+  });
+
+  test('labels decode on arrival but screen readers always get the real words', async ({ page }) => {
+    await page.setViewportSize({ width: 1440, height: 900 });
+    await page.goto('/');
+    const label = page.locator('.hero .eyebrow').first();
+    const real = 'Mann Patel · Toronto, Canada';
+    // During the effect the real text is in a visually hidden copy; afterwards it is plain text again.
+    const during = await label.evaluate((e) => e.querySelector('.visually-hidden')?.textContent ?? e.textContent);
+    expect(during).toBe(real);
+    await expect.poll(() => label.evaluate((e) => e.textContent)).toBe(real);
+    await expect(label.locator('span')).toHaveCount(0);
+  });
+
+  test('the marquee moves only while the page scrolls, and is hidden from assistive tech', async ({ page }) => {
+    await page.setViewportSize({ width: 1440, height: 900 });
+    await page.goto('/');
+    const mq = page.locator('[data-marquee]');
+    await expect(mq).toHaveAttribute('aria-hidden', 'true');
+    const track = mq.locator('[data-mq-track]').first();
+    await page.waitForTimeout(400);
+    const before = await track.evaluate((e) => (e as HTMLElement).style.transform);
+    await page.mouse.wheel(0, 700);
+    await expect.poll(() => track.evaluate((e) => (e as HTMLElement).style.transform)).not.toBe(before);
+    // Once scrolling stops, it stops.
+    await page.waitForTimeout(800);
+    const a = await track.evaluate((e) => (e as HTMLElement).style.transform);
+    await page.waitForTimeout(600);
+    expect(await track.evaluate((e) => (e as HTMLElement).style.transform)).toBe(a);
+  });
+
+  test('scroll-lit statements keep their text and links, and light up word by word', async ({ page }) => {
+    await page.setViewportSize({ width: 1440, height: 900 });
+    await page.goto('/');
+    const lead = page.locator('.path__lead');
+    await expect(lead).toContainText('Most small businesses lose work in one of three places');
+    const words = lead.locator('.sw');
+    expect(await words.count()).toBeGreaterThan(20);
+    await lead.evaluate((e) => scrollTo(0, e.getBoundingClientRect().top + scrollY - innerHeight * 0.2));
+    await expect.poll(() => lead.locator('.sw.is-lit').count()).toBeGreaterThan(20);
+    // The About teaser's link still works inside a lit statement.
+    await expect(page.locator('section.about [data-scrub] a[href="https://nestnrestcleaning.com/"]')).toBeAttached();
+  });
+
+  test('spotlight panels follow the pointer and project media tilt toward it', async ({ page }) => {
+    await page.setViewportSize({ width: 1440, height: 900 });
+    await page.goto('/services/');
+    const pkg = page.locator('.pkg[data-spotlight]').first();
+    await pkg.scrollIntoViewIfNeeded();
+    await pkg.evaluate((e) => e.classList.add('is-in'));
+    await pkg.evaluate((e) => scrollTo(0, e.getBoundingClientRect().top + scrollY - innerHeight * 0.3));
+    await page.waitForTimeout(200);
+    const b = (await pkg.boundingBox())!;
+    await page.mouse.move(b.x + b.width / 2, b.y + b.height / 2, { steps: 3 });
+    await expect.poll(() => pkg.evaluate((e) => (e as HTMLElement).style.getPropertyValue('--mx'))).toMatch(/px$/);
+    await page.goto('/work/');
+    const media = page.locator('.row [data-tilt]').first();
+    const m = (await media.boundingBox())!;
+    await page.mouse.move(m.x + m.width * 0.8, m.y + m.height * 0.2, { steps: 4 });
+    await expect(media).toHaveClass(/is-tilting/);
+    await expect.poll(() => media.evaluate((e) => (e as HTMLElement).style.getPropertyValue('--ry'))).toMatch(/deg$/);
+  });
+
+  test('page changes: the header holds still and the reading line tracks the scroll', async ({ page }) => {
+    await page.setViewportSize({ width: 1440, height: 900 });
+    await page.goto('/services/');
+    expect(await page.locator('[data-header]').evaluate((e) => getComputedStyle(e).viewTransitionName)).toBe('site-header');
+    await page.mouse.wheel(0, 2500);
+    await page.waitForTimeout(300);
+    const scale = await page.locator('[data-header]').evaluate((e) => getComputedStyle(e, '::after').transform);
+    expect(scale).not.toBe('none');
+  });
+
+  test('first-screen content does not wait for scripts (fast LCP)', async ({ browser }) => {
+    const ctx = await browser.newContext({ javaScriptEnabled: true });
+    const page = await ctx.newPage();
+    // Block the page scripts: headings and the case-study image must still become visible.
+    await page.route(/\/_astro\/.*\.js$/, (r) => r.abort());
+    await page.goto('/work/nest-and-rest-cleaning/');
+    await page.waitForTimeout(1600);
+    const title = page.locator('h1 .line-mask > span').first();
+    expect(await title.evaluate((e) => getComputedStyle(e).transform)).toMatch(/none|matrix\(1, 0, 0, 1, 0, 0\)/);
+    expect(await page.locator('.cs-hero').evaluate((e) => getComputedStyle(e).opacity)).toBe('1');
+    await page.goto('/services/');
+    await page.waitForTimeout(1600);
+    expect(await page.locator('.ph__lead').evaluate((e) => getComputedStyle(e).opacity)).toBe('1');
+    await ctx.close();
+  });
+
+  test('fonts: the subset files load and cover the copy', async ({ page }) => {
+    await page.goto('/');
+    await page.evaluate(() => document.fonts.ready);
+    const loaded = await page.evaluate(() => [...document.fonts].filter((f) => f.status === 'loaded').map((f) => f.family.replace(/"/g, '')));
+    expect(loaded).toEqual(expect.arrayContaining(['Signal Sans', 'Instrument Serif', 'Geist Mono']));
+    const r = await page.request.get('/fonts/signal-sans-wdth-wght.woff2');
+    expect(r.status()).toBe(200);
+  });
+});

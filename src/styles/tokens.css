@@ -1,32 +1,37 @@
 /* Design tokens — "Signal" direction (round 5). Documented in /DESIGN.md. */
 
+/* Fonts are subsets of the Fontsource latin files, cut to the characters the site uses
+   (scripts/subset-fonts.py). "Signal Sans" is Mona Sans renamed, as its licence requires for a
+   modified version. Other characters fall back to the metric-matched system fonts below. */
 @font-face {
-  font-family: 'Mona Sans';
+  font-family: 'Signal Sans';
   font-style: normal;
   font-weight: 200 900;
   font-stretch: 75% 125%;
   font-display: swap;
-  src: url('/fonts/mona-sans-latin-wdth-wght.woff2') format('woff2-variations'),
-    url('/fonts/mona-sans-latin-wdth-wght.woff2') format('woff2');
-  unicode-range: U+0000-00FF, U+0131, U+0152-0153, U+02BB-02BC, U+02C6, U+02DA, U+02DC, U+0304, U+0308, U+0329,
-    U+2000-206F, U+20AC, U+2122, U+2191, U+2193, U+2212, U+2215, U+FEFF, U+FFFD;
+  src: url('/fonts/signal-sans-wdth-wght.woff2') format('woff2-variations'),
+    url('/fonts/signal-sans-wdth-wght.woff2') format('woff2');
+  unicode-range: U+0020-007E, U+00A0, U+00A9, U+00B0, U+00B7, U+00D7, U+2013-2014, U+2018-2019, U+201C-201D, U+2022,
+    U+2026, U+2191-2193;
 }
 @font-face {
   font-family: 'Instrument Serif';
   font-style: italic;
   font-weight: 400;
   font-display: swap;
-  src: url('/fonts/instrument-serif-latin-400-italic.woff2') format('woff2');
-  unicode-range: U+0000-00FF, U+0131, U+0152-0153, U+02BB-02BC, U+02C6, U+02DA, U+02DC, U+0304, U+0308, U+0329,
-    U+2000-206F, U+20AC, U+2122, U+2191, U+2193, U+2212, U+2215, U+FEFF, U+FFFD;
+  src: url('/fonts/instrument-serif-italic.sub.woff2') format('woff2');
+  unicode-range: U+0020-007E, U+00A0, U+00A9, U+00B0, U+00B7, U+00D7, U+2013-2014, U+2018-2019, U+201C-201D, U+2022,
+    U+2026, U+2191-2193;
 }
 @font-face {
   font-family: 'Geist Mono';
   font-style: normal;
   font-weight: 100 900;
   font-display: swap;
-  src: url('/fonts/geist-mono-latin-wght.woff2') format('woff2-variations'),
-    url('/fonts/geist-mono-latin-wght.woff2') format('woff2');
+  src: url('/fonts/geist-mono-wght.sub.woff2') format('woff2-variations'),
+    url('/fonts/geist-mono-wght.sub.woff2') format('woff2');
+  unicode-range: U+0020-007E, U+00A0, U+00A9, U+00B0, U+00B7, U+00D7, U+2013-2014, U+2018-2019, U+201C-201D, U+2022,
+    U+2026, U+2191-2193;
 }
 /* Metric-adjusted fallbacks keep layout steady while the web fonts load. */
 @font-face {
@@ -70,7 +75,7 @@
   --focus: var(--signal);
 
   /* ── Type ── */
-  --font-sans: 'Mona Sans', 'Mona Fallback', ui-sans-serif, system-ui, sans-serif;
+  --font-sans: 'Signal Sans', 'Mona Fallback', ui-sans-serif, system-ui, sans-serif;
   --font-serif: 'Instrument Serif', 'Serif Fallback', Georgia, serif;
   --font-mono: 'Geist Mono', ui-monospace, 'SFMono-Regular', Menlo, Consolas, monospace;
 

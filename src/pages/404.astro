@@ -3,6 +3,7 @@ import BaseLayout from '../layouts/BaseLayout.astro';
 import Button from '../components/ui/Button.astro';
 import Icon from '../components/ui/Icon.astro';
 import { businesses } from '../data/site';
+import Field from '../components/fx/Field.astro';
 
 const nest = businesses[0];
 const links = [
@@ -15,7 +16,8 @@ const links = [
 ---
 
 <BaseLayout title="Page not found" description="This page doesn’t exist." noindex>
-  <section class="nf">
+  <section class="nf" data-field-zone>
+    <Field preset="lost" class="nf__field" />
     <div class="container nf__grid">
       <figure class="nf__mark" data-portrait>
         <div class="nf__stage">
@@ -58,6 +60,21 @@ const links = [
 <style>
   .nf {
     padding-block: clamp(var(--s-6), 6vw, var(--s-9)) var(--section);
+  }
+  /* Radar dots behind the "404": click anywhere to send a ping looking for the page. */
+  .nf :global(.nf__field) {
+    --fx: 50%;
+    --fy: 30%;
+    --fw: 90%;
+    --fh: 70%;
+  }
+  @media (min-width: 64em) {
+    .nf :global(.nf__field) {
+      --fx: 28%;
+      --fy: 50%;
+      --fw: 55%;
+      --fh: 90%;
+    }
   }
   .nf__grid {
     display: grid;

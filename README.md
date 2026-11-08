@@ -4,7 +4,7 @@ Personal profile and digital-services site for Mann Patel (production domain: **
 
 Built with **Astro 7** (static pages + one server endpoint for the project-brief form), vanilla TypeScript islands, and self-hosted OFL fonts. No CMS, no client framework, no tracking unless configured.
 
-**Design: "Signal" (round 5, 8 Nov 2026).** A dark, kinetic design: a portrait drawn as a live signal (oscillating scan lines) that reacts to the pointer, variable-font type that stretches into place, a phone that follows the story as you scroll, stacking project cards, a 3-step brief and a ⌘K quick menu. The system (colours, type, spacing, components, motion) is in [`DESIGN.md`](DESIGN.md); what changed and how it was checked is in [`docs/12-round-5-signal.md`](docs/12-round-5-signal.md).
+**Design: "Signal" (round 5) + "Live Signal" motion layer (round 6, 8 Nov 2026).** A dark, kinetic design: a portrait drawn as a live signal (oscillating scan lines) that reacts to the pointer, variable-font type that stretches into place, a phone that follows the story as you scroll, stacking project cards, a 3-step brief and a ⌘K quick menu. Round 6 adds an original effects layer (no libraries, ~5 KB gzipped): a WebGL dot-map "signal field" with radar pings, a cursor follower, magnetic buttons, spotlight panels, 3D tilt, decoding labels, scroll-lit statements, a scroll-driven marquee, page transitions and image reveals, and brings Lighthouse to 99–100 on every page. The system is in [`DESIGN.md`](DESIGN.md); round 5 is in [`docs/12-round-5-signal.md`](docs/12-round-5-signal.md) and round 6 (effects, bugs fixed, scores) in [`docs/13-round-6-live-signal.md`](docs/13-round-6-live-signal.md).
 
 > **Status: content confirmed (31 Oct 2026).** All "To confirm" items are answered. Production deploys still run the pre-launch check, and the form's inbox address (`ENQUIRY_TO_EMAIL`) and phone number (`PUBLIC_CONTACT_PHONE`) are added in Cloudflare. See [`docs/OWNER-INPUTS.md`](docs/OWNER-INPUTS.md).
 
@@ -34,10 +34,11 @@ npm run preview             # node ./dist/server/entry.mjs → http://localhost:
 | `npm run preview` | Serve the built site, including the enquiry endpoint |
 | `npm run check` | Astro + TypeScript diagnostics |
 | `npm test` | Unit tests (Vitest): validation, guide logic, spam, limits, delivery, handler |
-| `npm run test:e2e` | Browser tests (Playwright + axe): pages, accessibility, layout 320–1440 px and 200% text, menu, ⌘K menu, signal portrait, finder, reduced motion, no-JS, every form path including the email fallback. Run `npm run build` first. |
+| `npm run test:e2e` | Browser tests (Playwright + axe): pages, accessibility, layout 320–1440 px and 200% text, menu, ⌘K menu, signal portrait, finder, reduced motion, no-JS, every form path including the email fallback, and the round-6 effects (WebGL field, cursor, magnetic, decoding, marquee, scroll-lit text, spotlight, tilt, transitions, script-free first screen). Run `npm run build` first. |
 | `npm run qa:captures` | Full-page screenshots at 360/390/768/1024/1440 + overflow report (server must be running) |
 | `npm run qa:lighthouse` | Lighthouse mobile run (`npm i --no-save lighthouse` first) |
 | `npm run images` | Regenerate favicons and the Open Graph image (signal-line portrait + headline) |
+| `python3 scripts/subset-fonts.py` | Re-cut the web fonts to the characters the copy uses (`pip install fonttools brotli` first) |
 | `npm run preview:static` | Export a server-less copy with relative links to `preview-static/` (for private previews; the form shows "not connected") |
 | `npm run prelaunch` | Production gate: env, preview markers, canonicals, robots/sitemap, internal links |
 
@@ -80,8 +81,9 @@ Cloudflare Workers, connected to GitHub: build command `npm run build:cloudflare
 | [`docs/11-service-areas.md`](docs/11-service-areas.md) | Service areas rebuilt from research: A Get found and chosen, B Never miss an enquiry, C A website that books work |
 | [`DESIGN.md`](DESIGN.md) | Round 5 design system "Signal": colour roles and contrast, type, spacing, components, imagery, motion |
 | [`docs/12-round-5-signal.md`](docs/12-round-5-signal.md) | Round 5: research, direction, every new feature, verification (tests, axe, Lighthouse), owner notes |
+| [`docs/13-round-6-live-signal.md`](docs/13-round-6-live-signal.md) | Round 6: the "Live Signal" effects layer, bugs fixed (incl. the local Cloudflare build), Lighthouse 99–100 |
 | [`docs/OWNER-INPUTS.md`](docs/OWNER-INPUTS.md) | Questions and owner actions |
 
 ## Licences
 
-Fonts: Mona Sans, Instrument Serif and Geist Mono, SIL Open Font License 1.1 (`public/fonts/LICENSES.txt`). The earlier wordmark files in `public/brand/` are outlined from Fraunces (SIL OFL 1.1). The portrait is Mann's own photo. Nest & Rest captures are archived screenshots of Mann's own website (Internet Archive, 19 Oct 2026).
+Fonts: Mona Sans (served as the subset "Signal Sans", renamed as its Reserved Font Name requires), Instrument Serif and Geist Mono, SIL Open Font License 1.1 (`public/fonts/LICENSES.txt`). The earlier wordmark files in `public/brand/` are outlined from Fraunces (SIL OFL 1.1). The portrait is Mann's own photo. Nest & Rest captures are screenshots of Mann's own website, nestnrestcleaning.com (live site, 31 Oct and 8 Nov 2026).

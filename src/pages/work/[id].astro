@@ -34,7 +34,7 @@ const crumbs = breadcrumbJsonLd([
 const gallery = [c.desktop, c.mobile, ...(c.earlier ? [c.earlier] : [])];
 ---
 
-<BaseLayout title={d.title} description={d.description} jsonLd={crumbs ?? undefined}>
+<BaseLayout title={d.title} description={d.description} jsonLd={crumbs ?? undefined} preloadSerif={false}>
   <article>
     <header class="cs-head">
       <div class="container cs-head__inner">
@@ -49,11 +49,11 @@ const gallery = [c.desktop, c.mobile, ...(c.earlier ? [c.earlier] : [])];
           <span class="subtle small">{d.kind} · {d.year}</span>
         </div>
         {d.statusConfirm && <Confirm note={d.statusConfirm} />}
-        <Heading as="h1" lines={[d.title]} class="cs-title" />
-        <p class="lead" data-reveal style="--d:150">{d.summary}</p>
+        <Heading as="h1" lines={[d.title]} class="cs-title" load />
+        <p class="lead" data-reveal="load" style="--d:150">{d.summary}</p>
         {
           d.links.length > 0 && (
-            <div class="btn-row" data-reveal style="--d:250">
+            <div class="btn-row" data-reveal="load" style="--d:250">
               {d.links.map((l) => (
                 <Button href={l.url} variant="ghost" icon="arrow-ne" rel="noopener">
                   {l.label}
@@ -65,7 +65,7 @@ const gallery = [c.desktop, c.mobile, ...(c.earlier ? [c.earlier] : [])];
       </div>
     </header>
 
-    <div class="container cs-hero" data-reveal="scale">
+    <div class="container cs-hero" data-reveal="load-media" style="--d:120">
       <ProjectMedia scene={d.scene} eager sizes="(min-width: 80em) 76rem, 94vw" />
     </div>
 
@@ -132,7 +132,7 @@ const gallery = [c.desktop, c.mobile, ...(c.earlier ? [c.earlier] : [])];
             c.details.map((x, i) => (
               <li data-reveal style={`--d:${i * 100}`}>
                 <figure>
-                  <div class="closer__img">
+                  <div class="closer__img reveal-clip">
                     <Image src={x.src} alt={x.alt} widths={[360, 560, 760]} sizes="(min-width: 56em) 40vw, 92vw" loading="lazy" decoding="async" />
                   </div>
                   <figcaption>
@@ -159,7 +159,7 @@ const gallery = [c.desktop, c.mobile, ...(c.earlier ? [c.earlier] : [])];
           {
             gallery.map((g, i) => (
               <figure class:list={['g', i === 1 && 'g--phone', i === 2 && 'g--earlier']} data-reveal style={`--d:${i * 80}`}>
-                <div class="g__frame">
+                <div class="g__frame reveal-clip">
                   <Image
                     src={g.src}
                     alt={g.alt}
@@ -370,6 +370,7 @@ const gallery = [c.desktop, c.mobile, ...(c.earlier ? [c.earlier] : [])];
     max-width: 18rem;
   }
   .g--phone .g__frame {
+    --clip-r: 1.6rem;
     border-radius: 1.6rem;
     border: 6px solid #1c1c20;
   }
@@ -477,9 +478,10 @@ const gallery = [c.desktop, c.mobile, ...(c.earlier ? [c.earlier] : [])];
       transform: rotate(90deg);
       color: var(--signal);
     }
+    /* Keep each close-up's own shape (wide crops would lose their sides in a fixed box); cap tall ones. */
     .closer__img :global(img) {
       width: 100%;
-      aspect-ratio: 4 / 3;
+      max-height: 18rem;
       object-fit: cover;
       object-position: top;
     }

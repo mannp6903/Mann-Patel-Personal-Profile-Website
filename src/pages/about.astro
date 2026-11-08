@@ -5,6 +5,7 @@ import Heading from '../components/ui/Heading.astro';
 import Button from '../components/ui/Button.astro';
 import Icon from '../components/ui/Icon.astro';
 import ContactActions from '../components/ContactActions.astro';
+import Field from '../components/fx/Field.astro';
 import { profile, businesses, social } from '../data/site';
 import { personJsonLd } from '../lib/seo';
 
@@ -59,7 +60,8 @@ const jsonLd = { '@context': 'https://schema.org', '@type': 'AboutPage', mainEnt
   description="Mann Patel’s story, from Palana in Gujarat to Toronto: founder of Nest & Rest Cleaning, helping small businesses in Toronto and the GTA get found on Google, answer every enquiry and get booked."
   jsonLd={jsonLd}
 >
-  <header class="ab-head">
+  <header class="ab-head" data-field-zone>
+    <Field preset="head" class="ab-field" />
     <div class="container ab-head__grid">
       <div class="ab-head__text">
         <p class="eyebrow">About</p>
@@ -67,13 +69,14 @@ const jsonLd = { '@context': 'https://schema.org', '@type': 'AboutPage', mainEnt
           as="h1"
           class="ab-title"
           lines={['I’m Mann Patel.', 'I’m building a small business,', '<span class="serif serif--signal">and I help other owners with theirs.</span>']}
+          load
         />
-        <p class="lead" data-reveal style="--d:200">
+        <p class="lead" data-reveal="load" style="--d:200">
           I’m starting {nest.name}, a home-cleaning business in {nest.area}, which opens for bookings in summer 2027. I also
           help small-business owners in {profile.serviceArea} get found on Google, answer every enquiry, and turn website
           visits into bookings.
         </p>
-        <div class="ab-reach" data-reveal style="--d:300">
+        <div class="ab-reach" data-reveal="load" style="--d:300">
           <ContactActions label="Say hello" />
           {
             links.length > 0 && (
@@ -90,7 +93,7 @@ const jsonLd = { '@context': 'https://schema.org', '@type': 'AboutPage', mainEnt
       </div>
       {
         profile.portrait && (
-          <figure class="ab-photo" data-reveal="scale" style="--d:150">
+          <figure class="ab-photo" data-reveal="load-media" style="--d:150">
             <Image
               src={profile.portrait.src}
               alt={profile.portrait.alt}
@@ -178,7 +181,7 @@ const jsonLd = { '@context': 'https://schema.org', '@type': 'AboutPage', mainEnt
     <div class="container vision">
       <p class="eyebrow">Where I’m going</p>
       <Heading id="vision-title" lines={['Foundations done properly,', '<span class="serif">explained clearly.</span>']} />
-      <p class="lead" data-reveal>
+      <p class="lead vision__lead" data-reveal data-scrub>
         My aim is to be the person Toronto’s small-business owners call when they want their Google presence, website and
         follow-up set up properly and explained in plain language, while I grow {nest.name} into a business that proves those
         foundations work.
@@ -204,7 +207,23 @@ const jsonLd = { '@context': 'https://schema.org', '@type': 'AboutPage', mainEnt
 
 <style>
   .ab-head {
+    overflow: clip;
     padding-block: clamp(var(--s-6), 6vw, var(--s-9)) var(--section);
+  }
+  /* Signal dots around the photo (behind the text column they fade out). */
+  .ab-head :global(.ab-field) {
+    --fx: 80%;
+    --fy: 45%;
+    --fw: 55%;
+    --fh: 90%;
+  }
+  @media (max-width: 63.99em) {
+    .ab-head :global(.ab-field) {
+      --fx: 50%;
+      --fy: 78%;
+      --fw: 100%;
+      --fh: 45%;
+    }
   }
   .ab-head__grid {
     display: grid;

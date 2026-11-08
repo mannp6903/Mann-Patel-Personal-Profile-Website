@@ -1,0 +1,140 @@
+---
+/**
+ * Scroll marquee: two rows of giant type that slide sideways (in opposite directions) only while
+ * the page scrolls, and lean with its speed (src/scripts/fx/marquee.ts). Decorative: the same
+ * words are on the page as real text, so the band is hidden from assistive tech.
+ */
+interface Props {
+  /** Big row: words alternate between solid, outlined and lime serif. */
+  words: string[];
+  /** Small row underneath, in mono. */
+  tags: string[];
+  class?: string;
+}
+const { words, tags, class: cls } = Astro.props;
+const big = [...words, ...words];
+const small = [...tags, ...tags, ...tags, ...tags];
+---
+
+<div class:list={['mq', cls]} aria-hidden="true" data-marquee>
+  <div class="mq__row mq__row--big" data-mq-row="1" data-mq-speed="0.55" data-mq-start="0.08">
+    <div class="mq__track" data-mq-track>
+      {
+        [0, 1].map(() => (
+          <div class="mq__set">
+            {big.map((w, i) => (
+              <span class:list={['mq__w', i % 3 === 1 && 'mq__w--out', i % 3 === 2 && 'mq__w--serif']}>
+                {w}
+                <i class="mq__star" />
+              </span>
+            ))}
+          </div>
+        ))
+      }
+    </div>
+  </div>
+  <div class="mq__row mq__row--small" data-mq-row="-1" data-mq-speed="0.4" data-mq-start="0.22">
+    <div class="mq__track" data-mq-track>
+      {
+        [0, 1].map(() => (
+          <div class="mq__set">
+            {small.map((t) => (
+              <span class="mq__tag">{t}</span>
+            ))}
+          </div>
+        ))
+      }
+    </div>
+  </div>
+</div>
+
+<style>
+  .mq {
+    position: relative;
+    display: grid;
+    gap: clamp(0.5rem, 1.5vw, 1.25rem);
+    padding-block: clamp(1.5rem, 4vw, 3.5rem);
+    border-block: 1px solid var(--line);
+    overflow: clip;
+    user-select: none;
+    /* Fade at the edges so the words slide in and out of the dark. */
+    -webkit-mask-image: linear-gradient(90deg, transparent, #000 8%, #000 92%, transparent);
+    mask-image: linear-gradient(90deg, transparent, #000 8%, #000 92%, transparent);
+  }
+  .mq__row {
+    overflow: clip;
+  }
+  .mq__track {
+    display: flex;
+    width: max-content;
+    will-change: transform;
+  }
+  /* Rows start at different offsets, so the static (no-JS) band still looks composed. */
+  .mq__row--big .mq__track {
+    transform: translateX(-8%);
+  }
+  .mq__row--small .mq__track {
+    transform: translateX(-22%);
+  }
+  .mq__set {
+    display: flex;
+    align-items: center;
+    flex: none;
+  }
+  .mq__w {
+    display: inline-flex;
+    align-items: center;
+    gap: clamp(1rem, 3vw, 2.5rem);
+    padding-right: clamp(1rem, 3vw, 2.5rem);
+    font-size: clamp(3.25rem, 1rem + 9vw, 9.5rem);
+    font-weight: 800;
+    font-stretch: 118%;
+    letter-spacing: -0.045em;
+    line-height: 1;
+    white-space: nowrap;
+    color: var(--text);
+  }
+  .mq__w--out {
+    color: transparent;
+    -webkit-text-stroke: 1.5px var(--text-2);
+  }
+  .mq__w--serif {
+    font-family: var(--font-serif);
+    font-style: italic;
+    font-weight: 400;
+    font-stretch: 100%;
+    letter-spacing: -0.02em;
+    font-size: clamp(3.6rem, 1.1rem + 10vw, 10.5rem);
+    color: var(--signal);
+  }
+  .mq__star {
+    width: 0.32em;
+    height: 0.32em;
+    flex: none;
+    background: var(--signal);
+    /* A four-point "signal" spark. */
+    clip-path: polygon(50% 0, 61% 39%, 100% 50%, 61% 61%, 50% 100%, 39% 61%, 0 50%, 39% 39%);
+  }
+  .mq__w--serif .mq__star {
+    background: var(--text);
+  }
+  .mq__tag {
+    display: inline-flex;
+    align-items: center;
+    gap: 1rem;
+    padding-right: 1rem;
+    font-family: var(--font-mono);
+    font-size: clamp(0.8125rem, 0.7rem + 0.45vw, 1.0625rem);
+    letter-spacing: var(--track-label);
+    text-transform: uppercase;
+    color: var(--text-3);
+    white-space: nowrap;
+  }
+  .mq__tag::after {
+    content: '';
+    width: 0.4rem;
+    height: 0.4rem;
+    border-radius: 50%;
+    background: var(--signal);
+  }
+</style>
