@@ -141,7 +141,7 @@ test.describe('layout', () => {
   // Acceptance targets from the 8 Nov 2026 audit: real work comes straight after a compact hero.
   for (const [w, h, maxHeading, maxCard] of [
     [1440, 1000, 1100, 1500],
-    [390, 844, 1250, 1400],
+    [390, 844, 1300, 1450],
   ]) {
     test(`selected work starts by y=${maxHeading} at ${w}x${h}`, async ({ page }) => {
       await page.setViewportSize({ width: w, height: h });
@@ -312,21 +312,22 @@ test.describe('home interactions', () => {
     await expect(page.locator('.hero__avatar')).toBeHidden();
   });
 
-  test('phones: the portrait art is optional (one tap), and the home page has no second photo', async ({ page }) => {
-    await page.setViewportSize({ width: 390, height: 844 });
-    await page.goto('/');
-    const art = page.locator('#hero-art');
-    const btn = page.getByRole('button', { name: 'Show portrait art' });
-    await expect(art).toBeHidden();
-    await btn.click();
-    await expect(art).toBeVisible();
-    await expect(page.getByRole('button', { name: 'Hide portrait art' })).toHaveAttribute('aria-expanded', 'true');
-    // It starts drawing once it has a size.
-    await expect(art).toHaveClass(/is-ready/, { timeout: 8000 });
-    await expect(page.locator('section.about img')).toHaveCount(0);
-    // Wide screens always show it, without the button.
+  test('the real, whole photo shows in the hero on phones and tablets, and on desktop with "Show photo"', async ({ page }) => {
+    for (const [w, h] of [[390, 844], [820, 1180]]) {
+      await page.setViewportSize({ width: w, height: h });
+      await page.goto('/');
+      const photo = page.locator('.hero__photo img');
+      await expect(photo).toBeVisible();
+      await expect(photo).toHaveAttribute('alt', /Mann Patel smiling/);
+      await page.waitForFunction(() => (document.querySelector('.hero__photo img') as HTMLImageElement).naturalWidth > 0);
+    }
     await page.setViewportSize({ width: 1440, height: 900 });
-    await expect(page.locator('[data-art-toggle]')).toBeHidden();
+    await page.goto('/');
+    await expect(page.locator('.hero__photo')).toBeHidden();
+    await expect(page.locator('#hero-art')).toHaveClass(/is-ready/, { timeout: 8000 });
+    await page.getByRole('button', { name: 'Show photo' }).click();
+    await expect.poll(() => page.locator('.hp__real').evaluate((e) => getComputedStyle(e).opacity)).toBe('1');
+    await expect(page.locator('section.about img')).toHaveCount(0);
   });
 
   test('without JavaScript, the header links show and content is visible', async ({ browser }) => {
@@ -335,7 +336,7 @@ test.describe('home interactions', () => {
     await page.goto('/');
     await expect(page.locator('.hdr__nav').getByRole('link', { name: 'Services' })).toBeVisible();
     await expect(page.locator('[data-menu-open]')).toBeHidden();
-    await expect(page.locator('.hp__img')).toBeVisible();
+    await expect(page.locator('.hero__photo img')).toBeVisible();
     await ctx.close();
   });
 });
@@ -344,7 +345,7 @@ test.describe('phones: short pages', () => {
   // Screens of 390 × 844. Budgets keep the phone layout from growing back into a long scroll.
   // Case studies: 7 since round 7 added the at-a-glance summary and the tested-behaviour evidence.
   const BUDGET: Record<string, number> = {
-    '/': 10,
+    '/': 10.5, // includes the real photo in the phone hero
     '/services/': 12,
     '/work/': 4.5,
     '/work/nest-and-rest-cleaning/': 7,
