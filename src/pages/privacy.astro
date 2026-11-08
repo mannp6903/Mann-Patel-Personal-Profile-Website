@@ -11,7 +11,7 @@ import PreviewNote from '../components/PreviewNote.astro';
 import { profile } from '../data/site';
 import { PUBLIC_GA4_ID, PUBLIC_TURNSTILE_SITE_KEY } from 'astro:env/client';
 
-const updated = '1 November 2026';
+const updated = '8 November 2026';
 const contactEmail = profile.contact.email;
 ---
 
@@ -29,7 +29,7 @@ const contactEmail = profile.contact.email;
 
       <h2>The short version</h2>
       <ul>
-        <li>The only personal information this site collects is what you type into the project brief form.</li>
+        <li>The only personal information this site collects is what you type into the project brief or the free check form.</li>
         <li>I use it only to reply to you and, if we work together, to run the project.</li>
         <li>I don’t sell it, rent it or add you to a mailing list.</li>
         <li>
@@ -39,19 +39,25 @@ const contactEmail = profile.contact.email;
         </li>
       </ul>
 
-      <h2>What the brief form collects</h2>
+      <h2>What the forms collect</h2>
       <p>
-        Your name and email (required); optionally your business name, website, phone number, budget range and
-        timeframe; the services you tick; and your message. The server also uses your IP address briefly, in memory, to
+        <strong>Project brief:</strong> your name and email (required); optionally your business name, website, phone
+        number, budget range and timeframe; the services you tick; and your message. <strong>Free check:</strong> your
+        name and email (required), your website or business name (one of the two), and an optional note. The server also uses your IP address briefly, in memory, to
         limit repeated submissions, and keeps only a one-way hash of it, in memory, for that purpose. Like most websites, the hosting provider’s standard logs may also record IP addresses for security and troubleshooting. Hidden fields record a time
         check and a random submission number, used to block spam and prevent duplicate messages.
       </p>
 
       <h2>Where it goes</h2>
       <p>
-        When you send the form, the website’s server checks it and emails it to my inbox. Two services handle it on my
-        behalf, only to do that job:
+        <strong>When the form can send directly</strong>, the website’s server checks what you entered and emails it to
+        my inbox; the confirmation you see means the website accepted it and passed it on for delivery.
+        <strong>When direct sending isn’t available</strong>, the form says so before you send. Its button then opens your
+        own email app with your answers filled in (or lets you copy them), and nothing is sent until you send that email
+        yourself: it then goes through your own email provider, under its terms, to my address. The website doesn’t keep
+        a copy either way.
       </p>
+      <p>Two services handle direct sending, and email to my address, on my behalf, only to do that job:</p>
       <ul>
         <li>
           <strong>Cloudflare</strong> hosts this website, runs the code that checks the form, and delivers the email

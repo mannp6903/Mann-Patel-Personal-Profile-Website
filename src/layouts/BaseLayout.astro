@@ -14,6 +14,8 @@ interface Props {
   fullTitle?: string;
   noindex?: boolean;
   ogImage?: string;
+  /** Describes the sharing image (it changes per case study). */
+  ogAlt?: string;
   jsonLd?: Record<string, unknown> | Record<string, unknown>[];
   /** Show the closing call to action in the footer (off on the contact page). */
   footerCta?: boolean;
@@ -21,7 +23,17 @@ interface Props {
   preloadSerif?: boolean;
 }
 
-const { title, description, fullTitle, noindex = false, ogImage = '/og/default.png', jsonLd, footerCta = true, preloadSerif = true } = Astro.props;
+const {
+  title,
+  description,
+  fullTitle,
+  noindex = false,
+  ogImage = '/og/default.png',
+  ogAlt = 'Mann Patel: found, answered, booked. Websites, local search and enquiry follow-up for small businesses in Toronto.',
+  jsonLd,
+  footerCta = true,
+  preloadSerif = true,
+} = Astro.props;
 const pageTitle = fullTitle ?? `${title} · ${profile.name}`;
 const canonical = absoluteUrl(Astro.url.pathname);
 const ogImageUrl = absoluteUrl(ogImage) ?? ogImage;
@@ -53,7 +65,7 @@ const ld = jsonLd ? (Array.isArray(jsonLd) ? jsonLd : [jsonLd]) : [];
     <meta property="og:image" content={ogImageUrl} />
     <meta property="og:image:width" content="1200" />
     <meta property="og:image:height" content="630" />
-    <meta property="og:image:alt" content="Mann Patel: found, answered, booked. Helping small businesses in Toronto." />
+    <meta property="og:image:alt" content={ogAlt} />
     <meta property="og:locale" content="en_CA" />
     {canonical && <meta property="og:url" content={canonical} />}
     <meta name="twitter:card" content="summary_large_image" />

@@ -66,6 +66,13 @@ export function deliveryReady(cfg: DeliveryConfig): { ready: boolean; reason?: s
   }
 }
 
+/** Owner email subject: free checks are marked so they can be filtered in the inbox. */
+export function ownerSubject(lead: Lead): string {
+  const kind = lead.packageId === 'check-up' ? 'Free check request' : 'New enquiry';
+  const who = lead.business || (lead.website ? lead.website.replace(/^https?:\/\//, '').replace(/\/$/, '') : '');
+  return `${kind}: ${lead.name}${who ? ` (${who})` : ''}`;
+}
+
 export function ownerEmailText(lead: Lead): string {
   const services = lead.services.map((s) => labelFor(SERVICE_OPTIONS, s)).join(', ') || '—';
   const lines = [
@@ -83,7 +90,7 @@ export function ownerEmailText(lead: Lead): string {
     `Timeframe: ${lead.timeframe ? labelFor(TIMEFRAME_OPTIONS, lead.timeframe) : '—'}`,
     '',
     'Message:',
-    lead.message,
+    lead.message || '— (none: a free check needs only the website or business name)',
     '',
     lead.lowTrust ? 'Note: sent without the browser time check (JavaScript off or blocked). Check it looks genuine.' : '',
     'Reply to this email to answer the sender directly.',
@@ -198,7 +205,7 @@ export async function deliver(lead: Lead, cfg: DeliveryConfig, deps: DeliveryDep
     try {
       const ok = await sendResend(cfg, deps, {
         to: cfg.toEmail!,
-        subject: `New enquiry: ${lead.name}${lead.business ? ` (${lead.business})` : ''}`,
+        subject: ownerSubject(lead),
         text: ownerEmailText(lead),
         replyTo: lead.email,
         idempotencyKey: `${lead.id}-owner`,
@@ -215,7 +222,7 @@ export async function deliver(lead: Lead, cfg: DeliveryConfig, deps: DeliveryDep
     const send = deps.sendEmail;
     const message = {
       to: cfg.toEmail ?? '',
-      subject: `New enquiry: ${lead.name}${lead.business ? ` (${lead.business})` : ''}`,
+      subject: ownerSubject(lead),
       text: ownerEmailText(lead),
       replyTo: lead.email,
       messageId: `${lead.id}@${(cfg.fromEmail ?? 'website@localhost').replace(/>.*$/, '').split('@').pop()}`,

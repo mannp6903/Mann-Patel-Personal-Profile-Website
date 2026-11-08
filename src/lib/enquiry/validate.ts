@@ -62,8 +62,12 @@ export function toList(v: unknown): string[] {
   return [];
 }
 
+/** The free check only needs something to check (a website, or a business name) and a way to reply. */
+export const CHECK_PACKAGE = 'check-up';
+
 export function validateEnquiry(raw: Record<string, unknown>): ValidationResult {
   const errors: FieldErrors = {};
+  const isCheck = clean(raw.packageId) === CHECK_PACKAGE;
 
   const name = clean(raw.name);
   if (!name) errors.name = 'Please tell me your name.';
@@ -101,7 +105,12 @@ export function validateEnquiry(raw: Record<string, unknown>): ValidationResult 
   if (timeframe && !TIMEFRAME_IDS.includes(timeframe)) errors.timeframe = 'Please choose from the list.';
 
   const message = cleanMultiline(raw.message);
-  if (!message) errors.message = 'Please tell me a little about your business and what you need.';
+  if (isCheck) {
+    // A short note is welcome but optional for the free check.
+    if (message.length > LIMITS.message) errors.message = `Please keep this under ${LIMITS.message} characters.`;
+    if (!website && !business && !errors.website && !errors.business)
+      errors.website = 'Add your website, or your business name if you don’t have a site yet.';
+  } else if (!message) errors.message = 'Please tell me a little about your business and what you need.';
   else if (message.length < LIMITS.messageMin) errors.message = `A little more detail helps. At least ${LIMITS.messageMin} characters, please.`;
   else if (message.length > LIMITS.message) errors.message = `Please keep this under ${LIMITS.message} characters.`;
 

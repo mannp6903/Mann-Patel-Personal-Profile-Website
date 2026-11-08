@@ -1,0 +1,375 @@
+---
+/**
+ * The free Found & Answered check: one short form. It asks only for what the check needs: who to
+ * reply to, and what to check (a website, or the business name when there is no site yet). A note
+ * is optional. Same endpoint, validation, spam checks and duplicate protection as the project brief
+ * (src/lib/enquiry/*); without JavaScript it is an ordinary form that posts and lands on
+ * /contact/received/.
+ */
+import { LIMITS, CHECK_PACKAGE } from '../lib/enquiry/validate';
+import { HONEYPOT_FIELD } from '../lib/enquiry/spam';
+import { checkUp } from '../data/packages';
+import { profile } from '../data/site';
+import Icon from './ui/Icon.astro';
+
+const email = profile.contact.email;
+---
+
+<div class="chk" data-check data-email={email ?? undefined}>
+  <form class="chk__form" id="check-form" action="/api/enquiry/" method="post" data-check-form>
+    <div class="notice notice--warn" data-not-connected hidden role="status">
+      <p>
+        <strong>This form can’t send to my inbox directly yet.</strong>
+        {
+          email ? (
+            <>
+              <b>Email this request</b> opens your email app with your answers filled in, or copy them and write to{' '}
+              <a href={`mailto:${email}`} data-contact="email">{email}</a>.
+            </>
+          ) : (
+            'Please try again later.'
+          )
+        }
+      </p>
+    </div>
+
+    <div class="chk__grid">
+      <div class="field">
+        <label for="c-name">Your name <span class="req" aria-hidden="true">*</span></label>
+        <input class="input" id="c-name" name="name" type="text" autocomplete="name" required maxlength={LIMITS.name} aria-describedby="ce-name" />
+        <p class="error-text" id="ce-name" data-error-for="name"></p>
+      </div>
+      <div class="field">
+        <label for="c-email">Email for my reply <span class="req" aria-hidden="true">*</span></label>
+        <input class="input" id="c-email" name="email" type="email" autocomplete="email" required maxlength={LIMITS.email} aria-describedby="ce-email" />
+        <p class="error-text" id="ce-email" data-error-for="email"></p>
+      </div>
+      <div class="field">
+        <label for="c-website">Your website</label>
+        <input class="input" id="c-website" name="website" type="text" inputmode="url" autocomplete="url" maxlength={LIMITS.website} placeholder="yourbusiness.ca" aria-describedby="ch-what ce-website" />
+        <p class="error-text" id="ce-website" data-error-for="website"></p>
+      </div>
+      <div class="field">
+        <label for="c-business">Or your business name</label>
+        <input class="input" id="c-business" name="business" type="text" autocomplete="organization" maxlength={LIMITS.business} aria-describedby="ch-what ce-business" />
+        <p class="error-text" id="ce-business" data-error-for="business"></p>
+      </div>
+      <p class="hint chk__span" id="ch-what">One of the two is enough: no website yet is fine, I’ll check your Google and Maps listing by name.</p>
+      <div class="field chk__span">
+        <label for="c-message">Anything you’d like me to look at? <span class="opt">Optional</span></label>
+        <textarea class="textarea chk__note" id="c-message" name="message" rows="3" maxlength={LIMITS.message} aria-describedby="ce-message"></textarea>
+        <p class="error-text" id="ce-message" data-error-for="message"></p>
+      </div>
+    </div>
+
+    <input type="hidden" name="packageId" value={CHECK_PACKAGE} />
+    <div class="hp" aria-hidden="true">
+      <label for="c-hp">Leave this field empty</label>
+      <input id="c-hp" type="text" name={HONEYPOT_FIELD} tabindex="-1" autocomplete="off" />
+    </div>
+    <input type="hidden" name="formToken" data-token />
+    <input type="hidden" name="submissionId" data-submission-id />
+
+    <div class="chk__actions">
+      <button class="btn" type="submit" data-submit>
+        <span class="btn__label"><span data-text="Request the free check" data-submit-label>Request the free check</span></span>
+        <span class="btn__icon" aria-hidden="true">
+          <span class="spinner" data-spinner hidden></span>
+          <Icon name="arrow" />
+        </span>
+      </button>
+      <p class="small subtle">
+        You get: {checkUp.includes.length} checks and a short written list of fixes, most important first. Free, no
+        obligation. I use these details only to reply. <a class="link" href="/privacy/">Privacy</a>
+      </p>
+    </div>
+    <div class="notice notice--error" role="alert" tabindex="-1" data-form-error hidden></div>
+    <div class="notice notice--info" role="status" tabindex="-1" data-mail-note hidden></div>
+    <p class="copy-brief" data-copy-wrap hidden>
+      <button class="copy-brief__btn" type="button" data-copy-brief><Icon name="copy" /> Copy my request</button>
+      <span class="small subtle">to paste into any email or message.</span>
+    </p>
+  </form>
+
+  <section class="chk__done" data-success hidden tabindex="-1" aria-labelledby="chk-done-title">
+    <p class="eyebrow">Sent</p>
+    <h3 id="chk-done-title">Thanks, <span data-success-name></span>. Your check request was sent.</h3>
+    <p class="muted">
+      The website accepted it and passed it on for delivery to my inbox. I’ll reply to <span data-success-email></span>
+      with your list of fixes, usually within a few working days.
+    </p>
+    <p class="small subtle">Reference: <span class="num" data-success-id></span></p>
+  </section>
+</div>
+
+<script>
+  import { validateEnquiry, type FieldErrors } from '../lib/enquiry/validate';
+  import { briefMailto, briefText, sendEnquiry, failureText } from '../lib/enquiry/client';
+  import { track, trackOnce } from '../scripts/analytics';
+  import { toast } from '../scripts/motion';
+
+  const root = document.querySelector<HTMLElement>('[data-check]');
+  if (root) {
+    const form = root.querySelector<HTMLFormElement>('[data-check-form]')!;
+    form.noValidate = true;
+    const q = <T extends HTMLElement>(sel: string) => root.querySelector<T>(sel)!;
+    const submit = q<HTMLButtonElement>('[data-submit]');
+    const spinner = q('[data-spinner]');
+    const label = q('[data-submit-label]');
+    const formError = q('[data-form-error]');
+    const mailNote = q('[data-mail-note]');
+    const notConnected = q('[data-not-connected]');
+    const copyWrap = q('[data-copy-wrap]');
+    const tokenInput = q<HTMLInputElement>('[data-token]');
+    const idInput = q<HTMLInputElement>('[data-submission-id]');
+    const success = q('[data-success]');
+    const altEmail = root.dataset.email ?? '';
+    const withEmail = (t: string) => (altEmail ? `${t} You can also email me at ${altEmail}.` : t);
+    const newId = () => (crypto.randomUUID ? crypto.randomUUID() : `${Date.now()}-${Math.random().toString(36).slice(2, 10)}`);
+    idInput.value = newId();
+
+    let mailMode = false;
+    const setLabel = (t: string) => {
+      label.textContent = t;
+      label.dataset.text = t;
+    };
+    const enableMailMode = () => {
+      if (!altEmail) return;
+      mailMode = true;
+      notConnected.hidden = false;
+      copyWrap.hidden = false;
+      setLabel('Email this request');
+    };
+
+    let tokenFetched = false;
+    async function refreshToken() {
+      try {
+        const res = await fetch('/api/enquiry/', { headers: { Accept: 'application/json' }, cache: 'no-store' });
+        if (!res.ok) throw new Error(String(res.status));
+        const data = (await res.json()) as { connected: boolean; token: string | null; reason?: string };
+        tokenInput.value = data.token ?? '';
+        tokenFetched = true;
+        if (!data.connected && data.reason === 'not_configured') enableMailMode();
+      } catch {
+        /* a failed status check never claims the form is disconnected */
+      }
+    }
+    refreshToken();
+
+    const read = () => {
+      const data: Record<string, unknown> = {};
+      for (const [k, v] of new FormData(form).entries()) {
+        if (k === 'services') data.services = [...((data.services as string[]) ?? []), String(v)];
+        else data[k] = String(v);
+      }
+      return data;
+    };
+    const clearErrors = () => {
+      form.querySelectorAll('[aria-invalid="true"]').forEach((el) => el.removeAttribute('aria-invalid'));
+      form.querySelectorAll<HTMLElement>('[data-error-for]').forEach((el) => (el.textContent = ''));
+    };
+    const showErrors = (errors: FieldErrors) => {
+      clearErrors();
+      let first: HTMLElement | null = null;
+      for (const [field, msg] of Object.entries(errors)) {
+        const out = form.querySelector<HTMLElement>(`[data-error-for="${field}"]`);
+        if (out) out.textContent = msg ?? '';
+        const input = form.querySelector<HTMLElement>(`[name="${field}"]`);
+        input?.setAttribute('aria-invalid', 'true');
+        // "Website or business name" marks both boxes.
+        if (field === 'website' && /business name/.test(msg ?? '')) form.querySelector('[name="business"]')?.setAttribute('aria-invalid', 'true');
+        first ??= input;
+      }
+      first?.focus();
+    };
+    form.addEventListener('input', (e) => {
+      const t = e.target as HTMLInputElement;
+      if (t.getAttribute('aria-invalid') !== 'true') return;
+      const res = validateEnquiry(read());
+      if (res.ok || !res.errors[t.name as keyof FieldErrors]) {
+        t.removeAttribute('aria-invalid');
+        const out = form.querySelector<HTMLElement>(`[data-error-for="${t.name}"]`);
+        if (out) out.textContent = '';
+        if (t.name === 'business' || t.name === 'website') {
+          form.querySelectorAll('[name="business"], [name="website"]').forEach((el) => el.removeAttribute('aria-invalid'));
+          const w = form.querySelector<HTMLElement>('[data-error-for="website"]');
+          if (w && (res.ok || !res.errors.website)) w.textContent = '';
+        }
+      }
+    });
+
+    root.querySelector('[data-copy-brief]')?.addEventListener('click', async () => {
+      try {
+        await navigator.clipboard.writeText(briefText(read()));
+        toast('Request copied. Paste it into any email or message.');
+      } catch {
+        toast(withEmail('Copy didn’t work here.'));
+      }
+    });
+
+    const setSending = (on: boolean) => {
+      submit.disabled = on;
+      spinner.hidden = !on;
+      setLabel(on ? 'Sending…' : mailMode ? 'Email this request' : 'Request the free check');
+      form.setAttribute('aria-busy', String(on));
+    };
+    const showFormError = (t: string) => {
+      formError.textContent = t;
+      formError.hidden = false;
+      formError.focus();
+    };
+
+    form.addEventListener('submit', async (e) => {
+      e.preventDefault();
+      if (submit.disabled) return;
+      formError.hidden = true;
+      const data = read();
+      const local = validateEnquiry(data);
+      if (!local.ok) {
+        showErrors(local.errors);
+        return;
+      }
+      clearErrors();
+      if (mailMode) {
+        const href = briefMailto(altEmail, data);
+        form.dataset.mailto = href;
+        mailNote.textContent = `Your email app should open with your request ready to send to ${altEmail}. Nothing is sent until you press send there. If nothing opened, use “Copy my request”.`;
+        mailNote.hidden = false;
+        mailNote.focus();
+        track('email_app_launch', { form_id: 'free_check' });
+        location.href = href;
+        return;
+      }
+      if (!tokenFetched) await refreshToken();
+      data.formToken = tokenInput.value || undefined;
+      setSending(true);
+      const outcome = await sendEnquiry(data);
+      setSending(false);
+      if (outcome.kind === 'accepted') {
+        q('[data-success-name]').textContent = String(data.name).split(' ')[0];
+        q('[data-success-email]').textContent = String(data.email);
+        q('[data-success-id]').textContent = outcome.body.id;
+        form.hidden = true;
+        success.hidden = false;
+        success.focus();
+        trackOnce(outcome.body.id, 'generate_lead', { form_id: 'free_check', lead_source: 'website', starting_point: 'check-up' });
+        idInput.value = newId();
+        return;
+      }
+      if (outcome.kind === 'rejected') {
+        const code = outcome.body.code;
+        if (code === 'validation' && outcome.body.errors) return showErrors(outcome.body.errors as FieldErrors);
+        if (code === 'expired') await refreshToken();
+        if (code === 'not_connected') {
+          enableMailMode();
+          return showFormError('The form isn’t connected yet, so your request wasn’t sent. Press “Email this request” to send the same answers from your email app.');
+        }
+      }
+      copyWrap.hidden = false;
+      showFormError(withEmail(failureText(outcome, 'request')));
+    });
+  }
+</script>
+
+<style>
+  .chk__form {
+    display: grid;
+    gap: var(--s-5);
+  }
+  .chk__grid {
+    display: grid;
+    gap: var(--s-4) var(--s-5);
+  }
+  @media (min-width: 40em) {
+    .chk__grid {
+      grid-template-columns: repeat(2, minmax(0, 1fr));
+    }
+    .chk__span {
+      grid-column: 1 / -1;
+    }
+  }
+  .chk__grid .hint {
+    margin-top: calc(var(--s-2) * -1);
+  }
+  .chk__note {
+    min-height: 6rem;
+  }
+  .opt {
+    margin-left: 0.35em;
+    font-family: var(--font-mono);
+    font-size: 0.7rem;
+    font-weight: 500;
+    letter-spacing: 0.06em;
+    text-transform: uppercase;
+    color: var(--text-3);
+  }
+  .chk__actions {
+    display: grid;
+    gap: var(--s-3);
+    justify-items: start;
+  }
+  .chk__actions .small {
+    max-width: 52ch;
+  }
+  .hp {
+    position: absolute;
+    left: -9999px;
+    width: 1px;
+    height: 1px;
+    overflow: hidden;
+  }
+  .spinner {
+    width: 1.05rem;
+    height: 1.05rem;
+    border-radius: 50%;
+    border: 2px solid currentColor;
+    border-right-color: transparent;
+    animation: spin 0.8s linear infinite;
+  }
+  .spinner:not([hidden]) + :global(.icon) {
+    display: none;
+  }
+  @keyframes spin {
+    to {
+      transform: rotate(360deg);
+    }
+  }
+  .notice--info {
+    color: var(--text);
+    border-color: var(--signal);
+    background: var(--signal-wash);
+  }
+  .copy-brief {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    gap: var(--s-1) var(--s-3);
+  }
+  .copy-brief__btn {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.4em;
+    min-height: var(--tap);
+    border: 0;
+    padding: 0;
+    background: none;
+    color: var(--signal);
+    font: inherit;
+    font-weight: 600;
+    cursor: pointer;
+  }
+  .chk__done {
+    display: grid;
+    gap: var(--s-3);
+    padding: var(--s-6);
+    border: 1px solid var(--signal);
+    border-radius: var(--r-lg);
+    background: var(--signal-wash);
+  }
+  .chk__done h3 {
+    font-size: var(--fs-h3);
+  }
+  .chk__done:focus {
+    outline: none;
+  }
+</style>

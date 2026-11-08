@@ -1,0 +1,132 @@
+---
+/**
+ * What I do, in three short summaries (found → answered → booked). Each links to its full detail
+ * on Services, where every service lists what's included and what isn't. The longer example
+ * screens that used to live here were removed so the real work comes first (round 7).
+ */
+import { groups, addOns } from '../../data/services';
+import Icon from '../ui/Icon.astro';
+---
+
+<section class="ss section section--rule" id="what-i-do" aria-labelledby="ss-title">
+  <div class="container">
+    <div class="ss__head">
+      <p class="eyebrow">What I do</p>
+      <h2 id="ss-title" class="ss__title">Three jobs. <span class="serif">One customer path.</span></h2>
+      <p class="ss__lead muted">
+        Most small businesses lose work in one of three places: they aren’t found, they don’t answer in time, or booking is
+        hard. I start with the one that costs you most.
+      </p>
+    </div>
+
+    <ol class="ss__list" role="list">
+      {
+        groups.map((g) => (
+          <li class="ss__item" id={g.id}>
+            <p class="ss__step">
+              <span class="ss__letter num" aria-hidden="true">
+                {g.letter}
+              </span>
+              <span class="eyebrow eyebrow--plain">{g.verb}</span>
+            </p>
+            <h3 class="ss__name">{g.title}</h3>
+            <p class="muted">{g.intro}</p>
+            <a class="link-arrow" href={`/services/#${g.id}`}>
+              What’s included <span class="visually-hidden">in {g.title}</span>
+              <Icon name="arrow" />
+            </a>
+          </li>
+        ))
+      }
+    </ol>
+
+    <p class="ss__extra small">
+      <span class="subtle">{addOns.title}, as add-ons.</span>
+      <a class="link-arrow" href="/services/">Every service and package <Icon name="arrow" /></a>
+    </p>
+  </div>
+</section>
+
+<style>
+  .ss__head {
+    display: grid;
+    gap: var(--s-4);
+    margin-bottom: clamp(var(--s-6), 4vw, var(--s-8));
+  }
+  .ss__title {
+    font-size: var(--fs-h2);
+    max-width: 16ch;
+  }
+  .ss__lead {
+    font-size: var(--fs-lead);
+    line-height: 1.45;
+    max-width: 52ch;
+  }
+  @media (min-width: 64em) {
+    .ss__head {
+      grid-template-columns: minmax(0, 1.1fr) minmax(0, 1fr);
+      align-items: end;
+      column-gap: var(--s-8);
+    }
+    .ss__head .eyebrow,
+    .ss__title {
+      grid-column: 1;
+    }
+    .ss__lead {
+      grid-column: 2;
+      grid-row: 1 / span 2;
+      align-self: end;
+    }
+  }
+  .ss__list {
+    display: grid;
+    border-top: 1px solid var(--line);
+  }
+  .ss__item {
+    display: grid;
+    align-content: start;
+    gap: var(--s-3);
+    padding-block: var(--s-6);
+    border-bottom: 1px solid var(--line);
+  }
+  @media (min-width: 56em) {
+    .ss__list {
+      grid-template-columns: repeat(3, minmax(0, 1fr));
+      border-bottom: 1px solid var(--line);
+    }
+    .ss__item {
+      padding: var(--s-6) var(--s-6) var(--s-6) 0;
+      border-bottom: 0;
+    }
+    .ss__item + .ss__item {
+      padding-left: var(--s-6);
+      border-left: 1px solid var(--line);
+    }
+  }
+  .ss__step {
+    display: flex;
+    align-items: center;
+    gap: var(--s-3);
+  }
+  .ss__letter {
+    display: grid;
+    place-items: center;
+    width: 2.25rem;
+    height: 2.25rem;
+    border: 1px solid var(--signal);
+    border-radius: 50%;
+    color: var(--signal);
+    font-size: var(--fs-sm);
+  }
+  .ss__name {
+    font-size: var(--fs-h3);
+  }
+  .ss__extra {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    justify-content: space-between;
+    gap: var(--s-2) var(--s-5);
+    margin-top: var(--s-5);
+  }
+</style>

@@ -25,6 +25,22 @@ const work = defineCollection({
     scene: z.enum(['nest-and-rest', 'samp']),
     links: z.array(z.object({ label: z.string(), url: z.url() })).default([]),
     description: z.string(),
+    /** Summary shown on cards and at the top of the case study (round 7). */
+    relationship: z.enum(['Own business', 'Client website']),
+    /** Website status, kept separate from whether the business itself is trading. */
+    websiteStatus: z.string(),
+    businessStatus: z.string().optional(),
+    /** When the status and the tests below were last checked (YYYY-MM-DD). */
+    checked: z.string().regex(/^\d{4}-\d{2}-\d{2}$/),
+    roleShort: z.string(),
+    problem: z.string(),
+    /** Behaviour tested on the real site, with how and the result. Only what was actually run. */
+    verification: z
+      .array(z.object({ behaviour: z.string(), how: z.string(), result: z.string() }))
+      .default([]),
+    limitations: z.array(z.string()).default([]),
+    outcomes: z.string(),
+    nextStep: z.string(),
   }),
 });
 

@@ -386,8 +386,17 @@ export function mountSignalPortrait(fig: HTMLElement) {
     if (!raf && onScreen) raf = requestAnimationFrame(loop);
   };
 
+  // A portrait that starts hidden (phones: the art opens on request) has no size yet; it starts
+  // when it first gets one (see the ResizeObserver below).
+  let starting = false;
+  let started = false;
   const start = async () => {
-    if (!(await build())) return;
+    if (starting || started) return;
+    starting = true;
+    const ok = await build();
+    starting = false;
+    if (!ok) return;
+    started = true;
     if (reduced) {
       fig.classList.add('is-ready');
       draw();
@@ -438,6 +447,10 @@ export function mountSignalPortrait(fig: HTMLElement) {
   new ResizeObserver(() => {
     clearTimeout(resizeTimer);
     resizeTimer = window.setTimeout(() => {
+      if (!started) {
+        if (img.complete && img.naturalWidth) void start();
+        return;
+      }
       if (!lines.length) return;
       const r = canvas.getBoundingClientRect();
       if (Math.abs(r.width - w) < 1 && Math.abs(r.height - h) < 1) return;

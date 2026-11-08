@@ -2,6 +2,7 @@
 import BaseLayout from '../../layouts/BaseLayout.astro';
 import PageHead from '../../components/PageHead.astro';
 import ContactForm from '../../components/ContactForm.astro';
+import CheckForm from '../../components/CheckForm.astro';
 import ContactActions from '../../components/ContactActions.astro';
 import Icon from '../../components/ui/Icon.astro';
 import { contact, emailHref } from '../../lib/contact';
@@ -22,13 +23,34 @@ const description = contact.phone
   <PageHead
     eyebrow="Contact"
     lines={['Tell me about', '<span class="serif serif--signal">your business.</span>']}
-    lead="Two minutes is enough. I read every brief myself and reply by email with questions or a suggested next step."
+    lead="Choose a short project brief or the free check. I read every one myself and reply by email."
   />
 
-  <section class="section contact" aria-label="Project brief and direct contact">
+  <section class="section contact" aria-label="Project brief, free check and direct contact">
     <div class="container contact__grid">
       <div class="contact__form">
-        <ContactForm />
+        <!-- Two ways in. Without JavaScript both forms show, one after the other. -->
+        <nav class="choose" aria-label="What would you like to send?" data-choose>
+          <a class="choose__opt" href="#brief" data-choose-opt="brief" aria-current="true">
+            <b>Project brief</b>
+            <span>About 2 minutes. For a project, a package or a quote.</span>
+          </a>
+          <a class="choose__opt" href="#check" data-choose-opt="check">
+            <b>Free check</b>
+            <span>About 1 minute. Your website or Google listing, checked for free.</span>
+          </a>
+        </nav>
+        <div class="panel" data-panel="brief">
+          <ContactForm />
+        </div>
+        <section class="panel panel--check" id="check" data-panel="check" aria-labelledby="check-title" tabindex="-1">
+          <h2 id="check-title" class="panel__title">Free Found &amp; Answered check</h2>
+          <p class="muted panel__lead">
+            I look you up the way a customer would and send a short written list of fixes, most important first. Tell me
+            where to look; that’s all I need.
+          </p>
+          <CheckForm />
+        </section>
       </div>
 
       <aside class="contact__aside" id="reach" aria-labelledby="reach-title">
@@ -66,7 +88,91 @@ const description = contact.phone
   </section>
 </BaseLayout>
 
+<script>
+  // Show one form at a time. ?package=check-up or #check opens the free check.
+  const nav = document.querySelector<HTMLElement>('[data-choose]');
+  if (nav) {
+    const opts = [...nav.querySelectorAll<HTMLAnchorElement>('[data-choose-opt]')];
+    const panels = [...document.querySelectorAll<HTMLElement>('[data-panel]')];
+    const show = (which: string) => {
+      panels.forEach((p) => (p.hidden = p.dataset.panel !== which));
+      opts.forEach((o) => {
+        if (o.dataset.chooseOpt === which) o.setAttribute('aria-current', 'true');
+        else o.removeAttribute('aria-current');
+      });
+    };
+    const params = new URLSearchParams(location.search);
+    const initial = location.hash === '#check' || params.get('package') === 'check-up' ? 'check' : 'brief';
+    show(initial);
+    // Arriving at #check or #brief: show the choice above the form, so the other option stays visible.
+    if (location.hash === '#check' || location.hash === '#brief') requestAnimationFrame(() => nav.scrollIntoView({ block: 'start' }));
+    opts.forEach((o) =>
+      o.addEventListener('click', (e) => {
+        e.preventDefault();
+        const which = o.dataset.chooseOpt!;
+        show(which);
+        history.replaceState(null, '', `${location.pathname}${location.search}#${which}`);
+      }),
+    );
+  }
+</script>
+
 <style>
+  .choose {
+    display: grid;
+    gap: var(--s-2);
+    margin-bottom: var(--s-6);
+  }
+  @media (min-width: 30em) {
+    .choose {
+      grid-template-columns: 1fr 1fr;
+    }
+  }
+  .choose__opt {
+    display: grid;
+    gap: 0.15rem;
+    padding: var(--s-4) var(--s-5);
+    border: 1px solid var(--control);
+    border-radius: var(--r-md);
+    text-decoration: none;
+    transition: border-color var(--t-fast), background-color var(--t-fast);
+  }
+  .choose__opt b {
+    font-weight: 650;
+  }
+  .choose__opt span {
+    font-size: var(--fs-sm);
+    color: var(--text-2);
+    line-height: 1.4;
+  }
+  .choose__opt:hover {
+    border-color: var(--text-3);
+    background: var(--surface);
+  }
+  .choose__opt[aria-current='true'] {
+    border-color: var(--signal);
+    background: var(--signal-wash);
+    box-shadow: inset 0 0 0 1px var(--signal);
+  }
+  .panel + .panel {
+    margin-top: var(--s-8);
+  }
+  :global(.js) .panel + .panel {
+    margin-top: 0;
+  }
+  .panel--check {
+    display: grid;
+    gap: var(--s-4);
+  }
+  .panel--check:focus {
+    outline: none;
+  }
+  .panel__title {
+    font-size: var(--fs-h3);
+  }
+  .panel__lead {
+    max-width: 56ch;
+  }
   .contact {
     padding-top: var(--s-4);
   }

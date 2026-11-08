@@ -227,6 +227,10 @@ const tick = '<svg viewBox="0 0 16 16"><path d="m3.5 8.5 3 3 6-7" /></svg>';
     </div>
     <div class="notice notice--error" role="alert" tabindex="-1" data-form-error hidden></div>
     <div class="notice notice--info" role="status" tabindex="-1" data-mail-note hidden></div>
+    <p class="copy-brief" data-copy-wrap hidden>
+      <button class="link-arrow copy-brief__btn" type="button" data-copy-brief><Icon name="copy" /> Copy my brief</button>
+      <span class="small subtle">to paste into any email or message.</span>
+    </p>
   </form>
 
   <section class="success" data-success hidden tabindex="-1" aria-labelledby="success-title">
@@ -234,8 +238,8 @@ const tick = '<svg viewBox="0 0 16 16"><path d="m3.5 8.5 3 3 6-7" /></svg>';
       <circle cx="40" cy="40" r="36"></circle>
       <path d="m25 41 10 10 21-23"></path>
     </svg>
-    <p class="eyebrow">Received</p>
-    <h2 id="success-title">Thanks, <span data-success-name></span>. Your brief arrived.</h2>
+    <p class="eyebrow">Sent</p>
+    <h2 id="success-title">Thanks, <span data-success-name></span>. Your brief was sent.</h2>
     <p class="muted" data-success-ack></p>
     <ol class="next" role="list">
       <li><span class="num">01</span> I read every brief myself.</li>
@@ -251,9 +255,10 @@ const tick = '<svg viewBox="0 0 16 16"><path d="m3.5 8.5 3 3 6-7" /></svg>';
 
 <script>
   import { validateEnquiry, LIMITS, type FieldErrors } from '../lib/enquiry/validate';
-  import { SERVICE_OPTIONS, PACKAGE_OPTIONS, BUDGET_OPTIONS, TIMEFRAME_OPTIONS, labelFor } from '../lib/enquiry/options';
+  import { briefMailto, briefText, sendEnquiry, failureText } from '../lib/enquiry/client';
   import { parseAnswers, recommend } from '../lib/guide';
-  import { trackOnce } from '../scripts/analytics';
+  import { track, trackOnce } from '../scripts/analytics';
+  import { toast } from '../scripts/motion';
 
   const root = document.querySelector<HTMLElement>('[data-brief]');
   if (root) {
@@ -329,26 +334,19 @@ const tick = '<svg viewBox="0 0 16 16"><path d="m3.5 8.5 3 3 6-7" /></svg>';
       if (!altEmail) return;
       mailMode = true;
       notConnected.hidden = false;
+      copyWrap.hidden = false;
       setLabel('Email this brief');
     };
-    const briefMailto = (data: Record<string, unknown>) => {
-      const v = (k: string) => String(data[k] ?? '').trim();
-      const services = ((data.services as string[] | undefined) ?? []).map((id) => labelFor(SERVICE_OPTIONS, id));
-      const rows = [
-        ['Name', v('name')],
-        ['Email', v('email')],
-        ['Business', v('business')],
-        ['Website', v('website')],
-        ['Phone', v('phone')],
-        ['Help with', services.join('; ')],
-        ['Starting point', v('packageId') && labelFor(PACKAGE_OPTIONS, v('packageId'))],
-        ['Budget', v('budget') && labelFor(BUDGET_OPTIONS, v('budget'))],
-        ['Timeframe', v('timeframe') && labelFor(TIMEFRAME_OPTIONS, v('timeframe'))],
-      ].filter(([, val]) => val);
-      const body = `${rows.map(([k, val]) => `${k}: ${val}`).join('\n')}\n\n${v('message')}\n`;
-      const subject = `Project brief from ${v('name')}${v('business') ? ` (${v('business')})` : ''}`;
-      return `mailto:${altEmail}?subject=${encodeURIComponent(subject)}&body=${encodeURIComponent(body)}`;
-    };
+    // ── Copy my brief: a way out that never depends on an email app or the network ──
+    const copyWrap = root.querySelector<HTMLElement>('[data-copy-wrap]')!;
+    root.querySelector('[data-copy-brief]')?.addEventListener('click', async () => {
+      try {
+        await navigator.clipboard.writeText(briefText(read()));
+        toast('Brief copied. Paste it into any email or message.');
+      } catch {
+        toast(withEmail('Copy didn’t work here. Select your message and copy it.'));
+      }
+    });
 
     // ── Status + time-check token ──
     // Only a definite answer from the server ("not_configured") shows the not-connected notice.
@@ -527,12 +525,14 @@ const tick = '<svg viewBox="0 0 16 16"><path d="m3.5 8.5 3 3 6-7" /></svg>';
       }
       clearErrors();
       if (mailMode) {
-        const href = briefMailto(data);
+        const href = briefMailto(altEmail, data);
         form.dataset.mailto = href;
-        mailNote.textContent = `Your email app should open with your brief ready to send to ${altEmail}. If nothing opened, write to ${altEmail} and paste your message; your answers are still here.`;
+        mailNote.textContent = `Your email app should open with your brief ready to send to ${altEmail}. Nothing is sent until you press send there. If nothing opened, use “Copy my brief” and email it to ${altEmail}; your answers are still here.`;
         mailNote.hidden = false;
+        copyWrap.hidden = false;
         mailNote.focus();
-        trackOnce(idInput.value, 'generate_lead', { form_id: 'project_brief', lead_source: 'website', method: 'mailto' });
+        // Opening an email app is not an enquiry: it is counted separately from accepted briefs.
+        track('email_app_launch', { form_id: 'project_brief' });
         location.href = href;
         return;
       }
@@ -542,23 +542,16 @@ const tick = '<svg viewBox="0 0 16 16"><path d="m3.5 8.5 3 3 6-7" /></svg>';
       if (turnstile) data['cf-turnstile-response'] = turnstile.value;
 
       setSending(true);
-      let res: Response;
-      let body: any;
-      try {
-        res = await fetch('/api/enquiry/', {
-          method: 'POST',
-          headers: { 'Content-Type': 'application/json', Accept: 'application/json' },
-          body: JSON.stringify(data),
-        });
-        body = await res.json();
-      } catch {
-        setSending(false);
-        showFormError(withEmail('Your brief wasn’t sent: the connection failed. Your answers are still here. Please check your connection and try again.'));
+      const outcome = await sendEnquiry(data);
+      setSending(false);
+      if (outcome.kind === 'timeout' || outcome.kind === 'network') {
+        copyWrap.hidden = false;
+        showFormError(withEmail(failureText(outcome)));
         return;
       }
-      setSending(false);
+      const body: any = outcome.body;
 
-      if (res.ok && body.ok) {
+      if (outcome.kind === 'accepted') {
         const firstName = String(data.name).split(' ')[0];
         root.querySelector('[data-success-name]')!.textContent = firstName;
         root.querySelector('[data-success-id]')!.textContent = body.id;
@@ -567,7 +560,7 @@ const tick = '<svg viewBox="0 0 16 16"><path d="m3.5 8.5 3 3 6-7" /></svg>';
             ? `A confirmation email is on its way to ${data.email}. If it isn’t there in a few minutes, check your spam folder.`
             : body.acknowledgement === 'failed'
               ? `Your brief was received, but the confirmation email couldn’t be sent. I’ll still reply to ${data.email}.`
-              : `I’ll reply to ${data.email}.`;
+              : `The website accepted it and passed it on for delivery to my inbox. I’ll reply to ${data.email}.`;
         form.hidden = true;
         success.hidden = false;
         success.focus();
@@ -604,7 +597,8 @@ const tick = '<svg viewBox="0 0 16 16"><path d="m3.5 8.5 3 3 6-7" /></svg>';
           );
           break;
         default:
-          showFormError(withEmail(body?.message ?? 'Your brief wasn’t sent. Your answers are still here. Please try again.'));
+          copyWrap.hidden = false;
+          showFormError(withEmail(failureText(outcome)));
       }
     });
   }
@@ -924,6 +918,21 @@ const tick = '<svg viewBox="0 0 16 16"><path d="m3.5 8.5 3 3 6-7" /></svg>';
     color: var(--text);
     border-color: var(--signal);
     background: var(--signal-wash);
+  }
+  .copy-brief {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    gap: var(--s-1) var(--s-3);
+  }
+  .copy-brief__btn {
+    border: 0;
+    padding: 0;
+    background: none;
+    color: var(--signal);
+    font: inherit;
+    font-weight: 600;
+    cursor: pointer;
   }
   .error-summary {
     padding: var(--s-5);

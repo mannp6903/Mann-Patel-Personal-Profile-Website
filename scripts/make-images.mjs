@@ -35,7 +35,7 @@ canvas{position:absolute;right:40px;bottom:0;width:470px;height:496px}
 <div class="copy">
 <p class="label"><i></i>Mann Patel · Toronto, Canada</p>
 <h1>Found.<br>Answered.<br><em>Booked.</em></h1>
-<div><p class="sub">I help small businesses in Toronto and the GTA get all three.</p><p class="url">mannpatel.me</p></div>
+<div><p class="sub">Websites, local search and enquiry follow-up for small businesses in Toronto and the GTA.</p><p class="url">mannpatel.me</p></div>
 </div>
 <canvas id="c" width="940" height="992"></canvas>
 <img id="src" src="data:image/png;base64,${cutout}" style="display:none">

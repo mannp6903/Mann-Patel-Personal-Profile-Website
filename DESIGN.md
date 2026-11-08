@@ -1,4 +1,4 @@
-# DESIGN.md · "Signal" (round 5, Nov 2026) + "Live Signal" motion layer (round 6)
+# DESIGN.md · "Signal" (round 5, Nov 2026), compact editorial portfolio (round 7)
 
 The design system for mannpatel.me. Every page uses these tokens through the CSS variables in
 `src/styles/tokens.css`; components never use raw colours or one-off sizes.
@@ -78,21 +78,23 @@ Content width `--container` 90rem with `--gutter` 1 → 3rem; text `--measure` 6
 desktop, one column on phones. Layouts alternate (split, full-bleed, sticky, list) so no two sections
 in a row look the same.
 
-**Phones (under 48em) stay short.** A client should get the whole story in a few thumb-flicks, so
-groups of cards never stack into a long column:
+**Home order (round 7).** Compact hero (outcome headline + service descriptor, two actions) →
+**selected work** (both projects) → three service summaries → free check → how I work → questions →
+closing call to action. Real work starts by y≈930 at 1440×1000 and y≈910 at 390×844 (tested).
 
-- **Swipe rails** (`.rail` + `data-rail`): a row of cards that scrolls sideways with snap points,
-  the next card peeking at the edge and dots underneath (`.rail-dots`, lime for the current card).
-  Used for the work cards, house rules, packages, the five project steps, About chapters and rules,
-  and the decisions and captures on case studies. A rail with no links inside gets a tab stop only
-  while it scrolls, so it can be moved with the arrow keys.
-- **Tabs** for the three service areas on Home (ARIA tabs, arrow keys, phones and tablets only).
+**Phones (under 48em) stay short.** A client should get the whole story in a few thumb-flicks:
+
+- **Both projects are always in the normal reading order** (stacked cards, never a sideways rail),
+  so neither can be missed. The large portrait art opens on request; the first screen has a small photo.
+- **Swipe rails** (`.rail` + `data-rail`) for secondary groups: house rules, packages, the five
+  project steps, About chapters, and the close-ups and captures on case studies. Snap points, the
+  next card peeking, dots underneath. A rail with no links gets a tab stop only while it scrolls.
 - **Folds**: long question lists show five questions and a "Show all" button; case-study write-ups
-  show their opening and "Read the full case study". Keyboard focus moving into folded text opens it,
-  and without JavaScript everything is shown.
+  show their opening and "Read the full case study"; case-study evidence previews its first check.
+  Keyboard focus moving into folded text opens it, and without JavaScript everything is shown.
 - Smaller section padding, one line per service until it is opened, and a compact footer.
 - Budgets (in 390 × 844 screens) are tested in `tests/e2e/site.spec.ts`: Home 10, Services 12,
-  case studies and About 6.5, Work 4.5, Contact 3.5.
+  case studies 7 (they carry the evidence section), About 6.5, Work 4.5, Contact 3.5.
 
 ## Shape and depth
 
@@ -135,29 +137,37 @@ shadow only: `--shadow-pop` for floating layers (menu, ⌘K palette, toast).
 | `--t-fast` / `--t-base` / `--t-slow` / `--t-reveal` | 160 / 320 / 700 / 1100 ms |
 
 Signature moments: the signal-line portrait (Mann's face drawn by ~120 oscillating scan lines that
-trace in on load and swell and glow lime around the pointer), kinetic
-hero words (width and weight animate in), headings revealed line by line, the phone that changes
-screen as you scroll, project cards that stack, a timeline that draws itself, and the footer name.
-Everything is off under `prefers-reduced-motion`; content never waits on JavaScript.
+trace in on load and swell and glow lime around the pointer), kinetic hero words (width and weight
+animate in), headings revealed line by line, the process line that draws itself on Services, and the
+footer name. Everything is off under `prefers-reduced-motion`; content never waits on JavaScript.
 
-## Live Signal: the effects layer (round 6)
+## Effects layer (round 6, pared back in round 7)
 
-Everything below lives in `src/scripts/fx/` and `src/components/fx/`, is progressive enhancement
-(the page is complete without it), never delays the first paint, and is **off under reduced motion**.
-Pointer effects run only for a mouse or trackpad (`hover: hover` and `pointer: fine`).
+`src/scripts/fx/` and `src/components/fx/`. Progressive enhancement only: the page is complete
+without it, it never delays the first paint, reduced motion turns it off, and pointer effects run
+only for a mouse or trackpad. Round 7 kept one effect per job, after the audit asked for restraint.
 
-| Component | Where | Behaviour |
+| Kept | Where | Behaviour |
 | --- | --- | --- |
-| **Signal field** (`Field.astro`, `field.ts`) | Home hero, every page head, About, footer call to action, 404 | A WebGL dot map. A slow domain-warped noise "carrier" brightens dots and lays a faint lime aurora toward a focus point (`--fx`/`--fy` in CSS, per breakpoint). Dots swell and turn lime near the pointer; a click or tap sends a **radar ping**. Static CSS dots without WebGL, on CPU-only renderers, or with reduced motion. Time runs during the intro and while someone interacts, then eases to a stop. |
-| **Cursor follower** (`cursor.ts`) | Site-wide | A ring trails the real cursor (which stays visible), grows over links, and becomes a lime disc with a word over `[data-cursor="Open"]` (work rows). |
-| **Magnetic buttons** (`pointer.ts`) | `.btn`, `.icon-btn`, quick-menu and menu buttons | Lean toward the pointer (arrow disc a little more) and spring back. Uses the `translate` property so it composes with hover/press. |
-| **Spotlight panels** | `[data-spotlight]`: work cards and rows, packages, contact panels | A lime light and a lit 1 px border follow the pointer (one masked layer under the content). |
-| **3D tilt + glare** | `[data-tilt]`: project media | Up to 7° toward the pointer with a moving glare. |
-| **Decoding labels** (`text.ts`) | Every mono `.eyebrow`, `[data-scramble]` | Letters cycle through signal glyphs and lock in left to right on arrival. Screen readers get the real text throughout. |
-| **Scroll-lit statements** | `[data-scrub]` | Words light from `--text-3` (AA) to `--text` as you scroll through. |
-| **Scroll marquee** (`Marquee.astro`, `marquee.ts`) | Home, after the hero | Giant "Found. Answered. Booked." (solid, outline, lime serif) and a mono services row, moving in opposite directions **only while the page scrolls**, leaning with scroll speed. Hidden from assistive tech. |
-| **Reading line** | Header | A 2 px lime line tracks scroll progress (CSS scroll timeline, no JS). |
-| **Page transitions** | Between pages | The old page recedes and dims while the new one wipes up; the header holds still (`view-transition-name: site-header`). |
-| **Image reveals** | Case-study close-ups and captures | Frames open from an inset and the image settles from 1.16× (CSS view timeline, no JS). |
-| **Load-time intros** | First screen of every page | `data-reveal="load"` / `Heading load` / `data-reveal="load-media"` animate in CSS from first paint, so they never wait for a script (fast LCP). |
+| **Signal field** (`Field.astro`, `field.ts`) | Home hero, 404 | WebGL dot map with a faint aurora toward the portrait; dots swell near the pointer; a click or tap sends a radar ping. Static CSS dots without a GPU or with reduced motion. Time stops a few seconds after the last interaction. |
+| **Magnetic buttons** (`pointer.ts`) | `.btn`, `.icon-btn`, menu buttons | Lean toward the pointer and spring back (CSS `translate`). |
+| **Spotlight** | `[data-spotlight]`: project cards, work rows, packages, contact panels | A soft light and a lit border follow the pointer. |
+| **Decoding** (`text.ts`) | `[data-scramble]` only: the hero coordinates | Glyphs lock in left to right; screen readers get the real text. |
+| **Reading line** | Header | 2 px lime scroll progress (CSS scroll timeline). |
+| **Page transitions** | Between pages | Old page recedes, new one wipes up, header holds still. |
+| **Image reveals** | Case-study close-ups and captures | Frames open as they scroll in (CSS view timeline). |
+| **Load-time intros** | First screen of every page | CSS from first paint (`data-reveal="load"`, `Heading load`), never waiting for a script. |
 
+**Removed in round 7:** the scroll marquee, the cursor follower, 3D tilt, word-by-word scroll
+lighting, decoding on every label, and the dot field behind page titles and the footer.
+
+## Components added in round 7
+
+| Component | States | File |
+| --- | --- | --- |
+| Selected-work card: relationship, website status (kept apart from business status), problem, role, date checked | default, hover, focus | `components/home/SelectedWork.astro` |
+| Service summary (three, linking to Services) | links: hover/focus | `components/home/ServiceSummary.astro` |
+| Free-check form: name, email, website **or** business name, optional note | idle, invalid, sending, sent, not connected (email app + copy), failed (copy) | `components/CheckForm.astro` |
+| Brief / free-check chooser | `aria-current` on the chosen form | `pages/contact/index.astro` |
+| Case study: at a glance, evidence table (stacked on phones with explicit table roles), limitations, outcomes, next step | folded preview on phones | `pages/work/[id].astro` |
+| Package comparison table | scrollable labelled region on narrow screens | `pages/services.astro` |

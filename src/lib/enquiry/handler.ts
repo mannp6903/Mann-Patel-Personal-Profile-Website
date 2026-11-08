@@ -89,7 +89,8 @@ export async function handleEnquiry(
   }
 
   const ipKey = await sha256Hex(`ip:${ctx.ip}`);
-  const contentKey = await sha256Hex(`c:${enquiry.email}:${enquiry.message}`);
+  // Same person, same request: a free check has no required message, so what to check is part of the key.
+  const contentKey = await sha256Hex(`c:${enquiry.email}:${enquiry.packageId}:${enquiry.website}:${enquiry.business}:${enquiry.message}`);
   const submissionKey = typeof body.submissionId === 'string' && SUBMISSION_ID.test(body.submissionId) ? `s:${body.submissionId}` : null;
 
   // Duplicate submit (double-click, retry after a slow network, back-button resend).

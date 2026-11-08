@@ -5,7 +5,6 @@ import Heading from '../components/ui/Heading.astro';
 import Button from '../components/ui/Button.astro';
 import Icon from '../components/ui/Icon.astro';
 import ContactActions from '../components/ContactActions.astro';
-import Field from '../components/fx/Field.astro';
 import { profile, businesses, social } from '../data/site';
 import { personJsonLd } from '../lib/seo';
 
@@ -60,8 +59,7 @@ const jsonLd = { '@context': 'https://schema.org', '@type': 'AboutPage', mainEnt
   description="Mann Patel’s story, from Palana in Gujarat to Toronto: founder of Nest & Rest Cleaning, helping small businesses in Toronto and the GTA get found on Google, answer every enquiry and get booked."
   jsonLd={jsonLd}
 >
-  <header class="ab-head" data-field-zone>
-    <Field preset="head" class="ab-field" />
+  <header class="ab-head">
     <div class="container ab-head__grid">
       <div class="ab-head__text">
         <p class="eyebrow">About</p>
@@ -77,6 +75,7 @@ const jsonLd = { '@context': 'https://schema.org', '@type': 'AboutPage', mainEnt
           visits into bookings.
         </p>
         <div class="ab-reach" data-reveal="load" style="--d:300">
+          <a class="link-arrow" href="#story">My story, from Palana to Toronto <Icon name="arrow-down" /></a>
           <ContactActions label="Say hello" />
           {
             links.length > 0 && (
@@ -112,7 +111,41 @@ const jsonLd = { '@context': 'https://schema.org', '@type': 'AboutPage', mainEnt
     </div>
   </header>
 
-  <section class="section section--rule" aria-labelledby="story-title">
+  <section class="section section--alt section--rule" aria-labelledby="principles-title">
+    <div class="container">
+      <div class="section-head">
+        <p class="eyebrow">How I work</p>
+        <Heading id="principles-title" lines={['Four', '<span class="serif">house rules.</span>']} />
+      </div>
+      <ol class="rules rail" role="list" aria-label="House rules" data-rail>
+        {
+          principles.map((p, i) => (
+            <li data-reveal style={`--d:${i * 80}`}>
+              <span class="rules__n" aria-hidden="true">
+                {String(i + 1).padStart(2, '0')}
+              </span>
+              <h3>{p.title}</h3>
+              <p class="muted">{p.text}</p>
+            </li>
+          ))
+        }
+      </ol>
+    </div>
+  </section>
+
+  <section class="section" aria-labelledby="vision-title">
+    <div class="container vision">
+      <p class="eyebrow">Where I’m going</p>
+      <Heading id="vision-title" lines={['Foundations done properly,', '<span class="serif">explained clearly.</span>']} />
+      <p class="lead vision__lead" data-reveal>
+        My aim is to be the person Toronto’s small-business owners call when they want their Google presence, website and
+        follow-up set up properly and explained in plain language, while I grow {nest.name} into a business that proves those
+        foundations work.
+      </p>
+    </div>
+  </section>
+
+  <section class="section section--rule" id="story" aria-labelledby="story-title">
     <div class="container story">
       <div class="story__head">
         <p class="eyebrow">My story</p>
@@ -155,40 +188,6 @@ const jsonLd = { '@context': 'https://schema.org', '@type': 'AboutPage', mainEnt
     </div>
   </section>
 
-  <section class="section section--alt" aria-labelledby="principles-title">
-    <div class="container">
-      <div class="section-head">
-        <p class="eyebrow">How I work</p>
-        <Heading id="principles-title" lines={['Four', '<span class="serif">house rules.</span>']} />
-      </div>
-      <ol class="rules rail" role="list" aria-label="House rules" data-rail>
-        {
-          principles.map((p, i) => (
-            <li data-reveal style={`--d:${i * 80}`}>
-              <span class="rules__n" aria-hidden="true">
-                {String(i + 1).padStart(2, '0')}
-              </span>
-              <h3>{p.title}</h3>
-              <p class="muted">{p.text}</p>
-            </li>
-          ))
-        }
-      </ol>
-    </div>
-  </section>
-
-  <section class="section" aria-labelledby="vision-title">
-    <div class="container vision">
-      <p class="eyebrow">Where I’m going</p>
-      <Heading id="vision-title" lines={['Foundations done properly,', '<span class="serif">explained clearly.</span>']} />
-      <p class="lead vision__lead" data-reveal data-scrub>
-        My aim is to be the person Toronto’s small-business owners call when they want their Google presence, website and
-        follow-up set up properly and explained in plain language, while I grow {nest.name} into a business that proves those
-        foundations work.
-      </p>
-    </div>
-  </section>
-
   <section class="section section--rule" id="businesses" aria-labelledby="biz-title">
     <div class="container biz">
       <div class="stack" style="--stack: var(--s-4)">
@@ -210,21 +209,7 @@ const jsonLd = { '@context': 'https://schema.org', '@type': 'AboutPage', mainEnt
     overflow: clip;
     padding-block: clamp(var(--s-6), 6vw, var(--s-9)) var(--section);
   }
-  /* Signal dots around the photo (behind the text column they fade out). */
-  .ab-head :global(.ab-field) {
-    --fx: 80%;
-    --fy: 45%;
-    --fw: 55%;
-    --fh: 90%;
-  }
-  @media (max-width: 63.99em) {
-    .ab-head :global(.ab-field) {
-      --fx: 50%;
-      --fy: 78%;
-      --fw: 100%;
-      --fh: 45%;
-    }
-  }
+
   .ab-head__grid {
     display: grid;
     gap: var(--s-7);

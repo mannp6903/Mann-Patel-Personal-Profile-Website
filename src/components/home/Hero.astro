@@ -1,19 +1,17 @@
 ---
 /**
- * Home hero. The H1 is the promise in three words plus one plain sentence. The words stretch
- * into place (variable-font width), so the heading is never hidden while it animates.
- * The portrait is drawn as a live signal (scan lines, src/scripts/signal-portrait.ts) over the
- * real cut-out photo. On phones a small round photo sits beside the name, so the first screen
- * has a face.
+ * Home hero (round 7: compact). The H1 is the outcome in three words plus the service descriptor.
+ * Two actions with different jobs: Start a project (main) and See selected work (the next
+ * section). The portrait is drawn as a live signal (src/scripts/signal-portrait.ts) on wide
+ * screens; on phones and tablets the first screen shows a small round photo and the larger
+ * portrait art opens on request, so the real work comes sooner.
  */
 import { Image } from 'astro:assets';
 import cutout from '../../assets/mann-patel-cutout.png';
 import face from '../../assets/mann-patel-face.jpg';
-import { groups } from '../../data/services';
 import { profile } from '../../data/site';
 import Button from '../ui/Button.astro';
 import ContactActions from '../ContactActions.astro';
-import Icon from '../ui/Icon.astro';
 import Field from '../fx/Field.astro';
 ---
 
@@ -30,24 +28,28 @@ import Field from '../fx/Field.astro';
       <span class="hw" style="--i:0">Found.</span>
       <span class="hw" style="--i:1">Answered.</span>
       <span class="hw hw--serif" style="--i:2">Booked.</span>
-      <span class="hero__sub">I help small businesses in Toronto and the GTA get all three.</span>
+      <span class="hero__sub">Websites, local search and enquiry follow-up for small businesses in Toronto and the GTA.</span>
     </h1>
 
     <div class="hero__copy">
       <p class="hero__lead">
-        Your Google profile and real reviews, a quick reply to every call and message, and a website with a
-        book-or-quote button on every page. Set up by me, owned by you.
+        I build websites, set up your Google and Maps listing, and connect calls, forms and messages so every enquiry gets an
+        answer. Set up by me, owned by you.
       </p>
       <div class="hero__actions">
         <div class="btn-row">
           <Button href="/contact/">Start a project</Button>
-          <Button href="/contact/?package=check-up#brief" variant="ghost">Get the free check</Button>
+          <Button href="#work" variant="ghost" icon="arrow-down">See selected work</Button>
         </div>
         <ContactActions compact label="Or reach me directly" class="hero__reach" />
+        <button class="hero__art-btn" type="button" aria-expanded="false" aria-controls="hero-art" data-art-toggle>
+          <span class="hero__art-dot" aria-hidden="true"></span>
+          <span data-art-label>Show portrait art</span>
+        </button>
       </div>
     </div>
 
-    <figure class="hero__portrait" data-portrait>
+    <figure class="hero__portrait" id="hero-art" data-portrait>
       <div class="hp__stage">
         <Image
           src={cutout}
@@ -76,27 +78,25 @@ import Field from '../fx/Field.astro';
     </figure>
   </div>
 
-  <nav class="hero__index container" aria-label="What I help with">
-    <ol role="list">
-      {
-        groups.map((g, i) => (
-          <li data-reveal style={`--d:${500 + i * 90}`}>
-            <a href={`#${g.id}`}>
-              <span class="hi__letter num">{g.letter}</span>
-              <span class="hi__verb">{g.verb}</span>
-              <span class="hi__title subtle">{g.title}</span>
-              <Icon name="arrow-down" />
-            </a>
-          </li>
-        ))
-      }
-    </ol>
-  </nav>
 </section>
 
 <script>
   import { mountSignalPortrait } from '../../scripts/signal-portrait';
   document.querySelectorAll<HTMLElement>('[data-portrait]').forEach(mountSignalPortrait);
+
+  // Phones and tablets: the portrait art is optional, so the work comes sooner.
+  const hero = document.querySelector<HTMLElement>('.hero');
+  const btn = hero?.querySelector<HTMLButtonElement>('[data-art-toggle]');
+  if (hero && btn) {
+    const label = btn.querySelector<HTMLElement>('[data-art-label]')!;
+    btn.addEventListener('click', () => {
+      const open = !hero.classList.contains('is-art');
+      hero.classList.toggle('is-art', open);
+      btn.setAttribute('aria-expanded', String(open));
+      label.textContent = open ? 'Hide portrait art' : 'Show portrait art';
+      if (open) document.getElementById('hero-art')?.scrollIntoView({ block: 'nearest', behavior: matchMedia('(prefers-reduced-motion: reduce)').matches ? 'auto' : 'smooth' });
+    });
+  }
 </script>
 
 <style>
@@ -383,95 +383,52 @@ import Field from '../fx/Field.astro';
     background: var(--on-signal);
   }
 
-  /* ── Index strip ── */
-  .hero__index {
-    position: relative;
-    z-index: 2;
-    margin-top: var(--s-7);
+  /* ── Portrait art on phones and tablets: optional, behind a button (with JavaScript) ── */
+  .hero__art-btn {
+    justify-self: start;
+    display: inline-flex;
+    align-items: center;
+    gap: 0.6rem;
+    min-height: var(--tap);
+    padding: 0 1rem 0 0.8rem;
+    border: 1px solid var(--line);
+    border-radius: var(--r-pill);
+    background: transparent;
+    color: var(--text-2);
+    font-size: 0.875rem;
+    font-weight: 560;
   }
-  /* Phones: the A · B · C tabs in the next section do this job. */
-  @media (max-width: 39.99em) {
-    .hero__index {
+  .hero__art-btn:hover {
+    border-color: var(--control);
+    color: var(--text);
+  }
+  .hero__art-dot {
+    width: 0.5rem;
+    height: 0.5rem;
+    border-radius: 50%;
+    background: var(--signal);
+  }
+  @media (max-width: 63.99em) {
+    :global(.js) .hero__portrait {
       display: none;
     }
-    /* The header's Contact button and the footer already carry direct contact on phones. */
+    :global(.js) .hero:global(.is-art) .hero__portrait {
+      display: block;
+    }
+  }
+  /* Shown from the first paint when JavaScript runs (no layout shift), never without it. */
+  :global(html:not(.js)) .hero__art-btn {
+    display: none;
+  }
+  @media (min-width: 64em) {
+    .hero__art-btn {
+      display: none;
+    }
+  }
+  /* Phones: the header's Contact button and the footer already carry direct contact. */
+  @media (max-width: 39.99em) {
     .hero__actions :global(.hero__reach) {
       display: none;
-    }
-  }
-  .hero__index ol {
-    display: grid;
-    border-top: 1px solid var(--line);
-  }
-  .hero__index li + li {
-    border-top: 1px solid var(--line);
-  }
-  .hero__index a {
-    display: grid;
-    grid-template-columns: 2.5rem 1fr auto;
-    align-items: center;
-    gap: var(--s-2) var(--s-4);
-    min-height: 4rem;
-    padding-block: var(--s-3);
-    text-decoration: none;
-  }
-  .hi__letter {
-    font-size: var(--fs-xs);
-    color: var(--signal);
-  }
-  .hi__verb {
-    font-weight: 640;
-    font-stretch: 110%;
-    letter-spacing: -0.01em;
-  }
-  .hi__title {
-    display: none;
-    font-size: var(--fs-sm);
-  }
-  .hero__index .icon {
-    color: var(--text-3);
-    transition: transform var(--t-base) var(--ease-out), color var(--t-fast);
-  }
-  .hero__index a:hover .icon {
-    transform: translateY(3px);
-    color: var(--signal);
-  }
-  .hero__index a:hover .hi__verb {
-    color: var(--signal);
-  }
-
-  @media (min-width: 40em) {
-    .hero__index ol {
-      grid-template-columns: repeat(3, 1fr);
-      border-top: 0;
-    }
-    .hero__index li,
-    .hero__index li + li {
-      border-top: 1px solid var(--line);
-    }
-    .hero__index li + li {
-      border-left: 1px solid var(--line);
-      padding-left: var(--s-5);
-    }
-    .hero__index a {
-      grid-template-columns: 2rem 1fr auto;
-      grid-template-areas: 'l v i' 'l t i';
-      padding-block: var(--s-5);
-    }
-    .hi__letter {
-      grid-area: l;
-      align-self: start;
-      padding-top: 0.2em;
-    }
-    .hi__verb {
-      grid-area: v;
-    }
-    .hi__title {
-      display: block;
-      grid-area: t;
-    }
-    .hero__index .icon {
-      grid-area: i;
     }
   }
 
@@ -482,13 +439,7 @@ import Field from '../fx/Field.astro';
       --fw: 62%;
       --fh: 90%;
     }
-    .hero {
-      min-height: calc(100svh - var(--header-h));
-      display: flex;
-      flex-direction: column;
-    }
     .hero__inner {
-      flex: 1;
       grid-template-columns: repeat(12, minmax(0, 1fr));
       grid-template-rows: auto auto 1fr;
       column-gap: var(--s-5);
@@ -506,7 +457,7 @@ import Field from '../fx/Field.astro';
       grid-template-columns: auto minmax(0, 1fr);
       column-gap: var(--s-6);
       align-items: end;
-      font-size: clamp(3.4rem, 0.9rem + 8.3vw, 9.75rem);
+      font-size: clamp(3.4rem, 0.75rem + 6.3vw, 7.5rem);
     }
     .hw:not(.hw--serif) {
       grid-column: 1 / -1;
@@ -531,10 +482,7 @@ import Field from '../fx/Field.astro';
       grid-row: 2 / 4;
       align-self: end;
       justify-self: end;
-      max-width: 38rem;
-    }
-    .hero__index {
-      margin-top: var(--s-6);
+      max-width: 34rem;
     }
     .hero__actions {
       gap: var(--s-4);
@@ -542,7 +490,7 @@ import Field from '../fx/Field.astro';
   }
   @media (min-width: 64em) and (max-height: 760px) {
     .hero__title {
-      font-size: clamp(3.4rem, 1.2rem + 7.4vw, 8.5rem);
+      font-size: clamp(3.4rem, 1rem + 5.4vw, 6.5rem);
     }
   }
 </style>

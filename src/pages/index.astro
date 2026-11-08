@@ -1,12 +1,11 @@
 ---
 import BaseLayout from '../layouts/BaseLayout.astro';
 import Hero from '../components/home/Hero.astro';
-import Path from '../components/home/Path.astro';
-import WorkStack from '../components/home/WorkStack.astro';
+import SelectedWork from '../components/home/SelectedWork.astro';
+import ServiceSummary from '../components/home/ServiceSummary.astro';
 import FreeCheck from '../components/home/FreeCheck.astro';
 import AboutTeaser from '../components/home/AboutTeaser.astro';
 import Faq from '../components/Faq.astro';
-import Marquee from '../components/fx/Marquee.astro';
 import { personJsonLd, servicesJsonLd } from '../lib/seo';
 import { absoluteUrl } from '../lib/mode';
 
@@ -18,19 +17,19 @@ const jsonLd = {
 };
 ---
 
+<!--
+  Round 7 order (audit 8 Nov 2026): a compact hero, the real work straight after it, then three
+  short service summaries, the free check, how I work, questions and the closing call to action.
+-->
 <BaseLayout
   title="Home"
-  fullTitle="Mann Patel · Get found, answer every enquiry, get booked · Toronto small businesses"
-  description="Mann Patel helps small businesses in Toronto and the GTA get found and chosen on Google, answer every call and message, and turn website visits into bookings. Free Found & Answered check."
+  fullTitle="Mann Patel · Websites, local search and enquiry follow-up · Toronto small businesses"
+  description="Mann Patel builds websites, sets up Google and Maps listings, and connects calls, forms and messages so small businesses in Toronto and the GTA get found, answer every enquiry and get booked. See real projects and request a free check."
   jsonLd={[jsonLd, servicesJsonLd()]}
 >
   <Hero />
-  <Marquee
-    words={['Found.', 'Answered.', 'Booked.']}
-    tags={['Google Business Profile', 'Real reviews', 'Missed-call text-back', 'One enquiry list', 'Online booking', 'Websites that book work', 'Toronto & the GTA']}
-  />
-  <Path />
-  <WorkStack />
+  <SelectedWork />
+  <ServiceSummary />
   <FreeCheck />
   <AboutTeaser />
   <Faq limit={4} more />

@@ -11,16 +11,14 @@ interface Props {
   eager?: boolean;
   /** The desktop image carries the alt text; the phone is decorative here. */
   sizes?: string;
-  /** Lean toward the pointer in 3D (src/scripts/fx/pointer.ts). */
-  tilt?: boolean;
 }
-const { scene, eager = false, sizes = '(min-width: 64em) 44rem, 92vw', tilt = false } = Astro.props;
+const { scene, eager = false, sizes = '(min-width: 64em) 44rem, 92vw' } = Astro.props;
 const c = captures[scene];
 const host = new URL(c.url).host;
 const loading = eager ? 'eager' : 'lazy';
 ---
 
-<div class="pm" style={`--tint:${c.tint}`} data-tilt={tilt ? '' : undefined}>
+<div class="pm" style={`--tint:${c.tint}`}>
   <div class="pm__desk">
     <span class="pm__bar" aria-hidden="true"><i></i><i></i><i></i><b>{host}</b></span>
     <Image

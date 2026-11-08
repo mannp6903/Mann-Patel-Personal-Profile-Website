@@ -61,7 +61,10 @@ Optional durable record: a Google Sheet + Apps Script web app (`ENQUIRY_WEBHOOK_
 | Event | When | Parameters | Notes |
 | --- | --- | --- | --- |
 | `page_view` | automatic | — | Covers case-study views |
-| `generate_lead` (recommended) | after the server **accepts** a brief | `form_id: project_brief`, `lead_source: website`, `service_count`, `starting_point` | Fired once per lead id (sessionStorage guard). Never contains names, emails or message text. |
+| `generate_lead` (recommended) | only after the server **accepts** a brief or a free-check request | `form_id: project_brief` or `free_check`, `lead_source: website`, `service_count`, `starting_point` | Fired once per lead id (sessionStorage guard). Never contains names, emails or message text. This is the only lead event. |
+| `email_app_launch` (custom) | the visitor presses “Email this brief / request” while direct sending is off | `form_id` | Opening an email app is **not** a lead: nothing has been sent yet (round 7). |
+| `cta_click` (custom) | click on a link to the contact page | `cta: start_project` or `free_check`, `location` (header, footer or section id) | A click, not a qualified lead. |
+| `select_content` | click on a link to a case study | `content_type: project`, `content_id`, `location` | Case-study page views are also counted by `page_view`. |
 | `select_content` (recommended) | guide recommendation shown | `content_type: service_guide_result`, `content_id: <package>` | |
 | `select_content` | first interaction with the workflow demo | `content_type: workflow_demo` | |
 | `contact_click` (custom) | click on email/phone/WhatsApp links | `method` | Only once these contact details exist |

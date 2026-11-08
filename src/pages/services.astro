@@ -12,6 +12,7 @@ import { groups, servicesInGroup, addOns, type ServiceGroup } from '../data/serv
 import { packages } from '../data/packages';
 import { faqs } from '../data/faqs';
 import { servicesJsonLd } from '../lib/seo';
+import { SERVICE_OPTIONS, labelFor } from '../lib/enquiry/options';
 
 const faqLd = {
   '@context': 'https://schema.org',
@@ -202,6 +203,56 @@ const jump = [
           ))
         }
       </ol>
+
+      <!-- Side by side: who each package is for, what it covers, what it leaves out, and the next step. -->
+      <div class="cmp">
+        <h3 class="cmp__title" id="compare-title">Compare the packages</h3>
+        <p class="small subtle cmp__note">
+          No package has a fixed public price: each one is quoted in writing after a short brief. The free check is separate.
+        </p>
+        <div class="cmp__wrap" role="region" aria-labelledby="compare-title" tabindex="0">
+          <table class="cmp__table" aria-labelledby="compare-title">
+            <thead>
+              <tr>
+                <td></td>
+                {packages.map((p) => <th scope="col">{p.name}</th>)}
+              </tr>
+            </thead>
+            <tbody>
+              <tr>
+                <th scope="row">Best for</th>
+                {packages.map((p) => <td>{p.forWho}</td>)}
+              </tr>
+              <tr>
+                <th scope="row">Covers</th>
+                {packages.map((p) => <td>{p.serviceIds.map((id) => labelFor(SERVICE_OPTIONS, id)).join(' · ')}</td>)}
+              </tr>
+              <tr>
+                <th scope="row">Not included</th>
+                {packages.map((p) => <td>{p.notIncluded.join('; ')}</td>)}
+              </tr>
+              <tr>
+                <th scope="row">You provide</th>
+                {packages.map((p) => <td>{p.youProvide.join('; ')}</td>)}
+              </tr>
+              <tr>
+                <th scope="row">Price</th>
+                {packages.map(() => <td>Written quote after a short brief</td>)}
+              </tr>
+              <tr>
+                <th scope="row">Next step</th>
+                {packages.map((p) => (
+                  <td>
+                    <a class="link" href={`/contact/?package=${p.id}#brief`}>
+                      Request a quote<span class="visually-hidden"> for {p.name}</span>
+                    </a>
+                  </td>
+                ))}
+              </tr>
+            </tbody>
+          </table>
+        </div>
+      </div>
     </div>
   </section>
 
@@ -453,6 +504,61 @@ const jump = [
       top: calc(var(--header-h) + 6rem);
       align-self: start;
     }
+  }
+
+  /* ── Package comparison ── */
+  .cmp {
+    margin-top: clamp(var(--s-7), 5vw, var(--s-9));
+    display: grid;
+    gap: var(--s-3);
+  }
+  .cmp__title {
+    font-size: var(--fs-h3);
+  }
+  .cmp__wrap {
+    overflow-x: auto;
+    border: 1px solid var(--line);
+    border-radius: var(--r-md);
+    background: var(--bg);
+  }
+  .cmp__wrap:focus-visible {
+    outline: 2px solid var(--focus);
+    outline-offset: 3px;
+  }
+  .cmp__table {
+    width: 100%;
+    min-width: 52rem;
+    border-collapse: collapse;
+    font-size: var(--fs-sm);
+    line-height: 1.5;
+  }
+  .cmp__table th,
+  .cmp__table td {
+    padding: var(--s-3) var(--s-4);
+    text-align: left;
+    vertical-align: top;
+    border-bottom: 1px solid var(--line);
+  }
+  .cmp__table tbody tr:last-child > * {
+    border-bottom: 0;
+  }
+  .cmp__table thead th {
+    font-weight: 680;
+    font-stretch: 106%;
+    font-size: 1rem;
+    color: var(--text);
+  }
+  .cmp__table tbody th {
+    font-family: var(--font-mono);
+    font-size: var(--fs-xs);
+    font-weight: 500;
+    letter-spacing: var(--track-label);
+    text-transform: uppercase;
+    color: var(--text-3);
+    white-space: nowrap;
+  }
+  .cmp__table td {
+    color: var(--text-2);
   }
 
   /* ── Packages ── */
