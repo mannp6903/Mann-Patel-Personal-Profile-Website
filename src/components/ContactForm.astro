@@ -32,7 +32,7 @@ const steps = ['About you', 'What you need', 'Your message'];
 const tick = '<svg viewBox="0 0 16 16"><path d="m3.5 8.5 3 3 6-7" /></svg>';
 ---
 
-<div class="brief" data-brief>
+<div class="brief" data-brief data-email={email ?? undefined}>
   <form class="form" id="brief" action="/api/enquiry/" method="post" data-brief-form>
     <div class="steps-nav" data-steps-nav hidden>
       <p class="steps-nav__label">
@@ -50,8 +50,17 @@ const tick = '<svg viewBox="0 0 16 16"><path d="m3.5 8.5 3 3 6-7" /></svg>';
     </div>
     <div class="notice notice--warn" data-not-connected hidden role="status">
       <p>
-        <strong>This form isn’t connected to my inbox yet,</strong> so it can’t send your brief.
-        {email ? <>Please email me instead at <a href={`mailto:${email}`} data-contact="email">{email}</a>.</> : 'Please try again later.'}
+        <strong>This form can’t send to my inbox directly yet.</strong>
+        {
+          email ? (
+            <>
+              You can still use it: at the last step, <b>Email this brief</b> opens your email app with your answers filled in. Or
+              write to <a href={`mailto:${email}`} data-contact="email">{email}</a>.
+            </>
+          ) : (
+            'Please try again later.'
+          )
+        }
       </p>
     </div>
 
@@ -217,6 +226,7 @@ const tick = '<svg viewBox="0 0 16 16"><path d="m3.5 8.5 3 3 6-7" /></svg>';
       <p class="small subtle form-actions__note">This asks for a conversation; it doesn’t book an appointment.</p>
     </div>
     <div class="notice notice--error" role="alert" tabindex="-1" data-form-error hidden></div>
+    <div class="notice notice--info" role="status" tabindex="-1" data-mail-note hidden></div>
   </form>
 
   <section class="success" data-success hidden tabindex="-1" aria-labelledby="success-title">
@@ -241,6 +251,7 @@ const tick = '<svg viewBox="0 0 16 16"><path d="m3.5 8.5 3 3 6-7" /></svg>';
 
 <script>
   import { validateEnquiry, LIMITS, type FieldErrors } from '../lib/enquiry/validate';
+  import { SERVICE_OPTIONS, PACKAGE_OPTIONS, BUDGET_OPTIONS, TIMEFRAME_OPTIONS, labelFor } from '../lib/enquiry/options';
   import { parseAnswers, recommend } from '../lib/guide';
   import { trackOnce } from '../scripts/analytics';
 
@@ -260,7 +271,8 @@ const tick = '<svg viewBox="0 0 16 16"><path d="m3.5 8.5 3 3 6-7" /></svg>';
     const message = form.elements.namedItem('message') as HTMLTextAreaElement;
     const success = root.querySelector<HTMLElement>('[data-success]')!;
     const notConnected = root.querySelector<HTMLElement>('[data-not-connected]')!;
-    const altEmail = document.querySelector<HTMLElement>('[data-alt-email]')?.textContent?.trim() ?? '';
+    const altEmail = root.dataset.email || document.querySelector<HTMLElement>('[data-alt-email]')?.textContent?.trim() || '';
+    const mailNote = root.querySelector<HTMLElement>('[data-mail-note]')!;
     const withEmail = (text: string) => (altEmail ? `${text} You can also email me at ${altEmail}.` : text);
 
     const newId = () => (crypto.randomUUID ? crypto.randomUUID() : `${Date.now()}-${Math.random().toString(36).slice(2, 10)}`);
@@ -306,6 +318,38 @@ const tick = '<svg viewBox="0 0 16 16"><path d="m3.5 8.5 3 3 6-7" /></svg>';
       }
     };
 
+    // ── Email fallback while the inbox isn't connected ──
+    // The last button opens the visitor's email app with every answer filled in, so nothing typed is lost.
+    let mailMode = false;
+    const setLabel = (text: string) => {
+      submitLabel.textContent = text;
+      submitLabel.dataset.text = text;
+    };
+    const enableMailMode = () => {
+      if (!altEmail) return;
+      mailMode = true;
+      notConnected.hidden = false;
+      setLabel('Email this brief');
+    };
+    const briefMailto = (data: Record<string, unknown>) => {
+      const v = (k: string) => String(data[k] ?? '').trim();
+      const services = ((data.services as string[] | undefined) ?? []).map((id) => labelFor(SERVICE_OPTIONS, id));
+      const rows = [
+        ['Name', v('name')],
+        ['Email', v('email')],
+        ['Business', v('business')],
+        ['Website', v('website')],
+        ['Phone', v('phone')],
+        ['Help with', services.join('; ')],
+        ['Starting point', v('packageId') && labelFor(PACKAGE_OPTIONS, v('packageId'))],
+        ['Budget', v('budget') && labelFor(BUDGET_OPTIONS, v('budget'))],
+        ['Timeframe', v('timeframe') && labelFor(TIMEFRAME_OPTIONS, v('timeframe'))],
+      ].filter(([, val]) => val);
+      const body = `${rows.map(([k, val]) => `${k}: ${val}`).join('\n')}\n\n${v('message')}\n`;
+      const subject = `Project brief from ${v('name')}${v('business') ? ` (${v('business')})` : ''}`;
+      return `mailto:${altEmail}?subject=${encodeURIComponent(subject)}&body=${encodeURIComponent(body)}`;
+    };
+
     // ── Status + time-check token ──
     // Only a definite answer from the server ("not_configured") shows the not-connected notice.
     let tokenFetched = false;
@@ -316,6 +360,7 @@ const tick = '<svg viewBox="0 0 16 16"><path d="m3.5 8.5 3 3 6-7" /></svg>';
         const data = (await res.json()) as { connected: boolean; token: string | null; reason?: string };
         tokenInput.value = data.token ?? '';
         notConnected.hidden = data.connected;
+        if (!data.connected && data.reason === 'not_configured') enableMailMode();
         tokenFetched = true;
       } catch {
         notConnected.hidden = true;
@@ -461,7 +506,7 @@ const tick = '<svg viewBox="0 0 16 16"><path d="m3.5 8.5 3 3 6-7" /></svg>';
     const setSending = (on: boolean) => {
       submit.disabled = on;
       spinner.hidden = !on;
-      submitLabel.textContent = on ? 'Sending…' : 'Send my brief';
+      submitLabel.textContent = on ? 'Sending…' : mailMode ? 'Email this brief' : 'Send my brief';
       submitLabel.dataset.text = submitLabel.textContent;
       form.setAttribute('aria-busy', String(on));
     };
@@ -481,6 +526,16 @@ const tick = '<svg viewBox="0 0 16 16"><path d="m3.5 8.5 3 3 6-7" /></svg>';
         return;
       }
       clearErrors();
+      if (mailMode) {
+        const href = briefMailto(data);
+        form.dataset.mailto = href;
+        mailNote.textContent = `Your email app should open with your brief ready to send to ${altEmail}. If nothing opened, write to ${altEmail} and paste your message; your answers are still here.`;
+        mailNote.hidden = false;
+        mailNote.focus();
+        trackOnce(idInput.value, 'generate_lead', { form_id: 'project_brief', lead_source: 'website', method: 'mailto' });
+        location.href = href;
+        return;
+      }
       if (!tokenFetched) await refreshToken();
       data.formToken = tokenInput.value || undefined;
       const turnstile = form.querySelector<HTMLInputElement>('[name="cf-turnstile-response"]');
@@ -540,8 +595,13 @@ const tick = '<svg viewBox="0 0 16 16"><path d="m3.5 8.5 3 3 6-7" /></svg>';
           showFormError(`${body.message}${body.retryAfter ? ` (about ${Math.ceil(body.retryAfter / 60)} min)` : ''}`);
           break;
         case 'not_connected':
+          enableMailMode();
           notConnected.hidden = false;
-          showFormError(withEmail(body.message));
+          showFormError(
+            mailMode
+              ? 'The form isn’t connected yet, so your brief wasn’t sent. Press “Email this brief” to send the same answers from your email app.'
+              : withEmail(body.message),
+          );
           break;
         default:
           showFormError(withEmail(body?.message ?? 'Your brief wasn’t sent. Your answers are still here. Please try again.'));
@@ -860,6 +920,11 @@ const tick = '<svg viewBox="0 0 16 16"><path d="m3.5 8.5 3 3 6-7" /></svg>';
     }
   }
 
+  .notice--info {
+    color: var(--text);
+    border-color: var(--signal);
+    background: var(--signal-wash);
+  }
   .error-summary {
     padding: var(--s-5);
     border: 1px solid var(--error);

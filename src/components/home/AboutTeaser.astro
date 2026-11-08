@@ -1,6 +1,5 @@
 ---
-/** A short introduction with the real street photo and the house rules. */
-import { Image } from 'astro:assets';
+/** A short introduction and the house rules (no photo here: the portrait lives in the hero). */
 import { profile, businesses } from '../../data/site';
 import Heading from '../ui/Heading.astro';
 import Button from '../ui/Button.astro';
@@ -17,27 +16,14 @@ const rules = [
 
 <section class="about section section--rule" aria-labelledby="about-title">
   <div class="container about__grid">
-    {
-      profile.portrait && (
-        <figure class="about__photo" data-reveal="scale">
-          <Image
-            src={profile.portrait.src}
-            alt={profile.portrait.alt}
-            widths={[400, 640, 900]}
-            sizes="(min-width: 64em) 36vw, 92vw"
-            loading="lazy"
-            decoding="async"
-          />
-          <figcaption class="num">
-            <span>Toronto, 2026</span>
-            <span>Photo: Mann’s own</span>
-          </figcaption>
-        </figure>
-      )
-    }
-    <div class="about__text">
+    <div class="about__head">
       <p class="eyebrow">About</p>
       <Heading id="about-title" lines={['Hi, I’m Mann.', '<span class="serif">I’m building a business too.</span>']} />
+      <div class="btn-row" data-reveal>
+        <Button href="/about/" variant="ghost">Read my story</Button>
+      </div>
+    </div>
+    <div class="about__text">
       <div class="stack about__copy" data-reveal style="--stack: var(--s-4)">
         <p class="lead">
           I’m starting <a class="link" href={nest.url} rel="noopener">{nest.name}</a>, a home-cleaning business in {nest.area}. I
@@ -60,9 +46,6 @@ const rules = [
           ))
         }
       </ul>
-      <div class="btn-row" data-reveal>
-        <Button href="/about/" variant="ghost">Read my story</Button>
-      </div>
     </div>
   </div>
 </section>
@@ -70,25 +53,13 @@ const rules = [
 <style>
   .about__grid {
     display: grid;
-    gap: var(--s-7);
+    gap: var(--s-6);
   }
-  .about__photo {
+  .about__head {
     display: grid;
-    gap: var(--s-3);
-  }
-  .about__photo :global(img) {
-    width: 100%;
-    aspect-ratio: 4 / 5;
-    object-fit: cover;
-    object-position: 50% 30%;
-    border-radius: var(--r-lg);
-  }
-  .about__photo figcaption {
-    display: flex;
-    justify-content: space-between;
-    font-size: 0.75rem;
-    letter-spacing: 0.04em;
-    color: var(--text-3);
+    gap: var(--s-5);
+    align-content: start;
+    justify-items: start;
   }
   .about__text {
     display: grid;
@@ -123,7 +94,11 @@ const rules = [
     .about__grid {
       grid-template-columns: minmax(0, 0.9fr) minmax(0, 1.1fr);
       gap: var(--s-9);
-      align-items: center;
+    }
+    .about__head {
+      position: sticky;
+      top: calc(var(--header-h) + 2rem);
+      align-self: start;
     }
     .rules {
       grid-template-columns: 1fr 1fr;

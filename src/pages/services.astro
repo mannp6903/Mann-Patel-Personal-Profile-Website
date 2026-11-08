@@ -11,6 +11,7 @@ import Faq from '../components/Faq.astro';
 import { groups, servicesInGroup, addOns, type ServiceGroup } from '../data/services';
 import { packages } from '../data/packages';
 import { faqs } from '../data/faqs';
+import { servicesJsonLd } from '../lib/seo';
 
 const faqLd = {
   '@context': 'https://schema.org',
@@ -32,7 +33,7 @@ const jump = [
 <BaseLayout
   title="Google Business Profile, reviews, missed-call text-back & booking websites"
   description="Get found and chosen on Google, never miss an enquiry, and a website that books work: Google Business Profile, reviews, missed-call text-back, online booking, websites, plus flyers and social content for Toronto and GTA small businesses."
-  jsonLd={faqLd}
+  jsonLd={[faqLd, servicesJsonLd()]}
 >
   <PageHead
     eyebrow="Services"

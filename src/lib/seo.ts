@@ -1,4 +1,5 @@
 import { profile, businesses, sameAs } from '../data/site';
+import { groups, addOns, servicesInGroup } from '../data/services';
 import { absoluteUrl } from './mode';
 
 /**
@@ -45,5 +46,39 @@ export function breadcrumbJsonLd(items: { name: string; path: string }[]) {
       name: it.name,
       item: absoluteUrl(it.path),
     })),
+  };
+}
+
+/**
+ * The services Mann offers, as a ProfessionalService with an offer catalogue (one list per area).
+ * Service names only, no address (he works across the GTA, not from premises).
+ */
+export function servicesJsonLd() {
+  const url = absoluteUrl('/');
+  return {
+    '@context': 'https://schema.org',
+    '@type': 'ProfessionalService',
+    name: `${profile.name}: websites, Google visibility and enquiry follow-up`,
+    description: profile.descriptor,
+    ...(url ? { url, image: new URL('/og/default.png', url).toString() } : {}),
+    ...(profile.contact.email ? { email: profile.contact.email } : {}),
+    areaServed: [
+      { '@type': 'City', name: 'Toronto' },
+      { '@type': 'AdministrativeArea', name: 'Greater Toronto Area' },
+    ],
+    founder: { '@type': 'Person', name: profile.name },
+    ...(sameAs.length ? { sameAs } : {}),
+    hasOfferCatalog: {
+      '@type': 'OfferCatalog',
+      name: 'Services',
+      itemListElement: [...groups, addOns].map((g) => ({
+        '@type': 'OfferCatalog',
+        name: g.title,
+        itemListElement: servicesInGroup(g.id).map((s) => ({
+          '@type': 'Offer',
+          itemOffered: { '@type': 'Service', name: s.name, ...(url ? { url: `${url}services/#${s.id}` } : {}) },
+        })),
+      })),
+    },
   };
 }

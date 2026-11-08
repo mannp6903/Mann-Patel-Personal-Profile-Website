@@ -86,3 +86,31 @@ Captures: `docs/captures/r5-*.jpg`.
 - The example phone screens use a fictional salon ("Rosewood Hair Studio") and a reserved 555 number,
   and say so on screen. The pre-launch check knows about that number.
 - Everything else in [`OWNER-INPUTS.md`](OWNER-INPUTS.md) still applies.
+
+## 6. Follow-up after the site review (8 Nov 2026)
+
+Mann asked for every fix that can be made in code, a more unique treatment of his photo instead of
+the dots, and no second photo lower on the home page.
+
+| Change | What it does | Files |
+| --- | --- | --- |
+| **Signal-line portrait** (replaces the halftone dots) | Mann's face is drawn by about 120 horizontal scan lines that oscillate like a radio signal: brighter areas get taller, faster waves and thicker lines (engraving-style tone, sharpened so eyes, nose and smile read). On load each line is traced left to right behind a lime write head; under the pointer or a finger the waves swell, flow and glow lime. Background lines fade in a soft oval. "Show photo" still switches to the real photo; reduced motion draws it once, still | `src/scripts/signal-portrait.ts`, `home/Hero.astro` |
+| Same engine on the 404 page and the share image | "404" as signal lines; new OG image | `pages/404.astro`, `scripts/make-images.mjs` |
+| **Email fallback for the brief** | While the form can't reach the inbox, the notice says so and the last button becomes **Email this brief**: it opens the visitor's email app with every answer filled in (name, business, services, budget, timing, message). A "not connected" reply from the server switches to the same fallback. Nothing typed is lost | `ContactForm.astro` |
+| Honest contact description | Mentions phone, WhatsApp and text only when `PUBLIC_CONTACT_PHONE` is set | `pages/contact/index.astro` |
+| **Shorter home page** | The finder and the process timeline now live only on Services (the free-check band links to the finder). About 20% shorter on phones | `pages/index.astro`, `home/FreeCheck.astro` |
+| **No second photo on Home** | The About section on Home is text only; the street photo stays on the About page | `home/AboutTeaser.astro` |
+| **Phone header** | A compact **Contact** button beside the menu on phones, so the main action is always one tap away; on very narrow screens the menu button shows only its lines | `Header.astro` |
+| **A face on the first phone screen** | A small round photo beside "Mann Patel · Toronto, Canada" and the status (phones only) | `home/Hero.astro`, `src/assets/mann-patel-face.jpg` |
+| **Example screens labelled** | "Example · Fictional" in the status bar of every example phone screen | `home/Path.astro` |
+| Calmer motion | The status pulse runs four times and the typing dots five times, then stop | `global.css`, `home/PhoneScreen.astro` |
+| Search data | A `ProfessionalService` with the full service catalogue (names only, no address) on Home and Services | `src/lib/seo.ts` |
+
+**Checks:** `astro check` 0/0/0; unit tests 39/39; Playwright + axe **55 passed, 1 skipped** (new tests:
+signal portrait draws and glows under the pointer, phone header button and avatar, example labels,
+no photo in the home About section, email fallback both from the status check and from a server
+"not connected" reply, service structured data).
+
+**Still needs Mann:** the Cloudflare Email Routing steps and `ENQUIRY_TO_EMAIL` secret (then the form
+sends directly), `PUBLIC_CONTACT_PHONE` for the call/WhatsApp/text buttons, social profile links,
+a real client quote, and a decision on public starting prices.

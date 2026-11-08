@@ -26,6 +26,9 @@ const ring = 'FREE CHECK · NO OBLIGATION · ';
       <div class="btn-row">
         <Button href="/contact/?package=check-up#brief" variant="ink">Request the free check</Button>
       </div>
+      <p class="fc__alt">
+        Rather work it out yourself? <a href="/services/#finder">Answer three questions</a> and get a suggested starting point.
+      </p>
     </div>
 
     <div class="fc__side">
@@ -98,6 +101,16 @@ const ring = 'FREE CHECK · NO OBLIGATION · ';
     font-stretch: 100%;
     letter-spacing: -0.01em;
     font-size: 1.06em;
+  }
+  .fc__alt {
+    font-size: var(--fs-sm);
+    font-weight: 500;
+  }
+  .fc__alt a {
+    color: var(--ink);
+    font-weight: 700;
+    text-decoration-thickness: 2px;
+    text-underline-offset: 0.2em;
   }
   .fc__lead {
     max-width: 40ch;

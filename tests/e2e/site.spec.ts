@@ -96,6 +96,7 @@ test.describe('pages', () => {
       const blocks = await page.$$eval('script[type="application/ld+json"]', (s) => s.map((x) => x.textContent || ''));
       expect(blocks.length).toBeGreaterThan(0);
       for (const b of blocks) expect(JSON.stringify(JSON.parse(b))).not.toMatch(/aggregateRating|address|award/i);
+      if (path !== '/about/') expect(blocks.join(' ')).toContain('"ProfessionalService"');
     }
   });
 });
@@ -200,10 +201,30 @@ test.describe('navigation', () => {
 });
 
 test.describe('home interactions', () => {
-  test('halftone portrait draws, and "Show photo" switches to the real photo', async ({ page }) => {
+  test('signal portrait draws, reacts to the pointer, and "Show photo" switches to the real photo', async ({ page }) => {
     await page.setViewportSize({ width: 1440, height: 900 });
     await page.goto('/');
-    const fig = page.locator('[data-halftone]');
+    const fig = page.locator('[data-portrait]');
+    await expect(fig).toHaveClass(/is-ready/);
+    // The canvas really draws (non-transparent pixels), and the pointer adds the lime glow.
+    const ink = () =>
+      page.evaluate(() => {
+        const c = document.querySelector<HTMLCanvasElement>('[data-portrait-canvas]')!;
+        const d = c.getContext('2d')!.getImageData(0, 0, c.width, c.height).data;
+        let lit = 0;
+        let lime = 0;
+        for (let i = 0; i < d.length; i += 16) {
+          if (d[i + 3] > 40) lit++;
+          if (d[i + 3] > 40 && d[i + 1] > 200 && d[i + 2] < 150) lime++;
+        }
+        return { lit, lime };
+      });
+    await page.waitForTimeout(2600);
+    expect((await ink()).lit).toBeGreaterThan(1000);
+    const box = (await fig.boundingBox())!;
+    await page.mouse.move(box.x + box.width / 2, box.y + box.height * 0.3, { steps: 6 });
+    await page.waitForTimeout(500);
+    expect((await ink()).lime).toBeGreaterThan(50);
     await expect(fig).toHaveClass(/is-ready/);
     const toggle = page.getByRole('button', { name: 'Show photo' });
     await expect(toggle).toHaveAttribute('aria-pressed', 'false');
@@ -227,7 +248,7 @@ test.describe('home interactions', () => {
   });
 
   test('finder recommends a starting point live and pre-fills the brief', async ({ page }) => {
-    await page.goto('/');
+    await page.goto('/services/');
     const finder = page.locator('#finder');
     await finder.getByText('Up and running').click();
     await expect(finder.locator('[data-r-count]')).toHaveText('1 of 3 answered');
@@ -245,7 +266,7 @@ test.describe('home interactions', () => {
   test('without JavaScript, the finder submits its answers to the brief', async ({ browser }) => {
     const ctx = await browser.newContext({ javaScriptEnabled: false, baseURL: 'http://127.0.0.1:4321' });
     const page = await ctx.newPage();
-    await page.goto('/');
+    await page.goto('/services/');
     const finder = page.locator('#finder');
     await finder.getByText('Just starting, or about to launch').click();
     await finder.getByText('I’m not sure yet').click();
@@ -261,9 +282,28 @@ test.describe('home interactions', () => {
     await page.goto('/');
     expect(await page.locator('.hw').first().evaluate((e) => getComputedStyle(e).animationName)).toBe('none');
     expect(await page.evaluate(() => document.documentElement.classList.contains('js-motion'))).toBe(false);
-    const op = await page.locator('#finder [data-reveal]').first().evaluate((e) => getComputedStyle(e).opacity);
+    const op = await page.locator('#work [data-reveal]').first().evaluate((e) => getComputedStyle(e).opacity);
     expect(op).toBe('1');
     await ctx.close();
+  });
+
+  test('phones: the header keeps Contact one tap away, and the hero shows a face', async ({ page }) => {
+    await page.setViewportSize({ width: 360, height: 800 });
+    await page.goto('/');
+    const cta = page.locator('[data-header]').getByRole('link', { name: 'Contact', exact: true });
+    await expect(cta).toBeVisible();
+    await expect(cta).toHaveAttribute('href', '/contact/');
+    await expect(page.locator('[data-menu-open]')).toBeVisible();
+    await expect(page.locator('.hero__avatar')).toBeVisible();
+    await page.setViewportSize({ width: 1440, height: 900 });
+    await expect(page.locator('.hero__avatar')).toBeHidden();
+  });
+
+  test('example phone screens are labelled, and the home page has no second photo', async ({ page }) => {
+    await page.setViewportSize({ width: 1440, height: 900 });
+    await page.goto('/');
+    await expect(page.locator('.path__device .phone__tag')).toContainText('Example');
+    await expect(page.locator('section.about img')).toHaveCount(0);
   });
 
   test('without JavaScript, the header links show and content is visible', async ({ browser }) => {
@@ -483,16 +523,39 @@ test.describe('enquiry form', () => {
     await expect(page.locator('[data-success]')).toBeHidden();
   });
 
-  test('when no delivery is configured, the form says so honestly and keeps the answers', async ({ page }) => {
+  test('when no delivery is configured, the form says so and offers to email the brief instead', async ({ page }) => {
     await page.goto('http://127.0.0.1:4322/contact/');
     await expect(page.locator('[data-not-connected]')).toBeVisible();
+    await expect(page.locator('[data-not-connected]')).toContainText('Email this brief');
     await fill(page);
-    await page.waitForTimeout(3200);
-    await send(page).click();
-    await expect(page.locator('[data-form-error]')).toContainText('isn’t connected');
-    await expect(page.locator('[data-form-error]')).toContainText('email me at');
+    const mailBtn = page.getByRole('button', { name: 'Email this brief' });
+    await expect(mailBtn).toBeVisible();
+    let posted = false;
+    page.on('request', (r) => {
+      if (r.method() === 'POST' && r.url().includes('/api/enquiry/')) posted = true;
+    });
+    await mailBtn.click();
+    const href = await page.locator('[data-brief-form]').getAttribute('data-mailto');
+    expect(href).toMatch(/^mailto:info@mannpatel\.me\?subject=Project%20brief%20from%20Test%20Owner%20\(Example%20Salon\)&body=/);
+    expect(decodeURIComponent(href!)).toContain('Help with: Get found and chosen: Google, Maps and reviews');
+    expect(decodeURIComponent(href!)).toContain('two-chair salon');
+    await expect(page.locator('[data-mail-note]')).toContainText('email app should open');
+    expect(posted).toBe(false);
     await expect(page.locator('[data-success]')).toBeHidden();
     await expect(page.locator('#f-message')).not.toHaveValue('');
+  });
+
+  test('if the server says it is not connected, the form switches to the email fallback', async ({ page }) => {
+    await page.route('**/api/enquiry/', (route) =>
+      route.request().method() === 'GET'
+        ? route.fulfill({ status: 403, body: 'Forbidden' })
+        : route.fulfill({ status: 503, contentType: 'application/json', body: JSON.stringify({ ok: false, code: 'not_connected', message: 'The form isn’t connected yet.' }) }),
+    );
+    await page.goto('/contact/');
+    await fill(page);
+    await send(page).click();
+    await expect(page.locator('[data-form-error]')).toContainText('Email this brief');
+    await expect(page.getByRole('button', { name: 'Email this brief' })).toBeVisible();
   });
 
   test('works without JavaScript: one form, posts, and lands on the confirmation page', async ({ browser }) => {
