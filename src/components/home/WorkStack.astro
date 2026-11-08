@@ -29,7 +29,7 @@ const work = (await getCollection('work')).sort((a, b) => a.data.order - b.data.
       </div>
     </div>
 
-    <ol class="cards" role="list" data-stack>
+    <ol class="cards rail rail--wide" role="list" data-stack data-rail>
       {
         work.map((w, i) => (
           <li class="card" style={`--i:${i}`} data-card>
@@ -46,7 +46,7 @@ const work = (await getCollection('work')).sort((a, b) => a.data.order - b.data.
                   {w.data.title}
                 </h3>
                 <p class="muted">{w.data.summary}</p>
-                <ul class="card__hl" role="list">
+                <ul class="card__hl" role="list" data-hl>
                   {w.data.highlights.slice(0, 3).map((h) => (
                     <li>
                       <Icon name="check" />
@@ -118,7 +118,7 @@ const work = (await getCollection('work')).sort((a, b) => a.data.order - b.data.
     display: grid;
     gap: var(--s-6);
   }
-  .card__inner {
+    .card__inner {
     display: grid;
     gap: var(--s-6);
     padding: clamp(1.25rem, 3vw, 2.75rem);
@@ -195,6 +195,22 @@ const work = (await getCollection('work')).sort((a, b) => a.data.order - b.data.
       gap: var(--s-8);
       min-height: min(40rem, calc(100vh - var(--header-h) - 5rem));
       align-items: center;
+    }
+  }
+  /* Phones: cards swipe sideways (rail); the image comes first and the highlights are left to the case study. */
+  @media (max-width: 47.99em) {
+    .card__inner {
+      height: 100%;
+      align-content: start;
+    }
+    .card__media {
+      order: -1;
+    }
+    .card__hl {
+      display: none;
+    }
+    .card__title {
+      font-size: 1.9rem;
     }
   }
 </style>

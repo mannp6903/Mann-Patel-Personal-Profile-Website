@@ -114,3 +114,36 @@ no photo in the home About section, email fallback both from the status check an
 **Still needs Mann:** the Cloudflare Email Routing steps and `ENQUIRY_TO_EMAIL` secret (then the form
 sends directly), `PUBLIC_CONTACT_PHONE` for the call/WhatsApp/text buttons, social profile links,
 a real client quote, and a decision on public starting prices.
+
+## 7. Short pages on phones (8 Nov 2026)
+
+Mann's feedback as a client: the site looked too long on a phone. The layout on phones (under 48em)
+was restructured; tablets and laptops keep the layout they had.
+
+| Page (390 × 844 screens) | Before | After |
+| --- | --- | --- |
+| Home | 15.7 | 8.6 |
+| Services | 18.7 | 10.5 |
+| Nest & Rest case study | 9.9 | 5.5 |
+| Samp Hair & Spa case study | 8.6 | 5.4 |
+| About | 9.2 | 5.6 |
+| Work | 4.4 | 3.6 |
+| Contact | 3.5 | 2.9 |
+
+| Change | Files |
+| --- | --- |
+| **Swipe rails** with snap points and dots for groups of cards: work, house rules, packages, the five steps, About chapters and rules, case-study decisions and captures | `global.css` (`.rail`), `motion.ts` (dots, tab stop), components and pages listed |
+| **"What I do" as three tabs** on phones and tablets (ARIA tabs with arrow keys); laptops keep the scrolling phone | `home/Path.astro` |
+| **Questions fold** after five on phones ("Show all 11 questions"); Home shows four, closed | `Faq.astro` |
+| **Case studies fold** on phones: the opening, then "Read the full case study" (focus moving into the text also opens it) | `pages/work/[id].astro` |
+| Services: no giant A/B/C letters on phones, one line per service until opened (its summary moves inside) | `pages/services.astro` |
+| Compact footer: contact first, pages and links as one wrapped line each, services left to the menu | `Footer.astro` |
+| Tighter section padding on phones (`--section` starts at 3.5rem), smaller example phone, About photo 4:3 | `tokens.css`, `home/Path.astro`, `pages/about.astro` |
+| Hero: the "Or reach me directly" row is hidden on phones (the header's Contact button and the footer carry it) | `home/Hero.astro` |
+| **Faster on slow phones:** the portrait's intro now reveals one finished drawing line by line instead of redrawing ~27,000 points every frame (Total Blocking Time on Home, simulated mobile: about 440 ms → 50–220 ms). The serif word "Booked." (the LCP element) has its font preloaded | `scripts/signal-portrait.ts`, `layouts/BaseLayout.astro` |
+
+**Checks:** `astro check` 0/0/0; unit tests 39/39; Playwright + axe **70 passed, 1 skipped**. New
+tests: page-length budgets for seven pages, axe at phone width on four pages, every scrolling rail
+reachable by keyboard, the tabs with arrow keys, rail dots, the question fold and the case-study fold.
+Lighthouse (local, mobile, simulated): Accessibility 100 and Best Practices 100 on every page tested;
+SEO shows 63–66 locally only because preview builds are `noindex` on purpose.

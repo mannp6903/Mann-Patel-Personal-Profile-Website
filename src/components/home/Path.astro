@@ -1,8 +1,10 @@
 ---
 /**
  * "What I do": the three service areas as one customer path. On desktop a phone stays in view
- * and switches to the example screen of the step being read. On phones each step shows its own
- * screen. Screens are decorative examples (fictional business), hidden from assistive tech.
+ * and switches to the example screen of the step being read. On phones and tablets the areas are
+ * tabs (A · B · C), one at a time with its own example screen, so the section stays short.
+ * Without JavaScript all three show in a column. Screens are decorative examples (fictional
+ * business), hidden from assistive tech.
  */
 import { groups, servicesInGroup, addOns } from '../../data/services';
 import Heading from '../ui/Heading.astro';
@@ -23,6 +25,19 @@ const kinds = groups.map((g) => g.id) as ('found' | 'answered' | 'booked')[];
         Most small businesses lose work in one of three places: they aren’t found, they don’t answer in time, or booking
         is hard. I fix the one that costs you most, first.
       </p>
+    </div>
+
+    <div class="path__tabs" role="tablist" aria-label="What I help with" data-path-tabs hidden>
+      {
+        groups.map((g, i) => (
+          <button class="path__tab" type="button" role="tab" id={`tab-${g.id}`} aria-controls={g.id} aria-selected={i === 0 ? 'true' : 'false'} tabindex={i === 0 ? 0 : -1}>
+            <span class="path__tab-l num" aria-hidden="true">
+              {g.letter}
+            </span>
+            {g.verb}
+          </button>
+        ))
+      }
     </div>
 
     <div class="path__grid">
@@ -136,6 +151,69 @@ const kinds = groups.map((g) => g.id) as ('found' | 'answered' | 'booked')[];
       { threshold: 0.35 },
     );
     root.querySelectorAll('[data-inline-screen]').forEach((s) => io2.observe(s));
+
+    // Phones and tablets: the three areas become tabs, one at a time.
+    const tabsWrap = root.querySelector<HTMLElement>('[data-path-tabs]')!;
+    const tabs = [...tabsWrap.querySelectorAll<HTMLButtonElement>('[role="tab"]')];
+    const steps = [...root.querySelectorAll<HTMLElement>('[data-step]')];
+    const list = root.querySelector<HTMLElement>('.path__steps')!;
+    const mq = matchMedia('(max-width: 63.99em)');
+    let current = 0;
+    const select = (i: number, focus = false) => {
+      current = i;
+      tabs.forEach((t, k) => {
+        t.setAttribute('aria-selected', String(k === i));
+        t.tabIndex = k === i ? 0 : -1;
+      });
+      if (!mq.matches) return;
+      steps.forEach((s, k) => (s.hidden = k !== i));
+      // Replay the example screen for the newly shown area.
+      const scr = steps[i].querySelector<HTMLElement>('[data-inline-screen]');
+      if (scr) {
+        scr.classList.add('is-idle');
+        requestAnimationFrame(() => requestAnimationFrame(() => scr.classList.remove('is-idle')));
+      }
+      if (focus) tabs[i].focus();
+    };
+    const apply = () => {
+      if (mq.matches) {
+        tabsWrap.hidden = false;
+        root.classList.add('is-tabbed');
+        list.setAttribute('role', 'none');
+        steps.forEach((s, k) => {
+          s.setAttribute('role', 'tabpanel');
+          s.setAttribute('aria-labelledby', tabs[k].id);
+        });
+        select(current);
+      } else {
+        tabsWrap.hidden = true;
+        root.classList.remove('is-tabbed');
+        list.setAttribute('role', 'list');
+        steps.forEach((s) => {
+          s.removeAttribute('role');
+          s.removeAttribute('aria-labelledby');
+          s.hidden = false;
+        });
+      }
+    };
+    tabs.forEach((t, i) => {
+      t.addEventListener('click', () => select(i));
+      t.addEventListener('keydown', (e) => {
+        const keys: Record<string, number> = { ArrowRight: i + 1, ArrowLeft: i - 1, Home: 0, End: tabs.length - 1 };
+        if (!(e.key in keys)) return;
+        e.preventDefault();
+        select((keys[e.key] + tabs.length) % tabs.length, true);
+      });
+    });
+    // Links to #found, #answered or #booked open that tab.
+    const fromHash = () => {
+      const k = steps.findIndex((s) => `#${s.id}` === location.hash);
+      if (k >= 0 && mq.matches) select(k);
+    };
+    addEventListener('hashchange', fromHash);
+    mq.addEventListener('change', apply);
+    apply();
+    fromHash();
   }
 </script>
 
@@ -143,6 +221,61 @@ const kinds = groups.map((g) => g.id) as ('found' | 'answered' | 'booked')[];
   .path__grid {
     display: grid;
     gap: var(--s-8);
+  }
+  /* Tabs (phones and tablets) */
+  .path__tabs {
+    display: grid;
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+    gap: 4px;
+    padding: 4px;
+    margin-bottom: var(--s-5);
+    border: 1px solid var(--line);
+    border-radius: var(--r-pill);
+    background: var(--bg-2);
+  }
+  .path__tab {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    gap: 0.4em;
+    min-height: var(--tap);
+    padding: 0 0.5rem;
+    border: 0;
+    border-radius: var(--r-pill);
+    background: transparent;
+    color: var(--text-2);
+    font-size: 0.875rem;
+    font-weight: 620;
+    white-space: nowrap;
+    transition: background-color var(--t-base) var(--ease-out), color var(--t-base);
+  }
+  .path__tab-l {
+    font-size: 0.7rem;
+    color: var(--signal);
+  }
+  .path__tab[aria-selected='true'] {
+    background: var(--signal);
+    color: var(--on-signal);
+  }
+  .path__tab[aria-selected='true'] .path__tab-l {
+    color: var(--on-signal);
+  }
+  .path:global(.is-tabbed) .path__steps {
+    gap: 0;
+  }
+  .path:global(.is-tabbed) .step__head {
+    display: none;
+  }
+  @media (max-width: 63.99em) {
+    .path:global(.is-tabbed) .step {
+      animation: tab-in 520ms var(--ease-out);
+    }
+  }
+  @keyframes tab-in {
+    from {
+      opacity: 0;
+      transform: translateY(10px);
+    }
   }
   .path__steps {
     display: grid;
@@ -219,6 +352,27 @@ const kinds = groups.map((g) => g.id) as ('found' | 'answered' | 'booked')[];
     display: grid;
     justify-items: center;
     gap: var(--s-3);
+  }
+  /* Phones: a smaller, shorter example phone. Tablets: phone beside the text. */
+  .step__screen .phone {
+    width: min(12.75rem, 60vw);
+    aspect-ratio: 9 / 16;
+    border-radius: 2.2rem;
+  }
+  @media (min-width: 40em) and (max-width: 63.99em) {
+    .step {
+      grid-template-columns: minmax(0, 1fr) auto;
+      column-gap: var(--s-7);
+    }
+    .step > * {
+      grid-column: 1;
+    }
+    .step__screen {
+      grid-column: 2;
+      grid-row: 1 / span 5;
+      margin-top: 0;
+      align-self: start;
+    }
   }
 
   /* ── Phone frame ── */
@@ -326,6 +480,15 @@ const kinds = groups.map((g) => g.id) as ('found' | 'answered' | 'booked')[];
     border-top: 1px solid var(--line);
     display: grid;
     gap: var(--s-4);
+  }
+  @media (max-width: 47.99em) {
+    .path__extra {
+      margin-top: var(--s-6);
+      padding-top: var(--s-5);
+    }
+    .path__addon {
+      display: none !important;
+    }
   }
   .path__addon {
     display: grid;

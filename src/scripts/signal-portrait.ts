@@ -155,11 +155,8 @@ export function mountSignalPortrait(fig: HTMLElement) {
     return true;
   };
 
-  const draw = (now: number) => {
+  const draw = () => {
     ctx.clearRect(0, 0, w, h);
-    const intro = !introDone;
-    const elapsed = now - introStart;
-    let introLeft = false;
     const R = Math.max(70, w * 0.2);
 
     // Ease the lens toward the pointer and its strength toward on/off.
@@ -171,22 +168,11 @@ export function mountSignalPortrait(fig: HTMLElement) {
 
     const faint = [new Path2D(), new Path2D(), new Path2D()];
     const ink = [new Path2D(), new Path2D(), new Path2D()];
-    const heads: [number, number][] = [];
     const n = lines.length;
 
     for (let j = 0; j < n; j++) {
       const ln = lines[j];
-      let reach = 1;
-      let grow = 1;
-      if (intro) {
-        const t = Math.min(1, Math.max(0, (elapsed - j * 9) / 1300));
-        if (t < 1) introLeft = true;
-        reach = easeOut(t);
-        grow = reach;
-        if (t > 0 && t < 1) heads.push([reach * w, ln.y]);
-        if (t <= 0) continue;
-      }
-      const last = Math.min(ln.amp.length, Math.ceil((reach * w) / dx));
+      const last = ln.amp.length;
       let inFigure = false;
       let lastTone = -1;
       let lastFade = 3;
@@ -194,7 +180,7 @@ export function mountSignalPortrait(fig: HTMLElement) {
       let prevY = 0;
       for (let i = 0; i < last; i++) {
         const x = i * dx;
-        let a = ln.amp[i] * grow;
+        let a = ln.amp[i];
         let ph = ln.phase[i];
         if (active) {
           const ddx = x - lx;
@@ -264,24 +250,64 @@ export function mountSignalPortrait(fig: HTMLElement) {
       ctx.restore();
     }
 
-    // Intro: a lime write head at the tip of each line being traced.
-    if (heads.length) {
-      ctx.fillStyle = `rgb(${SIGNAL})`;
-      for (const [x, y] of heads) {
-        ctx.beginPath();
-        ctx.arc(x, y, 1.6, 0, Math.PI * 2);
-        ctx.fill();
-      }
-    }
-
-    if (intro && !introLeft) introDone = true;
     const settling = Math.abs(want - lens) > 0.002 || (want > 0 && (Math.abs(px - lx) > 0.3 || Math.abs(py - ly) > 0.3));
-    return intro || settling || want > 0;
+    return settling || want > 0;
+  };
+
+  // The intro traces each line from the left with a lime write head. It reveals a snapshot of the
+  // finished drawing row by row, so each frame is one clipped copy, not a full redraw: cheap on
+  // slow phones and nothing blocks the page while it plays.
+  let snap: HTMLCanvasElement | null = null;
+  const snapshot = () => {
+    draw();
+    snap = document.createElement('canvas');
+    snap.width = canvas.width;
+    snap.height = canvas.height;
+    snap.getContext('2d')?.drawImage(canvas, 0, 0);
+  };
+  const reveal = (now: number) => {
+    const elapsed = now - introStart;
+    const clip = new Path2D();
+    const heads: [number, number][] = [];
+    let left = false;
+    const n = lines.length;
+    for (let j = 0; j < n; j++) {
+      const t = Math.min(1, Math.max(0, (elapsed - j * 9) / 1300));
+      if (t < 1) left = true;
+      if (t <= 0) continue;
+      const x = easeOut(t) * w;
+      const y = lines[j].y;
+      const top = j === 0 ? 0 : y - gap / 2;
+      const bottom = j === n - 1 ? h : y + gap / 2;
+      clip.rect(0, top, x, bottom - top);
+      if (t < 1) heads.push([x, y]);
+    }
+    ctx.clearRect(0, 0, w, h);
+    if (snap) {
+      ctx.save();
+      ctx.clip(clip);
+      ctx.drawImage(snap, 0, 0, w, h);
+      ctx.restore();
+    }
+    ctx.fillStyle = `rgb(${SIGNAL})`;
+    for (const [x, y] of heads) {
+      ctx.beginPath();
+      ctx.arc(x, y, 1.6, 0, Math.PI * 2);
+      ctx.fill();
+    }
+    return left;
   };
 
   const loop = (now: number) => {
     raf = 0;
-    const more = draw(now);
+    let more: boolean;
+    if (!introDone) {
+      more = reveal(now);
+      if (!more) {
+        introDone = true;
+        more = want > 0;
+      }
+    } else more = draw();
     if (more && onScreen) raf = requestAnimationFrame(loop);
   };
   const kick = () => {
@@ -292,10 +318,12 @@ export function mountSignalPortrait(fig: HTMLElement) {
     if (!build()) return;
     fig.classList.add('is-ready');
     if (reduced) {
-      draw(performance.now());
+      draw();
       return;
     }
+    snapshot();
     introStart = performance.now() + 120;
+    reveal(introStart);
     kick();
   };
 
@@ -341,7 +369,7 @@ export function mountSignalPortrait(fig: HTMLElement) {
       const r = canvas.getBoundingClientRect();
       if (Math.abs(r.width - w) < 1 && Math.abs(r.height - h) < 1) return;
       introDone = true;
-      if (build()) draw(performance.now());
+      if (build()) draw();
     }, 150);
   }).observe(canvas);
 

@@ -271,7 +271,7 @@ import Icon from '../ui/Icon.astro';
     position: relative;
     z-index: 1;
     width: 100%;
-    max-width: 34rem;
+    max-width: min(34rem, 84vw);
     justify-self: center;
     cursor: crosshair;
     touch-action: pan-y;
@@ -379,6 +379,16 @@ import Icon from '../ui/Icon.astro';
     position: relative;
     z-index: 2;
     margin-top: var(--s-7);
+  }
+  /* Phones: the A · B · C tabs in the next section do this job. */
+  @media (max-width: 39.99em) {
+    .hero__index {
+      display: none;
+    }
+    /* The header's Contact button and the footer already carry direct contact on phones. */
+    .hero__actions :global(.hero__reach) {
+      display: none;
+    }
   }
   .hero__index ol {
     display: grid;

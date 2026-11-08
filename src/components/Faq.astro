@@ -12,6 +12,9 @@ interface Props {
 }
 const { id = 'faq', limit, more = false } = Astro.props;
 const items = typeof limit === 'number' ? faqs.slice(0, limit) : faqs;
+// On phones a long list starts with the first few questions and a button for the rest.
+const SHORT = 5;
+const folds = items.length > SHORT + 1;
 ---
 
 <section class="faq section" id={id} aria-labelledby={`${id}-title`}>
@@ -30,10 +33,10 @@ const items = typeof limit === 'number' ? faqs.slice(0, limit) : faqs;
         )
       }
     </div>
-    <div class="faq__list">
+    <div class="faq__list" id={`${id}-list`} data-faq-list>
       {
         items.map((f, i) => (
-          <details class="acc" name={id} open={i === 0} data-reveal style={`--d:${i * 50}`}>
+          <details class:list={['acc', folds && i >= SHORT && 'acc--extra']} name={id} data-reveal style={`--d:${Math.min(i, SHORT) * 50}`}>
             <summary>
               <span>{f.q}</span>
               <span class="acc__plus" aria-hidden="true" />
@@ -45,9 +48,40 @@ const items = typeof limit === 'number' ? faqs.slice(0, limit) : faqs;
           </details>
         ))
       }
+      {
+        folds && (
+          <button class="faq__all" type="button" aria-controls={`${id}-list`} aria-expanded="false" data-faq-all hidden>
+            Show all {items.length} questions
+            <span class="acc__plus" aria-hidden="true" />
+          </button>
+        )
+      }
     </div>
   </div>
 </section>
+
+<script>
+  // Phones only: fold the questions after the fifth behind one button. Without JavaScript all are shown.
+  const mq = window.matchMedia('(max-width: 47.99em)');
+  document.querySelectorAll<HTMLElement>('[data-faq-list]').forEach((list) => {
+    const btn = list.querySelector<HTMLButtonElement>('[data-faq-all]');
+    if (!btn) return;
+    let opened = false;
+    const apply = () => {
+      const fold = mq.matches && !opened;
+      list.classList.toggle('is-folded', fold);
+      btn.hidden = !fold;
+    };
+    btn.addEventListener('click', () => {
+      opened = true;
+      btn.setAttribute('aria-expanded', 'true');
+      apply();
+      list.querySelector<HTMLElement>('.acc--extra summary')?.focus();
+    });
+    mq.addEventListener('change', apply);
+    apply();
+  });
+</script>
 
 <style>
   .faq__grid {
@@ -56,6 +90,29 @@ const items = typeof limit === 'number' ? faqs.slice(0, limit) : faqs;
   }
   .faq__head h2 {
     max-width: 10ch;
+  }
+  .faq__list:global(.is-folded) .acc--extra {
+    display: none;
+  }
+  .faq__all {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: var(--s-4);
+    width: 100%;
+    min-height: 3.5rem;
+    padding-block: var(--s-3);
+    border: 0;
+    border-bottom: 1px solid var(--line);
+    background: none;
+    color: var(--signal);
+    font: inherit;
+    font-weight: 600;
+    text-align: left;
+    cursor: pointer;
+  }
+  .faq__all[hidden] {
+    display: none;
   }
   @media (min-width: 64em) {
     .faq__grid {

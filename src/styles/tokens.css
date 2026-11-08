@@ -103,7 +103,8 @@
   --s-8: 4rem;
   --s-9: 6rem;
   --s-10: 8rem;
-  --section: clamp(5rem, 3.4rem + 6.6vw, 10rem);
+  /* Tighter on phones (3.5rem), unchanged on desktop. */
+  --section: clamp(3.5rem, 1.4rem + 8.6vw, 10rem);
   --container: 90rem;
   --gutter: clamp(1rem, 0.35rem + 2.8vw, 3rem);
   --header-h: 4.25rem;

@@ -317,4 +317,13 @@ const svcNames = Object.fromEntries(services.map((s) => [s.id, s.name]));
       top: calc(var(--header-h) + 2rem);
     }
   }
+  @media (max-width: 47.99em) {
+    .finder__form {
+      gap: var(--s-5);
+    }
+    .finder__legend {
+      font-size: 1.125rem;
+      margin-bottom: var(--s-3);
+    }
+  }
 </style>

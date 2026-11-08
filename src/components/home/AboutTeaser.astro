@@ -29,12 +29,12 @@ const rules = [
           I’m starting <a class="link" href={nest.url} rel="noopener">{nest.name}</a>, a home-cleaning business in {nest.area}. I
           built its website from scratch, and I clean every home myself when bookings open in summer 2027.
         </p>
-        <p class="muted">
+        <p class="muted about__more">
           That’s where I learned what owners actually need: to be found, to answer quickly, and to make booking easy. Now I set
           up the same foundations for other small businesses across {profile.serviceArea}.
         </p>
       </div>
-      <ul class="rules" role="list">
+      <ul class="rules rail" role="list" aria-label="House rules" data-rail>
         {
           rules.map((r, i) => (
             <li data-reveal style={`--d:${i * 70}`}>
@@ -74,7 +74,7 @@ const rules = [
     gap: var(--s-3);
     padding-block: var(--s-3);
   }
-  .rules li {
+    .rules li {
     display: flex;
     gap: var(--s-3);
     align-items: flex-start;
@@ -103,6 +103,19 @@ const rules = [
     .rules {
       grid-template-columns: 1fr 1fr;
       column-gap: var(--s-6);
+    }
+  }
+  @media (max-width: 47.99em) {
+    .rules li {
+      padding: var(--s-4);
+      border: 1px solid var(--line);
+      border-radius: var(--r-md);
+      background: var(--surface);
+    }
+  }
+  @media (max-width: 47.99em) {
+    .about__more {
+      display: none;
     }
   }
 </style>

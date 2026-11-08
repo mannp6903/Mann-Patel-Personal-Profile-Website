@@ -89,6 +89,7 @@ const jump = [
                   <span class="acc__plus" aria-hidden="true" />
                 </summary>
                 <div class="svc__body">
+                  <p class="svc__lead">{s.summary}</p>
                   <p class="svc__problem">
                     <span class="svc__k">Sounds familiar?</span> {s.problem}
                   </p>
@@ -165,7 +166,7 @@ const jump = [
           actually needs. Third-party fees (domain, email, booking tools) are billed to you by the provider.
         </p>
       </div>
-      <ol class="pkgs__grid" role="list">
+      <ol class="pkgs__grid rail" role="list" data-rail>
         {
           packages.map((p, i) => (
             <li class:list={['pkg', { 'pkg--featured': p.featured }]} id={`pkg-${p.id}`} data-reveal style={`--d:${i * 80}`}>
@@ -550,6 +551,39 @@ const jump = [
   @media (min-width: 80em) {
     .pkgs__grid {
       grid-template-columns: repeat(4, minmax(0, 1fr));
+    }
+  }
+  /* Phones: one line per service until opened, no giant letters, packages swipe sideways. */
+  .svc__lead {
+    display: none;
+  }
+  @media (max-width: 47.99em) {
+    .area__letter {
+      display: none;
+    }
+    .area__head {
+      gap: var(--s-3);
+    }
+    .area__grid {
+      gap: var(--s-5);
+    }
+    .svc > summary {
+      min-height: 3.75rem;
+      padding-block: var(--s-3);
+      align-items: center;
+    }
+    .svc__one {
+      display: none;
+    }
+    .svc__lead {
+      display: block;
+      color: var(--text);
+    }
+    .svc__name {
+      font-size: 1.0625rem;
+    }
+    .pkg {
+      height: 100%;
     }
   }
 </style>

@@ -26,7 +26,7 @@ const { id = 'process' } = Astro.props;
 
     <div class="proc__track" data-progress>
     <span class="proc__line" aria-hidden="true"><i></i></span>
-    <ol class="proc__list" role="list">
+    <ol class="proc__list rail" role="list" aria-label="Project steps" data-rail>
       {
         process.map((step, i) => (
           <li class="proc__step" data-reveal style={`--d:${i * 60}`}>
@@ -163,6 +163,25 @@ const { id = 'process' } = Astro.props;
     .proc__who div {
       grid-template-columns: 1fr;
       gap: var(--s-1);
+    }
+  }
+  /* Phones: the five steps swipe sideways as cards. */
+  @media (max-width: 47.99em) {
+    .proc__line {
+      display: none;
+    }
+    .proc__list {
+      padding-left: var(--gutter);
+    }
+    .proc__step {
+      align-content: start;
+      padding: var(--s-5);
+      border: 1px solid var(--line);
+      border-radius: var(--r-md);
+      background: var(--surface);
+    }
+    .proc__dot {
+      position: static;
     }
   }
 </style>

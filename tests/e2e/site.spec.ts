@@ -317,6 +317,116 @@ test.describe('home interactions', () => {
   });
 });
 
+test.describe('phones: short pages', () => {
+  // Screens of 390 × 844. Budgets keep the phone layout from growing back into a long scroll.
+  const BUDGET: Record<string, number> = {
+    '/': 10,
+    '/services/': 12,
+    '/work/': 4.5,
+    '/work/nest-and-rest-cleaning/': 6.5,
+    '/work/samp-hair-spa/': 6.5,
+    '/about/': 6.5,
+    '/contact/': 3.5,
+  };
+  for (const [path, max] of Object.entries(BUDGET)) {
+    test(`${path} stays under ${max} phone screens`, async ({ page }) => {
+      await page.setViewportSize({ width: 390, height: 844 });
+      await page.goto(path);
+      await revealAll(page);
+      const screens = await page.evaluate(() => document.documentElement.scrollHeight / innerHeight);
+      expect(screens).toBeLessThanOrEqual(max);
+    });
+  }
+
+  for (const path of ['/', '/services/', '/about/', '/work/nest-and-rest-cleaning/']) {
+    test(`${path} passes axe at phone width, and swipe rows can be reached by keyboard`, async ({ page }) => {
+      await page.setViewportSize({ width: 390, height: 844 });
+      await page.goto(path);
+      await revealAll(page);
+      await page.waitForTimeout(1300);
+      const axe = await new AxeBuilder({ page } as unknown as ConstructorParameters<typeof AxeBuilder>[0])
+        .withTags(['wcag2a', 'wcag2aa', 'wcag21a', 'wcag21aa', 'wcag22aa'])
+        .analyze();
+      const summary = axe.violations.map((v) => `${v.id} (${v.impact}): ${v.nodes.length} × ${v.nodes[0]?.target.join(' ')}`);
+      expect(summary, summary.join('\n')).toEqual([]);
+      const unreachable = await page.evaluate(() =>
+        [...document.querySelectorAll<HTMLElement>('[data-rail]')]
+          .filter((r) => r.scrollWidth > r.clientWidth + 1)
+          .filter((r) => r.tabIndex < 0 && !r.querySelector('a, button, input, select, textarea, summary'))
+          .map((r) => r.className),
+      );
+      expect(unreachable).toEqual([]);
+    });
+  }
+
+  test('"What I do" becomes three tabs that work with arrow keys', async ({ page }) => {
+    await page.setViewportSize({ width: 390, height: 844 });
+    await page.goto('/');
+    const tabs = page.getByRole('tablist', { name: 'What I help with' }).getByRole('tab');
+    await expect(tabs).toHaveCount(3);
+    await expect(tabs.first()).toHaveAttribute('aria-selected', 'true');
+    await expect(page.locator('#found')).toBeVisible();
+    await expect(page.locator('#answered')).toBeHidden();
+    await tabs.first().focus();
+    await page.keyboard.press('ArrowRight');
+    await expect(tabs.nth(1)).toBeFocused();
+    await expect(tabs.nth(1)).toHaveAttribute('aria-selected', 'true');
+    await expect(page.locator('#answered')).toBeVisible();
+    await expect(page.locator('#found')).toBeHidden();
+    // On a laptop the same content is one long list again.
+    await page.setViewportSize({ width: 1440, height: 900 });
+    await expect(page.locator('#found')).toBeVisible();
+    await expect(page.locator('#answered')).toBeVisible();
+  });
+
+  test('card rows swipe sideways with dots, without the page scrolling sideways', async ({ page }) => {
+    await page.setViewportSize({ width: 390, height: 844 });
+    await page.goto('/');
+    const rail = page.locator('#work [data-rail]');
+    const { scrollW, clientW, display } = await rail.evaluate((el) => ({
+      scrollW: el.scrollWidth,
+      clientW: el.clientWidth,
+      display: getComputedStyle(el).display,
+    }));
+    expect(display).toBe('flex');
+    expect(scrollW).toBeGreaterThan(clientW);
+    await expect(page.locator('#work .rail-dots i')).toHaveCount(2);
+    await rail.evaluate((el) => el.scrollTo({ left: el.scrollWidth, behavior: 'instant' }));
+    await expect(page.locator('#work .rail-dots i').last()).toHaveClass(/is-on/);
+    await noHorizontalOverflow(page);
+  });
+
+  test('the long question list folds after five, and one tap shows the rest', async ({ page }) => {
+    await page.setViewportSize({ width: 390, height: 844 });
+    await page.goto('/services/');
+    const items = page.locator('#faq details');
+    const total = await items.count();
+    expect(total).toBeGreaterThan(6);
+    await expect(items.nth(5)).toBeHidden();
+    const more = page.getByRole('button', { name: `Show all ${total} questions` });
+    await more.click();
+    await expect(items.nth(5)).toBeVisible();
+    await expect(more).toBeHidden();
+    await expect(items.nth(5).locator('summary')).toBeFocused();
+  });
+
+  test('a case study opens with its start, and "Read the full case study" shows the rest', async ({ page }) => {
+    await page.setViewportSize({ width: 390, height: 844 });
+    await page.goto('/work/nest-and-rest-cleaning/');
+    const prose = page.locator('[data-fold]');
+    await expect(prose).toHaveClass(/is-folded/);
+    const btn = page.getByRole('button', { name: 'Read the full case study' });
+    await btn.click();
+    await expect(prose).not.toHaveClass(/is-folded/);
+    await expect(btn).toBeHidden();
+    await expect(prose.getByRole('heading', { name: 'Results' })).toBeVisible();
+    // Laptops never fold the text.
+    await page.setViewportSize({ width: 1440, height: 900 });
+    await page.reload();
+    await expect(page.locator('[data-fold]')).not.toHaveClass(/is-folded/);
+  });
+});
+
 test.describe('services', () => {
   test('a link to a service opens it', async ({ page }) => {
     await page.goto('/services/#booking');
