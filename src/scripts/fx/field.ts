@@ -297,12 +297,25 @@ export function mountField(host: HTMLElement) {
     want = 0;
     kick();
   });
-  zone.addEventListener('pointerdown', (e) => {
-    local(e);
-    pings[pingIdx] = [mx, my, clock];
+  const ping = (x: number, y: number) => {
+    pings[pingIdx] = [x, y, clock];
     pingIdx = (pingIdx + 1) % pings.length;
     activeUntil = performance.now() + 3200;
     kick();
+  };
+  zone.addEventListener('pointerdown', (e) => {
+    local(e);
+    ping(mx, my);
+  });
+  // Other parts of the page can send a ping (the hero tuner does when the signal locks).
+  addEventListener('signal:ping', (e) => {
+    const d = (e as CustomEvent<{ x: number; y: number }>).detail;
+    if (!d) return;
+    const r = host.getBoundingClientRect();
+    const x = d.x - r.left;
+    const y = d.y - r.top;
+    if (x < 0 || y < 0 || x > r.width || y > r.height) return;
+    ping(x, y);
   });
 
   // One ping from the focus point when the field first appears.

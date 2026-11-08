@@ -67,6 +67,7 @@ Optional durable record: a Google Sheet + Apps Script web app (`ENQUIRY_WEBHOOK_
 | `select_content` | click on a link to a case study | `content_type: project`, `content_id`, `location` | Case-study page views are also counted by `page_view`. |
 | `select_content` (recommended) | guide recommendation shown | `content_type: service_guide_result`, `content_id: <package>` | |
 | `select_content` | first interaction with the workflow demo | `content_type: workflow_demo` | |
+| `tune_in` (custom) | the hero tuner locks onto 104.3 (round 8) | `method: drag`, `keyboard` or `auto` (tuned itself) | Shows whether people play with the hero or wait. Nothing else is sent. |
 | `contact_click` (custom) | click on email/phone/WhatsApp links | `method` | Only once these contact details exist |
 | outbound clicks (e.g. Nest & Rest) | Enhanced measurement | — | Turn **off** Enhanced Measurement "form interactions", to avoid double-counting forms |
 | booking events | **not used** | — | There is no real booking system |

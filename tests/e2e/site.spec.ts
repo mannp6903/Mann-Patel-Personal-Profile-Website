@@ -139,9 +139,11 @@ test.describe('layout', () => {
   }
 
   // Acceptance targets from the 8 Nov 2026 audit: real work comes straight after a compact hero.
+  // Round 8 added the tuner (dial and caption) to the phone hero, so the phone target moved down
+  // by its height; on desktop the tuner sits beside the copy and nothing moved.
   for (const [w, h, maxHeading, maxCard] of [
     [1440, 1000, 1100, 1500],
-    [390, 844, 1300, 1450],
+    [390, 844, 1450, 1560],
   ]) {
     test(`selected work starts by y=${maxHeading} at ${w}x${h}`, async ({ page }) => {
       await page.setViewportSize({ width: w, height: h });
@@ -219,37 +221,53 @@ test.describe('navigation', () => {
 });
 
 test.describe('home interactions', () => {
-  test('signal portrait draws, reacts to the pointer, and "Show photo" switches to the real photo', async ({ page }) => {
+  test('tune in: the photo arrives as a lost signal, and the dial locks onto Mann at 104.3', async ({ page }) => {
     await page.setViewportSize({ width: 1440, height: 900 });
     await page.goto('/');
-    const fig = page.locator('[data-portrait]');
-    await expect(fig).toHaveClass(/is-ready/);
-    // The canvas really draws (non-transparent pixels), and the pointer adds the lime glow.
-    const ink = () =>
-      page.evaluate(() => {
-        const c = document.querySelector<HTMLCanvasElement>('[data-portrait-canvas]')!;
-        const d = c.getContext('2d')!.getImageData(0, 0, c.width, c.height).data;
-        let lit = 0;
-        let lime = 0;
-        for (let i = 0; i < d.length; i += 16) {
-          if (d[i + 3] > 40) lit++;
-          if (d[i + 3] > 40 && d[i + 1] > 200 && d[i + 2] < 150) lime++;
-        }
-        return { lit, lime };
-      });
-    await page.waitForTimeout(2600);
-    expect((await ink()).lit).toBeGreaterThan(1000);
-    const box = (await fig.boundingBox())!;
-    await page.mouse.move(box.x + box.width / 2, box.y + box.height * 0.3, { steps: 6 });
-    await page.waitForTimeout(500);
-    expect((await ink()).lime).toBeGreaterThan(50);
-    await expect(fig).toHaveClass(/is-ready/);
-    const toggle = page.getByRole('button', { name: 'Show photo' });
-    await expect(toggle).toHaveAttribute('aria-pressed', 'false');
-    await toggle.click();
-    await expect(toggle).toHaveAttribute('aria-pressed', 'true');
-    await expect(fig).toHaveClass(/is-photo/);
-    await expect(page.locator('.hp__img')).toHaveAttribute('alt', /Mann Patel smiling/);
+    const tune = page.locator('[data-tune]');
+    await expect(tune).toHaveClass(/is-live/);
+    await expect(tune.locator('img')).toHaveAttribute('alt', /Mann Patel smiling/);
+    const dial = page.getByRole('slider', { name: 'Tune in' });
+    await expect(dial).toHaveAttribute('aria-valuetext', /FM, signal \d+%/);
+    const detune = () => page.locator('[data-tune-screen]').evaluate((e) => Number(getComputedStyle(e).getPropertyValue('--d')));
+    expect(await detune()).toBeGreaterThan(0.3);
+    // Keyboard: End, then Page Down twice and one step up lands within the station's detent.
+    await dial.focus();
+    await page.keyboard.press('End');
+    await expect(page.locator('[data-tune-freq]')).toHaveText('107.9');
+    await page.keyboard.press('PageDown');
+    await page.keyboard.press('PageDown');
+    await expect(tune).not.toHaveClass(/is-locked/);
+    await page.keyboard.press('ArrowRight');
+    await expect(tune).toHaveClass(/is-locked/);
+    await expect(page.locator('.hero')).toHaveClass(/is-locked/);
+    await expect(dial).toHaveAttribute('aria-valuetext', '104.3 FM, signal locked');
+    await expect(page.locator('[data-tune-status]')).toHaveText('Signal locked: Mann Patel, Toronto.');
+    await expect.poll(detune).toBe(0);
+    await expect.poll(() => tune.locator('.tune__tx').evaluate((e) => getComputedStyle(e).opacity)).toBe('1');
+    // Off the station again: the signal is lost and the page says how to get it back.
+    await dial.fill('1001');
+    await expect(tune).not.toHaveClass(/is-locked/);
+    await expect(page.locator('[data-tune-status]')).toHaveText('Signal lost. Tune back to 104.3.');
+  });
+
+  test('tune in: dragging across the photo tunes it, and left alone it tunes itself', async ({ page }) => {
+    await page.setViewportSize({ width: 1440, height: 900 });
+    await page.goto('/');
+    const freq = page.locator('[data-tune-freq]');
+    const screen = page.locator('[data-tune-screen]');
+    const b = (await screen.boundingBox())!;
+    await page.mouse.move(b.x + b.width * 0.2, b.y + b.height / 2);
+    await page.mouse.down();
+    const before = Number(await freq.textContent());
+    await page.mouse.move(b.x + b.width * 0.45, b.y + b.height / 2, { steps: 5 });
+    await page.mouse.up();
+    // A quarter of the photo's width is about a quarter of the FM band (19.8 MHz).
+    expect(Number(await freq.textContent()) - before).toBeGreaterThan(3);
+    // A fresh visit, untouched: it locks on its own within a few seconds.
+    await page.goto('/');
+    await expect(page.locator('[data-tune]')).toHaveClass(/is-locked/, { timeout: 15_000 });
+    await expect(freq).toHaveText('104.3');
   });
 
   test('the three service summaries each link to their full detail on Services', async ({ page }) => {
@@ -295,38 +313,43 @@ test.describe('home interactions', () => {
     await page.goto('/');
     expect(await page.locator('.hw').first().evaluate((e) => getComputedStyle(e).animationName)).toBe('none');
     expect(await page.evaluate(() => document.documentElement.classList.contains('js-motion'))).toBe(false);
+    // The tuner starts locked: the clear photo, no static, nothing moving.
+    await expect(page.locator('[data-tune]')).toHaveClass(/is-locked/);
+    await expect(page.locator('[data-tune-freq]')).toHaveText('104.3');
+    expect(await page.locator('.tune__line').first().evaluate((e) => getComputedStyle(e).animationName)).toBe('none');
     const op = await page.locator('[data-reveal]:not([data-reveal^="load"])').first().evaluate((e) => getComputedStyle(e).opacity);
     expect(op).toBe('1');
     await ctx.close();
   });
 
-  test('phones: the header keeps Contact one tap away, and the hero shows a face', async ({ page }) => {
+  test('phones: Contact stays one tap away, the tuner follows the buttons, and its show waits until it is seen', async ({ page }) => {
     await page.setViewportSize({ width: 360, height: 800 });
     await page.goto('/');
     const cta = page.locator('[data-header]').getByRole('link', { name: 'Contact', exact: true });
     await expect(cta).toBeVisible();
     await expect(cta).toHaveAttribute('href', '/contact/');
     await expect(page.locator('[data-menu-open]')).toBeVisible();
-    await expect(page.locator('.hero__avatar')).toBeVisible();
-    await page.setViewportSize({ width: 1440, height: 900 });
-    await expect(page.locator('.hero__avatar')).toBeHidden();
+    const gap = await page.evaluate(
+      () => document.querySelector('[data-tune]')!.getBoundingClientRect().top - document.querySelector('.hero__actions')!.getBoundingClientRect().bottom,
+    );
+    expect(gap).toBeLessThan(60);
+    await page.waitForTimeout(800);
+    await expect(page.locator('.hero')).not.toHaveClass(/is-tuning|is-locked/);
+    await page.locator('[data-tune-screen]').scrollIntoViewIfNeeded();
+    await expect(page.locator('.hero')).toHaveClass(/is-tuning/);
   });
 
-  test('the real, whole photo shows in the hero on phones and tablets, and on desktop with "Show photo"', async ({ page }) => {
-    for (const [w, h] of [[390, 844], [820, 1180]]) {
+  test('the real, whole photo is in the hero at every size, with the way into About', async ({ page }) => {
+    for (const [w, h] of [[390, 844], [820, 1180], [1440, 900]]) {
       await page.setViewportSize({ width: w, height: h });
       await page.goto('/');
-      const photo = page.locator('.hero__photo img');
+      const photo = page.locator('[data-tune] img');
       await expect(photo).toBeVisible();
       await expect(photo).toHaveAttribute('alt', /Mann Patel smiling/);
-      await page.waitForFunction(() => (document.querySelector('.hero__photo img') as HTMLImageElement).naturalWidth > 0);
+      await page.waitForFunction(() => (document.querySelector('[data-tune] img') as HTMLImageElement).naturalWidth > 0);
+      await expect(page.locator('[data-tune]').getByRole('link', { name: 'Who is this guy?' })).toHaveAttribute('href', '/about/');
     }
-    await page.setViewportSize({ width: 1440, height: 900 });
-    await page.goto('/');
-    await expect(page.locator('.hero__photo')).toBeHidden();
-    await expect(page.locator('#hero-art')).toHaveClass(/is-ready/, { timeout: 8000 });
-    await page.getByRole('button', { name: 'Show photo' }).click();
-    await expect.poll(() => page.locator('.hp__real').evaluate((e) => getComputedStyle(e).opacity)).toBe('1');
+    await expect(page.locator('.hero__photo, #hero-art, .hero__avatar')).toHaveCount(0);
     await expect(page.locator('section.about img')).toHaveCount(0);
   });
 
@@ -336,7 +359,12 @@ test.describe('home interactions', () => {
     await page.goto('/');
     await expect(page.locator('.hdr__nav').getByRole('link', { name: 'Services' })).toBeVisible();
     await expect(page.locator('[data-menu-open]')).toBeHidden();
-    await expect(page.locator('.hero__photo img')).toBeVisible();
+    // The tuner without JavaScript: just the clear photo and its three lines; no dial.
+    await expect(page.locator('[data-tune] img')).toBeVisible();
+    expect(await page.locator('[data-tune] img').evaluate((e) => getComputedStyle(e).getPropertyValue('--d').trim())).toBe('0');
+    await expect(page.locator('.tune__dial')).toBeHidden();
+    await expect(page.locator('.tune__hud')).toBeHidden();
+    await expect(page.locator('.tune__line').first()).toBeVisible();
     await ctx.close();
   });
 });
