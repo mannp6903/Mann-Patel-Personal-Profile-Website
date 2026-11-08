@@ -17,10 +17,10 @@ const links = [
 <BaseLayout title="Page not found" description="This page doesn’t exist." noindex>
   <section class="nf">
     <div class="container nf__grid">
-      <figure class="nf__mark" data-halftone>
+      <figure class="nf__mark" data-portrait>
         <div class="nf__stage">
-          <img src="/404-mark.svg" alt="" width="900" height="380" class="nf__img" data-ht-img />
-          <canvas class="nf__canvas" aria-hidden="true" data-ht-canvas></canvas>
+          <img src="/404-mark.svg" alt="" width="900" height="380" class="nf__img" data-portrait-img />
+          <canvas class="nf__canvas" aria-hidden="true" data-portrait-canvas></canvas>
         </div>
       </figure>
       <div class="nf__text">
@@ -51,8 +51,8 @@ const links = [
 </BaseLayout>
 
 <script>
-  import { mountHalftone } from '../scripts/halftone';
-  document.querySelectorAll<HTMLElement>('[data-halftone]').forEach(mountHalftone);
+  import { mountSignalPortrait } from '../scripts/signal-portrait';
+  document.querySelectorAll<HTMLElement>('[data-portrait]').forEach(mountSignalPortrait);
 </script>
 
 <style>

@@ -8,11 +8,15 @@ import { contact, emailHref } from '../../lib/contact';
 import { profile } from '../../data/site';
 
 const mail = emailHref();
+// Only promise the channels that exist (the phone buttons need PUBLIC_CONTACT_PHONE).
+const description = contact.phone
+  ? 'Send Mann Patel a short project brief, or reach him directly by email, phone, WhatsApp or text. Helping small businesses in Toronto and the GTA.'
+  : 'Send Mann Patel a short project brief, or email him directly. Helping small businesses in Toronto and the GTA get found, answer every enquiry and get booked.';
 ---
 
 <BaseLayout
   title="Contact"
-  description="Send Mann Patel a short project brief, or reach him directly by email, phone, WhatsApp or text. Helping small businesses in Toronto and the GTA."
+  description={description}
   footerCta={false}
 >
   <PageHead

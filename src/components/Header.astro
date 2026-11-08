@@ -52,9 +52,11 @@ const sheetLinks = [{ href: '/', label: 'Home' }, ...nav, { href: '/contact/', l
         <kbd aria-hidden="true"><span data-mod>Ctrl</span> K</kbd>
       </button>
       <Button href={primaryCta.href} size="sm" class="hdr__cta">{primaryCta.label}</Button>
+      <!-- Phones: the main action stays one tap away in the header. -->
+      <Button href="/contact/" size="sm" class="hdr__cta-m">Contact</Button>
       <button class="menu-btn" type="button" data-menu-open aria-haspopup="dialog" aria-controls="site-menu">
         <span class="menu-btn__lines" aria-hidden="true"><i></i><i></i></span>
-        <span>Menu</span>
+        <span class="menu-btn__text">Menu</span>
       </button>
     </div>
   </div>
@@ -310,6 +312,32 @@ const sheetLinks = [{ href: '/', label: 'Home' }, ...nav, { href: '/contact/', l
     border-radius: 6px;
     color: var(--text-3);
   }
+  .hdr__actions :global(.hdr__cta-m) {
+    padding-left: 0.95rem;
+    gap: var(--s-2);
+  }
+  /* Very narrow phones: the Menu button keeps its name for screen readers but shows only lines. */
+  @container hdr (max-width: 26em) {
+    .hdr__actions :global(.hdr__cta-m) {
+      padding: 0 1rem;
+    }
+    .hdr__actions :global(.hdr__cta-m .btn__icon) {
+      display: none;
+    }
+    .menu-btn {
+      width: var(--tap);
+      padding: 0;
+      justify-content: center;
+    }
+    .menu-btn__text {
+      position: absolute;
+      width: 1px;
+      height: 1px;
+      overflow: hidden;
+      clip-path: inset(50%);
+      white-space: nowrap;
+    }
+  }
   .hdr__cta {
     display: none;
   }
@@ -375,6 +403,9 @@ const sheetLinks = [{ href: '/', label: 'Home' }, ...nav, { href: '/contact/', l
     }
     .hdr__cta {
       display: inline-flex;
+    }
+    .hdr__actions :global(.hdr__cta-m) {
+      display: none;
     }
     .menu-btn {
       display: none;

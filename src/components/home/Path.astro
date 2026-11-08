@@ -56,6 +56,7 @@ const kinds = groups.map((g) => g.id) as ('found' | 'answered' | 'booked')[];
               <div class="step__screen" aria-hidden="true">
                 <div class="phone is-idle" data-inline-screen>
                   <span class="phone__island" />
+                  <span class="phone__tag"><b>Example</b><i>Fictional</i></span>
                   <PhoneScreen kind={kinds[i]} />
                 </div>
                 <p class="path__note num">Example · fictional business</p>
@@ -69,6 +70,7 @@ const kinds = groups.map((g) => g.id) as ('found' | 'answered' | 'booked')[];
         <div class="path__sticky">
           <div class="phone phone--lg">
             <span class="phone__island"></span>
+            <span class="phone__tag"><b>Example</b><i>Fictional</i></span>
             {
               kinds.map((k, i) => (
                 <div class:list={['dev__screen', i === 0 ? 'is-active' : 'is-idle']} data-dev={k}>
@@ -244,6 +246,29 @@ const kinds = groups.map((g) => g.id) as ('found' | 'answered' | 'booked')[];
     border-radius: var(--r-pill);
     background: #000;
     transform: translateX(-50%);
+  }
+  /* Status-bar label on every example screen, so no one mistakes it for a real client. */
+  .phone__tag {
+    position: absolute;
+    top: 0.72rem;
+    left: 0.95rem;
+    right: 0.95rem;
+    z-index: 4;
+    display: flex;
+    justify-content: space-between;
+    font-family: var(--font-mono);
+    font-size: 0.6rem;
+    letter-spacing: 0.06em;
+    text-transform: uppercase;
+    pointer-events: none;
+  }
+  .phone__tag b {
+    font-weight: 600;
+    color: var(--signal);
+  }
+  .phone__tag i {
+    font-style: normal;
+    color: var(--text-2);
   }
   .phone--lg {
     width: 20rem;

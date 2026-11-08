@@ -1,5 +1,5 @@
 // Generates favicon PNGs and the default Open Graph image (1200×630) from code, in the
-// "Signal" design (DESIGN.md): the halftone portrait beside "Found. Answered. Booked."
+// "Signal" design (DESIGN.md): the signal-line portrait beside "Found. Answered. Booked."
 // Run: npm run images   (when the portrait, favicon or headline changes)
 import { chromium } from '@playwright/test';
 import sharp from 'sharp';
@@ -40,18 +40,29 @@ canvas{position:absolute;right:40px;bottom:0;width:470px;height:496px}
 <canvas id="c" width="940" height="992"></canvas>
 <img id="src" src="data:image/png;base64,${cutout}" style="display:none">
 <script>
-// Static version of src/scripts/halftone.ts
+// Static version of src/scripts/signal-portrait.ts: scan lines that oscillate where the image is bright.
 const img=document.getElementById('src');
 img.decode().then(()=>{
   const c=document.getElementById('c'),x=c.getContext('2d');x.scale(2,2);
-  const w=470,h=496,p=w/108,cols=Math.floor(w/p),rows=Math.floor(h/p);
+  const w=470,h=496,gap=h/96,dx=1.1,cols=Math.ceil(w/dx),rows=Math.floor(h/gap);
   const o=document.createElement('canvas');o.width=cols;o.height=rows;const ox=o.getContext('2d');
-  const ir=img.naturalWidth/img.naturalHeight,cr=cols/rows;let dw=cols,dh=rows;if(ir>cr)dh=cols/ir;else dw=rows*ir;
+  const ir=img.naturalWidth/img.naturalHeight,cr=w/(rows*gap);let dw=cols,dh=rows;if(ir>cr)dh=rows*(cr/ir);else dw=cols*(ir/cr);
   ox.drawImage(img,(cols-dw)/2,rows-dh,dw,dh);const d=ox.getImageData(0,0,cols,rows).data;
-  const cells=[];let lo=1,hi=0;
-  for(let j=0;j<rows;j++)for(let i=0;i<cols;i++){const k=(j*cols+i)*4;if(d[k+3]<90)continue;const L=(.2126*d[k]+.7152*d[k+1]+.0722*d[k+2])/255;cells.push([i,j,L]);lo=Math.min(lo,L);hi=Math.max(hi,L)}
-  x.fillStyle='#f2f1ec';const R=p*.6;
-  for(const [i,j,L0] of cells){const L=Math.pow((L0-lo)/(hi-lo),1.2);const r=R*(.1+.9*L);x.beginPath();x.arc((i+.5)*p,(j+.5)*p+(h-rows*p),r,0,7);x.fill()}
+  const lum=new Float32Array(cols*rows),al=new Float32Array(cols*rows);let lo=1,hi=0;
+  for(let k=0;k<cols*rows;k++){al[k]=d[k*4+3]/255;lum[k]=(.2126*d[k*4]+.7152*d[k*4+1]+.0722*d[k*4+2])/255;if(al[k]>.35){lo=Math.min(lo,lum[k]);hi=Math.max(hi,lum[k])}}
+  const sh=new Float32Array(lum.length);
+  for(let j=0;j<rows;j++)for(let i=0;i<cols;i++){let s=0,n=0;for(let v=-1;v<=1;v++)for(let u=-2;u<=2;u++){const jj=j+v,ii=i+u;if(jj<0||jj>=rows||ii<0||ii>=cols)continue;s+=lum[jj*cols+ii];n++}const k=j*cols+i;sh[k]=Math.min(1,Math.max(0,lum[k]+1.1*(lum[k]-s/n)))}
+  const top=h-rows*gap,faint=[new Path2D(),new Path2D(),new Path2D()],ink=[new Path2D(),new Path2D(),new Path2D()];
+  for(let j=0;j<rows;j++){let ph=j*.9,inF=false,lt=-1,lf=3,pxx=0,pyy=0;const y0=top+(j+.5)*gap;
+    for(let i=0;i<cols;i++){const k=j*cols+i,a=Math.min(1,al[k]*1.4),L=a<.05?0:Math.pow(Math.max(0,(sh[k]-lo)/(hi-lo)),1.7);
+      ph+=(.42+.95*L)*dx;const X=i*dx,Y=y0+Math.sin(ph)*gap*.62*L*a;
+      const ex=(X-w/2)/(w*.52),ey=(y0-h*.58)/(h*.62),e=ex*ex+ey*ey,f=e<.42?2:e<.7?1:e<1?0:3;
+      if(f<3){if(lf===3||i===0)faint[f].moveTo(X,Y);else{if(f!==lf)faint[f].moveTo(pxx,pyy);faint[f].lineTo(X,Y)}}lf=f;
+      if(a>.35){const t=L<.22?0:L<.55?1:2;if(!inF)ink[t].moveTo(X,Y);else{if(t!==lt)ink[t].moveTo(pxx,pyy);ink[t].lineTo(X,Y)}lt=t;inF=true}else{inF=false;lt=-1}
+      pxx=X;pyy=Y}}
+  x.lineJoin='round';x.lineCap='round';
+  x.lineWidth=1;['rgba(242,241,236,.035)','rgba(242,241,236,.07)','rgba(242,241,236,.12)'].forEach((c,f)=>{x.strokeStyle=c;x.stroke(faint[f])});
+  x.strokeStyle='#f2f1ec';[.65,1.15,1.75].forEach((lw,t)=>{x.lineWidth=lw;x.stroke(ink[t])});
   document.body.dataset.ready='1';
 });
 </script>

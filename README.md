@@ -4,7 +4,7 @@ Personal profile and digital-services site for Mann Patel (production domain: **
 
 Built with **Astro 7** (static pages + one server endpoint for the project-brief form), vanilla TypeScript islands, and self-hosted OFL fonts. No CMS, no client framework, no tracking unless configured.
 
-**Design: "Signal" (round 5, 8 Nov 2026).** A dark, kinetic design: a halftone portrait that reacts to the pointer, variable-font type that stretches into place, a phone that follows the story as you scroll, stacking project cards, a 3-step brief and a ⌘K quick menu. The system (colours, type, spacing, components, motion) is in [`DESIGN.md`](DESIGN.md); what changed and how it was checked is in [`docs/12-round-5-signal.md`](docs/12-round-5-signal.md).
+**Design: "Signal" (round 5, 8 Nov 2026).** A dark, kinetic design: a portrait drawn as a live signal (oscillating scan lines) that reacts to the pointer, variable-font type that stretches into place, a phone that follows the story as you scroll, stacking project cards, a 3-step brief and a ⌘K quick menu. The system (colours, type, spacing, components, motion) is in [`DESIGN.md`](DESIGN.md); what changed and how it was checked is in [`docs/12-round-5-signal.md`](docs/12-round-5-signal.md).
 
 > **Status: content confirmed (31 Oct 2026).** All "To confirm" items are answered. Production deploys still run the pre-launch check, and the form's inbox address (`ENQUIRY_TO_EMAIL`) and phone number (`PUBLIC_CONTACT_PHONE`) are added in Cloudflare. See [`docs/OWNER-INPUTS.md`](docs/OWNER-INPUTS.md).
 
@@ -34,10 +34,10 @@ npm run preview             # node ./dist/server/entry.mjs → http://localhost:
 | `npm run preview` | Serve the built site, including the enquiry endpoint |
 | `npm run check` | Astro + TypeScript diagnostics |
 | `npm test` | Unit tests (Vitest): validation, guide logic, spam, limits, delivery, handler |
-| `npm run test:e2e` | Browser tests (Playwright + axe): pages, accessibility, layout 320–1440 px and 200% text, menu, ⌘K menu, halftone, finder, reduced motion, no-JS, every form path. Run `npm run build` first. |
+| `npm run test:e2e` | Browser tests (Playwright + axe): pages, accessibility, layout 320–1440 px and 200% text, menu, ⌘K menu, signal portrait, finder, reduced motion, no-JS, every form path including the email fallback. Run `npm run build` first. |
 | `npm run qa:captures` | Full-page screenshots at 360/390/768/1024/1440 + overflow report (server must be running) |
 | `npm run qa:lighthouse` | Lighthouse mobile run (`npm i --no-save lighthouse` first) |
-| `npm run images` | Regenerate favicons and the Open Graph image (halftone portrait + headline) |
+| `npm run images` | Regenerate favicons and the Open Graph image (signal-line portrait + headline) |
 | `npm run preview:static` | Export a server-less copy with relative links to `preview-static/` (for private previews; the form shows "not connected") |
 | `npm run prelaunch` | Production gate: env, preview markers, canonicals, robots/sitemap, internal links |
 

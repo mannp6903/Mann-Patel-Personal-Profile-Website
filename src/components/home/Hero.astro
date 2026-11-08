@@ -2,10 +2,13 @@
 /**
  * Home hero. The H1 is the promise in three words plus one plain sentence. The words stretch
  * into place (variable-font width), so the heading is never hidden while it animates.
- * The portrait is a halftone canvas (src/scripts/halftone.ts) over the real cut-out photo.
+ * The portrait is drawn as a live signal (scan lines, src/scripts/signal-portrait.ts) over the
+ * real cut-out photo. On phones a small round photo sits beside the name, so the first screen
+ * has a face.
  */
 import { Image } from 'astro:assets';
 import cutout from '../../assets/mann-patel-cutout.png';
+import face from '../../assets/mann-patel-face.jpg';
 import { groups } from '../../data/services';
 import { profile } from '../../data/site';
 import Button from '../ui/Button.astro';
@@ -16,8 +19,9 @@ import Icon from '../ui/Icon.astro';
 <section class="hero" aria-labelledby="hero-title">
   <div class="hero__inner container">
     <div class="hero__meta">
-      <p class="eyebrow">{profile.name} · {profile.location}, Canada</p>
-      <p class="status status--live"><span class="status__dot" aria-hidden="true"></span>Taking new projects</p>
+      <Image src={face} alt="" widths={[96, 144]} sizes="3rem" format="webp" loading="eager" class="hero__avatar" />
+      <p class="eyebrow hero__where">{profile.name} · {profile.location}, Canada</p>
+      <p class="status status--live hero__status"><span class="status__dot" aria-hidden="true"></span>Taking new projects</p>
     </div>
 
     <h1 class="hero__title" id="hero-title">
@@ -41,7 +45,7 @@ import Icon from '../ui/Icon.astro';
       </div>
     </div>
 
-    <figure class="hero__portrait" data-halftone>
+    <figure class="hero__portrait" data-portrait>
       <div class="hp__stage">
         <Image
           src={cutout}
@@ -53,16 +57,16 @@ import Icon from '../ui/Icon.astro';
           loading="eager"
           fetchpriority="high"
           class="hp__img"
-          data-ht-img
+          data-portrait-img
         />
-        <canvas class="hp__canvas" aria-hidden="true" data-ht-canvas></canvas>
+        <canvas class="hp__canvas" aria-hidden="true" data-portrait-canvas></canvas>
       </div>
       <figcaption class="hp__cap">
         <span class="hp__who">
           <span>Mann Patel</span>
           <span class="num subtle">43.65° N · 79.38° W</span>
         </span>
-        <button class="hp__toggle" type="button" aria-pressed="false" data-ht-toggle>
+        <button class="hp__toggle" type="button" aria-pressed="false" data-portrait-toggle>
           <span class="hp__switch" aria-hidden="true"><i></i></span>
           Show photo
         </button>
@@ -89,8 +93,8 @@ import Icon from '../ui/Icon.astro';
 </section>
 
 <script>
-  import { mountHalftone } from '../../scripts/halftone';
-  document.querySelectorAll<HTMLElement>('[data-halftone]').forEach(mountHalftone);
+  import { mountSignalPortrait } from '../../scripts/signal-portrait';
+  document.querySelectorAll<HTMLElement>('[data-portrait]').forEach(mountSignalPortrait);
 </script>
 
 <style>
@@ -115,12 +119,48 @@ import Icon from '../ui/Icon.astro';
     display: grid;
     gap: var(--s-6);
   }
+  /* Phones: a small round photo beside the name and status (two short lines). */
   .hero__meta {
-    display: flex;
-    flex-wrap: wrap;
-    justify-content: space-between;
+    display: grid;
+    grid-template-columns: auto 1fr;
+    column-gap: var(--s-3);
+    row-gap: 0.15rem;
     align-items: center;
-    gap: var(--s-3);
+  }
+  .hero__meta :global(.hero__avatar) {
+    grid-row: span 2;
+    width: 3rem;
+    height: 3rem;
+    border-radius: 50%;
+    object-fit: cover;
+    background: var(--surface-2);
+    box-shadow: 0 0 0 2px var(--bg), 0 0 0 3px var(--signal);
+  }
+  .hero__where::before {
+    content: none;
+  }
+  .hero__status {
+    justify-self: start;
+    padding: 0;
+    border: 0;
+  }
+  @media (min-width: 40em) {
+    .hero__meta {
+      display: flex;
+      flex-wrap: wrap;
+      justify-content: space-between;
+      gap: var(--s-3);
+    }
+    .hero__meta :global(.hero__avatar) {
+      display: none;
+    }
+    .hero__where::before {
+      content: '';
+    }
+    .hero__status {
+      padding: 0.35em 0.8em 0.35em 0.65em;
+      border: 1px solid var(--line);
+    }
   }
 
   /* ── Title ── */

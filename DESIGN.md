@@ -4,7 +4,7 @@ The design system for mannpatel.me. Every page uses these tokens through the CSS
 `src/styles/tokens.css`; components never use raw colours or one-off sizes.
 
 **Idea.** Mann's work makes small businesses *visible* and *responsive*. The site behaves the same
-way: a dark, quiet stage where things light up when you come close (the halftone portrait, the
+way: a dark, quiet stage where things light up when you come close (the signal-line portrait, the
 kinetic name, the lime signal colour). Clearly different from the earlier "Front Desk" direction
 (paper, ink and stamp orange, tickets and stamps).
 
@@ -98,7 +98,8 @@ shadow only: `--shadow-pop` for floating layers (menu, ⌘K palette, toast).
 
 ## Imagery and icons
 
-- The only photo is Mann's real portrait (a cut-out on the home page, the full street photo on About).
+- The only photo is Mann's real portrait: on Home it is drawn as the signal-line portrait (with a
+  "Show photo" switch and a small round face photo on phones); the full street photo is on About.
   Never generated or stock.
 - Project images are real captures of real sites, shown in plain rounded frames, captioned with
   dates.
@@ -113,7 +114,8 @@ shadow only: `--shadow-pop` for floating layers (menu, ⌘K palette, toast).
 | `--ease-in-out` | `cubic-bezier(0.65, 0, 0.35, 1)` |
 | `--t-fast` / `--t-base` / `--t-slow` / `--t-reveal` | 160 / 320 / 700 / 1100 ms |
 
-Signature moments: halftone portrait (dots gather on load, scatter around the pointer), kinetic
+Signature moments: the signal-line portrait (Mann's face drawn by ~120 oscillating scan lines that
+trace in on load and swell and glow lime around the pointer), kinetic
 hero words (width and weight animate in), headings revealed line by line, the phone that changes
 screen as you scroll, project cards that stack, a timeline that draws itself, and the footer name.
 Everything is off under `prefers-reduced-motion`; content never waits on JavaScript.
