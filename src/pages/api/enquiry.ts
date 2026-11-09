@@ -47,14 +47,14 @@ async function emailBinding(): Promise<SendEmailBinding | undefined> {
 }
 async function sendViaCloudflare(
   binding: SendEmailBinding,
-  m: { to: string; subject: string; text: string; replyTo?: string; messageId: string },
+  m: { to: string; subject: string; text: string; html?: string; replyTo?: string; messageId: string },
 ) {
   const mod = 'cloudflare:email';
   const { EmailMessage } = (await import(/* @vite-ignore */ mod)) as {
     EmailMessage: new (from: string, to: string, raw: string) => unknown;
   };
   const from = ENQUIRY_FROM_EMAIL ?? '';
-  const raw = buildMime({ from, to: m.to, replyTo: m.replyTo, subject: m.subject, text: m.text, messageId: m.messageId });
+  const raw = buildMime({ from, to: m.to, replyTo: m.replyTo, subject: m.subject, text: m.text, html: m.html, messageId: m.messageId });
   await binding.send(new EmailMessage(addressOf(from), addressOf(m.to), raw));
 }
 

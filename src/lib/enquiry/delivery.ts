@@ -6,6 +6,7 @@
 import type { Enquiry } from './validate';
 import { labelFor, SERVICE_OPTIONS, PACKAGE_OPTIONS, BUDGET_OPTIONS, TIMEFRAME_OPTIONS } from './options';
 import { signHex } from './spam';
+import { ownerEmailHtml } from './email-html';
 
 export type DeliveryMode = 'file' | 'resend' | 'cloudflare' | 'webhook' | 'none';
 
@@ -36,7 +37,7 @@ export interface DeliveryDeps {
   appendFile?: (path: string, data: string) => Promise<void>;
   sleep?: (ms: number) => Promise<void>;
   /** Cloudflare Email (send_email binding). Resolves when Cloudflare accepts the message. */
-  sendEmail?: (msg: { to: string; subject: string; text: string; replyTo?: string; messageId: string }) => Promise<void>;
+  sendEmail?: (msg: { to: string; subject: string; text: string; html?: string; replyTo?: string; messageId: string }) => Promise<void>;
 }
 
 export interface DeliveryResult {
@@ -136,7 +137,7 @@ async function withRetry(fn: () => Promise<Response>, sleep: (ms: number) => Pro
 async function sendResend(
   cfg: DeliveryConfig,
   deps: DeliveryDeps,
-  payload: { to: string; subject: string; text: string; replyTo?: string; idempotencyKey: string },
+  payload: { to: string; subject: string; text: string; html?: string; replyTo?: string; idempotencyKey: string },
 ): Promise<boolean> {
   const res = await withRetry(
     () =>
@@ -152,6 +153,7 @@ async function sendResend(
           to: [payload.to],
           subject: payload.subject,
           text: payload.text,
+          ...(payload.html ? { html: payload.html } : {}),
           ...(payload.replyTo ? { reply_to: payload.replyTo } : {}),
         }),
         signal: AbortSignal.timeout(10_000),
@@ -207,6 +209,7 @@ export async function deliver(lead: Lead, cfg: DeliveryConfig, deps: DeliveryDep
         to: cfg.toEmail!,
         subject: ownerSubject(lead),
         text: ownerEmailText(lead),
+        html: ownerEmailHtml(lead, ownerSubject(lead)),
         replyTo: lead.email,
         idempotencyKey: `${lead.id}-owner`,
       });
@@ -224,6 +227,7 @@ export async function deliver(lead: Lead, cfg: DeliveryConfig, deps: DeliveryDep
       to: cfg.toEmail ?? '',
       subject: ownerSubject(lead),
       text: ownerEmailText(lead),
+      html: ownerEmailHtml(lead, ownerSubject(lead)),
       replyTo: lead.email,
       messageId: `${lead.id}@${(cfg.fromEmail ?? 'website@localhost').replace(/>.*$/, '').split('@').pop()}`,
     };
