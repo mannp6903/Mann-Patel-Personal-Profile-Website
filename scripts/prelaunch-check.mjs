@@ -136,8 +136,9 @@ check(brokenAssets.size === 0, 'All images, fonts and scripts referenced by the 
 
 const robots = await readFile(join(root, 'robots.txt'), 'utf8').catch(() => '');
 if (env.SITE_INDEXING === 'true') {
-  check(robots.includes('Allow: /') && robots.includes(`Sitemap: ${site}/sitemap-index.xml`), 'robots.txt allows crawling and lists the sitemap', 'robots.txt is not in production form');
+  check(robots.includes('Allow: /') && robots.includes(`Sitemap: ${site}/sitemap.xml`), 'robots.txt allows crawling and lists the sitemap', 'robots.txt is not in production form');
   check(await exists(join(root, 'sitemap-index.xml')), 'sitemap-index.xml generated', 'sitemap-index.xml missing');
+  check(await exists(join(root, 'sitemap.xml')), 'sitemap.xml generated', 'sitemap.xml missing');
 }
 
 // ── Report ──────────────────────────────────────────────────
