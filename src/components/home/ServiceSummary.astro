@@ -1,10 +1,19 @@
 ---
 /**
- * What I do, in three short summaries (found → answered → booked). Each links to its full detail
- * on Services, where every service lists what's included and what isn't. The longer example
+ * What I do, in three short summaries (found → answered → booked). Each links to its focused
+ * service page (round 10), which says who it's for, the work, the package and its limits. The longer example
  * screens that used to live here were removed so the real work comes first (round 7).
  */
 import { groups, addOns } from '../../data/services';
+import { servicePageForGroup } from '../../data/service-pages';
+import { packageById, priceLabel } from '../../data/packages';
+
+// The package that matches each area (package preview, audit 8 Nov 2026).
+const packageFor: Record<string, ReturnType<typeof packageById>> = {
+  found: packageById('local-visibility'),
+  answered: packageById('website-enquiry'),
+  booked: packageById('website-launch'),
+};
 import Icon from '../ui/Icon.astro';
 ---
 
@@ -31,8 +40,13 @@ import Icon from '../ui/Icon.astro';
             </p>
             <h3 class="ss__name">{g.title}</h3>
             <p class="muted">{g.intro}</p>
-            <a class="link-arrow" href={`/services/#${g.id}`}>
-              What’s included <span class="visually-hidden">in {g.title}</span>
+            {packageFor[g.id] && (
+              <p class="ss__pkg small">
+                <span class="subtle">Package:</span> {packageFor[g.id]!.name} · <span class="subtle">{priceLabel(packageFor[g.id]!).text}</span>
+              </p>
+            )}
+            <a class="link-arrow" href={servicePageForGroup(g.id) ? `/services/${servicePageForGroup(g.id)!.slug}/` : `/services/#${g.id}`}>
+              Who it’s for and what’s included <span class="visually-hidden">: {g.title}</span>
               <Icon name="arrow" />
             </a>
           </li>
@@ -48,6 +62,13 @@ import Icon from '../ui/Icon.astro';
 </section>
 
 <style>
+  .ss__pkg {
+    padding-top: var(--s-3);
+    border-top: 1px dashed var(--line);
+    font-family: var(--font-mono);
+    font-size: var(--fs-xs);
+    letter-spacing: 0.02em;
+  }
   .ss__head {
     display: grid;
     gap: var(--s-4);

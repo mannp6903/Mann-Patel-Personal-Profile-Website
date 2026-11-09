@@ -3,6 +3,7 @@
  * Keep messages plain and specific; they are shown next to the field.
  */
 import { SERVICE_IDS, PACKAGE_IDS, BUDGET_IDS, TIMEFRAME_IDS } from './options';
+import { normalizePackageId } from '../../data/packages';
 
 export const LIMITS = {
   name: 100,
@@ -95,7 +96,8 @@ export function validateEnquiry(raw: Record<string, unknown>): ValidationResult 
     errors.services = 'Please choose from the listed options.';
   }
 
-  const packageId = clean(raw.packageId);
+  // Old package ids (from pages or links before round 10) map to the current offer.
+  const packageId = normalizePackageId(clean(raw.packageId)) || clean(raw.packageId);
   if (packageId && !PACKAGE_IDS.includes(packageId)) errors.packageId = 'Unknown starting point.';
 
   const budget = clean(raw.budget);

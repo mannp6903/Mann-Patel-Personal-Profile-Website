@@ -5,6 +5,8 @@
  */
 import { profile, social, businesses, nav } from '../data/site';
 import { groups } from '../data/services';
+import { servicePageForGroup } from '../data/service-pages';
+import { pricesPublished } from '../data/packages';
 import { contact, emailHref } from '../lib/contact';
 import Button from './ui/Button.astro';
 import Heading from './ui/Heading.astro';
@@ -59,8 +61,11 @@ const name = [...profile.name];
     <div class="ftr__col ftr__col--services">
       <h2 class="ftr__h">Services</h2>
       <ul role="list">
-        {groups.map((g) => <li><a class="link-quiet" href={`/services/#${g.id}`}>{g.title}</a></li>)}
-        <li><a class="link-quiet" href="/services/#packages">Packages</a></li>
+        {groups.map((g) => {
+          const sp = servicePageForGroup(g.id);
+          return <li><a class="link-quiet" href={sp ? `/services/${sp.slug}/` : `/services/#${g.id}`}>{sp ? sp.short : g.title}</a></li>;
+        })}
+        <li><a class="link-quiet" href={pricesPublished ? '/pricing/' : '/services/#packages'}>{pricesPublished ? 'Pricing' : 'Packages'}</a></li>
         <li><a class="link-quiet" href="/services/#check">Free Found &amp; Answered check</a></li>
       </ul>
     </div>

@@ -14,7 +14,7 @@ export interface GuideAnswers {
 }
 
 export interface Recommendation {
-  packageId: 'launch' | 'found' | 'answered' | 'website' | 'check-up';
+  packageId: 'website-launch' | 'website-enquiry' | 'local-visibility' | 'care' | 'check-up';
   serviceIds: string[];
   headline: string;
   reasons: string[];
@@ -61,21 +61,6 @@ export function parseAnswers(input: Record<string, unknown>): GuideAnswers | nul
 }
 
 export function recommend({ stage, problem, site }: GuideAnswers): Recommendation {
-  // No website yet, or just starting: the foundations come first.
-  if (site === 'none' || (stage === 'starting' && problem !== 'unsure')) {
-    return {
-      packageId: 'launch',
-      serviceIds: ['websites', 'business-profile', 'missed-calls', 'enquiry-workflows'],
-      headline: 'Start with Business Launch',
-      reasons: [
-        site === 'none'
-          ? 'Without a website, customers have nowhere reliable to check your services, book or contact you.'
-          : 'Setting the basics up properly once is easier than fixing them later.',
-        'It covers a website that books work, your Google profile and instant replies to every enquiry in one scope.',
-      ],
-    };
-  }
-
   if (problem === 'unsure') {
     return {
       packageId: 'check-up',
@@ -88,53 +73,50 @@ export function recommend({ stage, problem, site }: GuideAnswers): Recommendatio
     };
   }
 
+  // Being found: the Google profile and reviews come first, whatever the website.
   if (problem === 'found') {
     return {
-      packageId: 'found',
-      serviceIds: site === 'outdated' ? ['business-profile', 'reviews', 'listings', 'seo'] : ['business-profile', 'reviews', 'listings'],
-      headline: 'Found & Chosen fits best',
+      packageId: 'local-visibility',
+      serviceIds: site === 'ok' ? ['business-profile', 'reviews', 'listings'] : ['business-profile', 'reviews', 'listings', 'websites'],
+      headline: 'Local Visibility Setup fits best',
       reasons: [
         'Correct details and recent, real reviews are what people nearby compare before they call.',
         'Your Google profile, Apple Maps, Bing and what AI assistants say about you are checked and made consistent.',
-        'Rankings are decided by Google; this work improves what you control.',
+        site === 'ok'
+          ? 'Rankings are decided by Google; this work improves what you control.'
+          : 'A clear website helps too: Website Launch can follow, or be quoted together.',
       ],
     };
   }
 
-  if (problem === 'enquiries') {
-    const reasons = [
-      'A missed call gets a polite text straight away, and every enquiry lands in one list with a reminder.',
-      'Reminders before appointments help cut no-shows.',
-    ];
-    if (site === 'outdated') reasons.push('I would also test your current form, because dated forms often fail quietly.');
-    return {
-      packageId: 'answered',
-      serviceIds: ['missed-calls', 'enquiry-workflows', 'booking'],
-      headline: 'Never Miss an Enquiry fits best',
-      reasons,
-    };
-  }
-
-  // problem === 'bookings'
+  // A working website already: improve the path on it rather than rebuilding. The free check
+  // finds what fails, and fixes to an existing site are quoted separately.
   if (site === 'ok') {
     return {
-      packageId: 'answered',
-      serviceIds: ['booking', 'enquiry-workflows'],
-      headline: 'Never Miss an Enquiry, focused on booking',
+      packageId: 'check-up',
+      serviceIds: problem === 'enquiries' ? ['missed-calls', 'enquiry-workflows'] : ['booking', 'enquiry-workflows'],
+      headline: problem === 'enquiries' ? 'Start with a free check of your enquiry path' : 'Start with a free check of your booking path',
       reasons: [
-        'Your site works, so the quickest win is a booking or quote button customers can use at any hour.',
-        'Reminders before each appointment help cut no-shows.',
+        'Your site works, so there is no need to rebuild it. I test what happens when a customer enquires or tries to book.',
+        'You get a written list of fixes; adding a booking link or a follow-up workflow to your current site is quoted separately.',
       ],
     };
   }
+
+  // No website, or a dated one, and the problem is enquiries or bookings.
+  const reasons = [
+    'A clear site with one enquiry path, plus your booking tool and one follow-up workflow, set up and tested together.',
+    problem === 'enquiries'
+      ? 'Every enquiry gets an instant reply and lands in one list, with a reminder before anyone waits too long.'
+      : 'A book-or-quote button on every page, with reminders before each appointment to help cut no-shows.',
+  ];
+  if (site === 'outdated') reasons.push('I would also test your current form first, because dated forms often fail quietly.');
+  else if (stage === 'starting') reasons.push('Setting the basics up properly once is easier than fixing them later.');
   return {
-    packageId: 'website',
-    serviceIds: ['websites', 'seo', 'booking'],
-    headline: 'Website That Books fits best',
-    reasons: [
-      'A page for each service and a book-or-quote button on every page make it easy for a visitor to say yes.',
-      'I would also test your current form, because dated forms often fail quietly.',
-    ],
+    packageId: 'website-enquiry',
+    serviceIds: problem === 'enquiries' ? ['websites', 'enquiry-workflows', 'missed-calls'] : ['websites', 'booking', 'enquiry-workflows'],
+    headline: 'Website + Enquiry System fits best',
+    reasons,
   };
 }
 

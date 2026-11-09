@@ -1,0 +1,51 @@
+---
+/**
+ * Home: a labelled demonstration right after the real work (audit 8 Nov 2026, homepage order).
+ * Fictional data only; the full explanation is on /services/enquiry-follow-up/.
+ */
+import EnquiryDemo from '../EnquiryDemo.astro';
+import Icon from '../ui/Icon.astro';
+---
+
+<section class="wt section section--rule" id="walkthrough" aria-labelledby="wt-title">
+  <div class="container wt__grid">
+    <div class="wt__head">
+      <p class="eyebrow">See it work</p>
+      <h2 id="wt-title" class="wt__title">One enquiry, <span class="serif">never lost.</span></h2>
+      <p class="muted wt__note">
+        A walkthrough with a fictional business and customer: the reply, the reminder and the booking that a follow-up
+        workflow handles while you are on a job.
+      </p>
+      <a class="link-arrow" href="/services/enquiry-follow-up/">How enquiry follow-up works <Icon name="arrow" /></a>
+    </div>
+    <EnquiryDemo id="home-demo" />
+  </div>
+</section>
+
+<style>
+  .wt__grid {
+    display: grid;
+    gap: var(--s-6);
+  }
+  .wt__head {
+    display: grid;
+    gap: var(--s-4);
+    align-content: start;
+  }
+  .wt__title {
+    font-size: var(--fs-h2);
+    max-width: 14ch;
+  }
+  /* Phones: the label on the demo says it is fictional; the longer note is for wider screens. */
+  @media (max-width: 39.99em) {
+    .wt__note {
+      display: none;
+    }
+  }
+  @media (min-width: 80em) {
+    .wt__grid {
+      grid-template-columns: minmax(0, 0.7fr) minmax(0, 1.3fr);
+      gap: var(--s-8);
+    }
+  }
+</style>

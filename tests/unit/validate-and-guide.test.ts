@@ -94,15 +94,24 @@ describe('guide', () => {
     }
   });
 
-  it('sends businesses without a website to Business Launch', () => {
-    expect(recommend({ stage: 'running', problem: 'found', site: 'none' }).packageId).toBe('launch');
+  it('sends owners without a working site who lose enquiries to Website + Enquiry System', () => {
+    expect(recommend({ stage: 'running', problem: 'enquiries', site: 'none' }).packageId).toBe('website-enquiry');
+    expect(recommend({ stage: 'starting', problem: 'bookings', site: 'outdated' }).packageId).toBe('website-enquiry');
+  });
+  it('sends owners who want to be found to Local Visibility Setup', () => {
+    expect(recommend({ stage: 'running', problem: 'found', site: 'ok' }).packageId).toBe('local-visibility');
+    expect(recommend({ stage: 'starting', problem: 'found', site: 'none' }).packageId).toBe('local-visibility');
+  });
+  it('checks a working website instead of rebuilding it', () => {
+    expect(recommend({ stage: 'running', problem: 'enquiries', site: 'ok' }).packageId).toBe('check-up');
+    expect(recommend({ stage: 'running', problem: 'bookings', site: 'ok' }).packageId).toBe('check-up');
   });
   it('sends unsure, established owners to the check-up', () => {
     expect(recommend({ stage: 'running', problem: 'unsure', site: 'ok' }).packageId).toBe('check-up');
   });
   it('builds a contact link that pre-fills package and services', () => {
-    const href = briefHref(recommend({ stage: 'running', problem: 'enquiries', site: 'ok' }));
-    expect(href).toMatch(/^\/contact\/\?package=answered&services=missed-calls%2Cenquiry-workflows%2Cbooking#brief$/);
+    const href = briefHref(recommend({ stage: 'running', problem: 'enquiries', site: 'none' }));
+    expect(href).toBe('/contact/?package=website-enquiry&services=websites%2Cenquiry-workflows%2Cmissed-calls#brief');
   });
   it('rejects incomplete or invalid answers', () => {
     expect(parseAnswers({ stage: 'starting', problem: 'found' })).toBeNull();

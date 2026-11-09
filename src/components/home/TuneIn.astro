@@ -1,6 +1,7 @@
 ---
 /**
- * "Tune in" (round 8): Mann's real photo arrives as a lost signal and the visitor tunes an FM dial
+ * "Tune in" (round 8; starts clear since round 10). Mann's real photo is a radio station: tune the dial away
+ * and it becomes a lost signal, tune back to 104.3 and it locks. Originally the visitor tuned an FM dial
  * to bring him in. At 104.3 it locks: the photo clears to full colour, a radar ping crosses the
  * dot field, the headline flashes and three true lines type over the photo. Engine and fallbacks:
  * src/scripts/tune.ts. Why: docs/15-round-8-tune-in.md.
@@ -68,9 +69,8 @@ const tx = ['Mann Patel, Toronto.', 'Builds websites that get found.', 'Built Ne
               On air
             </span>
             <span class="tune__freq">
-              <b data-tune-freq>88.1</b> FM
+              <b data-tune-freq>104.3</b> FM
             </span>
-            <span class="tune__geo" data-scramble>43.65° N · 79.38° W</span>
           </span>
           <span class="tune__bars" data-tune-bars>
             <i style="--n:1" />
@@ -92,7 +92,7 @@ const tx = ['Mann Patel, Toronto.', 'Builds websites that get found.', 'Built Ne
 
       <div class="tune__dial">
         <label class="tune__label" for="tune-dial">
-          Tune in
+          Try the dial
         </label>
         <div class="tune__scale">
           <svg class="tune__ticks" viewBox="0 0 1000 24" preserveAspectRatio="none" aria-hidden="true" focusable="false">
@@ -110,8 +110,8 @@ const tx = ['Mann Patel, Toronto.', 'Builds websites that get found.', 'Built Ne
             min="881"
             max="1079"
             step="2"
-            value="881"
-            aria-valuetext="88.1 FM, no signal"
+            value="1043"
+            aria-valuetext="104.3 FM, signal locked"
             aria-describedby="tune-status"
             data-tune-dial
           />
@@ -125,7 +125,7 @@ const tx = ['Mann Patel, Toronto.', 'Builds websites that get found.', 'Built Ne
 
       <figcaption class="tune__cap">
         <span class="tune__status" id="tune-status" data-tune-status aria-live="polite">
-          No signal. Drag the dial, or the photo, to tune in.
+          On air: Mann Patel, Toronto. Try the dial.
         </span>
         <a class="tune__who" href="/about/">
           Who is this guy?
@@ -151,15 +151,19 @@ const tx = ['Mann Patel, Toronto.', 'Builds websites that get found.', 'Built Ne
     display: grid;
     gap: var(--s-3);
   }
-  :global(.js-motion) .tune {
-    --d: 1;
-    --sig: 0;
-  }
 
   /* ── The screen ── */
   .tune__screen {
     position: relative;
     aspect-ratio: 1;
+  }
+  /* Phones: a shorter portrait area (audit 8 Nov 2026), so the real work comes sooner. */
+  @media (max-width: 39.99em) {
+    .tune__screen {
+      aspect-ratio: 5 / 4;
+    }
+  }
+  .tune__screen {
     border-radius: var(--r-lg);
     overflow: hidden;
     isolation: isolate;
@@ -209,7 +213,7 @@ const tx = ['Mann Patel, Toronto.', 'Builds websites that get found.', 'Built Ne
     inset: 0;
     z-index: 3;
     background: repeating-linear-gradient(to bottom, transparent 0 2px, rgb(0 0 0 / 0.5) 2px 3px);
-    opacity: calc(0.08 + var(--d) * 0.6);
+    opacity: calc(var(--d) * 0.6);
     pointer-events: none;
   }
   @media (prefers-reduced-motion: no-preference) {
@@ -246,7 +250,8 @@ const tx = ['Mann Patel, Toronto.', 'Builds websites that get found.', 'Built Ne
     pointer-events: none;
   }
   /* WebGL draws the whole effect: the CSS layers step aside. */
-  .tune:global(.is-gl) .tune__gl {
+  /* WebGL draws only while detuned; tuned in, the clear photo is the real image. */
+  .tune:global(.is-gl.is-detuned) .tune__gl {
     opacity: 1;
   }
   .tune:global(.is-gl) .tune__tint,
@@ -330,12 +335,8 @@ const tx = ['Mann Patel, Toronto.', 'Builds websites that get found.', 'Built Ne
   .tune:global(.is-locked) .tune__freq b {
     color: var(--signal);
   }
-  .tune__geo {
-    color: var(--text-2);
-    font-size: 0.6875rem;
-  }
   .tune__bars {
-    --s: 0;
+    --s: 5;
     display: flex;
     align-items: flex-end;
     gap: 3px;

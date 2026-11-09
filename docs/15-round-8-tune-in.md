@@ -1,5 +1,8 @@
 # Round 8: "Tune in" (8 November 2026)
 
+> **Changed in round 10 (9 Nov 2026):** after the competitor audit, the portrait starts clear and tuned in;
+> tuning is an optional effect, and there is no auto-tune. See `docs/17-round-10-offers.md`.
+
 **Brief (from Mann):** make the hero and the photo unique and interesting, so that people who see it
 wonder "who is this guy?" and go deeper into the site.
 

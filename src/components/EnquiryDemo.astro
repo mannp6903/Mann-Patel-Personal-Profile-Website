@@ -1,0 +1,336 @@
+---
+/**
+ * A captioned walkthrough of one enquiry moving through a follow-up workflow (round 10).
+ * FICTIONAL DATA, labelled as a demonstration: no real customer, booking or review is shown.
+ *
+ * - Every step is plain text in an ordered list, so the story never depends on animation.
+ * - With JavaScript, the steps are buttons; the mock panel beside them shows that step. It steps
+ *   through once when it comes into view (not with reduced motion) and stops when you choose a step.
+ * - Without JavaScript, the list reads in order and the panel shows the final state.
+ */
+interface Props {
+  id?: string;
+}
+const { id = 'demo' } = Astro.props;
+
+const steps = [
+  { time: '9:41 AM', text: 'A quote request arrives from the website form.', status: 'New' },
+  { time: '9:41 AM', text: 'Sam gets an instant, automatic reply: it arrived, and what happens next.', status: 'New' },
+  { time: '11:41 AM', text: 'No reply after two hours, so the owner gets a reminder.', status: 'Waiting 2 h' },
+  { time: '12:05 PM', text: 'The owner sends a quote. The status changes to Quoted.', status: 'Quoted' },
+  { time: 'Next day', text: 'Sam books with the booking link. Reminders go out before the visit.', status: 'Booked' },
+];
+const last = steps.length - 1;
+---
+
+<figure class="demo" id={id} data-demo aria-labelledby={`${id}-cap`}>
+  <figcaption class="demo__cap" id={`${id}-cap`}>
+    <span class="demo__tag">Demonstration · fictional data</span>
+    <span class="demo__title">One enquiry, start to finish</span>
+  </figcaption>
+
+  <div class="demo__body">
+    <ol class="demo__steps" role="list">
+      {
+        steps.map((s, i) => (
+          <li>
+            <button class="demo__step" type="button" data-step={i} aria-pressed={i === last ? 'true' : 'false'}>
+              <span class="demo__time num">{s.time}</span>
+              <span class="demo__text">{s.text}</span>
+            </button>
+          </li>
+        ))
+      }
+    </ol>
+
+    <!-- The mock screen repeats the step visually; the list above carries the information. -->
+    <div class="demo__screen" aria-hidden="true">
+      <div class="demo__bar">
+        <span>Enquiries</span>
+        <span class="num">Example Cleaning Co.</span>
+      </div>
+      {
+        steps.map((s, i) => (
+          <div class="demo__state" data-state={i} hidden={i !== last}>
+            <div class="demo__row">
+              <span class="demo__who">
+                <span>
+                  <b>Sam</b> · Deep clean, 2-bedroom condo
+                </span>
+                <small>Website form · {i === 0 ? 'just now' : 'today'}</small>
+              </span>
+              <span class:list={['demo__chip', `demo__chip--${s.status.split(' ')[0].toLowerCase()}`]}>{s.status}</span>
+            </div>
+            <div class="demo__row demo__row--dim">
+              <span class="demo__who">
+                <span>
+                  <b>Lee</b> · Move-out clean
+                </span>
+                <small>Missed call → text-back · yesterday</small>
+              </span>
+              <span class="demo__chip demo__chip--quoted">Quoted</span>
+            </div>
+            {i === 1 && (
+              <p class="demo__msg">
+                <small>Automatic reply to Sam</small>
+                Thanks, Sam. Your request reached Example Cleaning Co. We reply with a quote by the end of the next business day.
+                This is an automatic message.
+              </p>
+            )}
+            {i === 2 && <p class="demo__toast">Reminder: Sam has waited 2 hours for a reply.</p>}
+            {i === 3 && (
+              <p class="demo__msg demo__msg--out">
+                <small>Owner to Sam</small>Quote attached: deep clean, 2-bedroom condo. Book a time that suits you with the link below.
+              </p>
+            )}
+            {i === 4 && <p class="demo__toast demo__toast--ok">Booked: Saturday 10:00 AM. Reminders 48 h and 24 h before.</p>}
+          </div>
+        ))
+      }
+    </div>
+  </div>
+</figure>
+
+<style>
+  .demo {
+    display: grid;
+    gap: var(--s-5);
+    padding: clamp(var(--s-4), 3vw, var(--s-6));
+    border: 1px solid var(--line);
+    border-radius: var(--r-lg);
+    background: var(--surface);
+  }
+  .demo__cap {
+    display: grid;
+    gap: var(--s-2);
+  }
+  .demo__tag {
+    justify-self: start;
+    padding: 0.2rem 0.6rem;
+    border: 1px dashed var(--control);
+    border-radius: var(--r-pill);
+    font-family: var(--font-mono);
+    font-size: var(--fs-xs);
+    letter-spacing: 0.04em;
+    color: var(--text-2);
+  }
+  .demo__title {
+    font-size: var(--fs-h3);
+    font-weight: 680;
+    letter-spacing: -0.02em;
+  }
+  .demo__body {
+    display: grid;
+    gap: var(--s-5);
+  }
+  @media (min-width: 56em) {
+    .demo__body {
+      grid-template-columns: minmax(0, 1fr) minmax(0, 1fr);
+      align-items: start;
+    }
+  }
+  .demo__steps {
+    display: grid;
+    gap: var(--s-2);
+  }
+  /* Phones: the screen first, then compact steps. */
+  @media (max-width: 55.99em) {
+    .demo__screen {
+      order: -1;
+    }
+    .demo__step {
+      grid-template-columns: 4.5rem 1fr;
+      padding: var(--s-2) var(--s-3);
+      gap: var(--s-2);
+      font-size: var(--fs-xs);
+    }
+    .demo__steps {
+      gap: 0.15rem;
+    }
+    .demo__row--dim {
+      display: none;
+    }
+  }
+  .demo__step {
+    display: grid;
+    grid-template-columns: 5.5rem 1fr;
+    gap: var(--s-3);
+    width: 100%;
+    min-height: var(--tap);
+    padding: var(--s-3) var(--s-4);
+    border: 1px solid transparent;
+    border-left: 2px solid var(--line);
+    border-radius: var(--r-sm);
+    background: transparent;
+    color: var(--text-2);
+    font: inherit;
+    font-size: var(--fs-sm);
+    text-align: left;
+    cursor: pointer;
+    transition:
+      background-color var(--t-fast),
+      border-color var(--t-fast),
+      color var(--t-fast);
+  }
+  .demo__step:hover {
+    color: var(--text);
+    background: var(--surface-2);
+  }
+  .demo__step[aria-pressed='true'] {
+    color: var(--text);
+    border-left-color: var(--signal);
+    background: var(--surface-2);
+  }
+  .demo__time {
+    font-size: var(--fs-xs);
+    color: var(--text-3);
+    padding-top: 0.15em;
+  }
+  .demo__step[aria-pressed='true'] .demo__time {
+    color: var(--signal);
+  }
+  .demo__screen {
+    display: grid;
+    gap: var(--s-3);
+    padding: var(--s-4);
+    border: 1px solid var(--line);
+    border-radius: var(--r-md);
+    background: var(--bg);
+    font-size: var(--fs-sm);
+  }
+  .demo__bar {
+    display: flex;
+    justify-content: space-between;
+    gap: var(--s-3);
+    padding-bottom: var(--s-3);
+    border-bottom: 1px solid var(--line);
+    font-weight: 620;
+  }
+  .demo__bar .num {
+    font-size: var(--fs-xs);
+    font-weight: 400;
+    color: var(--text-3);
+  }
+  .demo__state {
+    display: grid;
+    gap: var(--s-3);
+  }
+  .demo__state[hidden] {
+    display: none;
+  }
+  .demo__row {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    gap: var(--s-3);
+    padding: var(--s-3);
+    border-radius: var(--r-sm);
+    background: var(--surface);
+  }
+  .demo__row--dim {
+    background: transparent;
+    border: 1px dashed var(--line);
+  }
+  .demo__who {
+    display: grid;
+    gap: 0.15rem;
+  }
+  .demo__who small {
+    font-size: var(--fs-xs);
+    color: var(--text-3);
+  }
+  .demo__chip {
+    flex: none;
+    padding: 0.15rem 0.55rem;
+    border-radius: var(--r-pill);
+    font-family: var(--font-mono);
+    font-size: 0.75rem;
+    border: 1px solid var(--line);
+    color: var(--text-2);
+  }
+  .demo__chip--new {
+    border-color: var(--signal);
+    color: var(--signal);
+  }
+  .demo__chip--waiting {
+    border-color: var(--warn);
+    color: var(--warn);
+  }
+  .demo__chip--booked {
+    background: var(--signal);
+    border-color: var(--signal);
+    color: var(--on-signal);
+  }
+  .demo__msg,
+  .demo__toast {
+    display: grid;
+    gap: 0.25rem;
+    padding: var(--s-3);
+    border-radius: var(--r-sm);
+    border: 1px solid var(--line);
+    color: var(--text);
+  }
+  .demo__msg small {
+    font-size: var(--fs-xs);
+    color: var(--text-3);
+  }
+  .demo__msg--out {
+    border-color: var(--control);
+  }
+  .demo__toast {
+    border-color: var(--warn);
+  }
+  .demo__toast--ok {
+    border-color: var(--signal);
+  }
+  @media (prefers-reduced-motion: no-preference) {
+    .demo__state:not([hidden]) {
+      animation: demo-in 380ms var(--ease-out);
+    }
+  }
+  @keyframes demo-in {
+    from {
+      opacity: 0;
+      transform: translateY(6px);
+    }
+  }
+</style>
+
+<script>
+  import { track } from '../scripts/analytics';
+  document.querySelectorAll<HTMLElement>('[data-demo]').forEach((demo) => {
+    const buttons = [...demo.querySelectorAll<HTMLButtonElement>('[data-step]')];
+    const states = [...demo.querySelectorAll<HTMLElement>('[data-state]')];
+    let timer = 0;
+    let used = false;
+    const show = (i: number) => {
+      buttons.forEach((b, j) => b.setAttribute('aria-pressed', String(i === j)));
+      states.forEach((s, j) => (s.hidden = i !== j));
+    };
+    buttons.forEach((b, i) =>
+      b.addEventListener('click', () => {
+        clearInterval(timer);
+        show(i);
+        if (!used) track('select_content', { content_type: 'workflow_demo' });
+        used = true;
+      }),
+    );
+    // Start at the first step; step through once when it is seen (not with reduced motion).
+    show(0);
+    if (matchMedia('(prefers-reduced-motion: reduce)').matches) return;
+    const io = new IntersectionObserver(
+      ([e]) => {
+        if (!e.isIntersecting || used) return;
+        io.disconnect();
+        let i = 0;
+        timer = window.setInterval(() => {
+          i += 1;
+          if (i >= buttons.length || used) return clearInterval(timer);
+          show(i);
+        }, 2600);
+      },
+      { threshold: 0.5 },
+    );
+    io.observe(demo);
+  });
+</script>
