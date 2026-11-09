@@ -114,6 +114,12 @@ export function acknowledgementText(lead: Lead): string {
   ].join('\n');
 }
 
+/** The site the banner image and fonts are served from, taken from the sender's domain. */
+const assetBase = (cfg: DeliveryConfig) => {
+  const domain = (cfg.fromEmail ?? '').replace(/>.*$/, '').split('@').pop()?.trim();
+  return domain && /^[a-z0-9.-]+\.[a-z]{2,}$/i.test(domain) ? `https://${domain}` : undefined;
+};
+
 const defaultSleep = (ms: number) => new Promise<void>((r) => setTimeout(r, ms));
 
 async function withRetry(fn: () => Promise<Response>, sleep: (ms: number) => Promise<void>): Promise<Response> {
@@ -209,7 +215,7 @@ export async function deliver(lead: Lead, cfg: DeliveryConfig, deps: DeliveryDep
         to: cfg.toEmail!,
         subject: ownerSubject(lead),
         text: ownerEmailText(lead),
-        html: ownerEmailHtml(lead, ownerSubject(lead)),
+        html: ownerEmailHtml(lead, ownerSubject(lead), { assetBase: assetBase(cfg) }),
         replyTo: lead.email,
         idempotencyKey: `${lead.id}-owner`,
       });
@@ -227,7 +233,7 @@ export async function deliver(lead: Lead, cfg: DeliveryConfig, deps: DeliveryDep
       to: cfg.toEmail ?? '',
       subject: ownerSubject(lead),
       text: ownerEmailText(lead),
-      html: ownerEmailHtml(lead, ownerSubject(lead)),
+      html: ownerEmailHtml(lead, ownerSubject(lead), { assetBase: assetBase(cfg) }),
       replyTo: lead.email,
       messageId: `${lead.id}@${(cfg.fromEmail ?? 'website@localhost').replace(/>.*$/, '').split('@').pop()}`,
     };

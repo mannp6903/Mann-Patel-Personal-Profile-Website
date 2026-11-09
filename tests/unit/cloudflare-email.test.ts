@@ -109,6 +109,7 @@ describe('Cloudflare Email delivery', () => {
     expect(msg.text).toContain('Phone: 416 555 0100');
     expect(msg.text).toContain('We need a website with our hours.');
     expect((msg as { html?: string }).html).toContain('We need a website with our hours.');
+    expect((msg as { html?: string }).html).toContain('src="https://mannpatel.me/email/signal.gif"');
   });
 
   it('retries once, then reports failure honestly', async () => {
