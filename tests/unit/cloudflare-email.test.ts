@@ -1,6 +1,7 @@
 import { describe, it, expect, vi } from 'vitest';
 import { buildMime, addressOf, encodeHeader } from '../../src/lib/enquiry/mime';
 import { deliver, deliveryReady, type Lead } from '../../src/lib/enquiry/delivery';
+import { ownerEmailHtml } from '../../src/lib/enquiry/email-html';
 import { normalizePhone, maskPhone, encodePhone, decodePhone, channelHref } from '../../src/lib/phone';
 
 const lead: Lead = {
@@ -52,6 +53,44 @@ describe('buildMime', () => {
   });
 });
 
+describe('multipart (plain text + HTML) email', () => {
+  const mime = buildMime({
+    from: 'website@mannpatel.me', to: 'owner@example.ca', subject: 'Hi', text: 'Plain é', html: '<p>Designed é</p>', messageId: 'enq_x@mannpatel.me',
+  });
+  const decode = (b: string) => new TextDecoder().decode(Uint8Array.from(atob(b.replace(/\r\n/g, '')), (c) => c.charCodeAt(0)));
+
+  it('sends both parts, plain text first, inside one boundary', () => {
+    const boundary = mime.match(/boundary="([^"]+)"/)![1];
+    const parts = mime.split(`--${boundary}`);
+    expect(parts).toHaveLength(4);
+    expect(parts[1]).toContain('Content-Type: text/plain; charset=utf-8');
+    expect(decode(parts[1].split('\r\n\r\n')[1])).toBe('Plain é');
+    expect(parts[2]).toContain('Content-Type: text/html; charset=utf-8');
+    expect(decode(parts[2].split('\r\n\r\n')[1])).toBe('<p>Designed é</p>');
+    expect(parts[3].startsWith('--')).toBe(true);
+  });
+});
+
+describe('designed owner email', () => {
+  it('escapes visitor input and links the useful actions', () => {
+    const html = ownerEmailHtml(
+      { ...lead, name: '<script>x</script>', message: 'Line 1\n<b>Line 2</b>', website: 'https://cafe.example.ca/', lowTrust: true },
+      'New enquiry',
+    );
+    expect(html).not.toContain('<script>x');
+    expect(html).toContain('&lt;b&gt;Line 2&lt;/b&gt;');
+    expect(html).toContain('Line 1<br>');
+    expect(html).toContain('href="tel:4165550100"');
+    expect(html).toContain('href="https://cafe.example.ca/"');
+    expect(html).toContain('mailto:zoe%40example.ca?subject=Re%3A%20New%20enquiry');
+    expect(html).toContain('Check this one looks genuine');
+  });
+
+  it('never links a website that is not http(s)', () => {
+    expect(ownerEmailHtml({ ...lead, website: 'javascript:alert(1)' }, 's')).not.toContain('href="javascript:');
+  });
+});
+
 describe('Cloudflare Email delivery', () => {
   const cfg = { mode: 'cloudflare' as const, production: true, toEmail: 'owner@example.ca', fromEmail: 'Mann <website@mannpatel.me>', cloudflareEmail: true };
 
@@ -69,6 +108,7 @@ describe('Cloudflare Email delivery', () => {
     expect(msg).toMatchObject({ to: 'owner@example.ca', replyTo: 'zoe@example.ca', subject: 'New enquiry: Zoë Owner (Café Test)', messageId: 'enq_cf_1@mannpatel.me' });
     expect(msg.text).toContain('Phone: 416 555 0100');
     expect(msg.text).toContain('We need a website with our hours.');
+    expect((msg as { html?: string }).html).toContain('We need a website with our hours.');
   });
 
   it('retries once, then reports failure honestly', async () => {

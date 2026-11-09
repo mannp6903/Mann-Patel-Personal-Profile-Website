@@ -1,6 +1,7 @@
 /**
- * Builds a plain-text email (RFC 5322) for Cloudflare's send_email binding.
- * UTF-8 throughout: the subject is RFC 2047-encoded and the body is base64.
+ * Builds an email (RFC 5322) for Cloudflare's send_email binding: plain text, or
+ * multipart/alternative (plain text + HTML) when `html` is given.
+ * UTF-8 throughout: the subject is RFC 2047-encoded and each body part is base64.
  */
 
 export interface MimeInput {
@@ -9,6 +10,8 @@ export interface MimeInput {
   replyTo?: string;
   subject: string;
   text: string;
+  /** Optional designed version; the plain text stays as the fallback part. */
+  html?: string;
   messageId: string; // without angle brackets, e.g. "enq_20261101_ab12cd34@mannpatel.me"
   date?: Date;
 }
@@ -37,10 +40,10 @@ const mailbox = (s: string) => {
   return name ? `${encodeHeader(name)} <${m[2].trim()}>` : `<${m[2].trim()}>`;
 };
 
+const b64Lines = (s: string) => (toBase64(s.replace(/\r?\n/g, '\r\n')).match(/.{1,76}/g) ?? ['']).join('\r\n');
+
 export function buildMime(input: MimeInput): string {
-  const body = toBase64(input.text.replace(/\r?\n/g, '\r\n'))
-    .match(/.{1,76}/g)!
-    .join('\r\n');
+  const body = b64Lines(input.text);
   const headers = [
     `From: ${mailbox(input.from)}`,
     `To: ${mailbox(input.to)}`,
@@ -49,8 +52,15 @@ export function buildMime(input: MimeInput): string {
     `Message-ID: <${clean(input.messageId)}>`,
     `Date: ${(input.date ?? new Date()).toUTCString().replace('GMT', '+0000')}`,
     'MIME-Version: 1.0',
-    'Content-Type: text/plain; charset=utf-8',
-    'Content-Transfer-Encoding: base64',
   ];
-  return `${headers.join('\r\n')}\r\n\r\n${body}\r\n`;
+  if (!input.html) {
+    headers.push('Content-Type: text/plain; charset=utf-8', 'Content-Transfer-Encoding: base64');
+    return `${headers.join('\r\n')}\r\n\r\n${body}\r\n`;
+  }
+  // Base64 bodies never contain "=_", so this boundary can't clash with the content.
+  const boundary = `=_alt_${clean(input.messageId).replace(/[^A-Za-z0-9]/g, '')}`;
+  headers.push(`Content-Type: multipart/alternative; boundary="${boundary}"`);
+  const part = (type: string, content: string) =>
+    `--${boundary}\r\nContent-Type: ${type}; charset=utf-8\r\nContent-Transfer-Encoding: base64\r\n\r\n${content}\r\n`;
+  return `${headers.join('\r\n')}\r\n\r\n${part('text/plain', body)}${part('text/html', b64Lines(input.html))}--${boundary}--\r\n`;
 }
