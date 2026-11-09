@@ -6,6 +6,7 @@
  */
 import { nav, primaryCta, profile } from '../data/site';
 import ContactActions from './ContactActions.astro';
+import SocialLinks from './SocialLinks.astro';
 import Button from './ui/Button.astro';
 import Icon from './ui/Icon.astro';
 
@@ -88,7 +89,9 @@ const sheetLinks = [{ href: '/', label: 'Home' }, ...nav, { href: '/contact/', l
       </nav>
       <div class="sheet__foot">
         <Button href="/contact/">Start a project</Button>
-        <ContactActions label="Or reach me directly" showNumber />
+        <ContactActions label="Or reach me directly" showNumber>
+          <SocialLinks only={['linkedin', 'instagram', 'facebook']} slot="extra" />
+        </ContactActions>
         <p class="small subtle">
           <a class="link" href="/privacy/">Privacy</a> · <a class="link" href="/terms/">Terms</a>
         </p>
@@ -532,15 +535,26 @@ const sheetLinks = [{ href: '/', label: 'Home' }, ...nav, { href: '/contact/', l
   .sheet__foot :global(.ca__label) {
     flex-basis: 100%;
   }
+  /* Phones tap Call to see the number; "Show number" is for the desktop pages. */
+  .sheet__foot :global(.ca__show) {
+    display: none;
+  }
+  /* LinkedIn (and Instagram, once linked) sit in the same row as the contact buttons. */
+  .sheet__foot :global(.ca__extra .sl),
+  .sheet__foot :global(.ca__extra .sl__list) {
+    display: contents;
+  }
   /* Short phones: round icon buttons (each keeps its name), so the row stays on one line. */
   @media (max-height: 44em) {
-    .sheet__foot :global(.ca__btn) {
+    .sheet__foot :global(.ca__btn),
+    .sheet__foot :global(.sl__btn) {
       width: var(--tap);
       height: var(--tap);
       padding: 0;
       justify-content: center;
     }
-    .sheet__foot :global(.ca__text) {
+    .sheet__foot :global(.ca__text),
+    .sheet__foot :global(.sl__text) {
       position: absolute;
       width: 1px;
       height: 1px;

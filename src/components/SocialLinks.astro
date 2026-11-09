@@ -1,0 +1,97 @@
+---
+/**
+ * Mann's social profiles as buttons (round 11): LinkedIn, Instagram, GitHub, Facebook. Only profiles
+ * with a confirmed URL in src/data/site.ts appear, so a profile shows up the moment its link is set.
+ * `compact`: round icon buttons (phone menu); otherwise icon + name pills (footer, About).
+ */
+import { social } from '../data/site';
+import Icon from './ui/Icon.astro';
+
+interface Props {
+  compact?: boolean;
+  label?: string;
+  class?: string;
+  /** Limit to these profiles (e.g. the client-facing ones in the tight phone menu). */
+  only?: string[];
+}
+const { compact = false, label, class: cls, only } = Astro.props;
+const links = social.filter((s) => s.url && (!only || only.includes(s.id)));
+---
+
+{
+  links.length > 0 && (
+    <div class:list={['sl', { 'sl--compact': compact }, cls]}>
+      {label && <p class="sl__label eyebrow eyebrow--plain">{label}</p>}
+      <ul class="sl__list" role="list">
+        {links.map((s) => (
+          <li>
+            <a class="sl__btn" href={s.url!} rel="me noopener" data-contact={s.id} aria-label={`Mann Patel on ${s.label}`} title={compact ? s.label : undefined}>
+              <Icon name={s.id} />
+              <span class="sl__text">{s.label}</span>
+            </a>
+          </li>
+        ))}
+      </ul>
+    </div>
+  )
+}
+
+<style>
+  .sl {
+    display: grid;
+    gap: var(--s-3);
+  }
+  .sl__list {
+    display: flex;
+    flex-wrap: wrap;
+    gap: var(--s-2);
+  }
+  .sl__btn {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.5em;
+    min-height: var(--tap);
+    padding: 0.5rem 1rem 0.5rem 0.85rem;
+    border: 1px solid var(--control);
+    border-radius: var(--r-pill);
+    color: var(--text);
+    font-size: 0.9375rem;
+    font-weight: 560;
+    text-decoration: none;
+    transition:
+      background-color var(--t-fast) var(--ease-out),
+      border-color var(--t-fast) var(--ease-out),
+      color var(--t-fast) var(--ease-out),
+      transform var(--t-fast) var(--ease-out);
+  }
+  .sl__btn :global(.icon) {
+    width: 1.1rem;
+    height: 1.1rem;
+    transition: transform var(--t-base) var(--ease-spring);
+  }
+  .sl__btn:hover {
+    background: var(--text);
+    border-color: var(--text);
+    color: var(--ink);
+  }
+  .sl__btn:hover :global(.icon) {
+    transform: rotate(-8deg) scale(1.1);
+  }
+  .sl__btn:active {
+    transform: scale(0.96);
+  }
+  .sl--compact .sl__btn {
+    width: var(--tap);
+    height: var(--tap);
+    padding: 0;
+    justify-content: center;
+  }
+  .sl--compact .sl__text {
+    position: absolute;
+    width: 1px;
+    height: 1px;
+    overflow: hidden;
+    clip-path: inset(50%);
+    white-space: nowrap;
+  }
+</style>

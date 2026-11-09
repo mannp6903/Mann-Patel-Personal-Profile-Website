@@ -3,7 +3,7 @@
  * Footer: closing call to action (hidden on the contact page), link columns, the kinetic name
  * (letters widen near the pointer) and the bottom bar with the Toronto clock.
  */
-import { profile, social, businesses, nav } from '../data/site';
+import { profile, businesses, nav } from '../data/site';
 import { groups } from '../data/services';
 import { servicePageForGroup } from '../data/service-pages';
 import { pricesPublished } from '../data/packages';
@@ -12,6 +12,7 @@ import Button from './ui/Button.astro';
 import Heading from './ui/Heading.astro';
 import Icon from './ui/Icon.astro';
 import ContactActions from './ContactActions.astro';
+import SocialLinks from './SocialLinks.astro';
 
 interface Props {
   cta?: boolean;
@@ -19,7 +20,6 @@ interface Props {
 const { cta = true } = Astro.props;
 const year = new Date().getFullYear();
 const mail = emailHref();
-const links = social.filter((s) => s.url);
 const nest = businesses[0];
 const name = [...profile.name];
 ---
@@ -87,10 +87,21 @@ const name = [...profile.name];
         }
         {
           contact.phone && (
-            <li>
+            <li class="ftr__phone">
               <a class="link-quiet num" href="/contact/#reach" data-reach="call" data-k={contact.phone.key} data-contact="phone">
+                <Icon name="phone" />
                 <span class="visually-hidden">Call, number partly hidden for privacy: </span>
                 {contact.phone.masked}
+              </a>
+            </li>
+          )
+        }
+        {
+          contact.phone && (
+            <li class="ftr__phone">
+              <a class="link-quiet" href="/contact/#reach" data-reach="whatsapp" data-k={contact.phone.key} data-contact="whatsapp" rel="noopener">
+                <Icon name="whatsapp" />
+                Message on WhatsApp
               </a>
             </li>
           )
@@ -100,17 +111,8 @@ const name = [...profile.name];
     </div>
     <div class="ftr__col">
       <h2 class="ftr__h">Elsewhere</h2>
+      <SocialLinks class="ftr__social" />
       <ul role="list">
-        {
-          links.map((s) => (
-            <li>
-              <a class="link-quiet" href={s.url!} rel="me noopener" data-contact={s.id}>
-                {s.label}
-                <Icon name="arrow-ne" />
-              </a>
-            </li>
-          ))
-        }
         <li>
           <a class="link-quiet" href={nest.url} rel="noopener">
             {nest.name}
@@ -244,6 +246,9 @@ const name = [...profile.name];
   }
   .ftr__email {
     gap: var(--s-2);
+  }
+  .ftr__col :global(.ftr__social) {
+    margin-bottom: var(--s-4);
   }
   .copy {
     display: inline-grid;

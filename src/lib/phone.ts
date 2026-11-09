@@ -22,6 +22,12 @@ export function maskPhone(digits: string): string {
   return `+${digits.slice(0, 3)}… XXXX`;
 }
 
+/** "16475550142" → "647-555-0142" (shown only when a visitor asks for the full number). */
+export function formatPhone(digits: string): string {
+  if (digits.length === 11 && digits.startsWith('1')) return `${digits.slice(1, 4)}-${digits.slice(4, 7)}-${digits.slice(7)}`;
+  return `+${digits}`;
+}
+
 /** Reversed digits in base64: keeps the number away from simple scrapers. */
 export const encodePhone = (digits: string) => btoa(digits.split('').reverse().join(''));
 export const decodePhone = (key: string) => atob(key).split('').reverse().join('');
