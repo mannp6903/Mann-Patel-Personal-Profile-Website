@@ -9,7 +9,10 @@ import Finder from '../components/Finder.astro';
 import Process from '../components/Process.astro';
 import Faq from '../components/Faq.astro';
 import { groups, servicesInGroup, addOns, type ServiceGroup } from '../data/services';
-import { packages } from '../data/packages';
+import { packages, pricesPublished } from '../data/packages';
+import { servicePageForGroup } from '../data/service-pages';
+import PackageCard from '../components/packages/PackageCard.astro';
+import PackageCompare from '../components/packages/PackageCompare.astro';
 import { faqs } from '../data/faqs';
 import { servicesJsonLd } from '../lib/seo';
 import { SERVICE_OPTIONS, labelFor } from '../lib/enquiry/options';
@@ -78,6 +81,11 @@ const jump = [
               </span>
             </h2>
             <p class="muted">{g.intro}</p>
+            {servicePageForGroup(g.id) && (
+              <a class="link-arrow area__page" href={`/services/${servicePageForGroup(g.id)!.slug}/`}>
+                {servicePageForGroup(g.id)!.short}: who it’s for, the work and the package <Icon name="arrow" />
+              </a>
+            )}
           </div>
           <div class="area__list">
             {servicesInGroup(g.id).map((s) => (
@@ -160,99 +168,27 @@ const jump = [
       <div class="section-head section-head--split">
         <div class="stack" style="--stack: var(--s-5)">
           <p class="eyebrow">Packages</p>
-          <Heading id="packages-title" lines={['Common starting points,', '<span class="serif">quoted for you.</span>']} />
+          <Heading id="packages-title" lines={['Four packages,', '<span class="serif">clear boundaries.</span>']} />
         </div>
         <p class="lead" data-reveal>
-          Each package is a starting point. After a short brief you get a written scope and a quote for what your business
-          actually needs. Third-party fees (domain, email, booking tools) are billed to you by the provider.
+          Each package says how far it goes: pages, revisions, integrations. Your written scope confirms what’s included and the
+          price before any work starts. Domains, hosting, booking tools and texting are billed to you by those providers.
+          Already have a website that works? Start with the free check; fixes to an existing site are quoted on their own.
         </p>
       </div>
       <ol class="pkgs__grid rail" role="list" data-rail>
-        {
-          packages.map((p, i) => (
-            <li class:list={['pkg', { 'pkg--featured': p.featured }]} id={`pkg-${p.id}`} data-reveal style={`--d:${i * 80}`} data-spotlight>
-              <div class="pkg__top">
-                <span class="num subtle">{String(i + 1).padStart(2, '0')}</span>
-                {p.featured && <span class="pkg__badge">Most complete</span>}
-              </div>
-              <h3 class="pkg__name">{p.name}</h3>
-              <p class="pkg__for muted">{p.forWho}</p>
-              <ul class="pkg__list" role="list">
-                {p.includes.map((d) => (
-                  <li>
-                    <Icon name="check" />
-                    <span>{d}</span>
-                  </li>
-                ))}
-              </ul>
-              <details class="pkg__more">
-                <summary>Not included, and what you provide</summary>
-                <p class="small">
-                  <b>Not included:</b> {p.notIncluded.join('; ')}.
-                </p>
-                <p class="small">
-                  <b>You provide:</b> {p.youProvide.join('; ')}.
-                </p>
-              </details>
-              <div class="pkg__cta">
-                <Button href={`/contact/?package=${p.id}#brief`} size="sm" variant={p.featured ? 'primary' : 'ghost'} aria-label={`Request a quote for ${p.name}`}>
-                  Request a quote
-                </Button>
-              </div>
-            </li>
-          ))
-        }
+        {packages.map((p, i) => <PackageCard pkg={p} index={i} />)}
       </ol>
+      <p class="pkgs__more">
+        {pricesPublished ? (
+          <a class="link-arrow" href="/pricing/">
+            Prices and what affects them <Icon name="arrow" />
+          </a>
+        ) : null}
+      </p>
 
-      <!-- Side by side: who each package is for, what it covers, what it leaves out, and the next step. -->
-      <div class="cmp">
-        <h3 class="cmp__title" id="compare-title">Compare the packages</h3>
-        <p class="small subtle cmp__note">
-          No package has a fixed public price: each one is quoted in writing after a short brief. The free check is separate.
-        </p>
-        <div class="cmp__wrap" role="region" aria-labelledby="compare-title" tabindex="0">
-          <table class="cmp__table" aria-labelledby="compare-title">
-            <thead>
-              <tr>
-                <td></td>
-                {packages.map((p) => <th scope="col">{p.name}</th>)}
-              </tr>
-            </thead>
-            <tbody>
-              <tr>
-                <th scope="row">Best for</th>
-                {packages.map((p) => <td>{p.forWho}</td>)}
-              </tr>
-              <tr>
-                <th scope="row">Covers</th>
-                {packages.map((p) => <td>{p.serviceIds.map((id) => labelFor(SERVICE_OPTIONS, id)).join(' · ')}</td>)}
-              </tr>
-              <tr>
-                <th scope="row">Not included</th>
-                {packages.map((p) => <td>{p.notIncluded.join('; ')}</td>)}
-              </tr>
-              <tr>
-                <th scope="row">You provide</th>
-                {packages.map((p) => <td>{p.youProvide.join('; ')}</td>)}
-              </tr>
-              <tr>
-                <th scope="row">Price</th>
-                {packages.map(() => <td>Written quote after a short brief</td>)}
-              </tr>
-              <tr>
-                <th scope="row">Next step</th>
-                {packages.map((p) => (
-                  <td>
-                    <a class="link" href={`/contact/?package=${p.id}#brief`}>
-                      Request a quote<span class="visually-hidden"> for {p.name}</span>
-                    </a>
-                  </td>
-                ))}
-              </tr>
-            </tbody>
-          </table>
-        </div>
-      </div>
+      <!-- Side by side: who each package is for, its boundary, what it leaves out, costs and the next step. -->
+      <PackageCompare />
     </div>
   </section>
 
@@ -506,148 +442,16 @@ const jump = [
     }
   }
 
-  /* ── Package comparison ── */
-  .cmp {
-    margin-top: clamp(var(--s-7), 5vw, var(--s-9));
-    display: grid;
-    gap: var(--s-3);
-  }
-  .cmp__title {
-    font-size: var(--fs-h3);
-  }
-  .cmp__wrap {
-    overflow-x: auto;
-    border: 1px solid var(--line);
-    border-radius: var(--r-md);
-    background: var(--bg);
-  }
-  .cmp__wrap:focus-visible {
-    outline: 2px solid var(--focus);
-    outline-offset: 3px;
-  }
-  .cmp__table {
-    width: 100%;
-    min-width: 52rem;
-    border-collapse: collapse;
-    font-size: var(--fs-sm);
-    line-height: 1.5;
-  }
-  .cmp__table th,
-  .cmp__table td {
-    padding: var(--s-3) var(--s-4);
-    text-align: left;
-    vertical-align: top;
-    border-bottom: 1px solid var(--line);
-  }
-  .cmp__table tbody tr:last-child > * {
-    border-bottom: 0;
-  }
-  .cmp__table thead th {
-    font-weight: 680;
-    font-stretch: 106%;
-    font-size: 1rem;
-    color: var(--text);
-  }
-  .cmp__table tbody th {
-    font-family: var(--font-mono);
-    font-size: var(--fs-xs);
-    font-weight: 500;
-    letter-spacing: var(--track-label);
-    text-transform: uppercase;
-    color: var(--text-3);
-    white-space: nowrap;
-  }
-  .cmp__table td {
-    color: var(--text-2);
-  }
-
-  /* ── Packages ── */
+  /* ── Packages (cards and table: components/packages) ── */
   .pkgs__grid {
     display: grid;
     gap: var(--s-4);
   }
-  .pkg {
-    display: flex;
-    flex-direction: column;
-    gap: var(--s-4);
-    padding: clamp(1.25rem, 2.5vw, 2rem);
-    border-radius: var(--r-lg);
-    background: var(--surface);
-    border: 1px solid var(--line);
+  .pkgs__more:empty {
+    display: none;
   }
-  .pkg--featured {
-    border-color: var(--signal);
-    box-shadow: 0 0 0 1px var(--signal), 0 0 80px -30px rgb(212 248 74 / 0.35);
-  }
-  .pkg__top {
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
-    font-size: var(--fs-xs);
-  }
-  .pkg__badge {
-    padding: 0.2rem 0.6rem;
-    border-radius: var(--r-pill);
-    background: var(--signal);
-    color: var(--on-signal);
-    font-family: var(--font-mono);
-    font-size: 0.7rem;
-    font-weight: 600;
-    letter-spacing: 0.04em;
-    text-transform: uppercase;
-  }
-  .pkg__name {
-    font-size: clamp(1.5rem, 1.3rem + 0.8vw, 2rem);
-    font-weight: 720;
-    font-stretch: 112%;
-    letter-spacing: -0.035em;
-    line-height: 1.05;
-  }
-  .pkg__for {
-    font-size: var(--fs-sm);
-  }
-  .pkg__list {
-    display: grid;
-    gap: var(--s-2);
-    font-size: var(--fs-sm);
-    padding-top: var(--s-4);
-    border-top: 1px solid var(--line);
-  }
-  .pkg__list li {
-    display: flex;
-    gap: var(--s-2);
-    align-items: flex-start;
-  }
-  .pkg__list .icon {
-    margin-top: 0.12em;
-    width: 1rem;
-    height: 1rem;
-    color: var(--signal);
-  }
-  .pkg__more {
-    font-size: var(--fs-sm);
-    color: var(--text-2);
-  }
-  .pkg__more summary {
-    min-height: var(--tap);
-    display: flex;
-    align-items: center;
-    cursor: pointer;
-    font-weight: 560;
-    color: var(--text);
-    text-decoration: underline;
-    text-decoration-color: var(--control);
-    text-underline-offset: 0.25em;
-  }
-  .pkg__more p + p {
-    margin-top: var(--s-2);
-  }
-  .pkg__more b {
-    color: var(--text);
-  }
-  .pkg__cta {
-    margin-top: auto;
-    padding-top: var(--s-3);
+  .pkgs__more {
+    margin-top: var(--s-5);
   }
   @media (min-width: 48em) {
     .pkgs__grid {
@@ -687,9 +491,6 @@ const jump = [
     }
     .svc__name {
       font-size: 1.0625rem;
-    }
-    .pkg {
-      height: 100%;
     }
   }
 </style>

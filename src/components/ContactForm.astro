@@ -238,8 +238,8 @@ const tick = '<svg viewBox="0 0 16 16"><path d="m3.5 8.5 3 3 6-7" /></svg>';
       <circle cx="40" cy="40" r="36"></circle>
       <path d="m25 41 10 10 21-23"></path>
     </svg>
-    <p class="eyebrow">Sent</p>
-    <h2 id="success-title">Thanks, <span data-success-name></span>. Your brief was sent.</h2>
+    <p class="eyebrow">Accepted</p>
+    <h2 id="success-title">Thanks, <span data-success-name></span>. Your brief is on its way.</h2>
     <p class="muted" data-success-ack></p>
     <ol class="next" role="list">
       <li><span class="num">01</span> I read every brief myself.</li>
@@ -257,6 +257,7 @@ const tick = '<svg viewBox="0 0 16 16"><path d="m3.5 8.5 3 3 6-7" /></svg>';
   import { validateEnquiry, LIMITS, type FieldErrors } from '../lib/enquiry/validate';
   import { briefMailto, briefText, sendEnquiry, failureText } from '../lib/enquiry/client';
   import { parseAnswers, recommend } from '../lib/guide';
+  import { normalizePackageId } from '../data/packages';
   import { track, trackOnce } from '../scripts/analytics';
   import { toast } from '../scripts/motion';
 
@@ -368,7 +369,8 @@ const tick = '<svg viewBox="0 0 16 16"><path d="m3.5 8.5 3 3 6-7" /></svg>';
 
     // ── Pre-fill (?package=…&services=…, ?service=…, or ?stage=…&problem=…&site=…) ──
     const params = new URLSearchParams(location.search);
-    let pkg = params.get('package') ?? '';
+    // Old package ids (links shared before round 10) map to the current offer.
+    let pkg: string = normalizePackageId(params.get('package'));
     let svcs = (params.get('services') ?? '').split(',').filter(Boolean);
     const answers = parseAnswers(Object.fromEntries(params.entries()));
     if (answers && !pkg) {
@@ -560,7 +562,7 @@ const tick = '<svg viewBox="0 0 16 16"><path d="m3.5 8.5 3 3 6-7" /></svg>';
             ? `A confirmation email is on its way to ${data.email}. If it isn’t there in a few minutes, check your spam folder.`
             : body.acknowledgement === 'failed'
               ? `Your brief was received, but the confirmation email couldn’t be sent. I’ll still reply to ${data.email}.`
-              : `The website accepted it and passed it on for delivery to my inbox. I’ll reply to ${data.email}.`;
+              : `The website accepted it and the email service took it for delivery to my inbox. I’ll reply to ${data.email}.`;
         form.hidden = true;
         success.hidden = false;
         success.focus();

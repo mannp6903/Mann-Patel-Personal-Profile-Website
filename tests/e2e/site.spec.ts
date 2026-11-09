@@ -13,6 +13,10 @@ const PAGES = [
   '/privacy/',
   '/terms/',
   '/contact/received/',
+  '/services/web-design/',
+  '/services/local-visibility/',
+  '/services/enquiry-follow-up/',
+  '/pricing/',
 ];
 
 async function noHorizontalOverflow(page: Page) {
@@ -91,12 +95,17 @@ test.describe('pages', () => {
   });
 
   test('structured data is valid JSON and makes no rating or address claims', async ({ page }) => {
-    for (const path of ['/', '/services/', '/about/']) {
+    for (const path of ['/', '/services/', '/about/', '/services/web-design/', '/services/local-visibility/', '/services/enquiry-follow-up/', '/pricing/']) {
       await page.goto(path);
       const blocks = await page.$$eval('script[type="application/ld+json"]', (s) => s.map((x) => x.textContent || ''));
       expect(blocks.length).toBeGreaterThan(0);
-      for (const b of blocks) expect(JSON.stringify(JSON.parse(b))).not.toMatch(/aggregateRating|address|award/i);
-      if (path !== '/about/') expect(blocks.join(' ')).toContain('"ProfessionalService"');
+      // No rating, street address or award properties (the words may appear in answers, e.g. "home address hidden").
+      for (const b of blocks) expect(JSON.stringify(JSON.parse(b))).not.toMatch(/"(aggregateRating|address|award)":/i);
+      if (path === '/' || path === '/services/') expect(blocks.join(' ')).toContain('"ProfessionalService"');
+      if (path.startsWith('/services/') && path !== '/services/') expect(blocks.join(' ')).toContain('"Service"');
+      // No price in structured data unless the page shows one.
+      const shown = await page.locator('[data-price]').allInnerTexts();
+      if (shown.every((t) => !/\$\s?\d/.test(t))) expect(blocks.join(' ')).not.toMatch(/"price"/);
     }
   });
 });
@@ -131,7 +140,7 @@ test.describe('layout', () => {
       await page.goto('/');
       const h1 = page.locator('h1');
       await expect(h1).toContainText('Found.');
-      await expect(h1).toContainText('Websites, local search and enquiry follow-up for small businesses in Toronto and the GTA.');
+      await expect(h1).toContainText('Websites, local search and enquiry follow-up for Toronto service businesses.');
       const cta = page.locator('.hero').getByRole('link', { name: 'Start a project' });
       await expect(cta).toBeInViewport();
       await expect(page.locator('.hero').getByRole('link', { name: 'See selected work' })).toHaveAttribute('href', '#work');
@@ -221,20 +230,28 @@ test.describe('navigation', () => {
 });
 
 test.describe('home interactions', () => {
-  test('tune in: the photo arrives as a lost signal, and the dial locks onto Mann at 104.3', async ({ page }) => {
+  test('the portrait starts clear; the radio dial is optional and locks back onto Mann at 104.3', async ({ page }) => {
     await page.setViewportSize({ width: 1440, height: 900 });
     await page.goto('/');
     const tune = page.locator('[data-tune]');
     await expect(tune).toHaveClass(/is-live/);
+    // Recognisable at once: tuned in from the start, no static, no flash on load (audit 8 Nov 2026).
+    await expect(tune).toHaveClass(/is-locked/);
     await expect(tune.locator('img')).toHaveAttribute('alt', /Mann Patel smiling/);
-    const dial = page.getByRole('slider', { name: 'Tune in' });
-    await expect(dial).toHaveAttribute('aria-valuetext', /FM, signal \d+%/);
     const detune = () => page.locator('[data-tune-screen]').evaluate((e) => Number(getComputedStyle(e).getPropertyValue('--d')));
-    expect(await detune()).toBeGreaterThan(0.3);
-    // Keyboard: End, then Page Down twice and one step up lands within the station's detent.
+    expect(await detune()).toBe(0);
+    await expect(page.locator('.hero')).not.toHaveClass(/is-locked|is-tuning/);
+    await expect(page.locator('[data-tune-status]')).toHaveText('On air: Mann Patel, Toronto. Try the dial.');
+    const dial = page.getByRole('slider', { name: 'Try the dial' });
+    await expect(dial).toHaveAttribute('aria-valuetext', '104.3 FM, signal locked');
+    // Keyboard: away to the end of the band, the signal is lost and the page says how to get it back.
     await dial.focus();
     await page.keyboard.press('End');
     await expect(page.locator('[data-tune-freq]')).toHaveText('107.9');
+    await expect(tune).not.toHaveClass(/is-locked/);
+    await expect(page.locator('[data-tune-status]')).toHaveText('Signal lost. Tune back to 104.3.');
+    expect(await detune()).toBeGreaterThan(0.3);
+    // Page Down twice and one step up lands within the station's detent.
     await page.keyboard.press('PageDown');
     await page.keyboard.press('PageDown');
     await expect(tune).not.toHaveClass(/is-locked/);
@@ -245,29 +262,24 @@ test.describe('home interactions', () => {
     await expect(page.locator('[data-tune-status]')).toHaveText('Signal locked: Mann Patel, Toronto.');
     await expect.poll(detune).toBe(0);
     await expect.poll(() => tune.locator('.tune__tx').evaluate((e) => getComputedStyle(e).opacity)).toBe('1');
-    // Off the station again: the signal is lost and the page says how to get it back.
-    await dial.fill('1001');
-    await expect(tune).not.toHaveClass(/is-locked/);
-    await expect(page.locator('[data-tune-status]')).toHaveText('Signal lost. Tune back to 104.3.');
   });
 
-  test('tune in: dragging across the photo tunes it, and left alone it tunes itself', async ({ page }) => {
+  test('dragging across the photo tunes it, and nothing detunes on its own', async ({ page }) => {
     await page.setViewportSize({ width: 1440, height: 900 });
     await page.goto('/');
     const freq = page.locator('[data-tune-freq]');
+    await page.waitForTimeout(3000);
+    await expect(freq).toHaveText('104.3');
+    await expect(page.locator('[data-tune]')).toHaveClass(/is-locked/);
     const screen = page.locator('[data-tune-screen]');
     const b = (await screen.boundingBox())!;
-    await page.mouse.move(b.x + b.width * 0.2, b.y + b.height / 2);
+    await page.mouse.move(b.x + b.width * 0.6, b.y + b.height / 2);
     await page.mouse.down();
-    const before = Number(await freq.textContent());
-    await page.mouse.move(b.x + b.width * 0.45, b.y + b.height / 2, { steps: 5 });
+    await page.mouse.move(b.x + b.width * 0.3, b.y + b.height / 2, { steps: 5 });
     await page.mouse.up();
-    // A quarter of the photo's width is about a quarter of the FM band (19.8 MHz).
-    expect(Number(await freq.textContent()) - before).toBeGreaterThan(3);
-    // A fresh visit, untouched: it locks on its own within a few seconds.
-    await page.goto('/');
-    await expect(page.locator('[data-tune]')).toHaveClass(/is-locked/, { timeout: 15_000 });
-    await expect(freq).toHaveText('104.3');
+    // A third of the photo's width is about a third of the FM band (19.8 MHz).
+    expect(104.3 - Number(await freq.textContent())).toBeGreaterThan(4);
+    await expect(page.locator('[data-tune]')).not.toHaveClass(/is-locked/);
   });
 
   test('the headline acts out its words, rests in the finished state, and replays on hover', async ({ page }) => {
@@ -302,12 +314,31 @@ test.describe('home interactions', () => {
     await ctx.close();
   });
 
-  test('the three service summaries each link to their full detail on Services', async ({ page }) => {
+  test('the three service summaries each link to their focused page and name their package', async ({ page }) => {
     await page.goto('/');
     const items = page.locator('#what-i-do li');
     await expect(items).toHaveCount(3);
-    for (const id of ['found', 'answered', 'booked'])
-      await expect(page.locator(`#what-i-do a[href="/services/#${id}"]`)).toBeVisible();
+    for (const slug of ['local-visibility', 'enquiry-follow-up', 'web-design'])
+      await expect(page.locator(`#what-i-do a[href="/services/${slug}/"]`)).toBeVisible();
+    for (const name of ['Local Visibility Setup', 'Website + Enquiry System', 'Website Launch'])
+      await expect(page.locator('#what-i-do')).toContainText(`Package: ${name}`);
+  });
+
+  test('the home page shows a labelled walkthrough with fictional data, keyboard-operable', async ({ page }) => {
+    await page.setViewportSize({ width: 1440, height: 900 });
+    await page.goto('/');
+    const demo = page.locator('#home-demo');
+    await expect(demo).toContainText('Demonstration · fictional data');
+    const steps = demo.getByRole('button');
+    await expect(steps).toHaveCount(5);
+    await steps.nth(2).focus();
+    await page.keyboard.press('Enter');
+    await expect(steps.nth(2)).toHaveAttribute('aria-pressed', 'true');
+    await expect(demo.locator('[data-state="2"]')).toBeVisible();
+    await expect(demo.locator('[data-state="2"]')).toContainText('Reminder');
+    // It comes straight after the real work.
+    const order = await page.evaluate(() => [...document.querySelectorAll('main > section')].map((s) => s.id).filter(Boolean));
+    expect(order.indexOf('walkthrough')).toBe(order.indexOf('work') + 1);
   });
 
   test('finder recommends a starting point live and pre-fills the brief', async ({ page }) => {
@@ -317,12 +348,15 @@ test.describe('home interactions', () => {
     await expect(finder.locator('[data-r-count]')).toHaveText('1 of 3 answered');
     await expect(finder.locator('[data-r-full]')).toBeHidden();
     await finder.getByText('Not missing calls, messages or enquiries').click();
+    // A website that works is checked, not rebuilt.
     await finder.getByText('Yes, and it works well').click();
-    await expect(finder.locator('[data-r-name]')).toHaveText('Never Miss an Enquiry fits best');
+    await expect(finder.locator('[data-r-name]')).toHaveText('Start with a free check of your enquiry path');
+    await finder.getByText('No', { exact: true }).click();
+    await expect(finder.locator('[data-r-name]')).toHaveText('Website + Enquiry System fits best');
     const cta = finder.locator('[data-r-cta]');
-    await expect(cta).toHaveAttribute('href', /\/contact\/\?package=answered&services=/);
+    await expect(cta).toHaveAttribute('href', /\/contact\/\?package=website-enquiry&services=/);
     await cta.click();
-    await expect(page.locator('#f-package')).toHaveValue('answered');
+    await expect(page.locator('#f-package')).toHaveValue('website-enquiry');
     await expect(page.locator('input[name="services"][value="missed-calls"]')).toBeChecked();
   });
 
@@ -370,7 +404,7 @@ test.describe('home interactions', () => {
     });
   }
 
-  test('phones: Contact stays one tap away, the tuner follows the buttons, and its show waits until it is seen', async ({ page }) => {
+  test('phones: Contact stays one tap away, and the clear portrait follows the buttons', async ({ page }) => {
     await page.setViewportSize({ width: 360, height: 800 });
     await page.goto('/');
     const cta = page.locator('[data-header]').getByRole('link', { name: 'Contact', exact: true });
@@ -381,10 +415,10 @@ test.describe('home interactions', () => {
       () => document.querySelector('[data-tune]')!.getBoundingClientRect().top - document.querySelector('.hero__actions')!.getBoundingClientRect().bottom,
     );
     expect(gap).toBeLessThan(60);
-    await page.waitForTimeout(800);
-    await expect(page.locator('.hero')).not.toHaveClass(/is-tuning|is-locked/);
     await page.locator('[data-tune-screen]').scrollIntoViewIfNeeded();
-    await expect(page.locator('.hero')).toHaveClass(/is-tuning/);
+    await page.waitForTimeout(1500);
+    await expect(page.locator('[data-tune]')).toHaveClass(/is-locked/);
+    await expect(page.locator('.hero')).not.toHaveClass(/is-tuning/);
   });
 
   test('the real, whole photo is in the hero at every size, with the way into About', async ({ page }) => {
@@ -420,14 +454,20 @@ test.describe('home interactions', () => {
 test.describe('phones: short pages', () => {
   // Screens of 390 × 844. Budgets keep the phone layout from growing back into a long scroll.
   // Case studies: 7 since round 7 added the at-a-glance summary and the tested-behaviour evidence.
+  // Round 10 (competitor audit, which judges sections by usefulness rather than length) added the
+  // labelled walkthrough to Home, package boundaries to Services and the professional intro to About.
   const BUDGET: Record<string, number> = {
-    '/': 10.5, // includes the real photo in the phone hero
-    '/services/': 12,
+    '/': 12, // the real photo in the phone hero, and the labelled walkthrough
+    '/services/': 13.5,
     '/work/': 4.5,
     '/work/nest-and-rest-cleaning/': 7,
     '/work/samp-hair-spa/': 7,
-    '/about/': 6.5,
+    '/about/': 7.5,
     '/contact/': 3.5,
+    '/services/web-design/': 10.75,
+    '/services/local-visibility/': 9.5,
+    '/services/enquiry-follow-up/': 10.5,
+    '/pricing/': 11.5,
   };
   for (const [path, max] of Object.entries(BUDGET)) {
     test(`${path} stays under ${max} phone screens`, async ({ page }) => {
@@ -547,18 +587,73 @@ test.describe('services', () => {
     const links = page.locator('#packages .pkg').getByRole('link', { name: /Request a quote for/ });
     await expect(links).toHaveCount(4);
     await links.first().click();
-    await expect(page.locator('#f-package')).toHaveValue('launch');
+    await expect(page.locator('#f-package')).toHaveValue('website-launch');
   });
 
-  test('the four packages can be compared side by side, with no unapproved prices', async ({ page }) => {
+  test('old package links from before round 10 still pre-select the closest package', async ({ page }) => {
+    for (const [old, now] of [['launch', 'website-enquiry'], ['found', 'local-visibility'], ['answered', 'website-enquiry'], ['website', 'website-launch']]) {
+      await page.goto(`/contact/?package=${old}#brief`);
+      await expect(page.locator('#f-package')).toHaveValue(now);
+    }
+  });
+
+  test('the four packages compare side by side, and every price line agrees (cards, table, pricing page)', async ({ page }) => {
     await page.goto('/services/');
     const table = page.getByRole('table', { name: 'Compare the packages' });
-    for (const name of ['Business Launch', 'Found & Chosen', 'Never Miss an Enquiry', 'Website That Books'])
+    for (const name of ['Website Launch', 'Website + Enquiry System', 'Local Visibility Setup', 'Website Care'])
       await expect(table.getByRole('columnheader', { name })).toBeVisible();
-    for (const row of ['Best for', 'Covers', 'Not included', 'You provide', 'Price', 'Next step'])
+    for (const row of ['Best for', 'Boundary', 'Covers', 'Not included', 'You provide', 'Paid to others', 'Timeline', 'Price', 'Next step'])
       await expect(table.getByRole('rowheader', { name: row })).toBeVisible();
-    expect(await table.innerText()).not.toMatch(/\$\s?\d/);
-    await expect(table.getByRole('link', { name: /Request a quote for Website That Books/ })).toHaveAttribute('href', '/contact/?package=website#brief');
+    await expect(table.getByRole('link', { name: /Request a quote for Website Launch/ })).toHaveAttribute('href', '/contact/?package=website-launch#brief');
+    const cardPrices = await page.locator('#packages .pkg [data-price]').allInnerTexts();
+    const tablePrices = await table.locator('[data-price]').allInnerTexts();
+    expect(cardPrices).toHaveLength(4);
+    expect(tablePrices).toEqual(cardPrices);
+    await page.goto('/pricing/');
+    expect(await page.locator('.pkg [data-price]').allInnerTexts()).toEqual(cardPrices);
+    // No popularity badges, discounts or scarcity.
+    expect(await page.locator('main').innerText()).not.toMatch(/most popular|best value|% off|limited time|only \d+ (spots|places)/i);
+  });
+
+  test('focused service pages: a distinct answer, honest evidence and a route to enquire', async ({ page }) => {
+    const titles = new Set<string>();
+    for (const [slug, pkg] of [['web-design', 'website-launch'], ['local-visibility', 'local-visibility'], ['enquiry-follow-up', 'website-enquiry']]) {
+      await page.goto(`/services/${slug}/`);
+      titles.add(await page.title());
+      await expect(page.getByRole('navigation', { name: 'Breadcrumb' }).getByRole('link', { name: 'Services' })).toHaveAttribute('href', '/services/');
+      await expect(page.locator('main').getByRole('link', { name: 'Request a quote' }).first()).toHaveAttribute('href', `/contact/?package=${pkg}#brief`);
+      await expect(page.locator('main')).toContainText('Not a fit:');
+      await expect(page.locator('main')).toContainText('Paid to other providers');
+      expect(await page.locator('main').innerText()).not.toMatch(/guaranteed? (rankings|results|leads)|#1 on google/i);
+    }
+    expect(titles.size).toBe(3);
+    // Web design links only to real work, with its honest status.
+    await page.goto('/services/web-design/');
+    await expect(page.locator('main')).toContainText('Business opens summer 2027');
+    await expect(page.locator('main')).toContainText('In progress, preview online');
+    // Local visibility shows a sample, labelled as one, and cites Google's own guidance.
+    await page.goto('/services/local-visibility/');
+    await expect(page.locator('main')).toContainText('Sample · fictional business');
+    await expect(page.locator('a[href="https://support.google.com/business/answer/7091?hl=en"]')).toBeVisible();
+    // Enquiry follow-up demonstrates the workflow with fictional data.
+    await page.goto('/services/enquiry-follow-up/');
+    await expect(page.locator('#demo-walkthrough')).toContainText('Demonstration · fictional data');
+    // The overview keeps its anchors and links to each page.
+    await page.goto('/services/');
+    for (const slug of ['web-design', 'local-visibility', 'enquiry-follow-up'])
+      await expect(page.locator(`main a[href="/services/${slug}/"]`).first()).toBeVisible();
+  });
+
+  test('pricing: built for review, but not linked while no price is approved', async ({ page }) => {
+    await page.goto('/pricing/');
+    const prices = await page.locator('.pkg [data-price]').allInnerTexts();
+    const unpriced = prices.every((t) => t === 'Quoted after your free check');
+    for (const path of ['/', '/services/']) {
+      await page.goto(path);
+      const linked = await page.locator('a[href="/pricing/"]').count();
+      if (unpriced) expect(linked, `${path} should not link to an empty pricing page`).toBe(0);
+      else expect(linked).toBeGreaterThan(0);
+    }
   });
 });
 
@@ -716,8 +811,9 @@ test.describe('enquiry form', () => {
     await expect(success).toBeVisible();
     await expect(success).toBeFocused();
     // Honest wording: accepted and passed on for delivery, not "arrived in the inbox".
-    await expect(success).toContainText('Your brief was sent');
-    await expect(success).toContainText('passed it on for delivery');
+    await expect(success).toContainText('Your brief is on its way');
+    await expect(success).toContainText('the email service took it for delivery');
+    await expect(success).toContainText('took it for delivery');
     expect(sawSending).toBe(true);
     const id = (await page.locator('[data-brief] [data-success-id]').textContent())!.trim();
     expect(id).toMatch(/^enq_\d{8}_[0-9a-f]{8}$/);
@@ -803,7 +899,7 @@ test.describe('enquiry form', () => {
     await page.locator('#f-message').fill(`No-JavaScript path ${Date.now()}: please contact me about a landing page.`);
     await send(page).click();
     await expect(page).toHaveURL(/\/contact\/received\/$/);
-    await expect(page.locator('h1')).toHaveText('Thanks, your brief was sent.');
+    await expect(page.locator('h1')).toHaveText('Thanks, your brief is on its way.');
     const store = await readFile('.data/enquiries.jsonl', 'utf8');
     expect(store).toContain('nojs@example.ca');
     await ctx.close();
@@ -871,15 +967,10 @@ test.describe('motion (restrained in round 7)', () => {
     await expect.poll(() => btn.evaluate((e) => (e as HTMLElement).style.translate)).toBe('');
   });
 
-  test('the hero coordinates decode, but screen readers always get the real text', async ({ page }) => {
+  test('the hero labels are plain text, with no decoding effect (round 10: fewer elements around the portrait)', async ({ page }) => {
     await page.setViewportSize({ width: 1440, height: 900 });
     await page.goto('/');
-    const coords = page.locator('.hero [data-scramble]');
-    const real = '43.65° N · 79.38° W';
-    const during = await coords.evaluate((e) => e.querySelector('.visually-hidden')?.textContent ?? e.textContent);
-    expect(during).toBe(real);
-    await expect.poll(() => coords.evaluate((e) => e.textContent)).toBe(real);
-    // Ordinary labels are plain text now.
+    await expect(page.locator('.hero [data-scramble]')).toHaveCount(0);
     expect(await page.locator('.hero .eyebrow').first().evaluate((e) => e.children.length)).toBe(0);
   });
 
@@ -985,7 +1076,7 @@ test.describe('free check (short path)', () => {
     await submit.dblclick();
     const done = panel(page).locator('[data-success]');
     await expect(done).toBeVisible();
-    await expect(done).toContainText('Your check request was sent');
+    await expect(done).toContainText('Your check request is on its way');
     const id = (await done.locator('[data-success-id]').textContent())!.trim();
     const store = await readFile('.data/enquiries.jsonl', 'utf8');
     const lines = store.split('\n').filter((l) => l.includes(`Corner Bakery ${stamp}`));

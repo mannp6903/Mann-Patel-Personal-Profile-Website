@@ -78,10 +78,19 @@ Content width `--container` 90rem with `--gutter` 1 → 3rem; text `--measure` 6
 desktop, one column on phones. Layouts alternate (split, full-bleed, sticky, list) so no two sections
 in a row look the same.
 
-**Home order (round 7, hero changed in round 8).** Hero (outcome headline + service descriptor, two
-actions, and the **Tune in** photo) → **selected work** (both projects) → three service summaries →
-free check → how I work → questions → closing call to action. Real work starts by y≈920 at 1440×1000
-and y≈1410 at 390×844 (tested; on phones the tuner sits between the buttons and the work).
+**Home order (round 7; hero changed in rounds 8–10).** Hero (outcome headline + "for Toronto service
+businesses", two actions, and Mann's clear portrait) → **selected work** (both projects) → a labelled
+**walkthrough with fictional data** (round 10) → three service summaries, each naming its package → free
+check → how I work → questions → closing call to action. Real work starts by y≈920 at 1440×1000 and
+y≈1400 at 390×844 (tested; on phones the portrait is 5:4 and sits between the buttons and the work).
+
+**Service pages (round 10).** `/services/` stays the overview (its `#anchors` still work) and links to
+three focused pages from one template (`pages/services/[slug].astro`, content in `data/service-pages.ts`):
+`/services/web-design/`, `/services/local-visibility/`, `/services/enquiry-follow-up/`. Each answers: who
+it's for (and who it isn't), what actually happens, honest evidence (real projects with their status, a
+labelled sample, or the fictional walkthrough), the package with its boundary and price line, limits,
+costs paid to other providers, handover, buying questions and sources. `/pricing/` uses the same package
+cards and table; it stays unlinked and `noindex` until a price is approved (`data/packages.ts`).
 
 **Phones (under 48em) stay short.** A client should get the whole story in a few thumb-flicks:
 
@@ -160,7 +169,15 @@ the first frame (the headline stays the LCP element); the pin, bubble, ticks and
 `aria-hidden` decoration with no text. Reduced motion and no JavaScript show the finished state. The
 tuner's lock flash still runs over the top. Why: `docs/16-round-9-headline.md`.
 
-### Tune in (round 8)
+### Tune in (round 8; starts clear since round 10)
+
+**Round 10 change (competitor audit, 8 Nov 2026):** the portrait now starts **clear and tuned in**
+(104.3, "On air: Mann Patel, Toronto. Try the dial."), so visitors recognise Mann at once and nothing
+depends on dragging. The dial (labelled "Try the dial") is optional: tune away for the lost-signal effect,
+tune back for the lock, the headline flash and the ping. There is no automatic sweep or auto-tune any
+more, the coordinates were removed from the photo, and WebGL draws only while the signal is detuned. The
+original round-8 behaviour is described below for the record.
+
 
 `components/home/TuneIn.astro` + `scripts/tune.ts`. Mann's real photo is a radio station. It arrives
 as a lost signal (lime-on-black static, scanlines, colour split, tearing, a slow roll; "No signal")

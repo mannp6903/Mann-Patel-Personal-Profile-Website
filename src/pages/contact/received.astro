@@ -4,16 +4,19 @@ import BaseLayout from '../../layouts/BaseLayout.astro';
 import Button from '../../components/ui/Button.astro';
 ---
 
-<BaseLayout title="Brief sent" description="Your brief was sent." noindex footerCta={false}>
+<BaseLayout title="Brief accepted" description="Your brief was accepted by the website." noindex footerCta={false}>
   <section class="rc">
     <div class="container rc__inner">
       <svg class="rc__mark" viewBox="0 0 80 80" aria-hidden="true">
         <circle cx="40" cy="40" r="36"></circle>
         <path d="m25 41 10 10 21-23"></path>
       </svg>
-      <p class="eyebrow">Sent</p>
-      <h1 class="rc__title">Thanks, your brief <span class="serif serif--signal">was sent.</span></h1>
-      <p class="lead">The website accepted it and passed it on for delivery to my inbox. I read every one myself and will reply by email.</p>
+      <p class="eyebrow">Accepted</p>
+      <h1 class="rc__title">Thanks, your brief <span class="serif serif--signal">is on its way.</span></h1>
+      <p class="lead">
+        The website accepted it and the email service took it for delivery to my inbox. I read every one myself and will reply
+        by email.
+      </p>
       <div class="btn-row">
         <Button href="/work/">See my work</Button>
         <Button href="/" variant="ghost">Back to the home page</Button>

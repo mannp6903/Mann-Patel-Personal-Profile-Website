@@ -3,6 +3,7 @@ import { defineConfig, envField } from 'astro/config';
 import node from '@astrojs/node';
 import cloudflare from '@astrojs/cloudflare';
 import sitemap from '@astrojs/sitemap';
+import { pricesPublished } from './src/data/packages.ts';
 import { randomBytes } from 'node:crypto';
 
 /**
@@ -30,7 +31,15 @@ export default defineConfig({
       : node({ mode: 'standalone', bodySizeLimit: 64 * 1024 }),
   // No logins or carts, so no session storage (stops the Cloudflare adapter adding a KV namespace).
   session: false,
-  integrations: INDEXING ? [sitemap({ filter: (page) => !page.includes('/api/') && !page.includes('/contact/received/') })] : [],
+  // /pricing/ joins the sitemap only once a price is approved (src/data/packages.ts).
+  integrations: INDEXING
+    ? [
+        sitemap({
+          filter: (page) =>
+            !page.includes('/api/') && !page.includes('/contact/received/') && (pricesPublished || !page.endsWith('/pricing/')),
+        }),
+      ]
+    : [],
   prefetch: false,
   devToolbar: { enabled: false },
   // Inline all CSS: no render-blocking stylesheet requests (the whole site's CSS is small).

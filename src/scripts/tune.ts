@@ -1,16 +1,14 @@
 /**
- * "Tune in": Mann's real photo arrives as a lost signal (static, scanlines, colour split, tearing,
- * a slow roll) and the visitor tunes an FM dial to bring him in. At 104.3 the signal locks: the
- * photo snaps to full colour, a radar ping crosses the hero's dot field, the headline words flash,
- * and a short transmission types out. Based on information-gap curiosity: show enough to guess,
- * not enough to know, then reward the effort.
+ * "Tune in" (round 8, changed in round 10): Mann's real photo is a radio station. It starts clear,
+ * tuned to 104.3, so visitors recognise him at once (8 Nov 2026 audit). The dial is an optional
+ * effect: tune away and the picture turns into a lost signal (static, scanlines, colour split,
+ * tearing), tune back and it locks again, flashing the headline and pinging the dot field.
  *
  * Accessibility and fallbacks
  * - The dial is a real <input type="range"> (keyboard, screen readers, aria-valuetext); dragging
  *   sideways across the photo tunes too. Status changes are announced politely.
- * - Nobody is kept waiting: if the visitor doesn't touch it, it tunes itself after a few seconds.
- * - Reduced motion: starts locked, no animation; the dial still works and the picture degrades
- *   without moving.
+ * - Nothing depends on the dial: the photo, the caption and "Who is this guy?" are always there.
+ * - Reduced motion: no animation; the dial still works and the picture degrades without moving.
  * - No WebGL (or a CPU-only renderer): the same effect in CSS filters over the real <img>.
  * - No JavaScript: the photo is shown clearly and the dial is hidden.
  * The animation runs only while something changes, and pauses off screen or in a background tab.
@@ -21,7 +19,6 @@ const MIN = 88.1;
 const MAX = 107.9;
 const RANGE = 7; // MHz either side of LOCK_AT over which the picture clears
 const SNAP = 0.3; // MHz: this close snaps onto the station, like a real tuner's detent
-const AUTO_TUNE_AFTER = 6500; // ms without interaction before it tunes itself
 
 const VERT = `attribute vec2 p;varying vec2 v;void main(){v=p*.5+.5;v.y=1.-v.y;gl_Position=vec4(p,0.,1.);}`;
 const FRAG = `precision mediump float;
@@ -88,9 +85,9 @@ export function mountTuner(root: HTMLElement) {
   const reduced = matchMedia('(prefers-reduced-motion: reduce)').matches;
   root.classList.add('is-live');
 
-  let freq = reduced ? LOCK_AT : MIN;
+  // Round 10: the photo starts clear (tuned to Mann). Tuning away and back is optional.
+  let freq = LOCK_AT;
   let locked = false;
-  let touched = false;
   let t0 = performance.now();
   let lastChange = performance.now();
   let flash = 0;
@@ -215,6 +212,7 @@ export function mountTuner(root: HTMLElement) {
     if (bars) bars.style.setProperty('--s', String(Math.round((1 - d) * 5)));
     dial.setAttribute('aria-valuetext', d === 0 ? `${fmt(freq)} FM, signal locked` : `${fmt(freq)} FM, signal ${strength}%`);
     root.style.setProperty('--sig', (1 - d).toFixed(3));
+    root.classList.toggle('is-detuned', d > 0);
     lastChange = performance.now();
     if (d === 0 && !locked) lock(how);
     else if (d > 0 && locked) unlock();
@@ -228,12 +226,15 @@ export function mountTuner(root: HTMLElement) {
     flash = reduced ? 0 : 1;
     root.classList.add('is-locked');
     hero?.classList.remove('is-tuning');
-    if (!reduced) {
-      hero?.classList.remove('is-locked');
-      void hero?.offsetWidth; // restart the headline flash
+    if (how !== 'init') {
+      // Found him again: flash the headline (restarted each time).
+      if (!reduced) {
+        hero?.classList.remove('is-locked');
+        void hero?.offsetWidth;
+      }
+      hero?.classList.add('is-locked');
     }
-    hero?.classList.add('is-locked');
-    status.textContent = 'Signal locked: Mann Patel, Toronto.';
+    status.textContent = how === 'init' ? 'On air: Mann Patel, Toronto. Try the dial.' : 'Signal locked: Mann Patel, Toronto.';
     if (how !== 'init') {
       // A radar ping across the hero's dot field, from the photo's centre.
       const r = screen.getBoundingClientRect();
@@ -257,11 +258,9 @@ export function mountTuner(root: HTMLElement) {
 
   /* ── Input: the dial, the keyboard, and dragging across the photo ── */
   dial.addEventListener('input', () => {
-    touched = true;
     setFreq(Number(dial.value) / 10, 'drag');
   });
   dial.addEventListener('keydown', (e) => {
-    touched = true;
     // Page Up / Page Down move 2 MHz, so the keyboard isn't 80 presses from the station.
     if (e.key === 'PageUp' || e.key === 'PageDown') {
       e.preventDefault();
@@ -276,7 +275,6 @@ export function mountTuner(root: HTMLElement) {
     if (e.button !== 0) return;
     dragX = e.clientX;
     dragFreq = freq;
-    touched = true;
   });
   addEventListener(
     'pointermove',
@@ -297,54 +295,10 @@ export function mountTuner(root: HTMLElement) {
     setFreq(freq, 'init');
     kick();
   };
-  // The show starts when the tuner is properly in view (on phones it sits below the buttons),
-  // so nobody misses the moment it locks.
-  let started = false;
-  const start = () => {
-    if (started || reduced) return;
-    started = true;
-    if (!touched) status.textContent = 'No signal. Drag the dial, or the photo, to tune in.';
-    hero?.classList.add('is-tuning');
-    // A short sweep shows it's alive, then it waits for the visitor.
-    const sweepStart = performance.now() + 500;
-    const sweepTo = 99.7; // close enough to make out a person, not close enough to know who
-    const sweep = (now: number) => {
-      if (touched) return;
-      const k = Math.min(1, Math.max(0, (now - sweepStart) / 1600));
-      const e = 1 - Math.pow(1 - k, 3);
-      setFreq(MIN + (sweepTo - MIN) * e, 'auto');
-      if (k < 1) requestAnimationFrame(sweep);
-    };
-    requestAnimationFrame(sweep);
-    // Nobody is kept waiting: tune in for them.
-    setTimeout(() => {
-      if (touched || locked) return;
-      const from = freq;
-      const t1 = performance.now();
-      const glide = (now: number) => {
-        if (touched) return;
-        const k = Math.min(1, (now - t1) / 1400);
-        const e = k < 0.5 ? 4 * k * k * k : 1 - Math.pow(-2 * k + 2, 3) / 2;
-        setFreq(from + (LOCK_AT - from) * e, 'auto');
-        if (k < 1) requestAnimationFrame(glide);
-      };
-      requestAnimationFrame(glide);
-    }, AUTO_TUNE_AFTER);
-  };
-
   new IntersectionObserver(([en]) => {
     onScreen = en.isIntersecting;
     if (onScreen) kick();
   }).observe(screen);
-  const seen = new IntersectionObserver(
-    ([en]) => {
-      if (!en.isIntersecting) return;
-      seen.disconnect();
-      start();
-    },
-    { threshold: 0.55 },
-  );
-  seen.observe(screen);
   document.addEventListener('visibilitychange', () => {
     visible = !document.hidden;
     if (visible) kick();

@@ -7,6 +7,8 @@
 import { getCollection } from 'astro:content';
 import { contact, emailHref } from '../lib/contact';
 import Icon, { type IconName } from './ui/Icon.astro';
+import { servicePages } from '../data/service-pages';
+import { pricesPublished } from '../data/packages';
 
 const work = (await getCollection('work')).sort((a, b) => a.data.order - b.data.order);
 const phone = contact.phone;
@@ -39,6 +41,8 @@ const groups: { title: string; items: Item[] }[] = [
     items: [
       { id: 'p-home', label: 'Home', hint: '/', icon: 'home', href: '/' },
       { id: 'p-services', label: 'Services and packages', hint: '/services/', icon: 'layers', href: '/services/', keywords: 'pricing google website booking reviews' },
+      ...servicePages.map((sp) => ({ id: `s-${sp.slug}`, label: sp.short, hint: sp.title, icon: 'arrow-ne' as IconName, href: `/services/${sp.slug}/`, keywords: 'service' })),
+      ...(pricesPublished ? [{ id: 'p-pricing', label: 'Pricing', hint: '/pricing/', icon: 'layers' as IconName, href: '/pricing/', keywords: 'price cost how much' }] : []),
       { id: 'p-work', label: 'Work', hint: '/work/', icon: 'grid', href: '/work/', keywords: 'projects portfolio case study' },
       ...work.map((w) => ({ id: `w-${w.id}`, label: w.data.title, hint: 'Case study', icon: 'arrow-ne' as IconName, href: `/work/${w.id}/` })),
       { id: 'p-about', label: 'About Mann', hint: '/about/', icon: 'user', href: '/about/', keywords: 'story bio' },

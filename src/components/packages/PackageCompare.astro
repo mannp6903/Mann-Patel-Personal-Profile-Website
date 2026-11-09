@@ -1,0 +1,142 @@
+---
+/**
+ * Side-by-side comparison of the packages (round 10): who each is for, its boundary, what it
+ * covers and leaves out, what the client provides, what other providers bill, the timeline and the
+ * price, all from src/data/packages.ts.
+ */
+import { packages, priceLabel } from '../../data/packages';
+import { SERVICE_OPTIONS, labelFor } from '../../lib/enquiry/options';
+
+interface Props {
+  id?: string;
+  title?: string;
+  /** Heading level for the table title. */
+  level?: 2 | 3;
+}
+const { id = 'compare-title', title = 'Compare the packages', level = 3 } = Astro.props;
+const H = level === 2 ? 'h2' : 'h3';
+const anyApproved = packages.some((p) => priceLabel(p).approved);
+---
+
+<div class="cmp">
+  <H class="cmp__title" id={id}>{title}</H>
+  <p class="small subtle cmp__note">
+    {
+      anyApproved
+        ? 'Prices are starting points in CAD, before tax. Your written scope confirms the exact price before any work starts. The free check is separate.'
+        : 'Each package is quoted in writing after your free check or a short brief, so the price matches your actual scope. The free check is separate.'
+    }
+  </p>
+  <div class="cmp__wrap" role="region" aria-labelledby={id} tabindex="0">
+    <table class="cmp__table" aria-labelledby={id}>
+      <thead>
+        <tr>
+          <td></td>
+          {packages.map((p) => <th scope="col">{p.name}</th>)}
+        </tr>
+      </thead>
+      <tbody>
+        <tr>
+          <th scope="row">Best for</th>
+          {packages.map((p) => <td>{p.forWho}</td>)}
+        </tr>
+        <tr>
+          <th scope="row">Boundary</th>
+          {packages.map((p) => <td>{p.boundary}</td>)}
+        </tr>
+        <tr>
+          <th scope="row">Covers</th>
+          {packages.map((p) => <td>{p.serviceIds.map((sid) => labelFor(SERVICE_OPTIONS, sid)).join(' · ')}</td>)}
+        </tr>
+        <tr>
+          <th scope="row">Not included</th>
+          {packages.map((p) => <td>{p.notIncluded.join('; ')}</td>)}
+        </tr>
+        <tr>
+          <th scope="row">You provide</th>
+          {packages.map((p) => <td>{p.youProvide.join('; ')}</td>)}
+        </tr>
+        <tr>
+          <th scope="row">Paid to others</th>
+          {packages.map((p) => <td>{p.thirdParty.join('; ') || 'Nothing extra'}</td>)}
+        </tr>
+        <tr>
+          <th scope="row">Timeline</th>
+          {packages.map((p) => <td>{p.timeline}</td>)}
+        </tr>
+        <tr>
+          <th scope="row">Price</th>
+          {packages.map((p) => <td data-price>{priceLabel(p).text}</td>)}
+        </tr>
+        <tr>
+          <th scope="row">Next step</th>
+          {
+            packages.map((p) => (
+              <td>
+                <a class="link" href={`/contact/?package=${p.id}#brief`}>
+                  Request a quote<span class="visually-hidden"> for {p.name}</span>
+                </a>
+              </td>
+            ))
+          }
+        </tr>
+      </tbody>
+    </table>
+  </div>
+</div>
+
+<style>
+  .cmp {
+    margin-top: clamp(var(--s-7), 5vw, var(--s-9));
+    display: grid;
+    gap: var(--s-3);
+  }
+  .cmp__title {
+    font-size: var(--fs-h3);
+  }
+  .cmp__wrap {
+    overflow-x: auto;
+    border: 1px solid var(--line);
+    border-radius: var(--r-md);
+    background: var(--bg);
+  }
+  .cmp__wrap:focus-visible {
+    outline: 2px solid var(--focus);
+    outline-offset: 3px;
+  }
+  .cmp__table {
+    width: 100%;
+    min-width: 56rem;
+    border-collapse: collapse;
+    font-size: var(--fs-sm);
+    line-height: 1.5;
+  }
+  .cmp__table th,
+  .cmp__table td {
+    padding: var(--s-3) var(--s-4);
+    text-align: left;
+    vertical-align: top;
+    border-bottom: 1px solid var(--line);
+  }
+  .cmp__table tbody tr:last-child > * {
+    border-bottom: 0;
+  }
+  .cmp__table thead th {
+    font-weight: 680;
+    font-stretch: 106%;
+    font-size: 1rem;
+    color: var(--text);
+  }
+  .cmp__table tbody th {
+    font-family: var(--font-mono);
+    font-size: var(--fs-xs);
+    font-weight: 500;
+    letter-spacing: var(--track-label);
+    text-transform: uppercase;
+    color: var(--text-3);
+    white-space: nowrap;
+  }
+  .cmp__table td {
+    color: var(--text-2);
+  }
+</style>

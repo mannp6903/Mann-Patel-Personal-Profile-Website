@@ -9,6 +9,34 @@ import { profile, businesses, social } from '../data/site';
 import { personJsonLd } from '../lib/seo';
 
 const nest = businesses[0];
+const glance = [
+  {
+    t: 'What I deliver',
+    d: 'Websites of up to five pages with one tested enquiry path, Google Business Profile and listings, follow-up and booking workflows, and monthly website care.',
+    href: '/services/',
+    link: 'Services and packages',
+  },
+  {
+    t: 'Who it’s for',
+    d: 'Owner-run service businesses in Toronto, especially in North York and Scarborough: cleaning, maintenance, trades and other businesses that meet customers in person.',
+  },
+  {
+    t: 'How work is checked',
+    d: 'Every enquiry path is tested end to end before launch, with layout and accessibility checks. The case studies show the dated test results, including what is still open.',
+    href: '/work/',
+    link: 'See the work',
+  },
+  {
+    t: 'Replies and timing',
+    d: 'I read and answer every enquiry myself, by email. Each written scope includes a start date and a dated plan.',
+    href: '/contact/',
+    link: 'Contact',
+  },
+  {
+    t: 'What you keep',
+    d: 'Every account, domain and file in your name, and a written handover. I’m added as a user, not the owner.',
+  },
+];
 const links = social.filter((s) => s.url);
 const principles = [
   {
@@ -56,7 +84,7 @@ const jsonLd = { '@context': 'https://schema.org', '@type': 'AboutPage', mainEnt
 
 <BaseLayout
   title="About"
-  description="Mann Patel’s story, from Palana in Gujarat to Toronto: founder of Nest & Rest Cleaning, helping small businesses in Toronto and the GTA get found on Google, answer every enquiry and get booked."
+  description="Mann Patel builds websites, Google listings and enquiry follow-up for Toronto service businesses, especially in North York and Scarborough. What he delivers, how work is checked, and his story from Palana in Gujarat to Toronto."
   jsonLd={jsonLd}
 >
   <header class="ab-head">
@@ -66,15 +94,16 @@ const jsonLd = { '@context': 'https://schema.org', '@type': 'AboutPage', mainEnt
         <Heading
           as="h1"
           class="ab-title"
-          lines={['I’m Mann Patel.', 'I’m building a small business,', '<span class="serif serif--signal">and I help other owners with theirs.</span>']}
+          lines={['I’m Mann Patel.', 'I build websites and enquiry follow-up', '<span class="serif serif--signal">for Toronto service businesses.</span>']}
           load
         />
         <p class="lead" data-reveal="load" style="--d:200">
-          I’m starting {nest.name}, a home-cleaning business in {nest.area}, which opens for bookings in summer 2027. I also
-          help small-business owners in {profile.serviceArea} get found on Google, answer every enquiry, and turn website
-          visits into bookings.
+          Clear websites, Google and Maps listings, and follow-up that answers every enquiry, for owner-run businesses across
+          Toronto, especially North York and Scarborough. I’m also starting {nest.name}, my own home-cleaning business in
+          {nest.area}, which opens for bookings in summer 2027.
         </p>
         <div class="ab-reach" data-reveal="load" style="--d:300">
+          <a class="link-arrow" href="#glance">What I deliver and how I work <Icon name="arrow-down" /></a>
           <a class="link-arrow" href="#story">My story, from Palana to Toronto <Icon name="arrow-down" /></a>
           <ContactActions label="Say hello" />
           {
@@ -110,6 +139,36 @@ const jsonLd = { '@context': 'https://schema.org', '@type': 'AboutPage', mainEnt
       }
     </div>
   </header>
+
+  <!-- Round 10 (audit 8 Nov 2026): the buyer's practical questions first; the personal story follows. -->
+  <section class="section section--rule" id="glance" aria-labelledby="glance-title">
+    <div class="container glance">
+      <div class="stack" style="--stack: var(--s-4)">
+        <p class="eyebrow">At a glance</p>
+        <h2 id="glance-title" class="glance__title">What I do, <span class="serif">and how.</span></h2>
+      </div>
+      <dl class="glance__list">
+        {
+          glance.map((g) => (
+            <div>
+              <dt>{g.t}</dt>
+              <dd>
+                {g.d}
+                {g.href && (
+                  <>
+                    {' '}
+                    <a class="link" href={g.href}>
+                      {g.link}
+                    </a>
+                  </>
+                )}
+              </dd>
+            </div>
+          ))
+        }
+      </dl>
+    </div>
+  </section>
 
   <section class="section section--alt section--rule" aria-labelledby="principles-title">
     <div class="container">
@@ -424,6 +483,41 @@ const jsonLd = { '@context': 'https://schema.org', '@type': 'AboutPage', mainEnt
     }
     .rules__n {
       font-size: 2rem;
+    }
+  }
+  /* ── At a glance (round 10) ── */
+  .glance {
+    display: grid;
+    gap: var(--s-6);
+  }
+  .glance__title {
+    font-size: var(--fs-h2);
+    max-width: 14ch;
+  }
+  .glance__list {
+    display: grid;
+    gap: var(--s-4);
+  }
+  .glance__list > div {
+    display: grid;
+    gap: var(--s-2);
+    padding-top: var(--s-4);
+    border-top: 1px solid var(--line);
+  }
+  .glance__list dt {
+    font-weight: 680;
+  }
+  .glance__list dd {
+    color: var(--text-2);
+  }
+  @media (min-width: 64em) {
+    .glance {
+      grid-template-columns: minmax(0, 0.8fr) minmax(0, 1.2fr);
+      gap: var(--s-9);
+    }
+    .glance__list > div {
+      grid-template-columns: 12rem minmax(0, 1fr);
+      gap: var(--s-5);
     }
   }
 </style>

@@ -43,6 +43,23 @@ Browser form ──► GET /api/enquiry/  → { connected, token }      (status 
 3. **Create `info@mannpatel.me`** (*Email Routing* → *Routing rules* → *Create address*: `info` → *Send to an email* → your verified inbox). The site shows `info@mannpatel.me` everywhere.
 4. **Tell the Worker where to send briefs:** *Workers & Pages* → `mann-patel-website` → *Settings* → *Variables and Secrets* → *Add* → type **Secret**, name `ENQUIRY_TO_EMAIL`, value = the verified inbox from step 2. (`keep_vars` in `wrangler.jsonc` keeps dashboard values across deploys.)
 5. **Live test with sample data:** open https://mannpatel.me/contact/ (the "not connected" notice must be gone), send a brief named "Test Owner", and confirm: (a) the success screen shows a reference id; (b) the email "New enquiry: Test Owner" arrives; (c) pressing Reply addresses the visitor's email.
+6. **Critical-path check (round 10), both forms in one go:** from this repository on your computer run
+   `npm run check:enquiry -- https://mannpatel.me` (readiness only, sends nothing), then
+   `npm run check:enquiry -- https://mannpatel.me --send --reply-to you@yourdomain.ca` (an address you own). It sends one
+   free-check request and one project brief, both marked **[Delivery test]**, and prints a reference for each. Then look
+   for both emails in the inbox: that, not the script, is the proof of delivery. Repeat after any change to Email
+   Routing, the secret or the form, and once a month (Website Care does the same for clients).
+
+**What each state means (shown to visitors and in the script):**
+
+| State | Meaning | What the visitor sees |
+| --- | --- | --- |
+| Not connected | Readiness says `connected: false` (e.g. `ENQUIRY_TO_EMAIL` missing) | A notice, "Email this brief" (opens their email app) and "Copy my brief"; nothing is claimed as sent |
+| Rejected | The website refused it (missing fields, too fast, honeypot, too many links, rate limit) | The reason next to the field or above the form; their answers stay |
+| Accepted | The website validated it and Cloudflare's email service accepted it for delivery | "Accepted… Your brief is on its way. The website accepted it and the email service took it for delivery to my inbox." (never "delivered") |
+| Received | The email is in the inbox | Only you can confirm this, by seeing it |
+| Delivery failed | Cloudflare refused the send (logged as `enquiry_delivery_failed` in *Observability*) | An error with their answers kept, a retry and the email fallback; never a success screen |
+| Lost after acceptance | Rare (e.g. a bounce or a spam filter); the website can't see it | Nothing different: only the critical-path check or a missing email reveals it |
 
 Optional durable record: a Google Sheet + Apps Script web app (`ENQUIRY_WEBHOOK_URL`, `ENQUIRY_WEBHOOK_SECRET`). With both set, an enquiry is accepted if *either* channel accepts it. If you add it, name Google Sheets on the Privacy page.
 
@@ -66,8 +83,8 @@ Optional durable record: a Google Sheet + Apps Script web app (`ENQUIRY_WEBHOOK_
 | `cta_click` (custom) | click on a link to the contact page | `cta: start_project` or `free_check`, `location` (header, footer or section id) | A click, not a qualified lead. |
 | `select_content` | click on a link to a case study | `content_type: project`, `content_id`, `location` | Case-study page views are also counted by `page_view`. |
 | `select_content` (recommended) | guide recommendation shown | `content_type: service_guide_result`, `content_id: <package>` | |
-| `select_content` | first interaction with the workflow demo | `content_type: workflow_demo` | |
-| `tune_in` (custom) | the hero tuner locks onto 104.3 (round 8) | `method: drag`, `keyboard` or `auto` (tuned itself) | Shows whether people play with the hero or wait. Nothing else is sent. |
+| `select_content` | first step chosen in the labelled walkthrough (home and /services/enquiry-follow-up/, round 10) | `content_type: workflow_demo` | Fictional data only. |
+| `tune_in` (custom) | the hero tuner is tuned back onto 104.3 by the visitor | `method: drag` or `keyboard` | Since round 10 the portrait starts clear and never tunes itself, so this counts people who played with the dial. Nothing else is sent. |
 | `contact_click` (custom) | click on email/phone/WhatsApp links | `method` | Only once these contact details exist |
 | outbound clicks (e.g. Nest & Rest) | Enhanced measurement | — | Turn **off** Enhanced Measurement "form interactions", to avoid double-counting forms |
 | booking events | **not used** | — | There is no real booking system |

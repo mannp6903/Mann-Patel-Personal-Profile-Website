@@ -7,7 +7,8 @@ Everything below is tracked in code. Unverified **claims** are wrapped in `<Conf
 0. **Switch on direct enquiry delivery (the main blocker, 8 Nov 2026 audit).** The live form reports
    `connected: false` because the Worker secret **`ENQUIRY_TO_EMAIL`** isn't set. Turn on Email Routing,
    verify your inbox as a destination, add the secret, then send one real free check and one real brief
-   to yourself (`docs/14` §5, `docs/05` §1). Until then the forms say so honestly and offer the email app
+   to yourself (`docs/14` §5, `docs/05` §1), or run `npm run check:enquiry -- https://mannpatel.me --send --reply-to <you>`
+   which sends both, marked “[Delivery test]” (round 10). Until then the forms say so honestly and offer the email app
    or “Copy my brief”.
 
 1. ~~Nest & Rest website is down~~ **Resolved:** the site was back online later on 31 Oct 2026. The case study now uses fresh captures of the live site. (Still recommended: add the domain as a *verified domain* in GitHub Pages settings.)
@@ -21,7 +22,13 @@ Everything below is tracked in code. Unverified **claims** are wrapped in `<Conf
 8. ~~Your story~~ **Answered (31 Oct 2026):** the About page now tells Mann's story (Palana → Seneca → Saint John → Thunder Bay → North York → Walmart → Nest & Rest), with the depression and the lost job described plainly. Edit it any time in `src/pages/about.astro`.
 9. ~~AI tools FAQ~~ **Answered (31 Oct 2026): accurate**, published as written.
 10. ~~Privacy details~~ **Decided (31 Oct 2026, Mann: "do whatever is best"; updated 1 Nov 2026):** Cloudflare hosts the site and delivers each enquiry by email (Cloudflare Email, no Resend), Google (Gmail) hosts the inbox; both are named on the Privacy page, which also covers calls, texts and WhatsApp. Enquiries that don't become projects are deleted from your inbox within 12 months. **Your part:** the Email Routing steps in `docs/05` §1, and once a year delete enquiry emails older than 12 months.
-11. **Pricing.** The public site says "Request a quote". If you want public prices or "starting from" figures, decide them first (see the private worksheet).
+11. **Pricing (round 10: packages decided, prices not yet).** You chose the four bounded packages from the competitor
+    brief (Website Launch, Website + Enquiry System, Local Visibility Setup, Website Care) and to keep prices out of this
+    public repository until you have costed them. Until then every price line says “Quoted after your free check” and
+    `/pricing/` is built but not linked, not in the sitemap and `noindex`. **To publish:** cost each package (hours ×
+    your rate + expenses + margin; the audit's cost check is a starting point), then set `price.amount` in
+    `src/data/packages.ts`. The cards, the comparison table, the service pages, the structured data, the sitemap and the
+    links to `/pricing/` all update from that one change. Confirm tax treatment in your quotes.
 12. ~~Brand name~~ **Answered (31 Oct 2026): "Mann Patel".** No studio name.
 
 13. ~~Samp Hair & Spa permission~~ **Answered (31 Oct 2026): yes**, the work-in-progress preview can be shown on the site. The project appears as *In progress* with a link to the Lovable preview. (Keep the salon's agreement in writing on file.)
@@ -45,7 +52,9 @@ Everything below is tracked in code. Unverified **claims** are wrapped in `<Conf
 | --- | --- |
 | Name, intro, location, contact details, portrait, businesses | `src/data/site.ts` |
 | Services (all copy) | `src/data/services.ts` |
-| Packages | `src/data/packages.ts` |
+| Packages, boundaries, third-party costs and prices (one source) | `src/data/packages.ts` |
+| Focused service pages (web design, local visibility, enquiry follow-up) | `src/data/service-pages.ts` |
+| Fictional walkthrough (home and enquiry follow-up page) | `src/components/EnquiryDemo.astro` |
 | FAQ | `src/data/faqs.ts` |
 | Case studies | `src/content/work/*.md` |
 | About story and principles | `src/pages/about.astro` |

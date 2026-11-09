@@ -87,6 +87,11 @@ const files = await htmlFiles(root).catch(() => []);
 check(files.length > 0, `${files.length} HTML pages built`, `No built pages found in ${outDir}. Run the build first.`);
 
 const exists = async (p) => stat(p).then(() => true, () => false);
+// Pages that may stay "noindex" on purpose: /pricing/ until a price is approved (src/data/packages.ts).
+// Allowed only while the page is left out of the sitemap and no other page links to it.
+const sitemapXml = await readFile(join(root, 'sitemap-0.xml'), 'utf8').catch(() => '');
+const unpublished = new Set(['/pricing/'].filter((path) => !sitemapXml.includes(`${site}${path}<`)));
+const linkedUnpublished = new Set();
 const brokenLinks = new Set();
 const brokenAssets = new Set();
 for (const f of files) {
@@ -99,8 +104,10 @@ for (const f of files) {
   }
   if (!rel.startsWith('/404') && !rel.startsWith('/contact/received')) {
     if (!html.includes(`<link rel="canonical" href="${site}${rel}"`)) errors.push(`${rel}: canonical URL missing or not ${site}${rel}`);
-    if (env.SITE_INDEXING === 'true' && !html.includes('content="index, follow"')) errors.push(`${rel}: robots meta is not "index, follow"`);
+    if (env.SITE_INDEXING === 'true' && !html.includes('content="index, follow"') && !unpublished.has(rel))
+      errors.push(`${rel}: robots meta is not "index, follow"`);
   }
+  for (const path of unpublished) if (rel !== path && html.includes(`href="${path}"`)) linkedUnpublished.add(`${rel} → ${path}`);
   for (const m of html.matchAll(/href="(\/[^"#?]*)/g)) {
     const href = m[1];
     if (href.startsWith('/api/') || href.startsWith('/_astro/')) continue;
@@ -119,6 +126,11 @@ for (const f of files) {
     if (!(await exists(join(root, src)))) brokenAssets.add(`${rel} → ${src}`);
   }
 }
+check(
+  linkedUnpublished.size === 0,
+  unpublished.size ? `Unpublished pages (${[...unpublished].join(', ')}) are noindex and not linked` : 'No unpublished pages',
+  `Unpublished page is linked: ${[...linkedUnpublished].join(', ')}`,
+);
 check(brokenLinks.size === 0, 'All internal links resolve', `Broken internal links:\n    ${[...brokenLinks].join('\n    ')}`);
 check(brokenAssets.size === 0, 'All images, fonts and scripts referenced by the pages exist', `Missing assets:\n    ${[...brokenAssets].join('\n    ')}`);
 

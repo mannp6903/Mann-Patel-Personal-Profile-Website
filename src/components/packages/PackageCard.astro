@@ -1,0 +1,155 @@
+---
+/**
+ * One package card (round 10). Everything comes from src/data/packages.ts, so the Services page
+ * and the pricing page always say the same thing, including the price line.
+ */
+import Button from '../ui/Button.astro';
+import Icon from '../ui/Icon.astro';
+import { priceLabel, type Package } from '../../data/packages';
+
+interface Props {
+  pkg: Package;
+  index: number;
+  /** Heading level for the package name (h3 on Services, h2 on Pricing). */
+  level?: 2 | 3;
+}
+const { pkg: p, index, level = 3 } = Astro.props;
+const H = level === 2 ? 'h2' : 'h3';
+const price = priceLabel(p);
+// No "How it works" link on the page it would point to.
+const here = Astro.url.pathname === p.page;
+---
+
+<li class="pkg" id={`pkg-${p.id}`} data-reveal style={`--d:${index * 80}`} data-spotlight>
+  <div class="pkg__top">
+    <span class="num subtle">{String(index + 1).padStart(2, '0')}</span>
+    <span class:list={['pkg__price', { 'pkg__price--tbc': !price.approved }]} data-price>{price.text}</span>
+  </div>
+  <H class="pkg__name">{p.name}</H>
+  <p class="pkg__boundary">{p.boundary}</p>
+  <p class="pkg__for muted">{p.forWho}</p>
+  <ul class="pkg__list" role="list">
+    {
+      p.includes.map((d) => (
+        <li>
+          <Icon name="check" />
+          <span>{d}</span>
+        </li>
+      ))
+    }
+  </ul>
+  <details class="pkg__more">
+    <summary>Not included, what you provide, other costs</summary>
+    <p class="small"><b>Not included:</b> {p.notIncluded.join('; ')}.</p>
+    <p class="small"><b>You provide:</b> {p.youProvide.join('; ')}.</p>
+    {p.thirdParty.length > 0 && <p class="small"><b>Paid to other providers:</b> {p.thirdParty.join('; ')}.</p>}
+    <p class="small"><b>Timeline:</b> {p.timeline}</p>
+  </details>
+  <div class="pkg__cta">
+    <Button href={`/contact/?package=${p.id}#brief`} size="sm" variant="ghost" aria-label={`Request a quote for ${p.name}`}>Request a quote</Button>
+    {!here && <a class="link pkg__how" href={p.page}>How it works<span class="visually-hidden">: {p.name}</span></a>}
+  </div>
+</li>
+
+<style>
+  .pkg {
+    display: flex;
+    flex-direction: column;
+    gap: var(--s-4);
+    padding: clamp(1.25rem, 2.5vw, 2rem);
+    border-radius: var(--r-lg);
+    background: var(--surface);
+    border: 1px solid var(--line);
+  }
+  .pkg__top {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    gap: var(--s-3);
+    font-size: var(--fs-xs);
+  }
+  .pkg__price {
+    font-family: var(--font-mono);
+    font-size: var(--fs-xs);
+    letter-spacing: 0.02em;
+    color: var(--signal);
+    text-align: right;
+  }
+  .pkg__price--tbc {
+    color: var(--text-2);
+  }
+  .pkg__name {
+    font-size: clamp(1.5rem, 1.3rem + 0.8vw, 2rem);
+    font-weight: 720;
+    font-stretch: 112%;
+    letter-spacing: -0.035em;
+    line-height: 1.05;
+  }
+  .pkg__boundary {
+    font-size: var(--fs-sm);
+    font-weight: 560;
+    color: var(--text);
+  }
+  .pkg__for {
+    font-size: var(--fs-sm);
+  }
+  .pkg__list {
+    display: grid;
+    gap: var(--s-2);
+    font-size: var(--fs-sm);
+    padding-top: var(--s-4);
+    border-top: 1px solid var(--line);
+  }
+  .pkg__list li {
+    display: flex;
+    gap: var(--s-2);
+    align-items: flex-start;
+  }
+  .pkg__list :global(.icon) {
+    flex: none;
+    margin-top: 0.12em;
+    width: 1rem;
+    height: 1rem;
+    color: var(--signal);
+  }
+  .pkg__more {
+    font-size: var(--fs-sm);
+    color: var(--text-2);
+  }
+  .pkg__more summary {
+    min-height: var(--tap);
+    display: flex;
+    align-items: center;
+    cursor: pointer;
+    font-weight: 560;
+    color: var(--text);
+    text-decoration: underline;
+    text-decoration-color: var(--control);
+    text-underline-offset: 0.25em;
+  }
+  .pkg__more p + p {
+    margin-top: var(--s-2);
+  }
+  .pkg__more b {
+    color: var(--text);
+  }
+  .pkg__cta {
+    margin-top: auto;
+    padding-top: var(--s-3);
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    gap: var(--s-3) var(--s-5);
+  }
+  .pkg__how {
+    font-size: var(--fs-sm);
+    min-height: var(--tap);
+    display: inline-flex;
+    align-items: center;
+  }
+  @media (max-width: 47.99em) {
+    .pkg {
+      height: 100%;
+    }
+  }
+</style>

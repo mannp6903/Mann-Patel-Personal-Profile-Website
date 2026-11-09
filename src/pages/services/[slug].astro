@@ -1,0 +1,629 @@
+---
+/**
+ * Focused service pages (round 10): /services/web-design/, /services/local-visibility/,
+ * /services/enquiry-follow-up/. Content: src/data/service-pages.ts. Packages and prices:
+ * src/data/packages.ts. The overview at /services/ (and its #anchors) is unchanged.
+ */
+import { getCollection } from 'astro:content';
+import BaseLayout from '../../layouts/BaseLayout.astro';
+import PageHead from '../../components/PageHead.astro';
+import Heading from '../../components/ui/Heading.astro';
+import Button from '../../components/ui/Button.astro';
+import Icon from '../../components/ui/Icon.astro';
+import PackageCard from '../../components/packages/PackageCard.astro';
+import EnquiryDemo from '../../components/EnquiryDemo.astro';
+import { servicePages, type ServicePage } from '../../data/service-pages';
+import { packageById, priceLabel, type Package } from '../../data/packages';
+import { profile } from '../../data/site';
+import { absoluteUrl } from '../../lib/mode';
+import { breadcrumbJsonLd } from '../../lib/seo';
+
+export function getStaticPaths() {
+  return servicePages.map((page) => ({ params: { slug: page.slug }, props: { page } }));
+}
+
+interface Props {
+  page: ServicePage;
+}
+const { page } = Astro.props;
+const pkgs = page.packages.map((id) => packageById(id)).filter(Boolean) as Package[];
+const main = pkgs[0];
+const work = (await getCollection('work')).filter((w) => page.work.includes(w.id)).sort((a, b) => a.data.order - b.data.order);
+const others = servicePages.filter((p) => p.slug !== page.slug);
+const path = `/services/${page.slug}/`;
+const url = absoluteUrl(path);
+
+const lines = page.lines.map((l, i) => (i === page.lines.length - 1 ? `<span class="serif serif--signal">${l}</span>` : l));
+
+// Structured data matches what the page shows: no price unless one is approved and shown.
+const serviceLd = {
+  '@context': 'https://schema.org',
+  '@type': 'Service',
+  name: page.title,
+  description: page.description,
+  serviceType: page.short,
+  ...(url ? { url } : {}),
+  provider: { '@type': 'ProfessionalService', name: profile.name, ...(absoluteUrl('/') ? { url: absoluteUrl('/') } : {}) },
+  areaServed: [
+    { '@type': 'City', name: 'Toronto' },
+    { '@type': 'AdministrativeArea', name: 'Greater Toronto Area' },
+  ],
+  ...(pkgs.some((p) => p.price.amount !== null)
+    ? {
+        offers: pkgs
+          .filter((p) => p.price.amount !== null)
+          .map((p) => ({ '@type': 'Offer', name: p.name, price: p.price.amount, priceCurrency: 'CAD', description: p.boundary })),
+      }
+    : {}),
+};
+const faqLd = {
+  '@context': 'https://schema.org',
+  '@type': 'FAQPage',
+  mainEntity: page.faqs.map((f) => ({ '@type': 'Question', name: f.q, acceptedAnswer: { '@type': 'Answer', text: f.a } })),
+};
+const crumbs = breadcrumbJsonLd([
+  { name: 'Home', path: '/' },
+  { name: 'Services', path: '/services/' },
+  { name: page.short, path },
+]);
+const fmtDate = (iso: string) =>
+  new Intl.DateTimeFormat('en-CA', { day: 'numeric', month: 'short', year: 'numeric', timeZone: 'UTC' }).format(new Date(`${iso}T12:00:00Z`));
+---
+
+<BaseLayout title={page.title} description={page.description} jsonLd={[serviceLd, faqLd, ...(crumbs ? [crumbs] : [])]} preloadSerif={false}>
+  <nav class="crumbs container" aria-label="Breadcrumb">
+    <ol role="list">
+      <li><a href="/services/">Services</a></li>
+      <li aria-current="page">{page.short}</li>
+    </ol>
+  </nav>
+
+  <PageHead eyebrow={page.eyebrow} lines={lines} lead={page.lead}>
+    <div class="sp__actions" data-reveal="load" style="--d:300">
+      <div class="btn-row">
+        <Button href={`/contact/?package=${main.id}#brief`}>Request a quote</Button>
+        <Button href="/contact/?package=check-up#check" variant="ghost">Start with the free check</Button>
+      </div>
+      <p class="sp__price small">
+        <span class="subtle">{main.name}:</span> <span data-price>{priceLabel(main).text}</span>
+      </p>
+    </div>
+  </PageHead>
+
+  <section class="section section--rule" aria-labelledby="fit-title">
+    <div class="container sp__split">
+      <div class="stack" style="--stack: var(--s-4)">
+        <p class="eyebrow">Who it’s for</p>
+        <h2 id="fit-title" class="sp__h2">A good fit if…</h2>
+      </div>
+      <div class="stack" style="--stack: var(--s-5)">
+        <ul class="sp__list" role="list">
+          {
+            page.forWho.map((f) => (
+              <li>
+                <Icon name="check" />
+                <span>{f}</span>
+              </li>
+            ))
+          }
+        </ul>
+        <p class="sp__note small"><b>Not a fit:</b> {page.notFor}</p>
+      </div>
+    </div>
+  </section>
+
+  <section class="section section--alt" aria-labelledby="work-steps-title">
+    <div class="container">
+      <div class="section-head">
+        <p class="eyebrow">The work</p>
+        <Heading id="work-steps-title" lines={['What actually', '<span class="serif">happens.</span>']} />
+      </div>
+      <ol class="sp__steps" role="list">
+        {
+          page.steps.map((s, i) => (
+            <li data-reveal style={`--d:${i * 60}`}>
+              <span class="num sp__n">{String(i + 1).padStart(2, '0')}</span>
+              <h3>{s.title}</h3>
+              <p class="muted">{s.body}</p>
+            </li>
+          ))
+        }
+      </ol>
+    </div>
+  </section>
+
+  {
+    page.demo && (
+      <section class="section" aria-labelledby="demo-title">
+        <div class="container stack" style="--stack: var(--s-6)">
+          <div class="section-head">
+            <p class="eyebrow">See it work</p>
+            <h2 id="demo-title" class="sp__h2">
+              A sample workflow, <span class="serif">step by step.</span>
+            </h2>
+            <p class="muted">
+              Fictional business, fictional customer: this shows the shape of a workflow, not a real client. Choose any step.
+            </p>
+          </div>
+          <EnquiryDemo id="demo-walkthrough" />
+        </div>
+      </section>
+    )
+  }
+
+  {
+    (work.length > 0 || page.sample || page.checklist) && (
+      <section class="section section--rule" aria-labelledby="proof-title">
+        <div class="container stack" style="--stack: var(--s-6)">
+          <div class="section-head">
+            <p class="eyebrow">Evidence</p>
+            <h2 id="proof-title" class="sp__h2">
+              {work.length ? 'Real work, ' : 'What you get, '}
+              <span class="serif">{work.length ? 'clearly labelled.' : 'shown plainly.'}</span>
+            </h2>
+          </div>
+
+          {work.length > 0 && (
+            <ul class="sp__work" role="list">
+              {work.map((w) => (
+                <li>
+                  <p class="sp__tags small">
+                    <span>{w.data.relationship}</span>
+                    <span>{w.data.websiteStatus}</span>
+                    {w.data.businessStatus && <span>{w.data.businessStatus}</span>}
+                  </p>
+                  <h3>
+                    <a href={`/work/${w.id}/`}>{w.data.title}</a>
+                  </h3>
+                  <p class="muted">{w.data.problem}</p>
+                  <p class="small">
+                    <b>My role:</b> {w.data.roleShort}
+                  </p>
+                  <p class="sp__foot">
+                    <a class="link-arrow" href={`/work/${w.id}/`}>
+                      Case study and test results<span class="visually-hidden">: {w.data.title}</span> <Icon name="arrow" />
+                    </a>
+                    <span class="num subtle small">Checked {fmtDate(w.data.checked)}</span>
+                  </p>
+                </li>
+              ))}
+            </ul>
+          )}
+
+          {page.sample && (
+            <div class="sp__sample">
+              <div class="sp__sample-head">
+                <span class="sp__badge">Sample · fictional business</span>
+                <h3>{page.sample.title}</h3>
+                <p class="muted small">{page.sample.intro}</p>
+              </div>
+              <div class="sp__table-wrap" role="region" aria-label={page.sample.title} tabindex="0">
+                <table class="sp__table">
+                  <caption class="visually-hidden">{page.sample.title}</caption>
+                  <thead>
+                    <tr>
+                      <th scope="col">Check</th>
+                      <th scope="col">Before</th>
+                      <th scope="col">After set-up</th>
+                    </tr>
+                  </thead>
+                  <tbody>
+                    {page.sample.rows.map((r) => (
+                      <tr>
+                        <th scope="row">{r.check}</th>
+                        <td>{r.before}</td>
+                        <td>{r.after}</td>
+                      </tr>
+                    ))}
+                  </tbody>
+                </table>
+              </div>
+            </div>
+          )}
+
+          {page.checklist && (
+            <div class="sp__check">
+              <h3>{page.checklist.title}</h3>
+              <p class="muted small">{page.checklist.intro}</p>
+              <ul class="sp__list" role="list">
+                {page.checklist.items.map((c) => (
+                  <li>
+                    <Icon name="check" />
+                    <span>{c}</span>
+                  </li>
+                ))}
+              </ul>
+            </div>
+          )}
+        </div>
+      </section>
+    )
+  }
+
+  <section class="section section--alt" aria-labelledby="offer-title">
+    <div class="container stack" style="--stack: var(--s-6)">
+      <div class="section-head">
+        <p class="eyebrow">{pkgs.length > 1 ? 'Packages' : 'Package'}</p>
+        <h2 id="offer-title" class="sp__h2">
+          Clear boundary, <span class="serif">written scope.</span>
+        </h2>
+        <p class="muted">Your written scope confirms what’s included and the price before any work starts.</p>
+      </div>
+      <ol class="sp__pkgs" role="list">
+        {pkgs.map((p, i) => <PackageCard pkg={p} index={i} />)}
+      </ol>
+      <div class="sp__facts">
+        <div>
+          <h3>Limits</h3>
+          <ul class="sp__plain" role="list">{page.limits.map((l) => <li>{l}</li>)}</ul>
+        </div>
+        <div>
+          <h3>Paid to other providers</h3>
+          <p>{page.costs}</p>
+        </div>
+        <div>
+          <h3>At handover</h3>
+          <p>{page.handover}</p>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <section class="section" aria-labelledby="sp-faq-title">
+    <div class="container sp__split">
+      <div class="stack" style="--stack: var(--s-4)">
+        <p class="eyebrow">Questions</p>
+        <h2 id="sp-faq-title" class="sp__h2">Asked <span class="serif">before buying.</span></h2>
+        <a class="link-arrow" href="/services/#faq">All questions <Icon name="arrow" /></a>
+      </div>
+      <div>
+        {
+          page.faqs.map((f) => (
+            <details class="acc" name="sp-faq">
+              <summary>
+                <span>{f.q}</span>
+                <span class="acc__plus" aria-hidden="true" />
+              </summary>
+              <div class="acc__body">
+                <p>{f.a}</p>
+              </div>
+            </details>
+          ))
+        }
+        {
+          page.sources && (
+            <p class="sp__sources small subtle">
+              Sources:{' '}
+              {page.sources.map((s, i) => (
+                <>
+                  {i > 0 && ' · '}
+                  <a class="link" href={s.url} rel="noopener">
+                    {s.label}
+                  </a>
+                </>
+              ))}
+            </p>
+          )
+        }
+      </div>
+    </div>
+  </section>
+
+  <nav class="section section--rule" aria-labelledby="more-title">
+    <div class="container">
+      <h2 id="more-title" class="eyebrow">More services</h2>
+      <ul class="sp__more" role="list">
+        {
+          others.map((o) => (
+            <li>
+              <a class="sp__more-link" href={`/services/${o.slug}/`}>
+                <span>{o.short}</span>
+                <span class="muted small">{o.title}</span>
+                <Icon name="arrow" />
+              </a>
+            </li>
+          ))
+        }
+        <li>
+          <a class="sp__more-link" href="/services/">
+            <span>All services</span>
+            <span class="muted small">Every service, the packages side by side, and the finder</span>
+            <Icon name="arrow" />
+          </a>
+        </li>
+      </ul>
+    </div>
+  </nav>
+</BaseLayout>
+
+<style>
+  .crumbs {
+    padding-top: var(--s-5);
+    font-size: var(--fs-xs);
+    font-family: var(--font-mono);
+    letter-spacing: 0.04em;
+    color: var(--text-3);
+  }
+  .crumbs ol {
+    display: flex;
+    flex-wrap: wrap;
+    gap: var(--s-2);
+  }
+  .crumbs li + li::before {
+    content: '/';
+    margin-right: var(--s-2);
+    color: var(--control);
+  }
+  .crumbs a {
+    color: var(--text-2);
+  }
+  .sp__actions {
+    display: grid;
+    gap: var(--s-3);
+    margin-top: var(--s-2);
+  }
+  .sp__price {
+    font-family: var(--font-mono);
+    font-size: var(--fs-xs);
+  }
+  .sp__h2 {
+    font-size: var(--fs-h2);
+    max-width: 20ch;
+  }
+  .sp__split {
+    display: grid;
+    gap: var(--s-6);
+  }
+  @media (min-width: 64em) {
+    .sp__split {
+      grid-template-columns: minmax(0, 0.8fr) minmax(0, 1.2fr);
+      gap: var(--s-9);
+    }
+  }
+  .sp__list {
+    display: grid;
+    gap: var(--s-3);
+  }
+  .sp__list li {
+    display: flex;
+    gap: var(--s-3);
+    align-items: flex-start;
+  }
+  .sp__list :global(.icon) {
+    flex: none;
+    width: 1.1rem;
+    height: 1.1rem;
+    margin-top: 0.2em;
+    color: var(--signal);
+  }
+  .sp__note {
+    padding: var(--s-3) var(--s-4);
+    border: 1px dashed var(--line);
+    border-radius: var(--r-md);
+    color: var(--text-2);
+  }
+  .sp__note b {
+    color: var(--text);
+  }
+  .sp__steps {
+    display: grid;
+    gap: var(--s-5);
+    counter-reset: none;
+  }
+  @media (min-width: 48em) {
+    .sp__steps {
+      grid-template-columns: repeat(2, minmax(0, 1fr));
+    }
+  }
+  @media (min-width: 80em) {
+    .sp__steps {
+      grid-template-columns: repeat(5, minmax(0, 1fr));
+    }
+  }
+  .sp__steps li {
+    display: grid;
+    align-content: start;
+    gap: var(--s-2);
+    padding-top: var(--s-4);
+    border-top: 1px solid var(--line);
+  }
+  .sp__steps h3 {
+    font-size: 1.125rem;
+    font-weight: 680;
+  }
+  .sp__n {
+    font-size: var(--fs-xs);
+    color: var(--signal);
+  }
+  .sp__work {
+    display: grid;
+    gap: var(--s-4);
+  }
+  @media (min-width: 56em) {
+    .sp__work {
+      grid-template-columns: 1fr 1fr;
+    }
+  }
+  .sp__work li {
+    display: grid;
+    gap: var(--s-3);
+    align-content: start;
+    padding: clamp(var(--s-4), 2.5vw, var(--s-6));
+    border: 1px solid var(--line);
+    border-radius: var(--r-lg);
+    background: var(--surface);
+  }
+  .sp__work h3 {
+    font-size: var(--fs-h3);
+  }
+  .sp__work h3 a {
+    text-decoration: none;
+  }
+  .sp__work h3 a:hover {
+    text-decoration: underline;
+  }
+  .sp__tags {
+    display: flex;
+    flex-wrap: wrap;
+    gap: var(--s-2);
+  }
+  .sp__tags span {
+    padding: 0.15rem 0.6rem;
+    border: 1px solid var(--line);
+    border-radius: var(--r-pill);
+    font-family: var(--font-mono);
+    font-size: 0.75rem;
+    color: var(--text-2);
+  }
+  .sp__foot {
+    display: flex;
+    flex-wrap: wrap;
+    justify-content: space-between;
+    align-items: center;
+    gap: var(--s-3);
+    margin-top: auto;
+  }
+  .sp__sample,
+  .sp__check {
+    display: grid;
+    gap: var(--s-4);
+    padding: clamp(var(--s-4), 2.5vw, var(--s-6));
+    border: 1px dashed var(--control);
+    border-radius: var(--r-lg);
+  }
+  .sp__check {
+    border-style: solid;
+    border-color: var(--line);
+    background: var(--surface);
+  }
+  .sp__sample-head {
+    display: grid;
+    gap: var(--s-2);
+  }
+  .sp__sample h3,
+  .sp__check h3 {
+    font-size: var(--fs-h3);
+  }
+  .sp__badge {
+    justify-self: start;
+    padding: 0.2rem 0.6rem;
+    border: 1px dashed var(--control);
+    border-radius: var(--r-pill);
+    font-family: var(--font-mono);
+    font-size: var(--fs-xs);
+    color: var(--text-2);
+  }
+  .sp__table-wrap {
+    overflow-x: auto;
+    border: 1px solid var(--line);
+    border-radius: var(--r-md);
+  }
+  .sp__table-wrap:focus-visible {
+    outline: 2px solid var(--focus);
+    outline-offset: 3px;
+  }
+  .sp__table {
+    width: 100%;
+    min-width: 34rem;
+    border-collapse: collapse;
+    font-size: var(--fs-sm);
+  }
+  .sp__table th,
+  .sp__table td {
+    padding: var(--s-3) var(--s-4);
+    text-align: left;
+    vertical-align: top;
+    border-bottom: 1px solid var(--line);
+  }
+  .sp__table tbody tr:last-child > * {
+    border-bottom: 0;
+  }
+  .sp__table thead th {
+    font-family: var(--font-mono);
+    font-size: var(--fs-xs);
+    font-weight: 500;
+    text-transform: uppercase;
+    letter-spacing: var(--track-label);
+    color: var(--text-3);
+  }
+  .sp__table tbody th {
+    font-weight: 620;
+    color: var(--text);
+  }
+  .sp__table td {
+    color: var(--text-2);
+  }
+  .sp__pkgs {
+    display: grid;
+    gap: var(--s-4);
+  }
+  @media (min-width: 56em) {
+    .sp__pkgs {
+      grid-template-columns: repeat(2, minmax(0, 1fr));
+    }
+  }
+  .sp__facts {
+    display: grid;
+    gap: var(--s-5);
+  }
+  @media (min-width: 56em) {
+    .sp__facts {
+      grid-template-columns: repeat(3, minmax(0, 1fr));
+      gap: var(--s-6);
+    }
+  }
+  .sp__facts > div {
+    display: grid;
+    align-content: start;
+    gap: var(--s-2);
+    padding-top: var(--s-4);
+    border-top: 1px solid var(--line);
+    font-size: var(--fs-sm);
+    color: var(--text-2);
+  }
+  .sp__facts h3 {
+    font-size: 1rem;
+    font-weight: 680;
+    color: var(--text);
+  }
+  .sp__plain {
+    display: grid;
+    gap: var(--s-2);
+  }
+  .sp__sources {
+    margin-top: var(--s-5);
+  }
+  .sp__more {
+    display: grid;
+    margin-top: var(--s-4);
+    border-top: 1px solid var(--line);
+  }
+  .sp__more li {
+    border-bottom: 1px solid var(--line);
+  }
+  .sp__more-link {
+    display: grid;
+    grid-template-columns: minmax(0, 1fr) auto;
+    align-items: center;
+    gap: 0.15rem var(--s-4);
+    padding-block: var(--s-4);
+    text-decoration: none;
+  }
+  .sp__more-link > span:first-child {
+    font-size: var(--fs-h3);
+    font-weight: 680;
+    letter-spacing: -0.02em;
+  }
+  .sp__more-link > .small {
+    grid-column: 1;
+  }
+  .sp__more-link :global(.icon) {
+    grid-row: 1 / span 2;
+    grid-column: 2;
+    color: var(--signal);
+    transition: transform var(--t-fast) var(--ease-out);
+  }
+  .sp__more-link:hover :global(.icon) {
+    transform: translateX(4px);
+  }
+</style>

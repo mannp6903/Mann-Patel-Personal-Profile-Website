@@ -1,0 +1,239 @@
+---
+/**
+ * Pricing (round 10). Every number and boundary comes from src/data/packages.ts.
+ *
+ * Until Mann approves at least one price (`pricesPublished`), this page is built but kept out of
+ * search (noindex, left out of the sitemap) and isn't linked from the site: a pricing page with no
+ * prices would only repeat the Services comparison. It is still reachable at /pricing/ for review.
+ */
+import BaseLayout from '../layouts/BaseLayout.astro';
+import PageHead from '../components/PageHead.astro';
+import Icon from '../components/ui/Icon.astro';
+import Button from '../components/ui/Button.astro';
+import PreviewNote from '../components/PreviewNote.astro';
+import PackageCard from '../components/packages/PackageCard.astro';
+import PackageCompare from '../components/packages/PackageCompare.astro';
+import { packages, checkUp, pricesPublished } from '../data/packages';
+import { breadcrumbJsonLd } from '../lib/seo';
+
+const costs = [...new Set(packages.flatMap((p) => p.thirdParty).filter((c) => !c.startsWith('Everything in')))];
+
+const affects = [
+  { t: 'Pages beyond the boundary', d: 'Website Launch covers up to five pages. More pages, or pages that need new writing, are quoted on top.' },
+  { t: 'What you supply', d: 'Ready text and real photos keep the price at the boundary. Writing from scratch or arranging photos adds time.' },
+  { t: 'Your tools', d: 'A booking tool or phone set-up that connects easily is quicker than one that needs a workaround, or can’t connect at all.' },
+  { t: 'The state of what exists', d: 'An old profile with duplicates, or a site with broken forms, can need clean-up before the new work starts.' },
+];
+
+const questions = [
+  {
+    q: 'Is the free check really free?',
+    a: 'Yes, with no obligation. You get a written list of fixes, most important first. If you want them done, I quote them separately.',
+  },
+  {
+    q: 'When do I know the final price?',
+    a: 'Before any work starts. Your written scope lists the deliverables, exclusions, price and timing, and that is what we agree.',
+  },
+  {
+    q: 'What if I want something outside the scope?',
+    a: 'I tell you what it costs first. Anything outside the written scope is quoted, and agreed in writing, before it starts.',
+  },
+  {
+    q: 'Who pays for the domain, hosting and tools?',
+    a: 'You do, directly to each provider and in your name, so you keep them whatever happens. They are listed in your scope before you decide.',
+  },
+  {
+    q: 'Can I stop Website Care?',
+    a: 'Any month. You keep the site, the change log and every login, and my access is removed.',
+  },
+];
+
+const crumbs = breadcrumbJsonLd([
+  { name: 'Home', path: '/' },
+  { name: 'Pricing', path: '/pricing/' },
+]);
+const faqLd = {
+  '@context': 'https://schema.org',
+  '@type': 'FAQPage',
+  mainEntity: questions.map((f) => ({ '@type': 'Question', name: f.q, acceptedAnswer: { '@type': 'Answer', text: f.a } })),
+};
+---
+
+<BaseLayout
+  title="Pricing: websites, local visibility and enquiry follow-up"
+  description="Four packages with clear boundaries: Website Launch, Website + Enquiry System, Local Visibility Setup and Website Care. What each includes, what costs extra and how the price is set."
+  noindex={!pricesPublished}
+  jsonLd={[faqLd, ...(crumbs ? [crumbs] : [])]}
+  preloadSerif={false}
+>
+  <PageHead
+    eyebrow="Pricing"
+    lines={['What it costs,', '<span class="serif serif--signal">and what it covers.</span>']}
+    lead="Four packages, each with a clear boundary, and a free check if you’re not sure where to start. Your written scope confirms the price before any work starts."
+  >
+    {
+      !pricesPublished && (
+        <PreviewNote note="Prices aren't set yet: every card reads “Quoted after your free check”. This page stays out of search and the menus until Mann adds approved prices in src/data/packages.ts." />
+      )
+    }
+  </PageHead>
+
+  <section class="section section--rule" aria-labelledby="pr-packages">
+    <div class="container stack" style="--stack: var(--s-6)">
+      <h2 id="pr-packages" class="visually-hidden">Packages</h2>
+      <ol class="pr__grid" role="list">
+        {packages.map((p, i) => <PackageCard pkg={p} index={i} level={3} />)}
+      </ol>
+      <div class="pr__free">
+        <div>
+          <p class="eyebrow">Not sure yet?</p>
+          <h2 class="pr__h2">{checkUp.name}: free.</h2>
+          <p class="muted">{checkUp.boundary} {checkUp.notIncluded[0]}.</p>
+        </div>
+        <Button href="/contact/?package=check-up#check" variant="ghost">Request the free check</Button>
+      </div>
+      <PackageCompare id="pr-compare" title="Side by side" level={2} />
+    </div>
+  </section>
+
+  <section class="section section--alt" aria-labelledby="pr-affects">
+    <div class="container pr__split">
+      <div class="stack" style="--stack: var(--s-4)">
+        <p class="eyebrow">How the price is set</p>
+        <h2 id="pr-affects" class="pr__h2">What moves it <span class="serif">up or down.</span></h2>
+      </div>
+      <dl class="pr__affects">
+        {
+          affects.map((a) => (
+            <div>
+              <dt>{a.t}</dt>
+              <dd>{a.d}</dd>
+            </div>
+          ))
+        }
+      </dl>
+    </div>
+  </section>
+
+  <section class="section" aria-labelledby="pr-costs">
+    <div class="container pr__split">
+      <div class="stack" style="--stack: var(--s-4)">
+        <p class="eyebrow">Paid to other providers</p>
+        <h2 id="pr-costs" class="pr__h2">Billed to you, <span class="serif">in your name.</span></h2>
+        <p class="muted">Each provider bills you directly, at their own prices, so the accounts stay yours.</p>
+      </div>
+      <ul class="pr__costs" role="list">
+        {
+          costs.map((c) => (
+            <li>
+              <Icon name="arrow" />
+              <span>{c}</span>
+            </li>
+          ))
+        }
+      </ul>
+    </div>
+  </section>
+
+  <section class="section section--rule" aria-labelledby="pr-faq">
+    <div class="container pr__split">
+      <div class="stack" style="--stack: var(--s-4)">
+        <p class="eyebrow">Buying questions</p>
+        <h2 id="pr-faq" class="pr__h2">Before you <span class="serif">decide.</span></h2>
+      </div>
+      <div>
+        {
+          questions.map((f) => (
+            <details class="acc" name="pr-faq">
+              <summary>
+                <span>{f.q}</span>
+                <span class="acc__plus" aria-hidden="true" />
+              </summary>
+              <div class="acc__body">
+                <p>{f.a}</p>
+              </div>
+            </details>
+          ))
+        }
+      </div>
+    </div>
+  </section>
+</BaseLayout>
+
+<style>
+  .pr__grid {
+    display: grid;
+    gap: var(--s-4);
+  }
+  @media (min-width: 48em) {
+    .pr__grid {
+      grid-template-columns: repeat(2, minmax(0, 1fr));
+    }
+  }
+  @media (min-width: 80em) {
+    .pr__grid {
+      grid-template-columns: repeat(4, minmax(0, 1fr));
+    }
+  }
+  .pr__free {
+    display: grid;
+    gap: var(--s-4);
+    align-items: center;
+    padding: clamp(var(--s-4), 3vw, var(--s-6));
+    border: 1px dashed var(--control);
+    border-radius: var(--r-lg);
+  }
+  @media (min-width: 48em) {
+    .pr__free {
+      grid-template-columns: 1fr auto;
+    }
+  }
+  .pr__h2 {
+    font-size: var(--fs-h2);
+    max-width: 20ch;
+  }
+  .pr__free .pr__h2 {
+    font-size: var(--fs-h3);
+    max-width: none;
+  }
+  .pr__split {
+    display: grid;
+    gap: var(--s-6);
+  }
+  @media (min-width: 64em) {
+    .pr__split {
+      grid-template-columns: minmax(0, 0.8fr) minmax(0, 1.2fr);
+      gap: var(--s-9);
+    }
+  }
+  .pr__affects {
+    display: grid;
+    gap: var(--s-5);
+  }
+  .pr__affects div {
+    display: grid;
+    gap: var(--s-2);
+    padding-top: var(--s-4);
+    border-top: 1px solid var(--line);
+  }
+  .pr__affects dt {
+    font-weight: 680;
+  }
+  .pr__affects dd {
+    color: var(--text-2);
+  }
+  .pr__costs {
+    display: grid;
+    gap: var(--s-3);
+  }
+  .pr__costs li {
+    display: flex;
+    gap: var(--s-3);
+    align-items: flex-start;
+  }
+  .pr__costs :global(.icon) {
+    flex: none;
+    margin-top: 0.2em;
+    color: var(--signal);
+  }
+</style>

@@ -3,6 +3,7 @@ import BaseLayout from '../layouts/BaseLayout.astro';
 import Hero from '../components/home/Hero.astro';
 import SelectedWork from '../components/home/SelectedWork.astro';
 import ServiceSummary from '../components/home/ServiceSummary.astro';
+import Walkthrough from '../components/home/Walkthrough.astro';
 import FreeCheck from '../components/home/FreeCheck.astro';
 import AboutTeaser from '../components/home/AboutTeaser.astro';
 import Faq from '../components/Faq.astro';
@@ -18,17 +19,19 @@ const jsonLd = {
 ---
 
 <!--
-  Round 7 order (audit 8 Nov 2026): a compact hero, the real work straight after it, then three
-  short service summaries, the free check, how I work, questions and the closing call to action.
+  Order (audits of 8 Nov 2026): a compact hero, the real work straight after it, a labelled
+  demonstration (round 10), three short service summaries with their packages, the free check,
+  how I work, questions and the closing call to action.
 -->
 <BaseLayout
   title="Home"
-  fullTitle="Mann Patel · Websites, local search and enquiry follow-up · Toronto small businesses"
-  description="Mann Patel builds websites, sets up Google and Maps listings, and connects calls, forms and messages so small businesses in Toronto and the GTA get found, answer every enquiry and get booked. See real projects and request a free check."
+  fullTitle="Mann Patel · Websites, local search and enquiry follow-up · Toronto service businesses"
+  description="Mann Patel builds clear websites, sets up Google and Maps listings, and connects calls, forms and messages so Toronto service businesses, especially in North York and Scarborough, get found, answer every enquiry and get booked. See real projects and request a free check."
   jsonLd={[jsonLd, servicesJsonLd()]}
 >
   <Hero />
   <SelectedWork />
+  <Walkthrough />
   <ServiceSummary />
   <FreeCheck />
   <AboutTeaser />
