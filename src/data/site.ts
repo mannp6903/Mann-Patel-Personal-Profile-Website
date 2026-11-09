@@ -35,8 +35,13 @@ export const profile = {
   contact: {
     /** Public business email (Cloudflare Email Routing forwards it to Mann's inbox). */
     email: 'info@mannpatel.me' as null | string,
-    // The phone number (Call / WhatsApp / Text) is NOT stored here: this repository is public.
-    // It comes from the PUBLIC_CONTACT_PHONE build variable. See src/lib/contact.ts.
+    /**
+     * Mann's business number for Call / WhatsApp / Text (supplied by Mann, 9 Nov 2026), stored encoded
+     * (reversed digits, base64) so it isn't plain text in this public repository; pages show it masked
+     * and the buttons decode it in the browser. The build variable PUBLIC_CONTACT_PHONE overrides it.
+     * Set to null to hide the phone buttons. See src/lib/contact.ts.
+     */
+    phoneKey: 'MzA5Njg3OTc0NjE=' as null | string,
   },
 };
 
@@ -45,10 +50,12 @@ export const profile = {
  * previews and hidden in production. Only real URLs go into structured data (sameAs).
  */
 export const social: { id: 'github' | 'instagram' | 'facebook' | 'linkedin'; label: string; url: string | null }[] = [
-  { id: 'github', label: 'GitHub', url: 'https://github.com/mannp6903' },
+  // LinkedIn supplied by Mann, 9 Nov 2026 (tracking parameters removed).
+  { id: 'linkedin', label: 'LinkedIn', url: 'https://www.linkedin.com/in/mannp6903/' },
+  // Instagram: Mann will send the link; the button appears as soon as `url` is set.
   { id: 'instagram', label: 'Instagram', url: null },
+  { id: 'github', label: 'GitHub', url: 'https://github.com/mannp6903' },
   { id: 'facebook', label: 'Facebook', url: null },
-  { id: 'linkedin', label: 'LinkedIn', url: null },
 ];
 export const sameAs = social.flatMap((s) => (s.url ? [s.url] : []));
 

@@ -1,7 +1,7 @@
 ---
 /**
  * Direct contact buttons: Email, Call, WhatsApp, Text.
- * The phone buttons appear only when PUBLIC_CONTACT_PHONE is set at build time; their real
+ * The phone buttons appear when a number is configured (src/lib/contact.ts); their real
  * links are filled in by src/scripts/reach.ts (without JS they open the contact page).
  */
 import { contact, emailHref } from '../lib/contact';
@@ -54,14 +54,24 @@ const channels = [
             </a>
           </li>
         ))}
+        {Astro.slots.has('extra') && (
+          <li class="ca__extra">
+            <slot name="extra" />
+          </li>
+        )}
       </ul>
       {showNumber && (
         <p class="ca__number num">
           {contact.email && <span>{contact.email}</span>}
           {phone && (
-            <span>
-              <span class="visually-hidden">Phone, partly hidden for privacy: </span>
-              {phone.masked}
+            <span class="ca__phone">
+              <span class="visually-hidden" data-phone-note>
+                Phone, partly hidden for privacy:{' '}
+              </span>
+              <span data-phone-text tabindex="-1">{phone.masked}</span>
+              <button class="ca__show" type="button" data-phone-show data-k={phone.key} hidden>
+                Show number
+              </button>
             </span>
           )}
         </p>
@@ -131,8 +141,35 @@ const channels = [
   .ca__number {
     display: flex;
     flex-wrap: wrap;
+    align-items: center;
     gap: var(--s-2) var(--s-5);
     font-size: var(--fs-sm);
     color: var(--text-3);
+  }
+  .ca__extra {
+    display: contents;
+  }
+  .ca__phone {
+    display: inline-flex;
+    align-items: center;
+    gap: var(--s-3);
+  }
+  .ca__show {
+    min-height: 2rem;
+    padding: 0 0.7rem;
+    border: 1px solid var(--line);
+    border-radius: var(--r-pill);
+    background: transparent;
+    color: var(--text-2);
+    font: inherit;
+    font-size: var(--fs-xs);
+    cursor: pointer;
+    transition:
+      border-color var(--t-fast),
+      color var(--t-fast);
+  }
+  .ca__show:hover {
+    border-color: var(--control);
+    color: var(--text);
   }
 </style>

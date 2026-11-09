@@ -187,10 +187,10 @@ const tick = '<svg viewBox="0 0 16 16"><path d="m3.5 8.5 3 3 6-7" /></svg>';
       <legend class="step__legend"><span class="step__n num" aria-hidden="true">03</span>Your message</legend>
       <div class="field">
         <label for="f-message">Tell me about your business and what you’d like to change <span class="req" aria-hidden="true">*</span></label>
-        <textarea class="textarea" id="f-message" name="message" required minlength={LIMITS.messageMin} maxlength={LIMITS.message} rows="7" aria-describedby="h-message e-message c-message"></textarea>
+        <textarea class="textarea" id="f-message" name="message" required minlength={LIMITS.messageMin} maxlength={LIMITS.message} rows="7" aria-describedby="h-message e-message count-message"></textarea>
         <div class="msg-meta">
           <p class="hint" id="h-message">For example: what you do, where, what isn’t working, and what you already have (website, Google profile, booking tool).</p>
-          <p class="hint counter num" id="c-message" data-counter aria-live="polite"></p>
+          <p class="hint counter num" id="count-message" data-counter aria-live="polite"></p>
         </div>
         <p class="error-text" id="e-message" data-error-for="message"></p>
       </div>

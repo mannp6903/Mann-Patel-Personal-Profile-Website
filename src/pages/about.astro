@@ -5,7 +5,8 @@ import Heading from '../components/ui/Heading.astro';
 import Button from '../components/ui/Button.astro';
 import Icon from '../components/ui/Icon.astro';
 import ContactActions from '../components/ContactActions.astro';
-import { profile, businesses, social } from '../data/site';
+import SocialLinks from '../components/SocialLinks.astro';
+import { profile, businesses } from '../data/site';
 import { personJsonLd } from '../lib/seo';
 
 const nest = businesses[0];
@@ -37,7 +38,6 @@ const glance = [
     d: 'Every account, domain and file in your name, and a written handover. I’m added as a user, not the owner.',
   },
 ];
-const links = social.filter((s) => s.url);
 const principles = [
   {
     title: 'Plain language, written down.',
@@ -106,17 +106,7 @@ const jsonLd = { '@context': 'https://schema.org', '@type': 'AboutPage', mainEnt
           <a class="link-arrow" href="#glance">What I deliver and how I work <Icon name="arrow-down" /></a>
           <a class="link-arrow" href="#story">My story, from Palana to Toronto <Icon name="arrow-down" /></a>
           <ContactActions label="Say hello" />
-          {
-            links.length > 0 && (
-              <p class="ab-links">
-                {links.map((s) => (
-                  <a class="link-arrow" href={s.url!} rel="me noopener" data-contact={s.id}>
-                    {s.label} <Icon name="arrow-ne" class="icon--ne" />
-                  </a>
-                ))}
-              </p>
-            )
-          }
+          <SocialLinks label="Find me online" />
         </div>
       </div>
       {
@@ -285,11 +275,6 @@ const jsonLd = { '@context': 'https://schema.org', '@type': 'AboutPage', mainEnt
   .ab-reach {
     display: grid;
     gap: var(--s-4);
-  }
-  .ab-links {
-    display: flex;
-    flex-wrap: wrap;
-    gap: var(--s-5);
   }
   .ab-photo {
     display: grid;

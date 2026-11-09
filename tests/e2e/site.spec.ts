@@ -41,6 +41,12 @@ test.describe('pages', () => {
       expect(res?.status()).toBe(200);
       await expect(page.locator('h1')).toHaveCount(1);
       await expect(page.locator('meta[name="robots"]')).toHaveAttribute('content', 'noindex, nofollow');
+      // Every id is unique (a duplicate silently breaks labels and aria-describedby).
+      const dupIds = await page.$$eval('[id]', (els) => {
+        const ids = els.map((e) => e.id);
+        return [...new Set(ids.filter((id, i) => ids.indexOf(id) !== i))];
+      });
+      expect(dupIds, `duplicate ids on ${path}`).toEqual([]);
       await revealAll(page);
       await page.waitForTimeout(1300);
       // Cast: @axe-core/playwright 4.14 types target a newer Playwright than the 1.63 pinned to the preinstalled browsers.
@@ -457,7 +463,7 @@ test.describe('phones: short pages', () => {
   // Round 10 (competitor audit, which judges sections by usefulness rather than length) added the
   // labelled walkthrough to Home, package boundaries to Services and the professional intro to About.
   const BUDGET: Record<string, number> = {
-    '/': 12, // the real photo in the phone hero, and the labelled walkthrough
+    '/': 12.5, // the real photo in the phone hero, the labelled walkthrough, and call/WhatsApp in the footer
     '/services/': 13.5,
     '/work/': 4.5,
     '/work/nest-and-rest-cleaning/': 7,
@@ -662,13 +668,13 @@ test.describe('legal pages', () => {
     await page.setViewportSize({ width: 390, height: 844 });
     await page.goto('/contact/');
     const footer = page.locator('footer');
-    await expect(footer.getByRole('link', { name: 'Privacy' })).toHaveAttribute('href', '/privacy/');
-    await expect(footer.getByRole('link', { name: 'Terms' })).toHaveAttribute('href', '/terms/');
+    await expect(footer.getByRole('link', { name: 'Privacy', exact: true })).toHaveAttribute('href', '/privacy/');
+    await expect(footer.getByRole('link', { name: 'Terms', exact: true })).toHaveAttribute('href', '/terms/');
     await expect(page.locator('form .privacy a[href="/privacy/"]')).toHaveText('Privacy Policy');
     await expect(page.locator('form .privacy a[href="/terms/"]')).toHaveText('Terms of Use');
-    await footer.getByRole('link', { name: 'Terms' }).click();
+    await footer.getByRole('link', { name: 'Terms', exact: true }).click();
     await expect(page.locator('h1')).toHaveText('Terms of Use');
-    await footer.getByRole('link', { name: 'Privacy' }).click();
+    await footer.getByRole('link', { name: 'Privacy', exact: true }).click();
     await expect(page.locator('h1')).toHaveText('Privacy Policy');
   });
 
@@ -698,6 +704,40 @@ test.describe('direct contact', () => {
     await expect(hero.getByRole('link', { name: /text message/ })).toHaveAttribute('href', new RegExp(`^sms:\\+${digits}`));
     await page.goto('/contact/');
     await expect(page.locator('#reach .ca__number')).toContainText(/\d{3}-\d{2}X-XXXX/);
+  });
+
+  test('call and WhatsApp are in the footer and the phone menu; LinkedIn is a button in the footer, menu and About', async ({ page }) => {
+    await page.setViewportSize({ width: 390, height: 844 });
+    await page.goto('/');
+    const footer = page.locator('footer');
+    await expect(footer.locator('a[data-reach="call"]').first()).toHaveAttribute('href', /^tel:\+1\d{10}$/);
+    await expect(footer.getByRole('link', { name: /Message on WhatsApp/ })).toHaveAttribute('href', /^https:\/\/wa\.me\/1\d{10}\?text=/);
+    await expect(footer.getByRole('link', { name: 'Mann Patel on LinkedIn' })).toHaveAttribute('href', 'https://www.linkedin.com/in/mannp6903/');
+    await page.locator('[data-menu-open]').click();
+    const sheet = page.locator('[data-menu]');
+    await expect(sheet.getByRole('link', { name: 'Call Mann' })).toHaveAttribute('href', /^tel:\+1\d{10}$/);
+    await expect(sheet.getByRole('link', { name: /WhatsApp/ })).toHaveAttribute('href', /^https:\/\/wa\.me\//);
+    await expect(sheet.getByRole('link', { name: 'Mann Patel on LinkedIn' })).toBeInViewport();
+    await page.goto('/about/');
+    await expect(page.locator('main').getByRole('link', { name: 'Mann Patel on LinkedIn' })).toBeVisible();
+    // Only confirmed profiles: no Instagram or Facebook button until a link is set.
+    await expect(page.locator('a[data-contact="instagram"], a[data-contact="facebook"]')).toHaveCount(0);
+    // Structured data lists the confirmed profiles.
+    const ld = (await page.$$eval('script[type="application/ld+json"]', (s) => s.map((x) => x.textContent || ''))).join(' ');
+    expect(ld).toContain('https://www.linkedin.com/in/mannp6903/');
+  });
+
+  test('"Show number" reveals the full number on request; the page source never has it', async ({ page, request }) => {
+    await page.setViewportSize({ width: 1440, height: 900 });
+    await page.goto('/contact/');
+    const reach = page.locator('#reach');
+    await expect(reach.locator('[data-phone-text]')).toHaveText(/^\d{3}-\d{2}X-XXXX$/);
+    const full = (await reach.locator('a[data-reach="call"]').first().getAttribute('href'))!.replace(/\D/g, '');
+    for (const path of ['/', '/contact/', '/about/', '/services/'])
+      expect(await (await request.get(path)).text()).not.toContain(full.slice(1));
+    await reach.getByRole('button', { name: 'Show number' }).click();
+    await expect(reach.locator('[data-phone-text]')).toHaveText(`${full.slice(1, 4)}-${full.slice(4, 7)}-${full.slice(7)}`);
+    await expect(reach.locator('[data-phone-text]')).toBeFocused();
   });
 
   test('copy buttons copy the email address and confirm it', async ({ browser }) => {
