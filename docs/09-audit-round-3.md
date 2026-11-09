@@ -55,5 +55,5 @@ Preserved: packages-first order, grouped contact choices, "Look closer" annotati
 
 1. **Turn on the form:** Resend → verify `mannpatel.me` → Cloudflare *Workers & Pages → mann-patel-website → Settings → Variables and Secrets*: add **Secret** `RESEND_API_KEY`, `ENQUIRY_TO_EMAIL`, `ENQUIRY_FROM_EMAIL`, `FORM_TOKEN_SECRET`. Send one test brief.
 2. **Domain email:** Cloudflare *Email → Email Routing*: forward `hello@mannpatel.me` to Gmail. After a test message arrives, change `profile.contact.email` in `src/data/site.ts` (one place updates the header menu, footer, form fallback and privacy page).
-3. **Search Console:** add the `mannpatel.me` domain property, submit `https://mannpatel.me/sitemap-index.xml`.
+3. **Search Console:** add the `mannpatel.me` domain property, submit `https://mannpatel.me/sitemap.xml`.
 4. `CNAME` in the repo root is only used by GitHub Pages. Keep GitHub Pages **off** for this repo; Cloudflare serves the site.

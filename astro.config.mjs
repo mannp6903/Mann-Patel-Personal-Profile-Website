@@ -5,6 +5,7 @@ import cloudflare from '@astrojs/cloudflare';
 import sitemap from '@astrojs/sitemap';
 import { pricesPublished } from './src/data/packages.ts';
 import { randomBytes } from 'node:crypto';
+import { copyFile } from 'node:fs/promises';
 
 /**
  * Domain-dependent values come from the environment (see .env.example).
@@ -38,6 +39,15 @@ export default defineConfig({
           filter: (page) =>
             !page.includes('/api/') && !page.includes('/contact/received/') && (pricesPublished || !page.endsWith('/pricing/')),
         }),
+        // Also serve the index at the conventional /sitemap.xml (what Search Console and most guides expect).
+        {
+          name: 'sitemap-xml-alias',
+          hooks: {
+            'astro:build:done': async ({ dir }) => {
+              await copyFile(new URL('sitemap-index.xml', dir), new URL('sitemap.xml', dir));
+            },
+          },
+        },
       ]
     : [],
   prefetch: false,

@@ -106,7 +106,7 @@ Optional durable record: a Google Sheet + Apps Script web app (`ENQUIRY_WEBHOOK_
 ### Search Console plan (Owner action)
 
 1. Add a **Domain property** for `mannpatel.me` and verify it with the DNS TXT record (covers http/https and all subdomains). Keep the record in place permanently.
-2. Submit `https://mannpatel.me/sitemap-index.xml`.
+2. Submit `https://mannpatel.me/sitemap.xml`.
 3. After a few days, check Pages (indexing) and Performance. Don't claim verification is done until Search Console shows "Ownership verified".
 
 ### Google Business Profile
