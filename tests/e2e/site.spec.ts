@@ -179,6 +179,20 @@ test.describe('pages', () => {
     }
   });
 
+  test('analytics stays off until a measurement ID is set: no banner and no requests to Google', async ({ page }) => {
+    const google: string[] = [];
+    page.on('request', (r) => /google-analytics|googletagmanager/.test(r.url()) && google.push(r.url()));
+    for (const path of ['/', '/contact/?package=check-up#check']) {
+      await page.goto(path);
+      await page.waitForTimeout(400);
+      await expect(page.locator('[data-consent]')).toHaveCount(0);
+    }
+    expect(google).toEqual([]);
+    // The hero is a named place, so a click on its free-check button can be told apart from the footer's.
+    await page.goto('/');
+    await expect(page.locator('section#hero a[href="/contact/?package=check-up#check"]')).toHaveCount(1);
+  });
+
   test('robots.txt blocks indexing on previews', async ({ request }) => {
     const body = await (await request.get('/robots.txt')).text();
     expect(body).toContain('Disallow: /');
