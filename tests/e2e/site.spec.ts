@@ -431,6 +431,13 @@ test.describe('home interactions', () => {
       await expect(page.locator(`#what-i-do a[href="/services/${slug}/"]`)).toBeVisible();
     for (const name of ['Local Visibility Setup', 'Website + Enquiry System', 'Website Launch'])
       await expect(page.locator('#what-i-do')).toContainText(`Package: ${name}`);
+    // Plain service names on the cards, and links that name the service they lead to.
+    for (const name of ['Local SEO and Google Business Profile', 'Enquiry follow-up and online booking', 'Web design and redesign'])
+      await expect(page.locator('#what-i-do').getByRole('heading', { name })).toBeVisible();
+    await expect(page.locator('#what-i-do a[href="/services/web-design/"]')).toContainText('Web design');
+    // Case studies link to the service they are evidence for.
+    await page.goto('/work/nest-and-rest-cleaning/');
+    await expect(page.locator('main a[href="/services/web-design/"]').first()).toContainText('Web design service');
   });
 
   test('the home page shows a labelled walkthrough with fictional data, keyboard-operable', async ({ page }) => {
@@ -566,16 +573,19 @@ test.describe('phones: short pages', () => {
   // Round 10 (competitor audit, which judges sections by usefulness rather than length) added the
   // labelled walkthrough to Home, package boundaries to Services and the professional intro to About.
   const BUDGET: Record<string, number> = {
-    '/': 12.5, // the real photo in the phone hero, the labelled walkthrough, and call/WhatsApp in the footer
-    '/services/': 13.5,
+    // 10 Nov 2026 (growth report): the explained process strip on Home, the three named services
+    // at the top of Services, the repair option, the AI search check, the scoped follow-up options
+    // with a sample test log, and "Offered as" links on case studies each add part of a screen.
+    '/': 12.75, // the real photo in the phone hero, the labelled walkthrough, and call/WhatsApp in the footer
+    '/services/': 14.75,
     '/work/': 4.5,
-    '/work/nest-and-rest-cleaning/': 7,
-    '/work/samp-hair-spa/': 7,
+    '/work/nest-and-rest-cleaning/': 7.25,
+    '/work/samp-hair-spa/': 7.25,
     '/about/': 7.5,
     '/contact/': 3.5,
-    '/services/web-design/': 10.75,
-    '/services/local-visibility/': 9.5,
-    '/services/enquiry-follow-up/': 10.5,
+    '/services/web-design/': 11.5,
+    '/services/local-visibility/': 10.75,
+    '/services/enquiry-follow-up/': 12.5,
     '/pricing/': 11.5,
   };
   for (const [path, max] of Object.entries(BUDGET)) {
@@ -751,6 +761,73 @@ test.describe('services', () => {
     await page.goto('/services/');
     for (const slug of ['web-design', 'local-visibility', 'enquiry-follow-up'])
       await expect(page.locator(`main a[href="/services/${slug}/"]`).first()).toBeVisible();
+  });
+
+  test('services overview: three named paths and the package comparison come first; every old anchor still works', async ({ page }) => {
+    await page.setViewportSize({ width: 1440, height: 900 });
+    await page.goto('/services/');
+    const paths = page.locator('#paths');
+    for (const [slug, name, pkg] of [
+      ['web-design', 'Web design and redesign', 'Website Launch'],
+      ['local-visibility', 'Local SEO and Google Business Profile', 'Local Visibility Setup'],
+      ['enquiry-follow-up', 'Enquiry follow-up and online booking', 'Website + Enquiry System'],
+    ]) {
+      const card = paths.locator('li', { has: page.locator(`a[href="/services/${slug}/"]`) });
+      await expect(card).toContainText(name);
+      await expect(card).toContainText(pkg);
+    }
+    const top = (id: string) => page.evaluate((i) => document.getElementById(i)!.getBoundingClientRect().top + scrollY, id);
+    expect(await top('paths')).toBeLessThan(await top('packages'));
+    expect(await top('packages')).toBeLessThan(await top('found'));
+    await expect(page.locator('#packages table')).toBeVisible();
+    // Links shared before today keep landing somewhere.
+    for (const id of ['found', 'answered', 'booked', 'extras', 'packages', 'check', 'process', 'faq', 'websites', 'seo', 'enquiry-workflows', 'social-content', 'print-design', 'business-profile', 'listings', 'local-plan', 'maintenance', 'booking', 'missed-calls'])
+      await expect(page.locator(`#${id}`), id).toHaveCount(1);
+  });
+
+  test('Brand & Content Sprint: a bounded add-on on the overview, with what is quoted separately', async ({ page }) => {
+    // It is the first add-on, and a link to it opens it like any other service.
+    await page.goto('/services/#brand-content');
+    const sprint = page.locator('#brand-content');
+    await expect(sprint).toHaveAttribute('open', '');
+    await expect(sprint).toContainText('Brand & Content Sprint');
+    await expect(sprint).toContainText('Three captioned post designs');
+    await expect(sprint).toContainText('Two Reel hooks');
+    await expect(sprint).toContainText('Quoted separately');
+    await expect(sprint).toContainText('Filming and editing');
+    await expect(sprint.getByRole('link', { name: 'Ask about the sprint' })).toHaveAttribute('href', '/contact/?service=social-content#brief');
+    // Not a page of its own until there is owner-approved sample work to show.
+    expect((await page.request.get('/services/brand-content/')).status()).toBe(404);
+  });
+
+  test('service pages name what is sold: a repair option, the AI search check, and scoped follow-up options', async ({ page }) => {
+    await page.goto('/services/web-design/');
+    const repair = page.locator('#repair');
+    await expect(repair).toContainText('repair');
+    await expect(repair).toContainText('one agreed page or one enquiry path');
+    await expect(repair.getByRole('link', { name: /free check/i })).toHaveAttribute('href', '/contact/?package=check-up#check');
+    await expect(page.locator('main')).toContainText('website redesign');
+    await expect(page.locator('main')).toContainText('Website Care');
+    await expect(page.locator('main')).toContainText('30 minutes');
+
+    await page.goto('/services/local-visibility/');
+    const ai = page.locator('#ai-search');
+    await expect(ai).toContainText('AI search visibility');
+    await expect(ai).toContainText('generative engine optimization');
+    await expect(ai).toContainText('answer engine optimization');
+    await expect(ai).toContainText('No one can guarantee');
+    await expect(page.locator('a[href="https://developers.google.com/search/docs/appearance/ai-features"]')).toBeVisible();
+    for (const term of ['Google Business Profile', 'Google Maps', 'genuine review', 'local SEO']) await expect(page.locator('main')).toContainText(term);
+
+    await page.goto('/services/enquiry-follow-up/');
+    for (const term of ['Missed-call text-back', 'Form follow-up', 'alert', 'Online booking set-up']) await expect(page.locator('main')).toContainText(term);
+    const log = page.locator('#test-log');
+    await expect(log).toContainText('Sample · fictional test log');
+    await expect(log).toContainText('handed to the owner');
+    await expect(log).toContainText('Request');
+    await expect(log).toContainText('only after the booking tool confirms');
+    // No chatbot is sold until there is a tested pilot to stand behind.
+    await expect(page.locator('main')).not.toContainText(/chatbot (pilot|set-?up) available/i);
   });
 
   test('pricing: built for review, but not linked while no price is approved', async ({ page }) => {

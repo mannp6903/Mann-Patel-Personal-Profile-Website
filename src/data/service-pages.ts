@@ -14,12 +14,40 @@ export interface Faq {
   a: string;
 }
 
+/** One extra, clearly bounded block after the steps: a repair path, the AI search check, the scoped options. */
+export interface Aside {
+  /** Anchor on the page. */
+  id: string;
+  eyebrow: string;
+  title: string;
+  body: string;
+  items: string[];
+  note?: string;
+  cta?: { label: string; href: string };
+}
+
+/** A labelled sample table (fictional data): a before-and-after snapshot or a test log. */
+export interface Sample {
+  id?: string;
+  /** Defaults to "Sample · fictional business". */
+  badge?: string;
+  /** Column headings; defaults to Check / Before / After set-up. */
+  cols?: [string, string, string];
+  title: string;
+  intro: string;
+  rows: { check: string; before: string; after: string }[];
+}
+
 export interface ServicePage {
   slug: 'web-design' | 'local-visibility' | 'enquiry-follow-up';
   /** The matching area on /services/ (its anchor keeps working). */
   group: GroupId;
   /** Short name used in navigation and breadcrumbs. */
   short: string;
+  /** The plain name of the service, used on cards (home page and the services overview). */
+  name: string;
+  /** One sentence for those cards. */
+  card: string;
   /** Page title for search results (" | Mann Patel" is added). */
   title: string;
   description: string;
@@ -38,7 +66,10 @@ export interface ServicePage {
   work: string[];
   /** A checklist of what is tested, or a labelled sample deliverable. */
   checklist?: { title: string; intro: string; items: string[] };
-  sample?: { title: string; intro: string; rows: { check: string; before: string; after: string }[] };
+  sample?: Sample;
+  /** A fictional test log: what was tried, what should happen, what did (including a failure). */
+  testLog?: Sample;
+  asides?: Aside[];
   /** Show the fictional enquiry walkthrough. */
   demo?: boolean;
   limits: string[];
@@ -55,13 +86,15 @@ export const servicePages: ServicePage[] = [
     slug: 'web-design',
     group: 'booked',
     short: 'Web design',
+    name: 'Web design and redesign',
+    card: 'A new website, or a redesign of a dated one: up to five pages, one tested enquiry path and a written handover.',
     title: 'Toronto Small Business Web Design',
     description:
       'Get a mobile-friendly website or redesign with clear service pages, a tested enquiry path and a written handover. See projects and ask for a quote.',
     eyebrow: 'Web design and redesign',
     h1: 'Web design for Toronto small businesses',
     lines: ['Web design', 'for Toronto small businesses'],
-    lead: 'A new website, or a redesign of one that is dated or hard to use on a phone, for owner-run service businesses in Toronto, especially North York and Scarborough: up to five pages that answer what people ask before they call, one tested enquiry path, and every account in your name.',
+    lead: 'A new website, or a website redesign when yours is dated or hard to use on a phone, for owner-run service businesses in Toronto, especially North York and Scarborough: up to five pages that answer what people ask before they call, one tested enquiry path, and every account in your name.',
     packages: ['website-launch', 'care'],
     forWho: [
       'You run a cleaning, maintenance, trades or other home-service business, or another business that meets customers in person',
@@ -89,6 +122,20 @@ export const servicePages: ServicePage[] = [
       {
         title: 'Launch and hand over',
         body: 'Every login in your name, a short guide to editing, and a list of anything still on your side.',
+      },
+    ],
+    asides: [
+      {
+        id: 'repair',
+        eyebrow: 'Already have a website?',
+        title: 'A repair, not a rebuild',
+        body: 'If your current site has a usable foundation, a repair fixes one agreed page or one enquiry path and leaves the rest alone. It starts with the free check, which shows what fails today.',
+        items: [
+          'One agreed page or one enquiry path, named in a written scope before any work starts',
+          'Checked at phone width, and the enquiry sent end to end with your permission',
+          'Quoted on its own; if a rebuild would cost you less in the long run, I say so and you decide',
+        ],
+        cta: { label: 'Start with the free check', href: '/contact/?package=check-up#check' },
       },
     ],
     work: ['nest-and-rest-cleaning', 'samp-hair-spa'],
@@ -134,6 +181,8 @@ export const servicePages: ServicePage[] = [
     slug: 'local-visibility',
     group: 'found',
     short: 'Local SEO',
+    name: 'Local SEO and Google Business Profile',
+    card: 'One eligible Google Business Profile set up and optimized, your listings made consistent, and a routine for genuine reviews.',
     title: 'Local SEO & Google Business Profile Setup in Toronto',
     description:
       'Improve your Google presence with eligible profile setup, listing updates and a review workflow. Ask about SEO foundations and an AI search check.',
@@ -169,6 +218,24 @@ export const servicePages: ServicePage[] = [
       {
         title: 'A review routine you can keep',
         body: 'Your review link, a QR review card, one request message for every customer after each job, and reply templates.',
+      },
+      {
+        title: 'Website fixes, in priority order',
+        body: 'If your website holds the profile back (an old phone number, no page for a service you list), you get the fixes in priority order. Doing them is quoted on its own or as part of a website package.',
+      },
+    ],
+    asides: [
+      {
+        id: 'ai-search',
+        eyebrow: 'Included in the set-up',
+        title: 'AI search visibility check',
+        body: 'People now ask ChatGPT, Gemini and Perplexity to recommend a local business. I ask each one the same short list of questions a customer might ask, and record what it says about you on a dated sheet. You may see this called GEO (generative engine optimization) or AEO (answer engine optimization): making sure AI answers can find accurate, public facts about your business.',
+        items: [
+          'The same questions each time, so a later check can be compared with this one',
+          'What each assistant said, whether it linked your website, and which facts it used',
+          'The fixes are the ordinary local SEO ones: accurate public details, clear pages and consistent listings',
+        ],
+        note: 'No one can guarantee what an AI assistant says, or that it mentions you. Answers differ between tools and from one day to the next, so this is a dated check, not a ranking.',
       },
     ],
     work: [],
@@ -209,18 +276,21 @@ export const servicePages: ServicePage[] = [
       },
       {
         q: 'What happens after the set-up?',
-        a: 'You keep the profile, the listings and the routine. Ongoing monthly help is available separately if you want it.',
+        a: 'You keep the profile, the listings and the routine. If you want ongoing help, the monthly “Stay found” plan on the services page covers posts, review reminders and a short report; it is quoted separately.',
       },
     ],
     sources: [
       { label: 'Google: how local results are ranked', url: 'https://support.google.com/business/answer/7091?hl=en' },
       { label: 'Google: guidelines for representing your business', url: 'https://support.google.com/business/answer/3038177?hl=en' },
+      { label: 'Google: AI features and your website', url: 'https://developers.google.com/search/docs/appearance/ai-features' },
     ],
   },
   {
     slug: 'enquiry-follow-up',
     group: 'answered',
     short: 'Enquiry follow-up',
+    name: 'Enquiry follow-up and online booking',
+    card: 'Missed-call text-back, form follow-up or an online booking path: one workflow in tools you own, tested and documented.',
     title: 'Enquiry Automation & Online Booking in Toronto',
     description:
       'Set up missed-call text-back, form follow-up or an online booking path with tools you own. Get one scoped workflow, tested and documented.',
@@ -257,8 +327,38 @@ export const servicePages: ServicePage[] = [
         body: 'A diagram of the workflow, the test results, what to check each week, and how to pause it.',
       },
     ],
+    asides: [
+      {
+        id: 'options',
+        eyebrow: 'Scoped options',
+        title: 'Start with one workflow',
+        body: 'Each option is small enough to test properly. One workflow and one booking integration are included in Website + Enquiry System; a second is quoted separately.',
+        items: [
+          'Missed-call text-back: a caller who rings out gets a text from your business number, marked as automatic, with what happens next',
+          'Form follow-up: every website enquiry gets an instant reply and lands in one list you check',
+          'Alerts: you get an alert when an enquiry has waited too long, or when a step fails',
+          'Online booking set-up: your booking or quote link on the website and Google profile, with reminders before each appointment',
+        ],
+        note: 'A booking request is not a booking. The page says “request” until your booking tool, or you, confirm the appointment.',
+      },
+    ],
     work: [],
     demo: true,
+    testLog: {
+      id: 'test-log',
+      badge: 'Sample · fictional test log',
+      cols: ['Test', 'What should happen', 'Result'],
+      title: 'Sample: the test log you get at handover',
+      intro:
+        'A sample with a fictional business, so you can see the format. Your log records the same kinds of tests on your real set-up, with sample data, including what happens when a step fails.',
+      rows: [
+        { check: 'A quote request is sent from the website form', before: 'The customer sees a confirmation; the enquiry appears in the list as New', after: 'Passed' },
+        { check: 'The text provider can’t be reached', before: 'No silent failure: the owner gets an email alert and the enquiry is marked “Needs a call”', after: 'Passed: handed to the owner' },
+        { check: 'The booking link is opened but not finished', before: 'The status stays Request, never Booked', after: 'Passed' },
+        { check: 'The booking tool confirms an appointment', before: 'The status changes to Booked only after the booking tool confirms', after: 'Passed' },
+        { check: 'The owner pauses the workflow', before: 'No automatic messages go out; the form still delivers', after: 'Passed' },
+      ],
+    },
     checklist: {
       title: 'When something fails',
       intro: 'Every workflow is built to fail in the open, the same way the forms on this site do.',
