@@ -163,24 +163,35 @@ test.describe('layout', () => {
     [768, 1024],
     [1440, 900],
   ]) {
-    test(`hero promise is the H1 and "Start a project" is visible without scrolling at ${w}px`, async ({ page }) => {
+    test(`the service-led H1 and the free-check button are visible without scrolling at ${w}px`, async ({ page }) => {
       await page.setViewportSize({ width: w, height: h });
       await page.goto('/');
+      // The H1 names the service and the place (growth report, 10 Nov 2026); the slogan moved to the process strip.
       const h1 = page.locator('h1');
-      await expect(h1).toContainText('Found.');
-      await expect(h1).toContainText('Websites, local search and enquiry follow-up for Toronto service businesses.');
-      const cta = page.locator('.hero').getByRole('link', { name: 'Start a project' });
+      expect((await h1.innerText()).replace(/\s+/g, ' ').trim()).toBe('Web design and local SEO for Toronto service businesses');
+      await expect(h1).toBeInViewport();
+      const hero = page.locator('.hero');
+      await expect(hero.locator('.hero__where')).toHaveText('Mann Patel · Independent website designer');
+      const cta = hero.getByRole('link', { name: 'Get a free website and Google check' });
       await expect(cta).toBeInViewport();
-      await expect(page.locator('.hero').getByRole('link', { name: 'See selected work' })).toHaveAttribute('href', '#work');
+      await expect(cta).toHaveAttribute('href', '/contact/?package=check-up#check');
+      await expect(hero.getByRole('link', { name: 'See the work' })).toHaveAttribute('href', '/work/');
+      await expect(hero).toContainText('Serving North York, Scarborough and the GTA. Your domain and accounts stay in your name.');
+      // Both actions come before anything else focusable in the hero.
+      const firstTwo = await hero.locator('a, button').evaluateAll((els) => els.slice(0, 2).map((e) => e.textContent!.replace(/\s+/g, ' ').trim()));
+      expect(firstTwo[0]).toContain('Get a free website and Google check');
+      expect(firstTwo[1]).toContain('See the work');
     });
   }
 
   // Acceptance targets from the 8 Nov 2026 audit: real work comes straight after a compact hero.
   // Round 8 added the tuner (dial and caption) to the phone hero, so the phone target moved down
   // by its height; on desktop the tuner sits beside the copy and nothing moved.
+  // 10 Nov 2026 (growth report): the hero gained the explained Found / Answered / Booked strip
+  // and a "See the work" button, so the targets moved down by the strip's height.
   for (const [w, h, maxHeading, maxCard] of [
-    [1440, 1000, 1100, 1500],
-    [390, 844, 1450, 1560],
+    [1440, 1000, 1150, 1500],
+    [390, 844, 1680, 1780],
   ]) {
     test(`selected work starts by y=${maxHeading} at ${w}x${h}`, async ({ page }) => {
       await page.setViewportSize({ width: w, height: h });
@@ -310,15 +321,23 @@ test.describe('home interactions', () => {
     await expect(page.locator('[data-tune]')).not.toHaveClass(/is-locked/);
   });
 
-  test('the headline acts out its words, rests in the finished state, and replays on hover', async ({ page }) => {
+  test('the process strip explains Found, Answered, Booked; the words act themselves out and replay on hover', async ({ page }) => {
     await page.setViewportSize({ width: 1440, height: 900 });
     await page.goto('/');
-    const h1 = page.locator('h1');
-    await expect(h1).toContainText('Found.');
-    await expect(h1).toContainText('Answered.');
-    await expect(h1).toContainText('Booked.');
+    await expect(page.locator('h1')).not.toContainText('Found.');
+    const strip = page.locator('.hero__steps');
+    const steps = strip.locator('li');
+    await expect(steps).toHaveCount(3);
+    // Each word comes with what it means in plain words; "Booked" keeps a request apart from a confirmation.
+    await expect(steps.nth(0)).toContainText('Found.');
+    await expect(steps.nth(0)).toContainText('local search');
+    await expect(steps.nth(1)).toContainText('Answered.');
+    await expect(steps.nth(1)).toContainText('follow-up');
+    await expect(steps.nth(2)).toContainText('Booked.');
+    await expect(steps.nth(2)).toContainText('request');
+    await expect(steps.nth(2)).toContainText('confirm');
     // The pin, bubble, ticks and circle are decoration: hidden from screen readers, no text.
-    const deco = h1.locator('[aria-hidden="true"]');
+    const deco = strip.locator('.hw [aria-hidden="true"]');
     expect(await deco.count()).toBeGreaterThanOrEqual(5);
     expect((await deco.allTextContents()).join('').trim()).toBe('');
     // Finished: pin on the full stop, read ticks drawn, "Booked." circled.
@@ -1021,7 +1040,7 @@ test.describe('motion (restrained in round 7)', () => {
   test('buttons lean toward the pointer and settle back when it leaves', async ({ page }) => {
     await page.setViewportSize({ width: 1440, height: 900 });
     await page.goto('/');
-    const btn = page.locator('.hero').getByRole('link', { name: 'Start a project' });
+    const btn = page.locator('.hero').getByRole('link', { name: 'Get a free website and Google check' });
     const box = (await btn.boundingBox())!;
     await page.mouse.move(box.x + box.width * 0.9, box.y + box.height * 0.8, { steps: 4 });
     await expect.poll(() => btn.evaluate((e) => (e as HTMLElement).style.translate)).not.toBe('');
