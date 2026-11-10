@@ -88,19 +88,15 @@ const ring = 'FREE CHECK · NO OBLIGATION · ';
   }
   .fc__title {
     font-size: clamp(2.2rem, 1.4rem + 3.6vw, 5rem);
-    font-weight: 620;
-    font-stretch: 100%;
+    font-weight: 600;
     letter-spacing: -0.045em;
     line-height: 0.96;
     max-width: 15ch;
   }
+  /* Two-tone on lime: the product name steps back to a dark olive (5.9:1 on the lime). */
   .fc__title em {
-    font-family: var(--font-serif);
-    font-weight: 400;
-    font-style: italic;
-    font-stretch: 100%;
-    letter-spacing: -0.01em;
-    font-size: 1.06em;
+    font-style: normal;
+    color: color-mix(in oklab, var(--on-signal) 62%, var(--signal));
   }
   .fc__alt {
     font-size: var(--fs-sm);

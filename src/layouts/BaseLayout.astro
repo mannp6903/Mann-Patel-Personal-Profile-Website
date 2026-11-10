@@ -19,8 +19,6 @@ interface Props {
   jsonLd?: Record<string, unknown> | Record<string, unknown>[];
   /** Show the closing call to action in the footer (off on the contact page). */
   footerCta?: boolean;
-  /** Preload the serif italic: only where it is part of the first screen (keeps bandwidth for the LCP elsewhere). */
-  preloadSerif?: boolean;
 }
 
 const {
@@ -32,7 +30,6 @@ const {
   ogAlt = 'Mann Patel: found, answered, booked. Websites, local search and enquiry follow-up for small businesses in Toronto.',
   jsonLd,
   footerCta = true,
-  preloadSerif = true,
 } = Astro.props;
 const pageTitle = fullTitle ?? `${title} · ${profile.name}`;
 const canonical = absoluteUrl(Astro.url.pathname);
@@ -55,8 +52,7 @@ const ld = jsonLd ? (Array.isArray(jsonLd) ? jsonLd : [jsonLd]) : [];
     <link rel="icon" href="/favicon.svg" type="image/svg+xml" />
     <link rel="icon" href="/favicon-32.png" sizes="32x32" type="image/png" />
     <link rel="apple-touch-icon" href="/apple-touch-icon.png" />
-    <link rel="preload" href="/fonts/signal-sans-wdth-wght.woff2" as="font" type="font/woff2" crossorigin />
-    {preloadSerif && <link rel="preload" href="/fonts/instrument-serif-italic.sub.woff2" as="font" type="font/woff2" crossorigin />}
+    <link rel="preload" href="/fonts/geist-sans-wght.sub.woff2" as="font" type="font/woff2" crossorigin />
 
     <meta property="og:type" content="website" />
     <meta property="og:site_name" content={profile.name} />

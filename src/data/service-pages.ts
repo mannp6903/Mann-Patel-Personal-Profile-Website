@@ -23,7 +23,7 @@ export interface ServicePage {
   title: string;
   description: string;
   eyebrow: string;
-  /** H1 lines; the last one is set in the serif. */
+  /** H1 lines; the last one is set in lime (the .accent--signal half of the headline). */
   lines: string[];
   lead: string;
   packages: PackageId[];

@@ -94,7 +94,7 @@ const jsonLd = { '@context': 'https://schema.org', '@type': 'AboutPage', mainEnt
         <Heading
           as="h1"
           class="ab-title"
-          lines={['I’m Mann Patel.', 'I build websites and enquiry follow-up', '<span class="serif serif--signal">for Toronto service businesses.</span>']}
+          lines={['I’m Mann Patel.', 'I build websites and enquiry follow-up', '<span class="accent accent--signal">for Toronto service businesses.</span>']}
           load
         />
         <p class="lead" data-reveal="load" style="--d:200">
@@ -135,7 +135,7 @@ const jsonLd = { '@context': 'https://schema.org', '@type': 'AboutPage', mainEnt
     <div class="container glance">
       <div class="stack" style="--stack: var(--s-4)">
         <p class="eyebrow">At a glance</p>
-        <h2 id="glance-title" class="glance__title">What I do, <span class="serif">and how.</span></h2>
+        <h2 id="glance-title" class="glance__title">What I do, <span class="accent">and how.</span></h2>
       </div>
       <dl class="glance__list">
         {
@@ -164,7 +164,7 @@ const jsonLd = { '@context': 'https://schema.org', '@type': 'AboutPage', mainEnt
     <div class="container">
       <div class="section-head">
         <p class="eyebrow">How I work</p>
-        <Heading id="principles-title" lines={['Four', '<span class="serif">house rules.</span>']} />
+        <Heading id="principles-title" lines={['Four', '<span class="accent">house rules.</span>']} />
       </div>
       <ol class="rules rail" role="list" aria-label="House rules" data-rail>
         {
@@ -185,7 +185,7 @@ const jsonLd = { '@context': 'https://schema.org', '@type': 'AboutPage', mainEnt
   <section class="section" aria-labelledby="vision-title">
     <div class="container vision">
       <p class="eyebrow">Where I’m going</p>
-      <Heading id="vision-title" lines={['Foundations done properly,', '<span class="serif">explained clearly.</span>']} />
+      <Heading id="vision-title" lines={['Foundations done properly,', '<span class="accent">explained clearly.</span>']} />
       <p class="lead vision__lead" data-reveal>
         My aim is to be the person Toronto’s small-business owners call when they want their Google presence, website and
         follow-up set up properly and explained in plain language, while I grow {nest.name} into a business that proves those
@@ -198,7 +198,7 @@ const jsonLd = { '@context': 'https://schema.org', '@type': 'AboutPage', mainEnt
     <div class="container story">
       <div class="story__head">
         <p class="eyebrow">My story</p>
-        <Heading id="story-title" lines={['Not a straight line.', '<span class="serif">Still going.</span>']} />
+        <Heading id="story-title" lines={['Not a straight line.', '<span class="accent">Still going.</span>']} />
       </div>
       <ol class="chapters rail" role="list" aria-label="My story, in six chapters" data-rail>
         {
@@ -383,8 +383,7 @@ const jsonLd = { '@context': 'https://schema.org', '@type': 'AboutPage', mainEnt
   }
   .rules__n {
     font-size: clamp(2.5rem, 2rem + 2vw, 4rem);
-    font-weight: 640;
-    font-stretch: 100%;
+    font-weight: 600;
     letter-spacing: -0.05em;
     line-height: 1;
     color: transparent;
@@ -419,8 +418,7 @@ const jsonLd = { '@context': 'https://schema.org', '@type': 'AboutPage', mainEnt
   }
   .biz__title {
     font-size: clamp(2.2rem, 1.4rem + 3.4vw, 4.75rem);
-    font-weight: 620;
-    font-stretch: 100%;
+    font-weight: 600;
     letter-spacing: -0.05em;
     line-height: 0.95;
   }

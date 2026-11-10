@@ -5,7 +5,7 @@
  *   Content is visible by default; html.js-motion (set in <head> when motion is allowed) opts in.
  * - [data-clock]: live Toronto time.
  * - [data-copy]: copy text to the clipboard, with a toast.
- * - [data-kinetic]: letters that widen and thicken near the pointer (variable font axes).
+ * - [data-kinetic]: letters ([data-k-ch], HTML or SVG) get --g (0 → 1) by pointer distance; CSS moves them.
  * - [data-progress]: exposes scroll progress through an element as the CSS variable --p (0 → 1).
  */
 declare global {
@@ -114,7 +114,7 @@ document.addEventListener('click', async (e) => {
 /* ── Kinetic letters ────────────────────────────────────── */
 document.querySelectorAll<HTMLElement>('[data-kinetic]').forEach((el) => {
   if (reduced.matches || !matchMedia('(hover: hover)').matches) return;
-  const letters = [...el.querySelectorAll<HTMLElement>('[data-k-ch]')];
+  const letters = [...el.querySelectorAll<HTMLElement | SVGElement>('[data-k-ch]')];
   if (!letters.length) return;
   let centers: number[] = [];
   let raf = 0;

@@ -41,7 +41,7 @@ const jump = [
 >
   <PageHead
     eyebrow="Services"
-    lines={['Clear deliverables.', 'Plain language.', '<span class="serif serif--signal">Yours to keep.</span>']}
+    lines={['Clear deliverables.', 'Plain language.', '<span class="accent accent--signal">Yours to keep.</span>']}
     lead="Three areas that follow your customer’s path: they find you, they contact you, they book. Every service lists what’s included, what I need from you and what isn’t included, and every project gets a written quote."
   />
 
@@ -168,7 +168,7 @@ const jump = [
       <div class="section-head section-head--split">
         <div class="stack" style="--stack: var(--s-5)">
           <p class="eyebrow">Packages</p>
-          <Heading id="packages-title" lines={['Four packages,', '<span class="serif">clear boundaries.</span>']} />
+          <Heading id="packages-title" lines={['Four packages,', '<span class="accent">clear boundaries.</span>']} />
         </div>
         <p class="lead" data-reveal>
           Each package says how far it goes: pages, revisions, integrations. Your written scope confirms what’s included and the
@@ -302,7 +302,6 @@ const jump = [
   .area__letter {
     font-size: clamp(6rem, 4rem + 9vw, 13rem);
     font-weight: 820;
-    font-stretch: 100%;
     line-height: 0.8;
     letter-spacing: -0.06em;
     color: transparent;
@@ -311,8 +310,7 @@ const jump = [
   }
   .area__title {
     font-size: clamp(2rem, 1.4rem + 2.4vw, 3.5rem);
-    font-weight: 620;
-    font-stretch: 100%;
+    font-weight: 600;
     letter-spacing: -0.04em;
     line-height: 1;
     max-width: 14ch;
@@ -327,13 +325,12 @@ const jump = [
   }
   .svc__name {
     font-size: clamp(1.15rem, 1.05rem + 0.5vw, 1.45rem);
-    font-weight: 640;
+    font-weight: 600;
     letter-spacing: -0.02em;
   }
   .svc__one {
     font-size: var(--fs-sm);
     font-weight: 400;
-    font-stretch: 100%;
     color: var(--text-2);
     line-height: 1.5;
     letter-spacing: 0;
@@ -373,7 +370,6 @@ const jump = [
     font-family: var(--font-mono);
     font-size: var(--fs-xs);
     font-weight: 500;
-    font-stretch: 100%;
     letter-spacing: var(--track-label);
     text-transform: uppercase;
     color: var(--text-3);
@@ -416,7 +412,7 @@ const jump = [
   }
   .svc__terms dt {
     color: var(--text);
-    font-weight: 620;
+    font-weight: 600;
   }
   .svc__cta {
     display: flex;

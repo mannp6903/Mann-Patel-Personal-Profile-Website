@@ -1053,7 +1053,8 @@ test.describe('motion (restrained in round 7)', () => {
     await page.goto('/');
     await page.evaluate(() => document.fonts.ready);
     const loaded = await page.evaluate(() => [...document.fonts].filter((f) => f.status === 'loaded').map((f) => f.family.replace(/"/g, '')));
-    expect(loaded).toEqual(expect.arrayContaining(['Signal Sans', 'Instrument Serif', 'Geist Mono']));
+    expect(loaded).toEqual(expect.arrayContaining(['Geist', 'Geist Mono']));
+    expect(loaded).not.toContain('Signal Sans');
   });
 });
 

@@ -4,13 +4,14 @@
     pip install fonttools brotli
     python3 scripts/subset-fonts.py
 
-Reads the Fontsource latin files in public/fonts/ (kept as the sources, and still used by
+Reads the source files in public/fonts/ (kept as the sources, and still used by
 scripts/make-images.mjs) and writes the smaller files the pages load:
 
-    signal-sans-wdth-wght.woff2   Mona Sans, renamed "Signal Sans" ("Mona" is a Reserved Font Name
-                                  under the SIL OFL, so a modified version must not use it)
-    geist-mono-wght.sub.woff2     Geist Mono
-    instrument-serif-italic.sub.woff2  Instrument Serif Italic
+    geist-sans-wght.sub.woff2     Geist (Sans), from the variable file in the geist npm package
+    geist-mono-wght.sub.woff2     Geist Mono, from the Fontsource latin file
+
+Geist has no Reserved Font Name, so the subsets keep their names. (Until Nov 2026 the site used
+Mona Sans, renamed "Signal Sans", and Instrument Serif Italic; see docs/20-tech-typography.md.)
 
 Characters: printable ASCII plus the punctuation and arrows the copy uses. Anything else (for
 example an accented letter typed into the form) falls back to the metric-matched system font,
@@ -21,7 +22,6 @@ re-run this script and give the output files new names (they are cached as immut
 from pathlib import Path
 
 from fontTools import subset
-from fontTools.ttLib import TTFont
 
 FONTS = Path(__file__).resolve().parent.parent / "public" / "fonts"
 UNICODES = (
@@ -30,25 +30,13 @@ UNICODES = (
 )
 
 JOBS = [
-    ("mona-sans-latin-wdth-wght.woff2", "signal-sans-wdth-wght.woff2", "Signal Sans"),
-    ("geist-mono-latin-wght.woff2", "geist-mono-wght.sub.woff2", None),
-    ("instrument-serif-latin-400-italic.woff2", "instrument-serif-italic.sub.woff2", None),
+    ("geist-sans-wght.woff2", "geist-sans-wght.sub.woff2"),
+    ("geist-mono-latin-wght.woff2", "geist-mono-wght.sub.woff2"),
 ]
 
 
-def rename(font: TTFont, family: str) -> None:
-    """Replace the family name everywhere it appears in the name table."""
-    old = font["name"].getDebugName(1) or ""
-    for rec in font["name"].names:
-        text = rec.toUnicode()
-        if old and old in text:
-            rec.string = text.replace(old, family)
-        elif "Mona" in text and rec.nameID in (1, 3, 4, 6, 16, 21, 25):
-            rec.string = text.replace("Mona Sans", family).replace("MonaSans", family.replace(" ", "")).replace("Mona", family)
-
-
 def main() -> None:
-    for src, dst, family in JOBS:
+    for src, dst in JOBS:
         opts = subset.Options()
         opts.flavor = "woff2"
         opts.layout_features = ["*"]
@@ -60,8 +48,6 @@ def main() -> None:
         sub = subset.Subsetter(opts)
         sub.populate(unicodes=subset.parse_unicodes(UNICODES))
         sub.subset(font)
-        if family:
-            rename(font, family)
         subset.save_font(font, str(FONTS / dst), opts)
         print(f"{src} {(FONTS / src).stat().st_size:>7} B -> {dst} {(FONTS / dst).stat().st_size:>7} B")
 

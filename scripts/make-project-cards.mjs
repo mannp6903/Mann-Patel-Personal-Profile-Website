@@ -33,14 +33,14 @@ for (const file of (await readdir(`${root}src/content/work`)).filter((f) => f.en
   const live = field(src, 'status') === 'launched';
   const shot = (await sharp(await captureFor(field(src, 'scene'))).resize(1040).webp({ quality: 82 }).toBuffer()).toString('base64');
   const html = `<!doctype html><html><head><meta charset="utf-8"><style>
-@font-face{font-family:Sans;src:url(${font('signal-sans-wdth-wght.woff2')}) format('woff2');font-weight:200 900;font-stretch:75% 125%}
+@font-face{font-family:Sans;src:url(${font('geist-sans-wght.sub.woff2')}) format('woff2');font-weight:100 900}
 @font-face{font-family:Mono;src:url(${font('geist-mono-wght.sub.woff2')}) format('woff2');font-weight:100 900}
 *{margin:0;box-sizing:border-box}
 body{width:1200px;height:630px;background:#0b0b0c;color:#f2f1ec;font-family:Sans;position:relative;overflow:hidden}
 .copy{position:absolute;left:64px;top:56px;right:64px;display:grid;gap:18px}
 .k{font-family:Mono;font-size:17px;letter-spacing:.08em;text-transform:uppercase;color:#8d8c86;display:flex;align-items:center;gap:12px}
 .k i{width:10px;height:10px;border-radius:50%;background:#d4f84a}
-h1{font-weight:780;font-stretch:114%;font-size:76px;line-height:.95;letter-spacing:-.045em}
+h1{font-weight:600;font-size:76px;line-height:.95;letter-spacing:-.045em}
 .tags{display:flex;gap:10px;flex-wrap:wrap}
 .tags span{font-family:Mono;font-size:17px;padding:7px 14px;border:1px solid #2a2a2f;border-radius:999px;color:#b3b2ab;display:flex;align-items:center;gap:9px}
 .tags b{width:9px;height:9px;border-radius:50%;background:${live ? '#d4f84a' : '#f5c451'}}
