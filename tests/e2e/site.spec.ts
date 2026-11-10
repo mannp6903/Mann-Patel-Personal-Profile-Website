@@ -287,12 +287,31 @@ test.describe('navigation', () => {
     await page.setViewportSize({ width: 390, height: 844 });
     await page.goto('/');
     const btn = page.locator('[data-menu-open]');
+    await expect(btn).toHaveAttribute('aria-expanded', 'false');
     await btn.click();
     const sheet = page.locator('#site-menu');
     await expect(sheet).toBeVisible();
+    await expect(btn).toHaveAttribute('aria-expanded', 'true');
+    await expect(sheet.getByRole('navigation', { name: 'Menu' }).getByRole('link')).toHaveCount(4);
+    await expect(sheet.locator('a[href="/contact/"]')).toHaveCount(1);
+    await expect(sheet.getByRole('link', { name: /Email Mann/ })).toHaveAttribute('href', /^mailto:info@mannpatel\.me\?/);
     await expect(sheet.getByRole('link', { name: 'Services' })).toBeVisible();
     await expect(sheet.locator('a[href="/terms/"]')).toBeVisible();
     await page.keyboard.press('Escape');
+    await expect(sheet).toBeHidden();
+    await expect(btn).toHaveAttribute('aria-expanded', 'false');
+    await expect(btn).toBeFocused();
+  });
+
+  test('phone menu dismisses from the backdrop and marks the current page', async ({ page }) => {
+    await page.setViewportSize({ width: 390, height: 844 });
+    await page.goto('/services/');
+    const btn = page.locator('[data-menu-open]');
+    await btn.click();
+    const sheet = page.locator('#site-menu');
+    await expect(sheet.getByRole('link', { name: 'Services', exact: true })).toHaveAttribute('aria-current', 'page');
+    await page.waitForTimeout(400);
+    await page.mouse.click(2, 400);
     await expect(sheet).toBeHidden();
     await expect(btn).toBeFocused();
   });
@@ -528,7 +547,7 @@ test.describe('home interactions', () => {
       await page.waitForTimeout(700);
       const fit = await sheet.evaluate((d) => d.scrollHeight - d.clientHeight);
       expect(fit).toBeLessThanOrEqual(1);
-      for (const name of ['Home', 'Services', 'Work', 'About', 'Contact', 'Start a project', 'Privacy', 'Terms'])
+      for (const name of ['Home', 'Services', 'Work', 'About', 'Start a project', 'Privacy', 'Terms'])
         await expect(sheet.getByRole('link', { name, exact: name !== 'Start a project' })).toBeInViewport();
       await expect(sheet.getByRole('link', { name: /Email Mann/ })).toBeInViewport();
     });
@@ -901,18 +920,13 @@ test.describe('direct contact', () => {
     await expect(page.locator('#reach .ca__number')).toContainText(/\d{3}-\d{2}X-XXXX/);
   });
 
-  test('call and WhatsApp are in the footer and the phone menu; LinkedIn is a button in the footer, menu and About', async ({ page }) => {
+  test('call, WhatsApp and LinkedIn stay available in the footer; LinkedIn is also on About', async ({ page }) => {
     await page.setViewportSize({ width: 390, height: 844 });
     await page.goto('/');
     const footer = page.locator('footer');
     await expect(footer.locator('a[data-reach="call"]').first()).toHaveAttribute('href', /^tel:\+1\d{10}$/);
     await expect(footer.getByRole('link', { name: /Message on WhatsApp/ })).toHaveAttribute('href', /^https:\/\/wa\.me\/1\d{10}\?text=/);
     await expect(footer.getByRole('link', { name: 'Mann Patel on LinkedIn' })).toHaveAttribute('href', 'https://www.linkedin.com/in/mannp6903/');
-    await page.locator('[data-menu-open]').click();
-    const sheet = page.locator('[data-menu]');
-    await expect(sheet.getByRole('link', { name: 'Call Mann' })).toHaveAttribute('href', /^tel:\+1\d{10}$/);
-    await expect(sheet.getByRole('link', { name: /WhatsApp/ })).toHaveAttribute('href', /^https:\/\/wa\.me\//);
-    await expect(sheet.getByRole('link', { name: 'Mann Patel on LinkedIn' })).toBeInViewport();
     await page.goto('/about/');
     await expect(page.locator('main').getByRole('link', { name: 'Mann Patel on LinkedIn' })).toBeVisible();
     // Only confirmed profiles: no Instagram or Facebook button until a link is set.

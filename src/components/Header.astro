@@ -1,19 +1,18 @@
 ---
 /**
  * Sticky header. Desktop: wordmark + Toronto clock, links, ⌘K quick menu, "Start a project".
- * Phones: a "Menu" button opens a full-screen sheet (native <dialog>: focus is contained,
+ * Phones: a "Menu" button opens a focused side panel (native <dialog>: focus is contained,
  * Esc closes, focus returns). Without JavaScript the links show as a plain row instead.
  */
 import { nav, primaryCta, profile } from '../data/site';
-import ContactActions from './ContactActions.astro';
-import SocialLinks from './SocialLinks.astro';
+import { emailHref } from '../lib/contact';
 import Button from './ui/Button.astro';
 import Icon from './ui/Icon.astro';
 import Wordmark from './ui/Wordmark.astro';
 
 const path = Astro.url.pathname;
 const isCurrent = (href: string) => (href === '/' ? path === '/' : path.startsWith(href));
-const sheetLinks = [{ href: '/', label: 'Home' }, ...nav, { href: '/contact/', label: 'Contact' }];
+const sheetLinks = [{ href: '/', label: 'Home' }, ...nav];
 ---
 
 <header class="hdr" data-header>
@@ -53,7 +52,7 @@ const sheetLinks = [{ href: '/', label: 'Home' }, ...nav, { href: '/contact/', l
       <Button href={primaryCta.href} size="sm" class="hdr__cta">{primaryCta.label}</Button>
       <!-- Phones: the main action stays one tap away in the header. -->
       <Button href="/contact/" size="sm" class="hdr__cta-m">Contact</Button>
-      <button class="menu-btn" type="button" data-menu-open aria-haspopup="dialog" aria-controls="site-menu">
+      <button class="menu-btn" type="button" data-menu-open aria-haspopup="dialog" aria-controls="site-menu" aria-expanded="false">
         <span class="menu-btn__lines" aria-hidden="true"><i></i><i></i></span>
         <span class="menu-btn__text">Menu</span>
       </button>
@@ -61,9 +60,9 @@ const sheetLinks = [{ href: '/', label: 'Home' }, ...nav, { href: '/contact/', l
   </div>
 
   <dialog class="sheet" id="site-menu" aria-label="Site menu" data-menu>
-    <div class="sheet__inner container">
+    <div class="sheet__inner">
       <div class="sheet__top">
-        <p class="eyebrow">Menu</p>
+        <p class="eyebrow">Explore</p>
         <button class="icon-btn" type="button" data-menu-close>
           <Icon name="close" />
           <span class="visually-hidden">Close menu</span>
@@ -75,10 +74,8 @@ const sheetLinks = [{ href: '/', label: 'Home' }, ...nav, { href: '/contact/', l
             sheetLinks.map((item, i) => (
               <li style={`--i:${i}`}>
                 <a href={item.href} aria-current={isCurrent(item.href) && (item.href !== '/' || path === '/') ? 'page' : undefined}>
-                  <span class="sheet__no num" aria-hidden="true">
-                    {String(i + 1).padStart(2, '0')}
-                  </span>
                   <span class="sheet__label">{item.label}</span>
+                  <span class="sheet__indicator" aria-hidden="true"></span>
                 </a>
               </li>
             ))
@@ -86,12 +83,14 @@ const sheetLinks = [{ href: '/', label: 'Home' }, ...nav, { href: '/contact/', l
         </ol>
       </nav>
       <div class="sheet__foot">
-        <Button href="/contact/">Start a project</Button>
-        <ContactActions label="Or reach me directly" showNumber>
-          <SocialLinks only={['linkedin', 'instagram', 'facebook']} slot="extra" />
-        </ContactActions>
-        <p class="small subtle">
-          <a class="link" href="/privacy/">Privacy</a> · <a class="link" href="/terms/">Terms</a>
+        <Button href={primaryCta.href} class="sheet__cta">{primaryCta.label}</Button>
+        {profile.contact.email && (
+          <a class="sheet__email" href={emailHref()!} aria-label={`Email Mann at ${profile.contact.email}`}>
+            {profile.contact.email}
+          </a>
+        )}
+        <p class="sheet__legal small subtle">
+          <a href="/privacy/">Privacy</a><span aria-hidden="true">·</span><a href="/terms/">Terms</a>
         </p>
       </div>
     </div>
@@ -109,21 +108,24 @@ const sheetLinks = [{ href: '/', label: 'Home' }, ...nav, { href: '/contact/', l
     // Mobile sheet.
     const sheet = header.querySelector<HTMLDialogElement>('[data-menu]')!;
     const openBtn = header.querySelector<HTMLButtonElement>('[data-menu-open]')!;
+    let closingTimer: ReturnType<typeof setTimeout> | undefined;
     const closeSheet = () => {
-      if (!sheet.open) return;
+      if (!sheet.open || sheet.classList.contains('is-closing')) return;
       sheet.classList.add('is-closing');
       const done = () => {
         sheet.classList.remove('is-closing');
         sheet.close();
       };
       if (matchMedia('(prefers-reduced-motion: reduce)').matches) done();
-      else setTimeout(done, 260);
+      else closingTimer = setTimeout(done, 240);
     };
     openBtn.addEventListener('click', () => {
       sheet.showModal();
       openBtn.setAttribute('aria-expanded', 'true');
     });
     sheet.addEventListener('close', () => {
+      clearTimeout(closingTimer);
+      sheet.classList.remove('is-closing');
       openBtn.setAttribute('aria-expanded', 'false');
       openBtn.focus();
     });
@@ -132,6 +134,12 @@ const sheetLinks = [{ href: '/', label: 'Home' }, ...nav, { href: '/contact/', l
       closeSheet();
     });
     sheet.querySelector('[data-menu-close]')?.addEventListener('click', closeSheet);
+    sheet.addEventListener('click', (event) => {
+      if (event.target !== sheet) return;
+      const bounds = sheet.getBoundingClientRect();
+      if (event.clientX < bounds.left || event.clientX > bounds.right || event.clientY < bounds.top || event.clientY > bounds.bottom)
+        closeSheet();
+    });
     sheet.querySelectorAll('a').forEach((a) => a.addEventListener('click', () => sheet.close()));
     // Wider than a phone? The sheet is not needed.
     matchMedia('(min-width: 64em)').addEventListener('change', (e) => e.matches && sheet.open && sheet.close());
@@ -415,38 +423,50 @@ const sheetLinks = [{ href: '/', label: 'Home' }, ...nav, { href: '/contact/', l
     }
   }
 
-  /* ── Full-screen sheet ── */
+  /* A compact drawer: four destinations, one project action, one direct email link. */
+  :global(html:has(#site-menu[open])) {
+    overflow: hidden;
+  }
   .sheet {
     position: fixed;
     inset: 0;
-    width: 100%;
-    max-width: none;
+    width: min(28rem, calc(100% - 0.75rem));
+    max-width: 100%;
     height: 100dvh;
-    max-height: none;
-    margin: 0;
+    max-height: 100dvh;
+    margin: 0 0 0 auto;
     padding: 0;
     border: 0;
-    background: var(--bg);
+    border-left: 1px solid var(--line);
+    background: var(--surface);
     color: var(--text);
     overflow-y: auto;
+    overscroll-behavior: contain;
   }
   .sheet::backdrop {
-    background: rgb(0 0 0 / 0.6);
+    background: rgb(0 0 0 / 0.72);
+    backdrop-filter: blur(5px);
   }
-  /* The sheet scales with the screen's height, so every link, the contact buttons and the legal
-     links fit on one screen, from a 568px-tall phone up. It still scrolls if text is enlarged. */
+  /* Fit short phones, while allowing scrolling for enlarged text and landscape screens. */
   .sheet__inner {
     min-height: 100%;
     display: flex;
     flex-direction: column;
-    gap: clamp(var(--s-3), 3.2dvh, var(--s-6));
-    padding-block: clamp(var(--s-2), 1.6dvh, var(--s-4)) clamp(var(--s-3), 3dvh, var(--s-6));
+    gap: clamp(1.25rem, 4dvh, 2.5rem);
+    padding: max(0.75rem, env(safe-area-inset-top)) clamp(1.25rem, 5vw, 2rem) max(1rem, env(safe-area-inset-bottom));
   }
   .sheet__top {
     display: flex;
     justify-content: space-between;
     align-items: center;
-    min-height: calc(var(--header-h) - var(--s-4));
+    min-height: var(--tap);
+  }
+  .sheet__top .eyebrow {
+    color: var(--text-3);
+  }
+  .sheet__top .icon-btn {
+    border: 1px solid var(--line);
+    border-radius: 50%;
   }
   .sheet__links {
     display: grid;
@@ -457,18 +477,29 @@ const sheetLinks = [{ href: '/', label: 'Home' }, ...nav, { href: '/contact/', l
   }
   .sheet__links a {
     display: flex;
-    align-items: baseline;
-    gap: var(--s-4);
-    padding-block: clamp(0.3rem, 1.1dvh, var(--s-3));
+    align-items: center;
+    justify-content: space-between;
+    min-height: var(--tap);
+    padding-block: clamp(0.65rem, 1.65dvh, 1.05rem);
     text-decoration: none;
   }
-  .sheet__no {
-    font-size: var(--fs-xs);
-    color: var(--text-3);
-    width: 2ch;
+  .sheet__indicator {
+    width: 0.5rem;
+    height: 0.5rem;
+    border-radius: 50%;
+    background: var(--signal);
+    opacity: 0;
+    transform: scale(0.5);
+    transition: opacity var(--t-fast), transform var(--t-base) var(--ease-out);
+  }
+  .sheet__links a[aria-current='page'] .sheet__indicator,
+  .sheet__links a:hover .sheet__indicator,
+  .sheet__links a:focus-visible .sheet__indicator {
+    opacity: 1;
+    transform: scale(1);
   }
   .sheet__label {
-    font-size: clamp(1.9rem, min(10vw, 6dvh), 3.6rem);
+    font-size: clamp(1.9rem, min(10.5vw, 7.1dvh), 3.25rem);
     font-weight: 600;
     letter-spacing: -0.045em;
     line-height: 1.05;
@@ -485,76 +516,70 @@ const sheetLinks = [{ href: '/', label: 'Home' }, ...nav, { href: '/contact/', l
   .sheet__foot {
     margin-top: auto;
     display: grid;
-    gap: clamp(var(--s-3), 2.2dvh, var(--s-5));
-    justify-items: start;
+    gap: 0.5rem;
   }
-  /* Contact buttons and the address share a row. */
-  .sheet__foot :global(.ca) {
-    display: flex;
-    flex-wrap: wrap;
+  .sheet__foot :global(.sheet__cta) {
+    width: 100%;
+    justify-content: space-between;
+  }
+  .sheet__email {
+    display: inline-flex;
     align-items: center;
-    gap: var(--s-2) var(--s-4);
+    justify-content: center;
+    min-height: var(--tap);
+    color: var(--text-2);
+    font-size: 0.875rem;
+    text-decoration: none;
+    text-underline-offset: 0.3em;
   }
-  .sheet__foot :global(.ca__label) {
-    flex-basis: 100%;
+  .sheet__email:hover {
+    color: var(--text);
+    text-decoration: underline;
   }
-  /* Phones tap Call to see the number; "Show number" is for the desktop pages. */
-  .sheet__foot :global(.ca__show) {
-    display: none;
+  .sheet__legal {
+    display: flex;
+    align-items: center;
+    gap: 0.65rem;
+    border-top: 1px solid var(--line);
+    padding-top: 0.5rem;
+    margin-top: 0.5rem;
   }
-  /* LinkedIn (and Instagram, once linked) sit in the same row as the contact buttons. */
-  .sheet__foot :global(.ca__extra .sl),
-  .sheet__foot :global(.ca__extra .sl__list) {
-    display: contents;
+  .sheet__legal a {
+    display: inline-flex;
+    align-items: center;
+    min-height: var(--tap);
+    color: inherit;
+    text-decoration: none;
   }
-  /* Short phones: round icon buttons (each keeps its name), so the row stays on one line. */
-  @media (max-height: 44em) {
-    .sheet__foot :global(.ca__btn),
-    .sheet__foot :global(.sl__btn) {
-      width: var(--tap);
-      height: var(--tap);
-      padding: 0;
-      justify-content: center;
-    }
-    .sheet__foot :global(.ca__text),
-    .sheet__foot :global(.sl__text) {
-      position: absolute;
-      width: 1px;
-      height: 1px;
-      overflow: hidden;
-      clip-path: inset(50%);
-      white-space: nowrap;
-    }
+  .sheet__legal a:hover {
+    color: var(--text);
   }
   @media (prefers-reduced-motion: no-preference) {
     .sheet[open] {
-      animation: sheet-in 520ms var(--ease-out);
+      animation: sheet-in 380ms var(--ease-out);
     }
     .sheet[open] .sheet__links li {
-      animation: link-in 700ms var(--ease-out) both;
-      animation-delay: calc(120ms + var(--i) * 55ms);
+      animation: link-in 420ms var(--ease-out) both;
+      animation-delay: calc(60ms + var(--i) * 35ms);
     }
     .sheet.is-closing {
-      animation: sheet-out 260ms var(--ease-in-out) forwards;
+      animation: sheet-out 240ms var(--ease-in-out) forwards;
     }
   }
   @keyframes sheet-in {
     from {
-      clip-path: inset(0 0 100% 0);
-    }
-    to {
-      clip-path: inset(0 0 0 0);
+      transform: translateX(100%);
     }
   }
   @keyframes sheet-out {
     to {
-      clip-path: inset(0 0 100% 0);
+      transform: translateX(100%);
     }
   }
   @keyframes link-in {
     from {
       opacity: 0;
-      transform: translateY(40%);
+      transform: translateX(0.75rem);
     }
   }
 </style>
