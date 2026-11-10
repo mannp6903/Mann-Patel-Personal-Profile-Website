@@ -10,7 +10,9 @@ import ProjectMedia from '../../components/work/ProjectMedia.astro';
 import Confirm from '../../components/Confirm.astro';
 import { serviceById } from '../../data/services';
 import { captures } from '../../data/captures';
+import { servicePageForGroup, type ServicePage } from '../../data/service-pages';
 import { breadcrumbJsonLd } from '../../lib/seo';
+import { projectSite } from '../../lib/work';
 
 export async function getStaticPaths() {
   const work = (await getCollection('work')).sort((a, b) => a.data.order - b.data.order);
@@ -36,6 +38,9 @@ const checked = new Intl.DateTimeFormat('en-CA', { day: 'numeric', month: 'long'
   new Date(`${d.checked}T12:00:00Z`),
 );
 const where = d.status === 'launched' ? 'the live site' : 'the preview';
+const site = projectSite(d);
+// The focused service pages this project is evidence for (each named once).
+const servicePagesShown = [...new Set(services.map((s) => servicePageForGroup(s.group)).filter(Boolean))] as ServicePage[];
 ---
 
 <BaseLayout
@@ -43,7 +48,7 @@ const where = d.status === 'launched' ? 'the live site' : 'the preview';
   description={d.description}
   jsonLd={crumbs ?? undefined}
   ogImage={`/og/work-${entry.id}.png`}
-  ogAlt={`Case study: ${d.title}. ${[d.relationship, d.websiteStatus, d.businessStatus].filter(Boolean).join(', ')}.`}
+  ogAlt={`Case study: ${d.title}. ${[d.relationship, site.websiteStatus, d.businessStatus].filter(Boolean).join(', ')}.`}
 >
   <article>
     <header class="cs-head">
@@ -55,16 +60,17 @@ const where = d.status === 'launched' ? 'the live site' : 'the preview';
           </ol>
         </nav>
         <div class="cs-meta">
-          <Status status={d.status} />
+          <Status status={d.status} paused={site.paused} />
           <span class="subtle small">{d.kind} · {d.year}</span>
         </div>
         {d.statusConfirm && <Confirm note={d.statusConfirm} />}
         <Heading as="h1" lines={[d.title]} class="cs-title" load />
         <p class="lead" data-reveal="load" style="--d:150">{d.summary}</p>
+        {site.note && <p class="cs-paused small" data-reveal="load" style="--d:200">{site.note}</p>}
         {
-          d.links.length > 0 && (
+          site.links.length > 0 && (
             <div class="btn-row" data-reveal="load" style="--d:250">
-              {d.links.map((l) => (
+              {site.links.map((l) => (
                 <Button href={l.url} variant="ghost" icon="arrow-ne" rel="noopener">
                   {l.label}
                 </Button>
@@ -89,7 +95,7 @@ const where = d.status === 'launched' ? 'the live site' : 'the preview';
         </div>
         <div>
           <dt>Website</dt>
-          <dd>{d.websiteStatus}</dd>
+          <dd>{site.websiteStatus}</dd>
         </div>
         {
           d.businessStatus && (
@@ -137,6 +143,19 @@ const where = d.status === 'launched' ? 'the live site' : 'the preview';
                     </li>
                   ))}
                 </ul>
+                {servicePagesShown.length > 0 && (
+                  <p class="cs-offered small">
+                    <span class="subtle">Offered as:</span>{' '}
+                    {servicePagesShown.map((sp, i) => (
+                      <>
+                        {i > 0 && ' · '}
+                        <a class="link" href={`/services/${sp.slug}/`}>
+                          {sp.short} service
+                        </a>
+                      </>
+                    ))}
+                  </p>
+                )}
               </dd>
             </div>
             <div>
@@ -339,6 +358,16 @@ const where = d.status === 'launched' ? 'the live site' : 'the preview';
     display: grid;
     gap: var(--s-5);
     justify-items: start;
+  }
+  .cs-paused {
+    max-width: 62ch;
+    padding: var(--s-3) var(--s-4);
+    border: 1px solid var(--line);
+    border-radius: var(--r-sm);
+    color: var(--text-2);
+  }
+  .cs-offered {
+    margin-top: var(--s-3);
   }
   .crumbs ol {
     display: flex;

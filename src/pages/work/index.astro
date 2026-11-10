@@ -6,6 +6,7 @@ import Status from '../../components/work/Status.astro';
 import ProjectMedia from '../../components/work/ProjectMedia.astro';
 import Icon from '../../components/ui/Icon.astro';
 import { breadcrumbJsonLd } from '../../lib/seo';
+import { projectSite } from '../../lib/work';
 
 const work = (await getCollection('work')).sort((a, b) => a.data.order - b.data.order);
 const crumbs = breadcrumbJsonLd([
@@ -35,7 +36,7 @@ const crumbs = breadcrumbJsonLd([
                 <div class="row__text">
                   <div class="row__meta">
                     <span class="num subtle">{String(i + 1).padStart(2, '0')}</span>
-                    <Status status={w.data.status} />
+                    <Status status={w.data.status} paused={projectSite(w.data).paused} />
                   </div>
                   <h2 class="row__title">{w.data.title}</h2>
                   <p class="subtle small">

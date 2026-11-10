@@ -8,6 +8,7 @@
 import { getCollection } from 'astro:content';
 import Icon from '../ui/Icon.astro';
 import ProjectMedia from '../work/ProjectMedia.astro';
+import { projectSite } from '../../lib/work';
 
 const work = (await getCollection('work')).sort((a, b) => a.data.order - b.data.order);
 const fmtDate = (iso: string) =>
@@ -33,9 +34,9 @@ const fmtDate = (iso: string) =>
               <div class="sw__body">
                 <p class="sw__labels">
                   <span class="sw__tag">{w.data.relationship}</span>
-                  <span class:list={['sw__tag', w.data.status === 'launched' ? 'sw__tag--live' : 'sw__tag--wip']}>
+                  <span class:list={['sw__tag', projectSite(w.data).live ? 'sw__tag--live' : 'sw__tag--wip']}>
                     <span class="sw__dot" aria-hidden="true" />
-                    {w.data.websiteStatus}
+                    {projectSite(w.data).websiteStatus}
                   </span>
                   {w.data.businessStatus && <span class="sw__tag">{w.data.businessStatus}</span>}
                 </p>

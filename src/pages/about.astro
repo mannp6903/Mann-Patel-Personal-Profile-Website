@@ -7,6 +7,7 @@ import Icon from '../components/ui/Icon.astro';
 import ContactActions from '../components/ContactActions.astro';
 import SocialLinks from '../components/SocialLinks.astro';
 import { profile, businesses } from '../data/site';
+import { businessHref } from '../lib/work';
 import { personJsonLd } from '../lib/seo';
 
 const nest = businesses[0];
@@ -218,8 +219,13 @@ const jsonLd = { '@context': 'https://schema.org', '@type': 'AboutPage', mainEnt
             {nest.name}
           </p>
           <p class="chapter__text text-links">
-            I also built <a href={nest.url} rel="noopener">nestnrestcleaning.com</a> from scratch for my own home-cleaning business,
-            {nest.name}. It starts taking clients in summer 2027, and I’ll clean every home myself.
+            I also built{' '}
+            {nest.siteLive ? (
+              <a href={nest.url} rel="noopener">nestnrestcleaning.com</a>
+            ) : (
+              <a href={businessHref(nest)}>the {nest.name} website</a>
+            )}{' '}
+            from scratch for my own home-cleaning business{nest.siteLive ? `, ${nest.name}` : ''}. It starts taking clients in summer 2027, and I’ll clean every home myself.
           </p>
         </li>
       </ol>
@@ -246,8 +252,12 @@ const jsonLd = { '@context': 'https://schema.org', '@type': 'AboutPage', mainEnt
         <p class="muted biz__desc">{nest.description}</p>
       </div>
       <div class="btn-row">
-        <Button href={nest.url} variant="ghost" icon="arrow-ne" rel="noopener">Visit {nest.name}</Button>
-        <Button href="/work/nest-and-rest-cleaning/">Read the case study</Button>
+        {nest.siteLive && (
+          <Button href={nest.url} variant="ghost" icon="arrow-ne" rel="noopener">
+            Visit {nest.name}
+          </Button>
+        )}
+        <Button href={nest.caseStudy}>Read the case study</Button>
       </div>
     </div>
   </section>

@@ -17,6 +17,7 @@ import { packageById, priceLabel, type Package } from '../../data/packages';
 import { profile } from '../../data/site';
 import { absoluteUrl } from '../../lib/mode';
 import { breadcrumbJsonLd } from '../../lib/seo';
+import { projectSite } from '../../lib/work';
 
 export function getStaticPaths() {
   return servicePages.map((page) => ({ params: { slug: page.slug }, props: { page } }));
@@ -169,7 +170,7 @@ const fmtDate = (iso: string) =>
                 <li>
                   <p class="sp__tags small">
                     <span>{w.data.relationship}</span>
-                    <span>{w.data.websiteStatus}</span>
+                    <span>{projectSite(w.data).websiteStatus}</span>
                     {w.data.businessStatus && <span>{w.data.businessStatus}</span>}
                   </p>
                   <h3>

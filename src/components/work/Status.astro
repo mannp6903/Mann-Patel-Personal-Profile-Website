@@ -1,13 +1,17 @@
 ---
-/** Project status, shown on every card and case study: Live / In progress / Prototype. */
+/**
+ * Project status, shown on every card and case study: Live / In progress / Prototype.
+ * `paused`: launched, but its public address can't be reached right now (src/lib/work.ts).
+ */
 interface Props {
   status: 'launched' | 'in-progress' | 'prototype';
+  paused?: boolean;
 }
-const { status } = Astro.props;
-const label = { launched: 'Live', 'in-progress': 'In progress', prototype: 'Prototype' }[status];
+const { status, paused = false } = Astro.props;
+const label = paused ? 'Launched' : { launched: 'Live', 'in-progress': 'In progress', prototype: 'Prototype' }[status];
 ---
 
-<span class:list={['status', status === 'launched' ? 'status--live' : 'status--progress']}>
+<span class:list={['status', status === 'launched' && !paused ? 'status--live' : 'status--progress']}>
   <span class="status__dot" aria-hidden="true"></span>
   <span><span class="visually-hidden">Status: </span>{label}</span>
 </span>

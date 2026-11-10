@@ -14,6 +14,11 @@ const field = (src, key) => {
   const m = src.match(new RegExp(`^${key}:\\s*(.+)$`, 'm'));
   return m ? m[1].trim().replace(/^['"]|['"]$/g, '') : '';
 };
+// Business addresses that can't be reached right now (`siteLive: false` in src/data/site.ts).
+const siteTs = await readFile(`${root}src/data/site.ts`, 'utf8');
+const paused = [...siteTs.matchAll(/url: '([^']+)',[^}]*?siteLive: (true|false),[^}]*?pausedStatus: '([^']+)'/g)]
+  .filter((m) => m[2] === 'false')
+  .map((m) => ({ url: m[1], status: m[3] }));
 // The desktop capture each case study uses (src/data/captures.ts).
 const captureFor = async (scene) => {
   const ts = await readFile(`${root}src/data/captures.ts`, 'utf8');
@@ -29,8 +34,10 @@ for (const file of (await readdir(`${root}src/content/work`)).filter((f) => f.en
   const src = await readFile(`${root}src/content/work/${file}`, 'utf8');
   const id = file.replace(/\.md$/, '');
   const title = field(src, 'title');
-  const labels = [field(src, 'relationship'), field(src, 'websiteStatus'), field(src, 'businessStatus')].filter(Boolean);
-  const live = field(src, 'status') === 'launched';
+  // A business address marked `siteLive: false` in src/data/site.ts: the card says so too.
+  const pausedSite = paused.find((b) => src.includes(`url: ${b.url}`));
+  const labels = [field(src, 'relationship'), pausedSite ? pausedSite.status : field(src, 'websiteStatus'), field(src, 'businessStatus')].filter(Boolean);
+  const live = field(src, 'status') === 'launched' && !pausedSite;
   const shot = (await sharp(await captureFor(field(src, 'scene'))).resize(1040).webp({ quality: 82 }).toBuffer()).toString('base64');
   const html = `<!doctype html><html><head><meta charset="utf-8"><style>
 @font-face{font-family:Sans;src:url(${font('geist-sans-wght.sub.woff2')}) format('woff2');font-weight:100 900}

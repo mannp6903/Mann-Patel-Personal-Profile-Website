@@ -30,7 +30,8 @@ export function personJsonLd() {
       : {}),
     homeLocation: { '@type': 'Place', name: 'Toronto, Ontario, Canada' },
     ...(sameAs.length ? { sameAs } : {}),
-    worksFor: businesses.map((b) => ({ '@type': 'Organization', name: b.name, url: b.url })),
+    // The organisation's address is listed only while it loads (see `siteLive` in src/data/site.ts).
+    worksFor: businesses.map((b) => ({ '@type': 'Organization', name: b.name, ...(b.siteLive ? { url: b.url } : {}) })),
     knowsAbout: ['Websites', 'Search engine optimisation', 'Google Search Console', 'Google Analytics 4', 'Business email', 'Social media content'],
   };
 }

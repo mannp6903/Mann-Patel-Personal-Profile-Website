@@ -1,6 +1,13 @@
 import { test, expect, type Page } from '@playwright/test';
 import AxeBuilder from '@axe-core/playwright';
 import { readFile } from 'node:fs/promises';
+import { readFileSync } from 'node:fs';
+
+// The Nest & Rest address is switched off in src/data/site.ts while it can't be reached
+// (`siteLive`, growth audit of 10 Nov 2026). These tests follow the switch either way.
+const NEST_URL = 'https://nestnrestcleaning.com/';
+const NEST_LIVE = /siteLive: true/.test(readFileSync('src/data/site.ts', 'utf8'));
+const NEST_STATUS = NEST_LIVE ? 'Website live' : 'Launched Oct 2026 · live link paused';
 
 const PAGES = [
   '/',
@@ -88,10 +95,25 @@ test.describe('pages', () => {
     expect(missing).toEqual([]);
   });
 
-  test('outbound link to Nest & Rest is present on key pages', async ({ page }) => {
-    for (const path of ['/', '/about/', '/contact/']) {
+  test('Nest & Rest: links out only while its address loads; otherwise every mention goes to the case study', async ({ page }) => {
+    for (const path of ['/', '/about/', '/contact/', '/work/', '/work/nest-and-rest-cleaning/', '/services/web-design/', '/this-page-does-not-exist/']) {
       await page.goto(path);
-      await expect(page.locator('a[href="https://nestnrestcleaning.com/"]').first()).toBeAttached();
+      const out = page.locator(`a[href="${NEST_URL}"]`);
+      if (NEST_LIVE && ['/', '/about/', '/contact/'].includes(path)) await expect(out.first()).toBeAttached();
+      if (!NEST_LIVE) {
+        await expect(out).toHaveCount(0);
+        if (path !== '/this-page-does-not-exist/') await expect(page.locator('a[href="/work/nest-and-rest-cleaning/"]').first()).toBeAttached();
+      }
+    }
+    if (!NEST_LIVE) {
+      // The case study says why, keeps its dated evidence, and structured data drops the address.
+      await page.goto('/work/nest-and-rest-cleaning/');
+      await expect(page.locator('.cs-paused')).toContainText('link to it is paused');
+      await expect(page.locator('.cs-head')).not.toContainText('Visit Nest & Rest');
+      await page.goto('/');
+      const ld = (await page.$$eval('script[type="application/ld+json"]', (s) => s.map((x) => x.textContent || ''))).join(' ');
+      expect(ld).not.toContain('nestnrestcleaning.com');
+      expect(ld).toContain('Nest & Rest Cleaning');
     }
   });
 
@@ -519,7 +541,7 @@ test.describe('phones: short pages', () => {
       }
       expect(boxes[1].top).toBeGreaterThan(boxes[0].top);
       await expect(page.locator('#work [data-rail]')).toHaveCount(0);
-      await expect(cards.first()).toContainText('Website live');
+      await expect(cards.first()).toContainText(NEST_STATUS);
       await expect(cards.first()).toContainText('Business opens summer 2027');
       await expect(cards.nth(1)).toContainText('In progress');
       await noHorizontalOverflow(page);
@@ -1060,7 +1082,7 @@ test.describe('motion (restrained in round 7)', () => {
 
 test.describe('case studies (round 7)', () => {
   for (const [path, website, extra] of [
-    ['/work/nest-and-rest-cleaning/', 'Website live', 'Business opens summer 2027'],
+    ['/work/nest-and-rest-cleaning/', NEST_STATUS, 'Business opens summer 2027'],
     ['/work/samp-hair-spa/', 'In progress, preview online', null],
   ] as const) {
     test(`${path} leads with a summary and shows dated, real test evidence`, async ({ page, request }) => {

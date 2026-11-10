@@ -11,6 +11,20 @@ import portraitImage from '../assets/mann-patel-portrait.jpg';
 export interface Business {
   name: string;
   url: string;
+  /**
+   * Does `url` load the real site today? While false, this site never links out to it: mentions go
+   * to `caseStudy`, the "Visit" button is hidden and the status reads `pausedStatus`
+   * (src/lib/work.ts). Check the address in a browser, then set true and run `npm run images`.
+   */
+  siteLive: boolean;
+  /** When `siteLive` was last checked (YYYY-MM-DD). */
+  siteChecked: string;
+  /** The case study on this site. */
+  caseStudy: string;
+  /** Website status shown on cards and the case study while the address is unreachable. */
+  pausedStatus: string;
+  /** One plain sentence on the case study while the address is unreachable. */
+  pausedNote: string;
   role: string;
   area: string;
   description: string;
@@ -63,6 +77,14 @@ export const businesses: Business[] = [
   {
     name: 'Nest & Rest Cleaning',
     url: 'https://nestnrestcleaning.com/',
+    // 10 Nov 2026: the address returned a "site not found" page from its host in the growth audit
+    // (two separate fetches). Paused until Mann confirms it loads again.
+    siteLive: false,
+    siteChecked: '2026-11-10',
+    caseStudy: '/work/nest-and-rest-cleaning/',
+    pausedStatus: 'Launched Oct 2026 · live link paused',
+    pausedNote:
+      'The public address didn’t load when it was checked on 10 Nov 2026, so the link to it is paused. The screens and tests on this page come from the live site on the dates shown.',
     role: 'Founder & Owner',
     area: 'Scarborough and North York, Toronto',
     description:

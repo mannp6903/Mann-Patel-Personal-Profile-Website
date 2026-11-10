@@ -4,6 +4,7 @@
  * in five steps, and the ownership/handover commitments. No photo here: the portrait is in the hero.
  */
 import { profile, businesses } from '../../data/site';
+import { businessHref } from '../../lib/work';
 import { process } from '../../data/services';
 import Icon from '../ui/Icon.astro';
 
@@ -22,7 +23,7 @@ const rules = [
       <p class="eyebrow">How I work</p>
       <h2 id="about-title" class="about__title">Hi, I’m Mann. <span class="accent">I’m building a business too.</span></h2>
       <p class="lead about__lead">
-        I’m starting <a class="link" href={nest.url} rel="noopener">{nest.name}</a> in {nest.area}, and built its website from
+        I’m starting <a class="link" href={businessHref(nest)} rel={nest.siteLive ? 'noopener' : undefined}>{nest.name}</a> in {nest.area}, and built its website from
         scratch. I set up the same foundations for other small businesses across {profile.serviceArea}, and explain them in plain
         language.
       </p>
