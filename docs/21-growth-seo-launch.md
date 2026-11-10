@@ -53,10 +53,16 @@ every anchor on `/services/` (`#found`, `#answered`, `#booked`, `#extras`, `#pac
 | Slashless addresses answer 307 | Cloudflare's static-asset handling redirects with 307 by design | Fixed in the build with `_redirects`; checked in a local Cloudflare runtime (below) |
 | GA4 sender inactive | The code is complete and off because the build variable `PUBLIC_GA4_ID` is not set | Unit-tested; needs Mann's measurement ID |
 
-**To confirm, Mann:** the live Nest & Rest page I fetched shows "Book" buttons, a first price of
-$110 and no "Opening soon" notice. This site's case study, About page and business description
-still say the site is in "Opening soon" mode, shows $116 and opens for bookings in summer 2027
-(captures dated 8 Nov 2026). I did not rewrite them: which is current is yours to say.
+**Nest & Rest facts, confirmed by Mann (10 Nov 2026):** "Opening soon" and $116 are correct, so
+the case study, About page and business description stay as they are. That also matches the latest
+version in the site's own repository (6 Nov 2026).
+
+**Still open:** the page my fetch returned from nestnrestcleaning.com did not match that. It showed
+"Book" buttons, $110 in the title and an open booking form at `/book/`, which is how the site
+looked on 18–20 Oct 2026. Either the fetch tool returned an old stored copy, or the address is
+serving an old build (the growth audit also saw a host 404 there the same morning). Mann to open
+the address in a browser: if it shows "Opening soon", nothing is wrong; if not, the site's hosting
+needs a look, and `siteLive` can be set to false in the meantime.
 
 ## Decisions I made
 
@@ -152,7 +158,7 @@ directly), PageSpeed after the change, Search Console, and real inbox delivery.
 
 ## Release checklist (Mann)
 
-1. Review the pull request and the screenshots. Confirm the Nest & Rest facts above.
+1. Review the pull request and the screenshots. Open nestnrestcleaning.com in a browser and check it shows "Opening soon" (see "Still open" above).
 2. Merge. Cloudflare builds and deploys; the slash redirects go live with it.
 3. In Cloudflare: Always Use HTTPS, and the www redirect rule. Run the `curl` list.
 4. Send one real test through each form (project brief and free check) and confirm it reaches the inbox.
