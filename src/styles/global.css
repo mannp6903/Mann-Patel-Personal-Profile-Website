@@ -93,16 +93,16 @@ h1,
 h2,
 h3,
 h4 {
-  font-weight: 680;
-  font-stretch: 108%;
+  font-weight: 600;
+  font-stretch: 100%;
   letter-spacing: var(--track-head);
   line-height: var(--lh-snug);
   text-wrap: balance;
 }
 h1 {
   font-size: var(--fs-h1);
-  font-weight: 720;
-  font-stretch: 110%;
+  font-weight: 620;
+  font-stretch: 100%;
   line-height: 0.95;
   letter-spacing: -0.04em;
 }
@@ -112,8 +112,8 @@ h2 {
 }
 h3 {
   font-size: var(--fs-h3);
-  font-weight: 620;
-  font-stretch: 104%;
+  font-weight: 580;
+  font-stretch: 100%;
   letter-spacing: -0.02em;
 }
 h4 {
@@ -138,8 +138,8 @@ p {
 }
 .display {
   font-size: var(--fs-display);
-  font-weight: 800;
-  font-stretch: 118%;
+  font-weight: 620;
+  font-stretch: 100%;
   line-height: var(--lh-display);
   letter-spacing: var(--track-display);
 }
@@ -378,7 +378,7 @@ p {
   color: var(--btn-fg);
   font-size: 1rem;
   font-weight: 640;
-  font-stretch: 104%;
+  font-stretch: 100%;
   letter-spacing: -0.005em;
   line-height: 1.15;
   text-decoration: none;
@@ -875,7 +875,7 @@ fieldset > legend + * {
   list-style: none;
   font-weight: 600;
   font-size: clamp(1.0625rem, 1rem + 0.35vw, 1.3rem);
-  font-stretch: 104%;
+  font-stretch: 100%;
   letter-spacing: -0.01em;
   line-height: 1.3;
   transition: color var(--t-fast);
