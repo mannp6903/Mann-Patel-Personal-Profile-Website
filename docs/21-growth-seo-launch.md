@@ -37,7 +37,7 @@ Mann can do are in "Release checklist" below.
 | `/work/` | Toronto Small Business Website Projects \| Mann Patel | Open a case study | — |
 | `/work/nest-and-rest-cleaning/` | Nest & Rest Cleaning Website Case Study \| Mann Patel | Visit the site (while `siteLive`) | Web design service |
 | `/work/samp-hair-spa/` | Samp Hair & Spa Website Preview \| Mann Patel | — | Web design service |
-| `/about/` | About Mann Patel \| Website Designer in Toronto | See the website projects | Free check |
+| `/about/` | About Mann Patel \| Website Designer in Toronto | Start a project (closing section) | See the work; Request the free check |
 | `/contact/` | Contact \| Mann Patel | Project brief or free check | Email, call, WhatsApp, text |
 
 Contact pre-fill parameters are unchanged (`?package=`, `?service=`, `#brief`, `#check`), and so is
