@@ -1,7 +1,8 @@
 ---
 /**
- * Footer: closing call to action (hidden on the contact page), link columns, the kinetic name
- * (letters widen near the pointer) and the bottom bar with the Toronto clock.
+ * Footer: closing call to action (hidden on the contact page), link columns, the kinetic
+ * MΛNN PΛTEL wordmark (letters lift and turn lime near the pointer) and the bottom bar with the
+ * Toronto clock.
  */
 import { profile, businesses, nav } from '../data/site';
 import { groups } from '../data/services';
@@ -13,6 +14,7 @@ import Heading from './ui/Heading.astro';
 import Icon from './ui/Icon.astro';
 import ContactActions from './ContactActions.astro';
 import SocialLinks from './SocialLinks.astro';
+import Wordmark from './ui/Wordmark.astro';
 
 interface Props {
   cta?: boolean;
@@ -21,7 +23,6 @@ const { cta = true } = Astro.props;
 const year = new Date().getFullYear();
 const mail = emailHref();
 const nest = businesses[0];
-const name = [...profile.name];
 ---
 
 <footer class="ftr">
@@ -29,7 +30,7 @@ const name = [...profile.name];
     cta && (
       <section class="ftr__cta container" aria-labelledby="ftr-cta-title">
         <p class="eyebrow">Next step</p>
-        <Heading id="ftr-cta-title" class="ftr__title" lines={['Tell me what isn’t working.', '<span class="serif serif--signal">I’ll tell you where to start.</span>']} />
+        <Heading id="ftr-cta-title" class="ftr__title" lines={['Tell me what isn’t working.', '<span class="accent accent--signal">I’ll tell you where to start.</span>']} />
         <div class="ftr__cta-row">
           <p class="lead ftr__lead" data-reveal>
             A short brief takes two minutes. I read every one myself and reply by email<span class="ftr__more">, usually with a few questions or a
@@ -123,9 +124,8 @@ const name = [...profile.name];
     </div>
   </div>
 
-  <div class="ftr__name" data-kinetic aria-hidden="true">
-    {name.map((ch) => (ch === ' ' ? <span class="k-space" /> : <span data-k-ch>{ch}</span>))}
-    <span class="k-dot" />
+  <div class="ftr__name container" data-kinetic aria-hidden="true">
+    <Wordmark class="ftr__wm" kinetic />
   </div>
 
   <div class="ftr__bottom container">
@@ -156,8 +156,7 @@ const name = [...profile.name];
   }
   .ftr__title {
     font-size: clamp(2.1rem, 1.2rem + 4.8vw, 6.25rem);
-    font-weight: 620;
-    font-stretch: 100%;
+    font-weight: 600;
     letter-spacing: -0.045em;
     line-height: 0.95;
     max-width: 18ch;
@@ -210,7 +209,6 @@ const name = [...profile.name];
     letter-spacing: var(--track-label);
     text-transform: uppercase;
     color: var(--text-3);
-    font-stretch: 100%;
   }
   .ftr__col ul {
     display: grid;
@@ -278,39 +276,25 @@ const name = [...profile.name];
 
   /* The kinetic name: sized to the viewport; letters respond to the pointer through --g. */
   .ftr__name {
-    display: flex;
-    justify-content: center;
-    align-items: baseline;
-    padding-inline: var(--gutter);
-    font-size: clamp(3.4rem, 16.2vw, 17.5rem);
-    font-weight: 640;
-    line-height: 0.78;
-    letter-spacing: -0.05em;
-    color: var(--text);
+    padding-top: clamp(var(--s-2), 2.4vw, var(--s-6));
+    padding-bottom: clamp(var(--s-4), 3.4vw, 3.5rem);
     user-select: none;
-    white-space: nowrap;
-    padding-bottom: 0.06em;
   }
-  .ftr__name [data-k-ch] {
+  .ftr__name :global(.ftr__wm) {
+    width: 100%;
+    height: auto;
+    color: var(--text);
+  }
+  .ftr__name :global([data-k-ch]) {
     --g: 0;
-    flex: none;
-    display: inline-block;
-    font-variation-settings:
-      'wdth' calc(96 + var(--g) * 29),
-      'wght' calc(760 + var(--g) * 140);
-    color: color-mix(in oklab, var(--text) calc(100% - var(--g) * 100%), var(--signal));
-    transition: font-variation-settings 420ms var(--ease-out), color 420ms var(--ease-out);
+    transform-box: fill-box;
+    transform-origin: 50% 100%;
+    translate: 0 calc(var(--g) * -9%);
+    fill: color-mix(in oklab, var(--text) calc(100% - var(--g) * 100%), var(--signal));
+    transition: translate 420ms var(--ease-out), fill 420ms var(--ease-out);
   }
-  .k-space {
-    width: 0.24em;
-  }
-  .k-dot {
-    flex: none;
-    width: 0.16em;
-    height: 0.16em;
-    margin-left: 0.04em;
-    border-radius: 50%;
-    background: var(--signal);
+  .ftr__name :global([data-k-ch][data-lam]) {
+    fill: color-mix(in oklab, var(--signal) calc(100% - var(--g) * 100%), var(--signal-strong));
   }
 
   .ftr__bottom {

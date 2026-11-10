@@ -24,7 +24,7 @@ const svcNames = Object.fromEntries(services.map((s) => [s.id, s.name]));
     <div class="section-head section-head--split">
       <div class="stack" style="--stack: var(--s-5)">
         <p class="eyebrow">Find your starting point</p>
-        <Heading id={`${id}-title`} lines={['Three questions.', '<span class="serif">One clear first step.</span>']} />
+        <Heading id={`${id}-title`} lines={['Three questions.', '<span class="accent">One clear first step.</span>']} />
       </div>
       <p class="lead" data-reveal>Answer honestly. You get a suggestion, the reasons for it, and a brief that’s already filled in.</p>
     </div>
@@ -180,8 +180,7 @@ const svcNames = Object.fromEntries(services.map((s) => [s.id, s.name]));
     align-items: baseline;
     margin-bottom: var(--s-4);
     font-size: clamp(1.2rem, 1.1rem + 0.5vw, 1.5rem);
-    font-weight: 640;
-    font-stretch: 100%;
+    font-weight: 600;
     letter-spacing: -0.02em;
     line-height: 1.25;
   }
@@ -216,8 +215,7 @@ const svcNames = Object.fromEntries(services.map((s) => [s.id, s.name]));
   }
   .fr__name {
     font-size: clamp(1.6rem, 1.2rem + 1.6vw, 2.5rem);
-    font-weight: 620;
-    font-stretch: 100%;
+    font-weight: 600;
     letter-spacing: -0.04em;
     line-height: 1.02;
   }

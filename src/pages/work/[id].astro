@@ -42,7 +42,6 @@ const where = d.status === 'launched' ? 'the live site' : 'the preview';
   title={d.title}
   description={d.description}
   jsonLd={crumbs ?? undefined}
-  preloadSerif={false}
   ogImage={`/og/work-${entry.id}.png`}
   ogAlt={`Case study: ${d.title}. ${[d.relationship, d.websiteStatus, d.businessStatus].filter(Boolean).join(', ')}.`}
 >
@@ -171,7 +170,7 @@ const where = d.status === 'launched' ? 'the live site' : 'the preview';
       <div class="container">
         <div class="section-head">
           <p class="eyebrow">Look closer</p>
-          <Heading id="closer-title" lines={['The decisions,', '<span class="serif">up close.</span>']} />
+          <Heading id="closer-title" lines={['The decisions,', '<span class="accent">up close.</span>']} />
         </div>
         <ol class="closer rail rail--wide" role="list" aria-label="Design decisions" data-rail>
           {
@@ -363,8 +362,7 @@ const where = d.status === 'launched' ? 'the live site' : 'the preview';
   }
   .cs-head__inner :global(.cs-title) {
     font-size: clamp(3rem, 1.6rem + 6.4vw, 8.5rem);
-    font-weight: 620;
-    font-stretch: 100%;
+    font-weight: 600;
     letter-spacing: -0.055em;
     line-height: 0.9;
   }
@@ -535,7 +533,7 @@ const where = d.status === 'launched' ? 'the live site' : 'the preview';
     background: var(--bg-2);
   }
   .tests tbody th {
-    font-weight: 620;
+    font-weight: 600;
     width: 22%;
   }
   .tests td {
@@ -676,11 +674,10 @@ const where = d.status === 'launched' ? 'the live site' : 'the preview';
     align-items: center;
     gap: 0.25em;
     font-size: clamp(2.2rem, 1.2rem + 4.4vw, 6rem);
-    font-weight: 620;
-    font-stretch: 100%;
+    font-weight: 600;
     letter-spacing: -0.05em;
     line-height: 1;
-    transition: font-stretch 800ms var(--ease-out), color var(--t-base);
+    transition: letter-spacing 800ms var(--ease-out), color var(--t-base);
   }
   .next__title .icon {
     width: 0.7em;
@@ -689,7 +686,7 @@ const where = d.status === 'launched' ? 'the live site' : 'the preview';
     transition: transform var(--t-slow) var(--ease-out);
   }
   .next__link:hover .next__title {
-    font-stretch: 108%;
+    letter-spacing: -0.02em;
     color: var(--signal);
   }
   .next__link:hover .next__title .icon {

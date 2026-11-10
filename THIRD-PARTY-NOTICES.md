@@ -10,8 +10,7 @@ What this website uses that was made by others, and on what terms. Checked 8 Nov
 | `@astrojs/cloudflare` | 14.4.3 | MIT | Production adapter (Cloudflare Workers) |
 | `@astrojs/node` | 11.1.9 | MIT | Local preview and tests only |
 | `@astrojs/sitemap` | 3.7.4 | MIT | Generates the sitemap |
-| Mona Sans, served as **Signal Sans** | Fontsource latin subset, cut further by `scripts/subset-fonts.py` | SIL OFL 1.1 | A Modified Version; renamed because “Mona” is a Reserved Font Name. Notice and licence: `public/fonts/LICENSES.txt` |
-| Instrument Serif Italic | Fontsource latin subset, cut further | SIL OFL 1.1 | `public/fonts/LICENSES.txt` |
+| Geist (variable) | `geist` npm package 1.9.2 (font version 1.900), cut by `scripts/subset-fonts.py` | SIL OFL 1.1 | A Modified Version (subset). Notice and licence: `public/fonts/LICENSES.txt` |
 | Geist Mono | Fontsource latin subset, cut further | SIL OFL 1.1 | `public/fonts/LICENSES.txt` |
 | Geist (outlines in the MΛNN PΛTEL wordmark and monogram: `public/brand/`, `src/components/ui/Wordmark.astro`, `public/favicon.svg`) | Vercel, vercel/geist-font | SIL OFL 1.1 | `public/fonts/LICENSES.txt` |
 

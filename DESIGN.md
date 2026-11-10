@@ -6,6 +6,12 @@
 > 100%, hover widening kept but softer) instead of heavy and expanded. Colours, layout and motion are
 > unchanged: the lime accent stays. Details:
 > [`docs/19-brand-black-and-white.md`](docs/19-brand-black-and-white.md).
+>
+> **Tech typography (10 Nov 2026, later the same day).** The whole site now sets in **Geist** (the
+> wordmark's own family) with **Geist Mono** for labels. Mona Sans ("Signal Sans") and Instrument Serif
+> are gone: the italic accent words became two-tone headlines (`.accent` grey, `.accent--signal` lime).
+> The two Λ's in the logo are lime, and the footer name is the wordmark. Details:
+> [`docs/20-tech-typography.md`](docs/20-tech-typography.md).
 
 The design system for mannpatel.me. Every page uses these tokens through the CSS variables in
 `src/styles/tokens.css`; components never use raw colours or one-off sizes.
@@ -54,28 +60,34 @@ current state, the focus ring). No gradients on text, no purple, no glass.
 
 | Family | File | Use |
 | --- | --- | --- |
-| **Mona Sans** (variable: weight 200–900, width 75–125), served as **"Signal Sans"** | `signal-sans-wdth-wght.woff2`, 69 KB | Everything: display (expanded, heavy) and body (normal width) |
-| **Instrument Serif Italic** | `instrument-serif-italic.sub.woff2`, 11 KB | One or two accent words per heading, never body text |
+| **Geist** (variable weight 100–900) | `geist-sans-wght.sub.woff2`, 24 KB | Everything: display, headings, body, buttons |
 | **Geist Mono** (variable weight) | `geist-mono-wght.sub.woff2`, 15 KB | Labels, metadata, numbers, the live clock |
 
-The served files are subsets cut to the characters the copy uses (`scripts/subset-fonts.py`: 143 KB →
-95 KB). Mona Sans is renamed "Signal Sans" in the subset because "Mona" is a Reserved Font Name under
-the OFL. New characters in the copy: add them to the script and to `unicode-range` in `tokens.css`.
+One family, two cuts, the same one the MΛNN PΛTEL wordmark is drawn from. The served files are
+subsets cut to the characters the copy uses (`scripts/subset-fonts.py`; 39 KB in all, down from 95 KB
+with Mona Sans and Instrument Serif). New characters in the copy: add them to the script and to
+`unicode-range` in `tokens.css`.
 
-Self-hosted, SIL OFL 1.1, `font-display: swap`, metric-adjusted fallbacks.
+**Two-tone headlines.** The second half of a heading steps back instead of changing typeface:
+`<span class="accent">` sets it in `--text-3` grey, `<span class="accent accent--signal">` in lime
+(one per view, as with every lime). Same face, same weight. On the lime free-check band the accent is
+a dark olive (5.9:1).
 
-| Token | Size (fluid) | Line height | Weight · width | Use |
+Self-hosted, SIL OFL 1.1, `font-display: swap`, metric-adjusted Arial fallback (`Geist Fallback`).
+
+| Token | Size (fluid) | Line height | Weight | Use |
 | --- | --- | --- | --- | --- |
-| `--fs-display` | 3.4 → 10.5rem | 0.86 | 620 · 100 (was 800 · 112–125 before 10 Nov 2026) | Hero words, footer name |
-| `--fs-h1` | 2.6 → 6rem | 0.95 | 720 · 110 | Page titles |
-| `--fs-h2` | 2 → 4rem | 1.0 | 680 · 108 | Section titles |
-| `--fs-h3` | 1.35 → 1.9rem | 1.15 | 620 · 104 | Item titles |
-| `--fs-lead` | 1.2 → 1.5rem | 1.45 | 420 · 100 | Intros |
-| `--fs-base` | 1.0625 → 1.125rem | 1.6 | 400 · 100 | Body (17–18 px) |
+| `--fs-display` | 3.4 → 10.5rem | 0.86 | 600 | Hero words |
+| `--fs-h1` | 2.6 → 6rem | 0.95 | 600 | Page titles |
+| `--fs-h2` | 2 → 4rem | 1.0 | 600 | Section titles |
+| `--fs-h3` | 1.35 → 1.9rem | 1.15 | 560 | Item titles |
+| `--fs-lead` | 1.2 → 1.5rem | 1.45 | 400 | Intros |
+| `--fs-base` | 1.0625 → 1.125rem | 1.6 | 400 | Body (17–18 px) |
 | `--fs-sm` | 0.9375rem | 1.5 | 400 | Hints, captions |
 | `--fs-xs` | 0.8125rem | 1.4 | 500 mono, +0.08em, uppercase | Labels |
 
-Display tracking −0.04em; headings −0.03em; body 0. Body line length 60–72 characters (`--measure`).
+Buttons 540. Display tracking −0.045em; headings −0.03em; body 0. Geist has no width axis, so hover
+effects that used to widen a word now open its tracking instead (to −0.02em). Body line length 60–72 characters (`--measure`).
 
 ## Spacing and layout
 
@@ -136,7 +148,7 @@ shadow only: `--shadow-pop` for floating layers (menu, ⌘K palette, toast).
 - **Accordion** (`details`): hairline rows, a plus that turns into a minus, smooth height.
 - **Navigation**: sticky bar, wordmark + live status left, links centre-right, "Start a project"
   right; phones get a full-screen sheet. ⌘K / Ctrl K opens a quick menu (pages and actions).
-- **Footer**: closing call to action, link columns, and the kinetic name (letters widen near the cursor).
+- **Footer**: closing call to action, link columns, and the kinetic MΛNN PΛTEL wordmark (letters lift and turn lime near the cursor).
 
 ## Imagery and icons
 
@@ -156,7 +168,7 @@ shadow only: `--shadow-pop` for floating layers (menu, ⌘K palette, toast).
 | `--t-fast` / `--t-base` / `--t-slow` / `--t-reveal` | 160 / 320 / 700 / 1100 ms |
 
 Signature moments: **Tune in** (below), the **headline that acts out its words** (below), kinetic
-hero words (width and weight animate in, and flash lime when the signal locks), headings revealed line by line, the process line that draws itself on
+hero words (weight and tracking settle in, and flash lime when the signal locks), headings revealed line by line, the process line that draws itself on
 Services, and the footer name. Everything is off under `prefers-reduced-motion`; content never waits
 on JavaScript.
 

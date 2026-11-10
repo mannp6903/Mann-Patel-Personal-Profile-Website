@@ -1,18 +1,56 @@
 ---
 /**
  * The MΛNN PΛTEL wordmark (Nov 2026 brand): Geist Regular capitals, +26% tracking with optical
- * pair spacing, the A's drawn without crossbars. Outlined, so it needs no font. Colour follows
- * `currentColor`; size it by height. Decorative: give the surrounding link or heading its own name.
+ * pair spacing, the A's drawn without crossbars. Outlined, so it needs no font. Letters follow
+ * `currentColor`; the two Λ's take lime (`--wm-accent`, default `--signal`) unless `accent` is
+ * false. Size it by height, or by width with `height: auto` in CSS. Decorative: give the
+ * surrounding link or heading its own name.
  */
 interface Props {
   class?: string;
   /** Rendered height in px (CSS can still override it; width follows the aspect ratio). */
   height?: number;
+  /** Colour the two Λ's lime. */
+  accent?: boolean;
+  /** Mark each letter with data-k-ch so the footer's kinetic script can move it. */
+  kinetic?: boolean;
 }
-const { class: className, height = 14 } = Astro.props;
+const { class: className, height = 14, accent = true, kinetic = false } = Astro.props;
 const width = Math.round(height * (7980 / 710) * 100) / 100;
+
+/** One outline per letter, in reading order; `lam` marks the crossbar-less A's. */
+const letters: { d: string; lam?: boolean }[] = [
+  { d: 'M92 710V0H212L439 616L665 0H785V710H699V160L496 710H381L178 160V710Z' },
+  { d: 'M1102 710 1358 0H1474L1730 710H1636L1416 75L1196 710Z', lam: true },
+  { d: 'M2037 710V0H2159L2510 624V0H2596V710H2468L2123 98V710Z' },
+  { d: 'M3020 710V0H3142L3493 624V0H3579V710H3451L3106 98V710Z' },
+  {
+    d: 'M4393 710V0H4648Q4767 0 4833 57Q4899 114 4899 215Q4899 318 4833 376Q4767 434 4648 434H4479V710ZM4479 350H4648Q4809 350 4809 215Q4809 84 4648 84H4479Z',
+  },
+  { d: 'M5131 710 5387 0H5503L5759 710H5665L5445 75L5225 710Z', lam: true },
+  { d: 'M6117 710V84H5896V0H6424V84H6203V710Z' },
+  { d: 'M6768 710V0H7214V84H6854V313H7202V395H6854V626H7222V710Z' },
+  { d: 'M7631 710V0H7717V626H8072V710Z' },
+];
 ---
 
-<svg class={className} width={width} height={height} viewBox="92 0 7980 710" fill="currentColor" aria-hidden="true" focusable="false"
-  ><path d="M92 710V0H212L439 616L665 0H785V710H699V160L496 710H381L178 160V710ZM1102 710 1358 0H1474L1730 710H1636L1416 75L1196 710ZM2037 710V0H2159L2510 624V0H2596V710H2468L2123 98V710ZM3020 710V0H3142L3493 624V0H3579V710H3451L3106 98V710ZM4393 710V0H4648Q4767 0 4833 57Q4899 114 4899 215Q4899 318 4833 376Q4767 434 4648 434H4479V710ZM4479 350H4648Q4809 350 4809 215Q4809 84 4648 84H4479ZM5131 710 5387 0H5503L5759 710H5665L5445 75L5225 710ZM6117 710V84H5896V0H6424V84H6203V710ZM6768 710V0H7214V84H6854V313H7202V395H6854V626H7222V710ZM7631 710V0H7717V626H8072V710Z"></path></svg
+<svg
+  class:list={['wm', className]}
+  width={width}
+  height={height}
+  viewBox="92 0 7980 710"
+  fill="currentColor"
+  data-accent={accent ? '' : undefined}
+  aria-hidden="true"
+  focusable="false"
+  >{letters.map((l) => <path d={l.d} data-lam={l.lam ? '' : undefined} data-k-ch={kinetic ? '' : undefined} />)}</svg
 >
+
+<style>
+  .wm {
+    overflow: visible;
+  }
+  .wm[data-accent] [data-lam] {
+    fill: var(--wm-accent, var(--signal));
+  }
+</style>

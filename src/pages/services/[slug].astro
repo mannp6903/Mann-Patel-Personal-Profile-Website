@@ -33,7 +33,7 @@ const others = servicePages.filter((p) => p.slug !== page.slug);
 const path = `/services/${page.slug}/`;
 const url = absoluteUrl(path);
 
-const lines = page.lines.map((l, i) => (i === page.lines.length - 1 ? `<span class="serif serif--signal">${l}</span>` : l));
+const lines = page.lines.map((l, i) => (i === page.lines.length - 1 ? `<span class="accent accent--signal">${l}</span>` : l));
 
 // Structured data matches what the page shows: no price unless one is approved and shown.
 const serviceLd = {
@@ -70,7 +70,7 @@ const fmtDate = (iso: string) =>
   new Intl.DateTimeFormat('en-CA', { day: 'numeric', month: 'short', year: 'numeric', timeZone: 'UTC' }).format(new Date(`${iso}T12:00:00Z`));
 ---
 
-<BaseLayout title={page.title} description={page.description} jsonLd={[serviceLd, faqLd, ...(crumbs ? [crumbs] : [])]} preloadSerif={false}>
+<BaseLayout title={page.title} description={page.description} jsonLd={[serviceLd, faqLd, ...(crumbs ? [crumbs] : [])]}>
   <nav class="crumbs container" aria-label="Breadcrumb">
     <ol role="list">
       <li><a href="/services/">Services</a></li>
@@ -116,7 +116,7 @@ const fmtDate = (iso: string) =>
     <div class="container">
       <div class="section-head">
         <p class="eyebrow">The work</p>
-        <Heading id="work-steps-title" lines={['What actually', '<span class="serif">happens.</span>']} />
+        <Heading id="work-steps-title" lines={['What actually', '<span class="accent">happens.</span>']} />
       </div>
       <ol class="sp__steps" role="list">
         {
@@ -139,7 +139,7 @@ const fmtDate = (iso: string) =>
           <div class="section-head">
             <p class="eyebrow">See it work</p>
             <h2 id="demo-title" class="sp__h2">
-              A sample workflow, <span class="serif">step by step.</span>
+              A sample workflow, <span class="accent">step by step.</span>
             </h2>
             <p class="muted">
               Fictional business, fictional customer: this shows the shape of a workflow, not a real client. Choose any step.
@@ -159,7 +159,7 @@ const fmtDate = (iso: string) =>
             <p class="eyebrow">Evidence</p>
             <h2 id="proof-title" class="sp__h2">
               {work.length ? 'Real work, ' : 'What you get, '}
-              <span class="serif">{work.length ? 'clearly labelled.' : 'shown plainly.'}</span>
+              <span class="accent">{work.length ? 'clearly labelled.' : 'shown plainly.'}</span>
             </h2>
           </div>
 
@@ -245,7 +245,7 @@ const fmtDate = (iso: string) =>
       <div class="section-head">
         <p class="eyebrow">{pkgs.length > 1 ? 'Packages' : 'Package'}</p>
         <h2 id="offer-title" class="sp__h2">
-          Clear boundary, <span class="serif">written scope.</span>
+          Clear boundary, <span class="accent">written scope.</span>
         </h2>
         <p class="muted">Your written scope confirms what’s included and the price before any work starts.</p>
       </div>
@@ -273,7 +273,7 @@ const fmtDate = (iso: string) =>
     <div class="container sp__split">
       <div class="stack" style="--stack: var(--s-4)">
         <p class="eyebrow">Questions</p>
-        <h2 id="sp-faq-title" class="sp__h2">Asked <span class="serif">before buying.</span></h2>
+        <h2 id="sp-faq-title" class="sp__h2">Asked <span class="accent">before buying.</span></h2>
         <a class="link-arrow" href="/services/#faq">All questions <Icon name="arrow" /></a>
       </div>
       <div>
@@ -547,7 +547,7 @@ const fmtDate = (iso: string) =>
     color: var(--text-3);
   }
   .sp__table tbody th {
-    font-weight: 620;
+    font-weight: 600;
     color: var(--text);
   }
   .sp__table td {

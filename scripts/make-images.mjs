@@ -1,5 +1,5 @@
 // Generates favicon PNGs and the default Open Graph image (1200×630) from code, in the
-// black-and-white MΛNN PΛTEL brand (Nov 2026): the outlined wordmark over "Found. Answered. Booked."
+// MΛNN PΛTEL brand (Nov 2026): the outlined wordmark, lime Λ's, over "Found. Answered. Booked."
 // Run: npm run images   (when the portrait, favicon or headline changes)
 import { chromium } from '@playwright/test';
 import sharp from 'sharp';
@@ -13,7 +13,7 @@ const favicon = await readFile(`${root}public/favicon.svg`);
 await sharp(favicon, { density: 384 }).resize(32, 32).png().toFile(`${root}public/favicon-32.png`);
 await sharp(favicon, { density: 768 }).resize(180, 180).png().toFile(`${root}public/apple-touch-icon.png`);
 
-const wordmark = (await readFile(`${root}public/brand/mann-patel-wordmark.svg`, 'utf8'))
+const wordmark = (await readFile(`${root}public/brand/mann-patel-wordmark-lime.svg`, 'utf8'))
   .replace(/<title>.*?<\/title>/, '')
   .replace('<svg ', '<svg class="wm" aria-hidden="true" ');
 const font = (f) => `file://${root}public/fonts/${f}`;

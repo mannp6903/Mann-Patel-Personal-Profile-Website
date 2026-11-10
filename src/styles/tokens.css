@@ -1,25 +1,15 @@
 /* Design tokens — "Signal" direction (round 5). Documented in /DESIGN.md. */
 
-/* Fonts are subsets of the Fontsource latin files, cut to the characters the site uses
-   (scripts/subset-fonts.py). "Signal Sans" is Mona Sans renamed, as its licence requires for a
-   modified version. Other characters fall back to the metric-matched system fonts below. */
+/* Tech type system (Nov 2026): Geist for everything, Geist Mono for labels and numbers. The same
+   family as the MΛNN PΛTEL wordmark. Both are subsets cut to the characters the site uses
+   (scripts/subset-fonts.py); other characters fall back to the metric-matched system font below. */
 @font-face {
-  font-family: 'Signal Sans';
+  font-family: 'Geist';
   font-style: normal;
-  font-weight: 200 900;
-  font-stretch: 75% 125%;
+  font-weight: 100 900;
   font-display: swap;
-  src: url('/fonts/signal-sans-wdth-wght.woff2') format('woff2-variations'),
-    url('/fonts/signal-sans-wdth-wght.woff2') format('woff2');
-  unicode-range: U+0020-007E, U+00A0, U+00A9, U+00B0, U+00B7, U+00D7, U+2013-2014, U+2018-2019, U+201C-201D, U+2022,
-    U+2026, U+2191-2193;
-}
-@font-face {
-  font-family: 'Instrument Serif';
-  font-style: italic;
-  font-weight: 400;
-  font-display: swap;
-  src: url('/fonts/instrument-serif-italic.sub.woff2') format('woff2');
+  src: url('/fonts/geist-sans-wght.sub.woff2') format('woff2-variations'),
+    url('/fonts/geist-sans-wght.sub.woff2') format('woff2');
   unicode-range: U+0020-007E, U+00A0, U+00A9, U+00B0, U+00B7, U+00D7, U+2013-2014, U+2018-2019, U+201C-201D, U+2022,
     U+2026, U+2191-2193;
 }
@@ -33,20 +23,14 @@
   unicode-range: U+0020-007E, U+00A0, U+00A9, U+00B0, U+00B7, U+00D7, U+2013-2014, U+2018-2019, U+201C-201D, U+2022,
     U+2026, U+2191-2193;
 }
-/* Metric-adjusted fallbacks keep layout steady while the web fonts load. */
+/* Metric-adjusted fallback keeps layout steady while Geist loads (Arial scaled to Geist's widths). */
 @font-face {
-  font-family: 'Mona Fallback';
+  font-family: 'Geist Fallback';
   src: local('Arial'), local('Helvetica Neue'), local('Helvetica');
-  size-adjust: 101%;
-  ascent-override: 92%;
-  descent-override: 23%;
+  size-adjust: 105.4%;
+  ascent-override: 95.4%;
+  descent-override: 28%;
   line-gap-override: 0%;
-}
-@font-face {
-  font-family: 'Serif Fallback';
-  src: local('Georgia'), local('Times New Roman');
-  font-style: italic;
-  size-adjust: 92%;
 }
 
 :root {
@@ -75,8 +59,7 @@
   --focus: var(--signal);
 
   /* ── Type ── */
-  --font-sans: 'Signal Sans', 'Mona Fallback', ui-sans-serif, system-ui, sans-serif;
-  --font-serif: 'Instrument Serif', 'Serif Fallback', Georgia, serif;
+  --font-sans: 'Geist', 'Geist Fallback', ui-sans-serif, system-ui, sans-serif;
   --font-mono: 'Geist Mono', ui-monospace, 'SFMono-Regular', Menlo, Consolas, monospace;
 
   --fs-xs: 0.8125rem;

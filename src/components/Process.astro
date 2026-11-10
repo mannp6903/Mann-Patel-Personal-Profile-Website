@@ -17,7 +17,7 @@ const { id = 'process' } = Astro.props;
     <div class="section-head section-head--split">
       <div class="stack" style="--stack: var(--s-5)">
         <p class="eyebrow">How a project runs</p>
-        <Heading id={`${id}-title`} lines={['Five steps.', '<span class="serif">Nothing hidden.</span>']} />
+        <Heading id={`${id}-title`} lines={['Five steps.', '<span class="accent">Nothing hidden.</span>']} />
       </div>
       <p class="lead" data-reveal>
         Every project gets a written scope before any work starts, and ends with a handover you can actually use.
@@ -105,7 +105,6 @@ const { id = 'process' } = Astro.props;
   .proc__title {
     font-size: clamp(1.4rem, 1.2rem + 0.9vw, 2rem);
     font-weight: 600;
-    font-stretch: 100%;
     letter-spacing: -0.03em;
     line-height: 1.1;
   }

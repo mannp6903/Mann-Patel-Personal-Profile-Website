@@ -21,7 +21,7 @@ const crumbs = breadcrumbJsonLd([
 >
   <PageHead
     eyebrow="Work"
-    lines={['Real projects.', '<span class="serif serif--signal">Honest labels.</span>']}
+    lines={['Real projects.', '<span class="accent accent--signal">Honest labels.</span>']}
     lead="Every project says whether it’s live or in progress and what I actually did. No invented results, no stock photos passed off as real work."
   />
 
@@ -96,21 +96,20 @@ const crumbs = breadcrumbJsonLd([
   }
   .row__title {
     font-size: clamp(2.2rem, 1.4rem + 3.4vw, 4.75rem);
-    font-weight: 620;
-    font-stretch: 112%;
+    font-weight: 600;
     letter-spacing: -0.05em;
     line-height: 0.95;
-    transition: font-stretch 800ms var(--ease-out), color var(--t-base);
+    transition: letter-spacing 800ms var(--ease-out), color var(--t-base);
   }
   .row__link:hover .row__title {
-    font-stretch: 122%;
+    letter-spacing: -0.025em;
     color: var(--signal);
   }
   .row__cta {
     display: inline-flex;
     align-items: center;
     gap: 0.4em;
-    font-weight: 620;
+    font-weight: 600;
     margin-top: var(--s-2);
   }
   .row__cta .icon {
