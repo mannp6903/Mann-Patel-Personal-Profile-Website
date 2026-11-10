@@ -1,16 +1,19 @@
 ---
 /**
- * Home hero (round 8: "Tune in"). The H1 is the outcome in three words plus the service
- * descriptor. Two actions with different jobs: Start a project (main) and See selected work (the
- * next section). Mann's real photo is a radio station the visitor tunes in (TuneIn.astro): it
- * arrives as a lost signal and locks at 104.3, which flashes the headline and pings the dot field.
- * Beside the copy on tablets and desktops; right after the buttons on phones.
+ * Home hero. Since the growth report of 10 Nov 2026 the H1 names the service and the place in
+ * plain words ("Web design and local SEO for Toronto service businesses"); the three-word
+ * identity, Found. Answered. Booked., sits underneath as a process strip that says what each
+ * word means. Two actions with different jobs: the free check (main) and the work.
  *
- * Round 9: the three words act out what they say, once, on arrival (and again on hover or tap):
- * "Found." is highlighted like a search match and a map pin drops onto its full stop; "Answered."
- * shows a typing bubble that turns into read ticks; "Booked." gets circled like a date on a
- * calendar. The text itself is visible from the first frame; reduced motion and no JavaScript
- * show the finished state. Why: docs/16-round-9-headline.md.
+ * Mann's real photo is a radio station the visitor tunes in (TuneIn.astro, round 8): it locks at
+ * 104.3, which flashes the three words and pings the dot field. Beside the copy on tablets and
+ * desktops; right after the buttons on phones.
+ *
+ * The three words still act out what they say (round 9), once, on arrival and again on hover or
+ * tap: "Found." is highlighted like a search match and a map pin drops onto its full stop;
+ * "Answered." shows a typing bubble that turns into read ticks; "Booked." gets circled like a
+ * date on a calendar. All text is visible from the first frame; reduced motion and no JavaScript
+ * show the finished state. Why: docs/16-round-9-headline.md and docs/21-growth-seo-launch.md.
  */
 import { profile } from '../../data/site';
 import Button from '../ui/Button.astro';
@@ -19,38 +22,56 @@ import Field from '../fx/Field.astro';
 import TuneIn from './TuneIn.astro';
 ---
 
-<section class="hero" aria-labelledby="hero-title" data-field-zone>
+<section class="hero" id="hero" aria-labelledby="hero-title" data-field-zone>
   <Field preset="hero" class="hero__field" />
   <div class="hero__inner container">
     <div class="hero__meta">
-      <p class="eyebrow hero__where">{profile.name} · {profile.location}, Canada</p>
+      <p class="eyebrow hero__where">{profile.name} · Independent website designer</p>
       <p class="status status--live hero__status"><span class="status__dot" aria-hidden="true"></span>Taking new projects</p>
     </div>
 
     <h1 class="hero__title" id="hero-title">
-      {/* Each word acts out what it says (round 9). The pin, bubble, ticks and circle are decoration. */}
-      <span class="hw hw--found" style="--i:0"><span class="hw__w" style="--t0:0.35s" data-scene>Found<span class="hw__p">.<span class="hw__ring" aria-hidden="true"></span><svg class="hw__pin" viewBox="0 0 24 32" aria-hidden="true" focusable="false"><path d="M12 31c-.6 0-1.1-.3-1.4-.8C7.3 24.9 2 18.6 2 12 2 6.5 6.5 2 12 2s10 4.5 10 10c0 6.6-5.3 12.9-8.6 18.2-.3.5-.8.8-1.4.8Z" /><circle cx="12" cy="12" r="4" /></svg></span></span></span>
-      <span class="hw hw--answered" style="--i:1"><span class="hw__w" style="--t0:1.7s" data-scene>Answered<span class="hw__p">.<span class="hw__bubble" aria-hidden="true"><i style="--k:0"></i><i style="--k:1"></i><i style="--k:2"></i></span><svg class="hw__ticks" viewBox="0 0 30 16" aria-hidden="true" focusable="false"><path style="--k:0" pathLength="1" d="M2 8.6l4.2 4.2L15.4 3.6" /><path style="--k:1" pathLength="1" d="M11.4 11.4l1.4 1.4L22 3.6" /></svg></span></span></span>
-      <span class="hw hw--accent hw--booked" style="--i:2"><span class="hw__w" style="--t0:3.25s" data-scene>Booked.<svg class="hw__circle" viewBox="0 0 300 120" preserveAspectRatio="none" aria-hidden="true" focusable="false"><path pathLength="1" vector-effect="non-scaling-stroke" d="M62 106C22 94 4 66 20 40 38 12 118 3 186 7c66 4 110 26 106 58-4 32-72 50-146 49-60-1-112-12-128-36-9-14 2-30 26-42" /></svg></span></span>
-      <span class="hero__sub">Websites, local search and enquiry follow-up for Toronto service businesses.</span>
+      <span>Web design and local SEO</span>
+      <span class="accent">for Toronto service businesses</span>
     </h1>
 
     <div class="hero__copy">
       <p class="hero__lead">
-        I build clear websites, set up your Google and Maps listing, and connect calls, forms and messages so every enquiry
-        gets an answer, for owner-run businesses across Toronto, especially North York and Scarborough. You own every
-        account.
+        I build mobile-friendly websites, improve how customers find you on Google, and connect your forms and follow-up so
+        each enquiry has a clear next step.
       </p>
       <div class="hero__actions">
         <div class="btn-row">
-          <Button href="/contact/">Start a project</Button>
-          <Button href="#work" variant="ghost" icon="arrow-down">See selected work</Button>
+          <Button href="/contact/?package=check-up#check">Get a free website and Google check</Button>
+          <Button href="/work/" variant="ghost">See the work</Button>
         </div>
+        <p class="hero__proof small">
+          Serving North York, Scarborough and the GTA. Your domain and accounts stay in your name.
+        </p>
         <ContactActions compact label="Or reach me directly" class="hero__reach" />
       </div>
     </div>
 
     <TuneIn class="hero__tune" />
+
+    {/* The process strip: each word acts out what it says (round 9); the pin, bubble, ticks and circle are decoration. */}
+    <ol class="hero__steps" role="list" aria-label="How it works, in three steps">
+      <li class="hero__step">
+        <span class="hero__step-n num" aria-hidden="true">01</span>
+        <span class="hw hw--found" style="--i:0"><span class="hw__w" style="--t0:0.35s" data-scene>Found<span class="hw__p">.<span class="hw__ring" aria-hidden="true"></span><svg class="hw__pin" viewBox="0 0 24 32" aria-hidden="true" focusable="false"><path d="M12 31c-.6 0-1.1-.3-1.4-.8C7.3 24.9 2 18.6 2 12 2 6.5 6.5 2 12 2s10 4.5 10 10c0 6.6-5.3 12.9-8.6 18.2-.3.5-.8.8-1.4.8Z" /><circle cx="12" cy="12" r="4" /></svg></span></span></span>
+        <p class="hero__step-d">Clear service pages and local search, so people nearby can find you on Google and Maps.</p>
+      </li>
+      <li class="hero__step">
+        <span class="hero__step-n num" aria-hidden="true">02</span>
+        <span class="hw hw--answered" style="--i:1"><span class="hw__w" style="--t0:1.7s" data-scene>Answered<span class="hw__p">.<span class="hw__bubble" aria-hidden="true"><i style="--k:0"></i><i style="--k:1"></i><i style="--k:2"></i></span><svg class="hw__ticks" viewBox="0 0 30 16" aria-hidden="true" focusable="false"><path style="--k:0" pathLength="1" d="M2 8.6l4.2 4.2L15.4 3.6" /><path style="--k:1" pathLength="1" d="M11.4 11.4l1.4 1.4L22 3.6" /></svg></span></span></span>
+        <p class="hero__step-d">Enquiries that reach you, tested end to end, with follow-up so each one gets a reply.</p>
+      </li>
+      <li class="hero__step">
+        <span class="hero__step-n num" aria-hidden="true">03</span>
+        <span class="hw hw--accent hw--booked" style="--i:2"><span class="hw__w" style="--t0:3.25s" data-scene>Booked.<svg class="hw__circle" viewBox="0 0 300 120" preserveAspectRatio="none" aria-hidden="true" focusable="false"><path pathLength="1" vector-effect="non-scaling-stroke" d="M62 106C22 94 4 66 20 40 38 12 118 3 186 7c66 4 110 26 106 58-4 32-72 50-146 49-60-1-112-12-128-36-9-14 2-30 26-42" /></svg></span></span>
+        <p class="hero__step-d">A clear way to request a quote or an appointment, confirmed by your booking tool or by you.</p>
+      </li>
+    </ol>
   </div>
 
 </section>
@@ -102,30 +123,74 @@ import TuneIn from './TuneIn.astro';
     gap: var(--s-2) var(--s-3);
   }
 
-  /* ── Title ── */
+  /* ── Title: the service and the place, in two tones (each half balances its own lines) ── */
   .hero__title {
     position: relative;
     z-index: 2;
-    display: flex;
-    flex-direction: column;
-    align-items: flex-start;
-    font-size: var(--fs-display);
+    font-size: clamp(2.125rem, 0.95rem + 3.1vw, 4rem);
     font-weight: 600;
-    line-height: var(--lh-display);
-    letter-spacing: var(--track-display);
+    line-height: 1.02;
+    letter-spacing: -0.04em;
   }
-  /* The title's box overlaps the portrait on desktop: let the pointer through to the dots,
-     except over the words themselves. */
-  .hero__title {
-    pointer-events: none;
+  .hero__title > span {
+    display: block;
   }
-  .hw,
-  .hero__sub {
-    pointer-events: auto;
-    justify-self: start;
+
+  /* ── Process strip: Found. Answered. Booked., each with what it means ── */
+  .hero__steps {
+    position: relative;
+    z-index: 2;
+    display: grid;
+    gap: var(--s-5);
+    padding-top: var(--s-5);
+    border-top: 1px solid var(--line);
+  }
+  .hero__step {
+    display: grid;
+    gap: var(--s-2);
+    align-content: start;
+    justify-items: start;
+  }
+  .hero__step-n {
+    font-size: var(--fs-xs);
+    letter-spacing: var(--track-label);
+    color: var(--text-3);
+  }
+  .hero__step-d {
+    max-width: 36ch;
+    font-size: var(--fs-sm);
+    line-height: 1.5;
+    color: var(--text-2);
+  }
+  /* Phones: one compact row per step (the word, then what it means), so the work stays close. */
+  @media (max-width: 39.99em) {
+    .hero__steps {
+      gap: var(--s-4);
+    }
+    .hero__step {
+      grid-template-columns: 8.5rem minmax(0, 1fr);
+      column-gap: var(--s-3);
+      align-items: baseline;
+    }
+    .hero__step-n {
+      display: none;
+    }
+    .hero__step .hw {
+      font-size: 1.6rem;
+    }
+  }
+  @media (min-width: 40em) {
+    .hero__steps {
+      grid-template-columns: repeat(3, minmax(0, 1fr));
+      column-gap: var(--s-6);
+    }
   }
   .hw {
     display: block;
+    font-size: clamp(1.9rem, 1.3rem + 2.2vw, 3.25rem);
+    font-weight: 600;
+    line-height: 1;
+    letter-spacing: var(--track-display);
     padding-bottom: 0.04em;
     transition: letter-spacing 900ms var(--ease-out), color 300ms;
   }
@@ -434,17 +499,6 @@ import TuneIn from './TuneIn.astro';
       stroke-dashoffset: 0;
     }
   }
-  .hero__sub {
-    display: block;
-    margin-top: var(--s-5);
-    max-width: 24ch;
-    font-size: var(--fs-lead);
-    font-weight: 560;
-    letter-spacing: -0.01em;
-    line-height: 1.3;
-    color: var(--text);
-  }
-
   .hero__copy {
     position: relative;
     z-index: 2;
@@ -454,7 +508,12 @@ import TuneIn from './TuneIn.astro';
   .hero__lead {
     max-width: 46ch;
     color: var(--text-2);
-    font-size: 1.0625rem;
+    font-size: var(--fs-lead);
+    line-height: 1.45;
+  }
+  .hero__proof {
+    max-width: 46ch;
+    color: var(--text-3);
   }
   .hero__actions {
     display: grid;
@@ -481,7 +540,8 @@ import TuneIn from './TuneIn.astro';
       column-gap: var(--s-6);
     }
     .hero__meta,
-    .hero__title {
+    .hero__title,
+    .hero__steps {
       grid-column: 1 / -1;
     }
     .hero__copy {
@@ -510,37 +570,21 @@ import TuneIn from './TuneIn.astro';
     }
     .hero__inner {
       grid-template-columns: repeat(12, minmax(0, 1fr));
-      grid-template-rows: auto auto 1fr;
+      grid-template-rows: auto auto 1fr auto;
       column-gap: var(--s-5);
       row-gap: clamp(var(--s-5), 4vh, var(--s-7));
     }
     .hero__meta {
       grid-column: 1 / -1;
     }
-    /* The plain sentence sits beside the short last word, like a caption. */
     .hero__title {
-      grid-column: 1 / 11;
+      grid-column: 1 / 8;
       grid-row: 2;
       align-self: start;
-      display: grid;
-      grid-template-columns: auto minmax(0, 1fr);
-      column-gap: var(--s-6);
-      align-items: end;
-      font-size: clamp(3.4rem, 0.75rem + 6.3vw, 7.5rem);
     }
-    .hw:not(.hw--accent) {
+    .hero__steps {
       grid-column: 1 / -1;
-    }
-    .hw--accent {
-      grid-column: 1;
-      /* Room for the circle's right side before the caption. */
-      margin-inline-end: 0.3em;
-    }
-    .hero__sub {
-      grid-column: 2;
-      margin-top: 0;
-      padding-bottom: 0.55em;
-      max-width: 22ch;
+      grid-row: 4;
     }
     .hero__copy {
       grid-column: 1 / 7;
@@ -557,11 +601,6 @@ import TuneIn from './TuneIn.astro';
     }
     .hero__actions {
       gap: var(--s-4);
-    }
-  }
-  @media (min-width: 64em) and (max-height: 760px) {
-    .hero__title {
-      font-size: clamp(3.4rem, 1rem + 5.4vw, 6.5rem);
     }
   }
 </style>

@@ -6,6 +6,7 @@ import Status from '../../components/work/Status.astro';
 import ProjectMedia from '../../components/work/ProjectMedia.astro';
 import Icon from '../../components/ui/Icon.astro';
 import { breadcrumbJsonLd } from '../../lib/seo';
+import { projectSite } from '../../lib/work';
 
 const work = (await getCollection('work')).sort((a, b) => a.data.order - b.data.order);
 const crumbs = breadcrumbJsonLd([
@@ -15,14 +16,15 @@ const crumbs = breadcrumbJsonLd([
 ---
 
 <BaseLayout
-  title="Work"
-  description="Real projects by Mann Patel, clearly labelled: Nest & Rest Cleaning (his own business, built from scratch) and Samp Hair & Spa (a client website in progress)."
+  title="Toronto Small Business Website Projects"
+  description="See the Nest & Rest Cleaning website case study and Samp Hair & Spa preview, with dated work, project status and documented checks."
   jsonLd={crumbs ?? undefined}
 >
   <PageHead
     eyebrow="Work"
-    lines={['Real projects.', '<span class="accent accent--signal">Honest labels.</span>']}
-    lead="Every project says whether it’s live or in progress and what I actually did. No invented results, no stock photos passed off as real work."
+    compact
+    lines={['Website projects', '<span class="accent accent--signal">for Toronto service businesses</span>']}
+    lead="Real projects, honest labels. Every project says whether it’s live or in progress and what I actually did. No invented results, no stock photos passed off as real work."
   />
 
   <section class="section section--tight" aria-label="Projects">
@@ -35,7 +37,7 @@ const crumbs = breadcrumbJsonLd([
                 <div class="row__text">
                   <div class="row__meta">
                     <span class="num subtle">{String(i + 1).padStart(2, '0')}</span>
-                    <Status status={w.data.status} />
+                    <Status status={w.data.status} paused={projectSite(w.data).paused} />
                   </div>
                   <h2 class="row__title">{w.data.title}</h2>
                   <p class="subtle small">

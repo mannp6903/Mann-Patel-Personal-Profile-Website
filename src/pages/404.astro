@@ -43,7 +43,11 @@ const links = [
             ))
           }
         </ul>
-        <p class="small subtle text-links">Looking for home cleaning? <a href={nest.url} rel="noopener">Visit {nest.name}</a>.</p>
+        {nest.siteLive && (
+          <p class="small subtle text-links">
+            Looking for home cleaning? <a href={nest.url} rel="noopener">Visit {nest.name}</a>.
+          </p>
+        )}
         <div class="btn-row">
           <Button href="/">Go to the home page</Button>
         </div>

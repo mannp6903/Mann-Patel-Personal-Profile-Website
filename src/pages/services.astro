@@ -8,9 +8,9 @@ import FreeCheck from '../components/home/FreeCheck.astro';
 import Finder from '../components/Finder.astro';
 import Process from '../components/Process.astro';
 import Faq from '../components/Faq.astro';
-import { groups, servicesInGroup, addOns, type ServiceGroup } from '../data/services';
-import { packages, pricesPublished } from '../data/packages';
-import { servicePageForGroup } from '../data/service-pages';
+import { groups, servicesInGroup, addOns, sprint, type ServiceGroup } from '../data/services';
+import { packages, packageById, pricesPublished } from '../data/packages';
+import { servicePages, servicePageForGroup } from '../data/service-pages';
 import PackageCard from '../components/packages/PackageCard.astro';
 import PackageCompare from '../components/packages/PackageCompare.astro';
 import { faqs } from '../data/faqs';
@@ -25,9 +25,12 @@ const faqLd = {
     .map((f) => ({ '@type': 'Question', name: f.q, acceptedAnswer: { '@type': 'Answer', text: f.a } })),
 };
 const areaGroups: ServiceGroup[] = [...groups, addOns];
+// The order a first visit needs (growth report, 10 Nov 2026): the three services and the package
+// comparison first, the detailed scope of each area after. Every anchor from before still exists.
 const jump = [
-  ...areaGroups.map((g) => ({ href: `#${g.id}`, label: g.verb, letter: g.letter })),
+  { href: '#paths', label: 'Three services', letter: '' },
   { href: '#packages', label: 'Packages', letter: '' },
+  ...areaGroups.map((g) => ({ href: `#${g.id}`, label: g.verb, letter: g.letter })),
   { href: '#check', label: 'Free check', letter: '' },
   { href: '#process', label: 'Process', letter: '' },
   { href: '#faq', label: 'Questions', letter: '' },
@@ -35,14 +38,15 @@ const jump = [
 ---
 
 <BaseLayout
-  title="Google Business Profile, reviews, missed-call text-back & booking websites"
-  description="Get found and chosen on Google, never miss an enquiry, and a website that books work: Google Business Profile, reviews, missed-call text-back, online booking, websites, plus flyers and social content for Toronto and GTA small businesses."
+  title="Website, Local SEO & Booking Services"
+  description="Compare web design, local SEO, Google Business Profile setup and enquiry automation for Toronto service businesses. See packages and request a quote."
   jsonLd={[faqLd, servicesJsonLd()]}
 >
   <PageHead
     eyebrow="Services"
-    lines={['Clear deliverables.', 'Plain language.', '<span class="accent accent--signal">Yours to keep.</span>']}
-    lead="Three areas that follow your customer’s path: they find you, they contact you, they book. Every service lists what’s included, what I need from you and what isn’t included, and every project gets a written quote."
+    compact
+    lines={['Website, local SEO', '<span class="accent accent--signal">and enquiry services</span>']}
+    lead="Clear deliverables, plain language, yours to keep. Three services follow your customer’s path in Toronto and the GTA: they find you, they contact you, they book. Each one lists what’s included, what I need from you and what isn’t included, and every project gets a written quote."
   />
 
   <nav class="jump" aria-label="On this page" data-jump>
@@ -66,6 +70,60 @@ const jump = [
     </div>
   </nav>
 
+  <section class="paths section section--tight" id="paths" aria-labelledby="paths-title">
+    <div class="container">
+      <h2 id="paths-title" class="visually-hidden">Three services</h2>
+      <ol class="paths__list" role="list">
+        {
+          servicePages.map((sp) => (
+            <li class="paths__item">
+              <h3 class="paths__name">
+                <a href={`/services/${sp.slug}/`}>{sp.name}</a>
+              </h3>
+              <p class="muted">{sp.card}</p>
+              <p class="paths__pkg">
+                <span class="subtle">{sp.packages.length > 1 ? 'Packages:' : 'Package:'}</span>{' '}
+                {sp.packages.map((id) => packageById(id)!.name).join(' · ')}
+              </p>
+              <a class="link-arrow" href={`/services/${sp.slug}/`}>
+                {sp.short}: who it’s for and what’s included <Icon name="arrow" />
+              </a>
+            </li>
+          ))
+        }
+      </ol>
+    </div>
+  </section>
+
+  <section class="pkgs section section--alt" id="packages" aria-labelledby="packages-title">
+    <div class="container">
+      <div class="section-head section-head--split">
+        <div class="stack" style="--stack: var(--s-5)">
+          <p class="eyebrow">Packages</p>
+          <Heading id="packages-title" lines={['Four packages,', '<span class="accent">clear boundaries.</span>']} />
+        </div>
+        <p class="lead" data-reveal>
+          Each package says how far it goes: pages, revisions, integrations. Your written scope confirms what’s included and the
+          price before any work starts. Domains, hosting, booking tools and texting are billed to you by those providers.
+          Already have a website that works? Start with the free check; fixes to an existing site are quoted on their own.
+        </p>
+      </div>
+      <ol class="pkgs__grid rail" role="list" data-rail>
+        {packages.map((p, i) => <PackageCard pkg={p} index={i} />)}
+      </ol>
+      <p class="pkgs__more">
+        {pricesPublished ? (
+          <a class="link-arrow" href="/pricing/">
+            Prices and what affects them <Icon name="arrow" />
+          </a>
+        ) : null}
+      </p>
+
+      <!-- Side by side: who each package is for, its boundary, what it leaves out, costs and the next step. -->
+      <PackageCompare />
+    </div>
+  </section>
+
   {
     areaGroups.map((g) => (
       <section class="area section section--rule" id={g.id} aria-labelledby={`${g.id}-title`}>
@@ -88,6 +146,51 @@ const jump = [
             )}
           </div>
           <div class="area__list">
+            {g.id === 'extras' && (
+              <details class="acc svc sprint" id={sprint.id} data-svc>
+                <summary>
+                  <span class="svc__sum">
+                    <span class="sprint__tag">One bounded campaign</span>
+                    <span class="svc__name">{sprint.name}</span>
+                    <span class="svc__one">{sprint.summary}</span>
+                  </span>
+                  <span class="acc__plus" aria-hidden="true" />
+                </summary>
+                <div class="svc__body">
+                  <p class="svc__lead">{sprint.summary}</p>
+                  <div class="svc__cols">
+                    <div>
+                      <h3 class="svc__h">What you get</h3>
+                      <ul class="svc__list svc__list--yes" role="list">
+                        {sprint.includes.map((d) => (
+                          <li>
+                            <Icon name="check" />
+                            <span>{d}</span>
+                          </li>
+                        ))}
+                      </ul>
+                    </div>
+                    <div>
+                      <h3 class="svc__h">Quoted separately</h3>
+                      <ul class="svc__list svc__list--no" role="list">
+                        {sprint.separate.map((d) => (
+                          <li>
+                            <Icon name="close" />
+                            <span>{d}</span>
+                          </li>
+                        ))}
+                      </ul>
+                    </div>
+                  </div>
+                  <div class="svc__cta">
+                    <Button href={sprint.cta.href} size="sm">
+                      {sprint.cta.label}
+                    </Button>
+                    <span class="small subtle">A written quote first. The single services below can also be ordered on their own.</span>
+                  </div>
+                </div>
+              </details>
+            )}
             {servicesInGroup(g.id).map((s) => (
               <details class="acc svc" id={s.id} data-svc>
                 <summary>
@@ -163,35 +266,6 @@ const jump = [
     ))
   }
 
-  <section class="pkgs section section--alt" id="packages" aria-labelledby="packages-title">
-    <div class="container">
-      <div class="section-head section-head--split">
-        <div class="stack" style="--stack: var(--s-5)">
-          <p class="eyebrow">Packages</p>
-          <Heading id="packages-title" lines={['Four packages,', '<span class="accent">clear boundaries.</span>']} />
-        </div>
-        <p class="lead" data-reveal>
-          Each package says how far it goes: pages, revisions, integrations. Your written scope confirms what’s included and the
-          price before any work starts. Domains, hosting, booking tools and texting are billed to you by those providers.
-          Already have a website that works? Start with the free check; fixes to an existing site are quoted on their own.
-        </p>
-      </div>
-      <ol class="pkgs__grid rail" role="list" data-rail>
-        {packages.map((p, i) => <PackageCard pkg={p} index={i} />)}
-      </ol>
-      <p class="pkgs__more">
-        {pricesPublished ? (
-          <a class="link-arrow" href="/pricing/">
-            Prices and what affects them <Icon name="arrow" />
-          </a>
-        ) : null}
-      </p>
-
-      <!-- Side by side: who each package is for, its boundary, what it leaves out, costs and the next step. -->
-      <PackageCompare />
-    </div>
-  </section>
-
   <FreeCheck id="check" />
   <Finder />
   <Process />
@@ -239,6 +313,58 @@ const jump = [
 </script>
 
 <style>
+  /* ── Three services, first ── */
+  .paths__list {
+    display: grid;
+    border-top: 1px solid var(--line);
+  }
+  .paths__item {
+    display: grid;
+    align-content: start;
+    gap: var(--s-3);
+    padding-block: var(--s-5);
+    border-bottom: 1px solid var(--line);
+  }
+  .paths__name {
+    font-size: var(--fs-h3);
+  }
+  .paths__name a {
+    text-decoration: none;
+  }
+  .paths__name a:hover {
+    color: var(--signal);
+  }
+  .paths__pkg {
+    padding-top: var(--s-3);
+    border-top: 1px dashed var(--line);
+    font-family: var(--font-mono);
+    font-size: var(--fs-xs);
+    letter-spacing: 0.02em;
+  }
+  @media (min-width: 56em) {
+    .paths__list {
+      grid-template-columns: repeat(3, minmax(0, 1fr));
+    }
+    .paths__item {
+      padding: var(--s-6) var(--s-6) var(--s-6) 0;
+    }
+    .paths__item + .paths__item {
+      padding-left: var(--s-6);
+      border-left: 1px solid var(--line);
+    }
+  }
+
+  /* ── Brand & Content Sprint: the first add-on, opened from /services/#brand-content ── */
+  .sprint__tag {
+    display: block;
+    margin-bottom: var(--s-1);
+    font-family: var(--font-mono);
+    font-size: var(--fs-xs);
+    letter-spacing: var(--track-label);
+    text-transform: uppercase;
+    color: var(--signal);
+  }
+
   /* ── On this page ── */
   .jump {
     position: sticky;

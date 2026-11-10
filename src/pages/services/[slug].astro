@@ -14,9 +14,9 @@ import PackageCard from '../../components/packages/PackageCard.astro';
 import EnquiryDemo from '../../components/EnquiryDemo.astro';
 import { servicePages, type ServicePage } from '../../data/service-pages';
 import { packageById, priceLabel, type Package } from '../../data/packages';
-import { profile } from '../../data/site';
 import { absoluteUrl } from '../../lib/mode';
-import { breadcrumbJsonLd } from '../../lib/seo';
+import { breadcrumbJsonLd, personRef } from '../../lib/seo';
+import { projectSite } from '../../lib/work';
 
 export function getStaticPaths() {
   return servicePages.map((page) => ({ params: { slug: page.slug }, props: { page } }));
@@ -30,6 +30,7 @@ const pkgs = page.packages.map((id) => packageById(id)).filter(Boolean) as Packa
 const main = pkgs[0];
 const work = (await getCollection('work')).filter((w) => page.work.includes(w.id)).sort((a, b) => a.data.order - b.data.order);
 const others = servicePages.filter((p) => p.slug !== page.slug);
+const samples = [page.sample, page.testLog].filter((x) => x !== undefined);
 const path = `/services/${page.slug}/`;
 const url = absoluteUrl(path);
 
@@ -39,11 +40,11 @@ const lines = page.lines.map((l, i) => (i === page.lines.length - 1 ? `<span cla
 const serviceLd = {
   '@context': 'https://schema.org',
   '@type': 'Service',
-  name: page.title,
+  name: page.h1,
   description: page.description,
   serviceType: page.short,
   ...(url ? { url } : {}),
-  provider: { '@type': 'ProfessionalService', name: profile.name, ...(absoluteUrl('/') ? { url: absoluteUrl('/') } : {}) },
+  provider: personRef(),
   areaServed: [
     { '@type': 'City', name: 'Toronto' },
     { '@type': 'AdministrativeArea', name: 'Greater Toronto Area' },
@@ -78,7 +79,7 @@ const fmtDate = (iso: string) =>
     </ol>
   </nav>
 
-  <PageHead eyebrow={page.eyebrow} lines={lines} lead={page.lead}>
+  <PageHead eyebrow={page.eyebrow} lines={lines} lead={page.lead} compact>
     <div class="sp__actions" data-reveal="load" style="--d:300">
       <div class="btn-row">
         <Button href={`/contact/?package=${main.id}#brief`}>Request a quote</Button>
@@ -133,6 +134,38 @@ const fmtDate = (iso: string) =>
   </section>
 
   {
+    page.asides?.map((a) => (
+      <section class="section section--rule" id={a.id} aria-labelledby={`${a.id}-title`}>
+        <div class="container sp__split">
+          <div class="stack" style="--stack: var(--s-4)">
+            <p class="eyebrow">{a.eyebrow}</p>
+            <h2 id={`${a.id}-title`} class="sp__h2">
+              {a.title}
+            </h2>
+          </div>
+          <div class="stack" style="--stack: var(--s-5)">
+            <p class="muted">{a.body}</p>
+            <ul class="sp__list" role="list">
+              {a.items.map((item) => (
+                <li>
+                  <Icon name="check" />
+                  <span>{item}</span>
+                </li>
+              ))}
+            </ul>
+            {a.note && <p class="sp__note small">{a.note}</p>}
+            {a.cta && (
+              <a class="link-arrow" href={a.cta.href}>
+                {a.cta.label} <Icon name="arrow" />
+              </a>
+            )}
+          </div>
+        </div>
+      </section>
+    ))
+  }
+
+  {
     page.demo && (
       <section class="section" aria-labelledby="demo-title">
         <div class="container stack" style="--stack: var(--s-6)">
@@ -152,7 +185,7 @@ const fmtDate = (iso: string) =>
   }
 
   {
-    (work.length > 0 || page.sample || page.checklist) && (
+    (work.length > 0 || samples.length > 0 || page.checklist) && (
       <section class="section section--rule" aria-labelledby="proof-title">
         <div class="container stack" style="--stack: var(--s-6)">
           <div class="section-head">
@@ -169,7 +202,7 @@ const fmtDate = (iso: string) =>
                 <li>
                   <p class="sp__tags small">
                     <span>{w.data.relationship}</span>
-                    <span>{w.data.websiteStatus}</span>
+                    <span>{projectSite(w.data).websiteStatus}</span>
                     {w.data.businessStatus && <span>{w.data.businessStatus}</span>}
                   </p>
                   <h3>
@@ -190,25 +223,25 @@ const fmtDate = (iso: string) =>
             </ul>
           )}
 
-          {page.sample && (
-            <div class="sp__sample">
+          {samples.map((sample) => (
+            <div class="sp__sample" id={sample.id}>
               <div class="sp__sample-head">
-                <span class="sp__badge">Sample · fictional business</span>
-                <h3>{page.sample.title}</h3>
-                <p class="muted small">{page.sample.intro}</p>
+                <span class="sp__badge">{sample.badge ?? 'Sample · fictional business'}</span>
+                <h3>{sample.title}</h3>
+                <p class="muted small">{sample.intro}</p>
               </div>
-              <div class="sp__table-wrap" role="region" aria-label={page.sample.title} tabindex="0">
+              <div class="sp__table-wrap" role="region" aria-label={sample.title} tabindex="0">
                 <table class="sp__table">
-                  <caption class="visually-hidden">{page.sample.title}</caption>
+                  <caption class="visually-hidden">{sample.title}</caption>
                   <thead>
                     <tr>
-                      <th scope="col">Check</th>
-                      <th scope="col">Before</th>
-                      <th scope="col">After set-up</th>
+                      {(sample.cols ?? ['Check', 'Before', 'After set-up']).map((c) => (
+                        <th scope="col">{c}</th>
+                      ))}
                     </tr>
                   </thead>
                   <tbody>
-                    {page.sample.rows.map((r) => (
+                    {sample.rows.map((r) => (
                       <tr>
                         <th scope="row">{r.check}</th>
                         <td>{r.before}</td>
@@ -219,7 +252,7 @@ const fmtDate = (iso: string) =>
                 </table>
               </div>
             </div>
-          )}
+          ))}
 
           {page.checklist && (
             <div class="sp__check">

@@ -141,6 +141,39 @@ if (env.SITE_INDEXING === 'true') {
   check(await exists(join(root, 'sitemap.xml')), 'sitemap.xml generated', 'sitemap.xml missing');
 }
 
+// ── Search basics on every page (growth report, 10 Nov 2026) ──
+// One H1, its own title and description, and on sitemap pages a canonical link to itself.
+const seen = { title: new Map(), description: new Map() };
+const searchProblems = [];
+for (const f of files) {
+  const html = await readFile(f, 'utf8');
+  const rel = '/' + relative(root, f).split('\\').join('/').replace(/index\.html$/, '').replace(/\.html$/, '');
+  const h1 = (html.match(/<h1[\s>]/g) || []).length;
+  if (h1 !== 1) searchProblems.push(`${rel}: ${h1} H1 headings (exactly one is needed)`);
+  for (const [key, re] of [
+    ['title', /<title>([^<]*)<\/title>/],
+    ['description', /<meta name="description" content="([^"]*)"/],
+  ]) {
+    const value = html.match(re)?.[1]?.trim();
+    if (!value) searchProblems.push(`${rel}: no ${key}`);
+    else if (seen[key].has(value)) searchProblems.push(`${rel}: same ${key} as ${seen[key].get(value)}`);
+    else seen[key].set(value, rel);
+  }
+  if (site && sitemapXml.includes(`${site}${rel}<`) && !html.includes(`<link rel="canonical" href="${site}${rel}"`))
+    searchProblems.push(`${rel}: canonical link is not ${site}${rel}`);
+}
+check(searchProblems.length === 0, 'Every page has one H1, its own title and description; sitemap pages are self-canonical', `Search basics:\n    ${searchProblems.join('\n    ')}`);
+
+// Addresses without the final slash redirect permanently (written by scripts/build-cloudflare.mjs).
+if (cloudflare) {
+  const redirects = await readFile(join(root, '_redirects'), 'utf8').catch(() => '');
+  const lines = new Set(redirects.split('\n').map((l) => l.trim()).filter(Boolean));
+  const paths = [...sitemapXml.matchAll(/<loc>([^<]+)<\/loc>/g)].map((m) => m[1].replace(site, '')).filter((path) => path !== '/');
+  const missing = paths.filter((path) => !lines.has(`${path.replace(/\/$/, '')} ${path} 301`));
+  check(paths.length > 0 && missing.length === 0, `_redirects: ${paths.length} sitemap pages redirect permanently to their trailing-slash address`, `_redirects is missing a 301 for: ${missing.join(', ') || 'every page (file not written?)'}`);
+  check(![...lines].some((l) => l.startsWith('/api')), '_redirects leaves /api/ alone', '_redirects must not redirect /api/ (the form posts there)');
+}
+
 // ── Report ──────────────────────────────────────────────────
 for (const m of ok) console.log(`  ✓ ${m}`);
 for (const m of warnings) console.log(`  ! ${m}`);

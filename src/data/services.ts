@@ -83,6 +83,32 @@ export const addOns: ServiceGroup = {
     'Flyers, business cards, gift-card artwork, posts, Reels and stories in one consistent style, each pointing customers to your booking link or review card.',
 };
 
+/**
+ * Brand & Content Sprint (growth report, 10 Nov 2026): the print and social services as one small,
+ * bounded campaign. It lives on the services overview (#brand-content). A page of its own waits for
+ * owner-approved sample work to show (docs/21-growth-seo-launch.md).
+ */
+export const sprint = {
+  id: 'brand-content',
+  name: 'Brand & Content Sprint',
+  summary:
+    'One short campaign built from one service story, using the logo, colours and photos you already have, so your posts and print look like one business.',
+  includes: [
+    'A one-page style and messaging sheet from your approved logo, colours and photos',
+    'Three captioned post designs',
+    'Two Reel hooks, with scripts you can film on a phone',
+    'One round of changes, then every file handed over',
+  ],
+  separate: [
+    'Filming and editing',
+    'Posting, and replying to comments or messages',
+    'Extra channels',
+    'A blog article or FAQ, reviewed by you before it goes out',
+    'A new logo or a full brand identity (I can recommend people)',
+  ],
+  cta: { label: 'Ask about the sprint', href: '/contact/?service=social-content#brief' },
+} as const;
+
 export const services: Service[] = [
   // ───────────── A · Get found and chosen on Google ─────────────
   {

@@ -7,6 +7,7 @@ import Icon from '../components/ui/Icon.astro';
 import ContactActions from '../components/ContactActions.astro';
 import SocialLinks from '../components/SocialLinks.astro';
 import { profile, businesses } from '../data/site';
+import { businessHref } from '../lib/work';
 import { personJsonLd } from '../lib/seo';
 
 const nest = businesses[0];
@@ -79,12 +80,14 @@ const chapters = [
     text: 'Today I work overnight at Walmart Canada, with a second role as a modular associate. I was trained on power equipment within my first 45 days, and I’ve been trusted as acting lead for the dairy and frozen department. I still learn something new every day.',
   },
 ];
-const jsonLd = { '@context': 'https://schema.org', '@type': 'AboutPage', mainEntity: personJsonLd() };
+// The page about Mann himself is the profile page; the home page carries the WebSite (src/lib/seo.ts).
+const jsonLd = { '@context': 'https://schema.org', '@type': 'ProfilePage', mainEntity: personJsonLd() };
 ---
 
 <BaseLayout
   title="About"
-  description="Mann Patel builds websites, Google listings and enquiry follow-up for Toronto service businesses, especially in North York and Scarborough. What he delivers, how work is checked, and his story from Palana in Gujarat to Toronto."
+  fullTitle="About Mann Patel | Website Designer in Toronto"
+  description="Mann Patel is an independent website designer in Toronto. He builds websites, local SEO and enquiry follow-up for service businesses, especially in North York and Scarborough. What he delivers, how work is checked, and his story from Palana in Gujarat to Toronto."
   jsonLd={jsonLd}
 >
   <header class="ab-head">
@@ -218,8 +221,13 @@ const jsonLd = { '@context': 'https://schema.org', '@type': 'AboutPage', mainEnt
             {nest.name}
           </p>
           <p class="chapter__text text-links">
-            I also built <a href={nest.url} rel="noopener">nestnrestcleaning.com</a> from scratch for my own home-cleaning business,
-            {nest.name}. It starts taking clients in summer 2027, and I’ll clean every home myself.
+            I also built{' '}
+            {nest.siteLive ? (
+              <a href={nest.url} rel="noopener">nestnrestcleaning.com</a>
+            ) : (
+              <a href={businessHref(nest)}>the {nest.name} website</a>
+            )}{' '}
+            from scratch for my own home-cleaning business{nest.siteLive ? `, ${nest.name}` : ''}. It starts taking clients in summer 2027, and I’ll clean every home myself.
           </p>
         </li>
       </ol>
@@ -246,8 +254,12 @@ const jsonLd = { '@context': 'https://schema.org', '@type': 'AboutPage', mainEnt
         <p class="muted biz__desc">{nest.description}</p>
       </div>
       <div class="btn-row">
-        <Button href={nest.url} variant="ghost" icon="arrow-ne" rel="noopener">Visit {nest.name}</Button>
-        <Button href="/work/nest-and-rest-cleaning/">Read the case study</Button>
+        {nest.siteLive && (
+          <Button href={nest.url} variant="ghost" icon="arrow-ne" rel="noopener">
+            Visit {nest.name}
+          </Button>
+        )}
+        <Button href={nest.caseStudy}>Read the case study</Button>
       </div>
     </div>
   </section>

@@ -75,6 +75,7 @@ Cloudflare Workers, connected to GitHub: build command `npm run build:cloudflare
 | [`docs/05-launch-and-integrations.md`](docs/05-launch-and-integrations.md) | Enquiry pipeline, analytics, SEO, Search Console, hosting, costs |
 | [`docs/06-qa-report.md`](docs/06-qa-report.md) | Test results, Lighthouse, accessibility, captures, rubric |
 | [`docs/07-audit-round-2.md`](docs/07-audit-round-2.md) | Audit round 2 (1 Nov 2026): contact-form diagnosis, changes, verification, before/after score, SEO plan, handover |
+| [`docs/21-growth-seo-launch.md`](docs/21-growth-seo-launch.md) | Growth and SEO launch (10 Nov 2026): service-led hero, search copy, structured data, services overview, redirects, release checklist |
 | [`docs/08-studio-redesign.md`](docs/08-studio-redesign.md) | Studio-style redesign: hero, menu, work list, footer, motion and checks |
 | [`docs/09-audit-round-3.md`](docs/09-audit-round-3.md) | Audit round 3: contact warning diagnosed, hero actions, touch work rows, package comparison |
 | [`docs/10-round-4-original-design.md`](docs/10-round-4-original-design.md) | Round 4: original "front desk" design, Cloudflare Email form delivery, info@ + Call/WhatsApp/Text, zero overlaps, scorecard |

@@ -15,6 +15,7 @@ import Icon from './ui/Icon.astro';
 import ContactActions from './ContactActions.astro';
 import SocialLinks from './SocialLinks.astro';
 import Wordmark from './ui/Wordmark.astro';
+import { businessHref } from '../lib/work';
 
 interface Props {
   cta?: boolean;
@@ -115,9 +116,9 @@ const nest = businesses[0];
       <SocialLinks class="ftr__social" />
       <ul role="list">
         <li>
-          <a class="link-quiet" href={nest.url} rel="noopener">
+          <a class="link-quiet" href={businessHref(nest)} rel={nest.siteLive ? 'noopener' : undefined}>
             {nest.name}
-            <Icon name="arrow-ne" />
+            <Icon name={nest.siteLive ? 'arrow-ne' : 'arrow'} />
           </a>
         </li>
       </ul>

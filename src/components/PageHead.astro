@@ -7,11 +7,13 @@ interface Props {
   lines: string[];
   lead?: string;
   class?: string;
+  /** Longer, descriptive titles (a service and a place): a smaller size and a wider measure. */
+  compact?: boolean;
 }
-const { eyebrow, lines, lead, class: cls } = Astro.props;
+const { eyebrow, lines, lead, class: cls, compact = false } = Astro.props;
 ---
 
-<header class:list={['ph', cls]}>
+<header class:list={['ph', compact && 'ph--compact', cls]}>
   <div class="container ph__inner">
     <p class="eyebrow">{eyebrow}</p>
     <Heading as="h1" lines={lines} class="ph__title" load />
@@ -35,6 +37,11 @@ const { eyebrow, lines, lead, class: cls } = Astro.props;
   .ph__inner :global(.ph__title) {
     font-size: var(--fs-h1);
     max-width: 16ch;
+  }
+  .ph--compact .ph__inner :global(.ph__title) {
+    font-size: clamp(2.25rem, 1.2rem + 3.3vw, 4.5rem);
+    max-width: 24ch;
+    line-height: 1;
   }
   .ph__lead {
     max-width: 52ch;

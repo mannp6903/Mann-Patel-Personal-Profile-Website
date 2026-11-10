@@ -38,7 +38,7 @@ import Icon from '../ui/Icon.astro';
               </span>
               <span class="eyebrow eyebrow--plain">{g.verb}</span>
             </p>
-            <h3 class="ss__name">{g.title}</h3>
+            <h3 class="ss__name">{servicePageForGroup(g.id)?.name ?? g.title}</h3>
             <p class="muted">{g.intro}</p>
             {packageFor[g.id] && (
               <p class="ss__pkg small">
@@ -46,7 +46,7 @@ import Icon from '../ui/Icon.astro';
               </p>
             )}
             <a class="link-arrow" href={servicePageForGroup(g.id) ? `/services/${servicePageForGroup(g.id)!.slug}/` : `/services/#${g.id}`}>
-              Who it’s for and what’s included <span class="visually-hidden">: {g.title}</span>
+              {servicePageForGroup(g.id)?.short ?? g.title}: who it’s for and what’s included
               <Icon name="arrow" />
             </a>
           </li>

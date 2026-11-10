@@ -7,27 +7,19 @@ import Walkthrough from '../components/home/Walkthrough.astro';
 import FreeCheck from '../components/home/FreeCheck.astro';
 import AboutTeaser from '../components/home/AboutTeaser.astro';
 import Faq from '../components/Faq.astro';
-import { personJsonLd, servicesJsonLd } from '../lib/seo';
-import { absoluteUrl } from '../lib/mode';
-
-const jsonLd = {
-  '@context': 'https://schema.org',
-  '@type': 'ProfilePage',
-  ...(absoluteUrl('/') ? { url: absoluteUrl('/') } : {}),
-  mainEntity: personJsonLd(),
-};
+import { personWithServicesJsonLd, websiteJsonLd } from '../lib/seo';
 ---
 
 <!--
-  Order (audits of 8 Nov 2026): a compact hero, the real work straight after it, a labelled
+  Order (audits of 8 and 10 Nov 2026): a service-led hero with the process strip, the real work straight after it, a labelled
   demonstration (round 10), three short service summaries with their packages, the free check,
   how I work, questions and the closing call to action.
 -->
 <BaseLayout
   title="Home"
-  fullTitle="Mann Patel · Websites, local search and enquiry follow-up · Toronto service businesses"
-  description="Mann Patel builds clear websites, sets up Google and Maps listings, and connects calls, forms and messages so Toronto service businesses, especially in North York and Scarborough, get found, answer every enquiry and get booked. See real projects and request a free check."
-  jsonLd={[jsonLd, servicesJsonLd()]}
+  fullTitle="Mann Patel | Web Design & Local SEO in Toronto"
+  description="I build websites, improve local SEO and connect enquiry follow-up for Toronto service businesses. Start with a free website and Google check."
+  jsonLd={[websiteJsonLd(), personWithServicesJsonLd()]}
 >
   <Hero />
   <SelectedWork />

@@ -1,6 +1,13 @@
 import { test, expect, type Page } from '@playwright/test';
 import AxeBuilder from '@axe-core/playwright';
 import { readFile } from 'node:fs/promises';
+import { readFileSync } from 'node:fs';
+
+// The Nest & Rest address is switched off in src/data/site.ts while it can't be reached
+// (`siteLive`, growth audit of 10 Nov 2026). These tests follow the switch either way.
+const NEST_URL = 'https://nestnrestcleaning.com/';
+const NEST_LIVE = /siteLive: true/.test(readFileSync('src/data/site.ts', 'utf8'));
+const NEST_STATUS = NEST_LIVE ? 'Website live' : 'Launched Oct 2026 · live link paused';
 
 const PAGES = [
   '/',
@@ -88,11 +95,102 @@ test.describe('pages', () => {
     expect(missing).toEqual([]);
   });
 
-  test('outbound link to Nest & Rest is present on key pages', async ({ page }) => {
-    for (const path of ['/', '/about/', '/contact/']) {
+  test('Nest & Rest: links out only while its address loads; otherwise every mention goes to the case study', async ({ page }) => {
+    for (const path of ['/', '/about/', '/contact/', '/work/', '/work/nest-and-rest-cleaning/', '/services/web-design/', '/this-page-does-not-exist/']) {
       await page.goto(path);
-      await expect(page.locator('a[href="https://nestnrestcleaning.com/"]').first()).toBeAttached();
+      const out = page.locator(`a[href="${NEST_URL}"]`);
+      if (NEST_LIVE && ['/', '/about/', '/contact/'].includes(path)) await expect(out.first()).toBeAttached();
+      if (!NEST_LIVE) {
+        await expect(out).toHaveCount(0);
+        if (path !== '/this-page-does-not-exist/') await expect(page.locator('a[href="/work/nest-and-rest-cleaning/"]').first()).toBeAttached();
+      }
     }
+    if (!NEST_LIVE) {
+      // The case study says why, keeps its dated evidence, and structured data drops the address.
+      await page.goto('/work/nest-and-rest-cleaning/');
+      await expect(page.locator('.cs-paused')).toContainText('link to it is paused');
+      await expect(page.locator('.cs-head')).not.toContainText('Visit Nest & Rest');
+      await page.goto('/');
+      const ld = (await page.$$eval('script[type="application/ld+json"]', (s) => s.map((x) => x.textContent || ''))).join(' ');
+      expect(ld).not.toContain('nestnrestcleaning.com');
+      expect(ld).toContain('Nest & Rest Cleaning');
+    }
+  });
+
+  // The copy map from the growth report (10 Nov 2026): each page names its service and the place.
+  const COPY: [string, string, string, string][] = [
+    ['/', 'Mann Patel | Web Design & Local SEO in Toronto', 'Web design and local SEO for Toronto service businesses', 'I build websites, improve local SEO and connect enquiry follow-up for Toronto service businesses. Start with a free website and Google check.'],
+    ['/services/', 'Website, Local SEO & Booking Services | Mann Patel', 'Website, local SEO and enquiry services', 'Compare web design, local SEO, Google Business Profile setup and enquiry automation for Toronto service businesses. See packages and request a quote.'],
+    ['/services/web-design/', 'Toronto Small Business Web Design | Mann Patel', 'Web design for Toronto small businesses', 'Get a mobile-friendly website or redesign with clear service pages, a tested enquiry path and a written handover. See projects and ask for a quote.'],
+    ['/services/local-visibility/', 'Local SEO & Google Business Profile Setup in Toronto | Mann Patel', 'Local SEO and Google Business Profile setup in Toronto', 'Improve your Google presence with eligible profile setup, listing updates and a review workflow. Ask about SEO foundations and an AI search check.'],
+    ['/services/enquiry-follow-up/', 'Enquiry Automation & Online Booking in Toronto | Mann Patel', 'Enquiry follow-up and online booking for Toronto businesses', 'Set up missed-call text-back, form follow-up or an online booking path with tools you own. Get one scoped workflow, tested and documented.'],
+    ['/work/', 'Toronto Small Business Website Projects | Mann Patel', 'Website projects for Toronto service businesses', 'See the Nest & Rest Cleaning website case study and Samp Hair & Spa preview, with dated work, project status and documented checks.'],
+  ];
+  test('search copy: titles, H1s and descriptions name the service and the place', async ({ page }) => {
+    for (const [path, title, h1, description] of COPY) {
+      await page.goto(path);
+      expect(await page.title(), path).toBe(title);
+      expect((await page.locator('h1').innerText()).replace(/\s+/g, ' ').trim(), path).toBe(h1);
+      await expect(page.locator('meta[name="description"]')).toHaveAttribute('content', description);
+      await expect(page.locator('meta[property="og:title"]')).toHaveAttribute('content', title);
+    }
+    // Case-study titles describe the work; the H1 stays the project's name.
+    await page.goto('/work/nest-and-rest-cleaning/');
+    expect(await page.title()).toBe('Nest & Rest Cleaning Website Case Study | Mann Patel');
+    await expect(page.locator('h1')).toHaveText('Nest & Rest Cleaning');
+    await page.goto('/work/samp-hair-spa/');
+    expect(await page.title()).toBe('Samp Hair & Spa Website Preview | Mann Patel');
+    // Every page has its own title and description.
+    const titles = new Set<string>();
+    const descriptions = new Set<string>();
+    for (const path of PAGES) {
+      await page.goto(path);
+      titles.add(await page.title());
+      descriptions.add((await page.locator('meta[name="description"]').getAttribute('content'))!);
+    }
+    expect(titles.size).toBe(PAGES.length);
+    expect(descriptions.size).toBe(PAGES.length);
+  });
+
+  test('structured data: one Person with a stable id, a WebSite on the home page, services that point to him', async ({ page }) => {
+    const graph = async (path: string) => {
+      await page.goto(path);
+      const blocks = await page.$$eval('script[type="application/ld+json"]', (s) => s.map((x) => JSON.parse(x.textContent || '{}')));
+      return { blocks, text: JSON.stringify(blocks) };
+    };
+    const home = await graph('/');
+    const person = home.blocks.find((b) => b['@type'] === 'Person');
+    const site = home.blocks.find((b) => b['@type'] === 'WebSite');
+    expect(person['@id']).toMatch(/\/#person$/);
+    expect(person.name).toBe('Mann Patel');
+    expect(site['@id']).toMatch(/\/#website$/);
+    expect(site.name).toBe('Mann Patel');
+    expect(site.publisher['@id']).toBe(person['@id']);
+    // The deprecated general type is gone everywhere; the profile page is About.
+    for (const path of ['/', '/services/', '/about/', '/services/web-design/']) expect((await graph(path)).text).not.toContain('ProfessionalService');
+    expect(home.text).not.toContain('ProfilePage');
+    const about = await graph('/about/');
+    const profilePage = about.blocks.find((b) => b['@type'] === 'ProfilePage');
+    expect(profilePage.mainEntity['@id']).toBe(person['@id']);
+    for (const slug of ['web-design', 'local-visibility', 'enquiry-follow-up']) {
+      const svc = (await graph(`/services/${slug}/`)).blocks.find((b) => b['@type'] === 'Service');
+      expect(svc.provider['@id']).toBe(person['@id']);
+      expect(JSON.stringify(svc.areaServed)).toContain('Toronto');
+    }
+  });
+
+  test('analytics stays off until a measurement ID is set: no banner and no requests to Google', async ({ page }) => {
+    const google: string[] = [];
+    page.on('request', (r) => /google-analytics|googletagmanager/.test(r.url()) && google.push(r.url()));
+    for (const path of ['/', '/contact/?package=check-up#check']) {
+      await page.goto(path);
+      await page.waitForTimeout(400);
+      await expect(page.locator('[data-consent]')).toHaveCount(0);
+    }
+    expect(google).toEqual([]);
+    // The hero is a named place, so a click on its free-check button can be told apart from the footer's.
+    await page.goto('/');
+    await expect(page.locator('section#hero a[href="/contact/?package=check-up#check"]')).toHaveCount(1);
   });
 
   test('robots.txt blocks indexing on previews', async ({ request }) => {
@@ -107,7 +205,7 @@ test.describe('pages', () => {
       expect(blocks.length).toBeGreaterThan(0);
       // No rating, street address or award properties (the words may appear in answers, e.g. "home address hidden").
       for (const b of blocks) expect(JSON.stringify(JSON.parse(b))).not.toMatch(/"(aggregateRating|address|award)":/i);
-      if (path === '/' || path === '/services/') expect(blocks.join(' ')).toContain('"ProfessionalService"');
+      if (path === '/' || path === '/services/') expect(blocks.join(' ')).toContain('"OfferCatalog"');
       if (path.startsWith('/services/') && path !== '/services/') expect(blocks.join(' ')).toContain('"Service"');
       // No price in structured data unless the page shows one.
       const shown = await page.locator('[data-price]').allInnerTexts();
@@ -141,24 +239,35 @@ test.describe('layout', () => {
     [768, 1024],
     [1440, 900],
   ]) {
-    test(`hero promise is the H1 and "Start a project" is visible without scrolling at ${w}px`, async ({ page }) => {
+    test(`the service-led H1 and the free-check button are visible without scrolling at ${w}px`, async ({ page }) => {
       await page.setViewportSize({ width: w, height: h });
       await page.goto('/');
+      // The H1 names the service and the place (growth report, 10 Nov 2026); the slogan moved to the process strip.
       const h1 = page.locator('h1');
-      await expect(h1).toContainText('Found.');
-      await expect(h1).toContainText('Websites, local search and enquiry follow-up for Toronto service businesses.');
-      const cta = page.locator('.hero').getByRole('link', { name: 'Start a project' });
+      expect((await h1.innerText()).replace(/\s+/g, ' ').trim()).toBe('Web design and local SEO for Toronto service businesses');
+      await expect(h1).toBeInViewport();
+      const hero = page.locator('.hero');
+      await expect(hero.locator('.hero__where')).toHaveText('Mann Patel · Independent website designer');
+      const cta = hero.getByRole('link', { name: 'Get a free website and Google check' });
       await expect(cta).toBeInViewport();
-      await expect(page.locator('.hero').getByRole('link', { name: 'See selected work' })).toHaveAttribute('href', '#work');
+      await expect(cta).toHaveAttribute('href', '/contact/?package=check-up#check');
+      await expect(hero.getByRole('link', { name: 'See the work' })).toHaveAttribute('href', '/work/');
+      await expect(hero).toContainText('Serving North York, Scarborough and the GTA. Your domain and accounts stay in your name.');
+      // Both actions come before anything else focusable in the hero.
+      const firstTwo = await hero.locator('a, button').evaluateAll((els) => els.slice(0, 2).map((e) => e.textContent!.replace(/\s+/g, ' ').trim()));
+      expect(firstTwo[0]).toContain('Get a free website and Google check');
+      expect(firstTwo[1]).toContain('See the work');
     });
   }
 
   // Acceptance targets from the 8 Nov 2026 audit: real work comes straight after a compact hero.
   // Round 8 added the tuner (dial and caption) to the phone hero, so the phone target moved down
   // by its height; on desktop the tuner sits beside the copy and nothing moved.
+  // 10 Nov 2026 (growth report): the hero gained the explained Found / Answered / Booked strip
+  // and a "See the work" button, so the targets moved down by the strip's height.
   for (const [w, h, maxHeading, maxCard] of [
-    [1440, 1000, 1100, 1500],
-    [390, 844, 1450, 1560],
+    [1440, 1000, 1150, 1500],
+    [390, 844, 1680, 1780],
   ]) {
     test(`selected work starts by y=${maxHeading} at ${w}x${h}`, async ({ page }) => {
       await page.setViewportSize({ width: w, height: h });
@@ -288,15 +397,23 @@ test.describe('home interactions', () => {
     await expect(page.locator('[data-tune]')).not.toHaveClass(/is-locked/);
   });
 
-  test('the headline acts out its words, rests in the finished state, and replays on hover', async ({ page }) => {
+  test('the process strip explains Found, Answered, Booked; the words act themselves out and replay on hover', async ({ page }) => {
     await page.setViewportSize({ width: 1440, height: 900 });
     await page.goto('/');
-    const h1 = page.locator('h1');
-    await expect(h1).toContainText('Found.');
-    await expect(h1).toContainText('Answered.');
-    await expect(h1).toContainText('Booked.');
+    await expect(page.locator('h1')).not.toContainText('Found.');
+    const strip = page.locator('.hero__steps');
+    const steps = strip.locator('li');
+    await expect(steps).toHaveCount(3);
+    // Each word comes with what it means in plain words; "Booked" keeps a request apart from a confirmation.
+    await expect(steps.nth(0)).toContainText('Found.');
+    await expect(steps.nth(0)).toContainText('local search');
+    await expect(steps.nth(1)).toContainText('Answered.');
+    await expect(steps.nth(1)).toContainText('follow-up');
+    await expect(steps.nth(2)).toContainText('Booked.');
+    await expect(steps.nth(2)).toContainText('request');
+    await expect(steps.nth(2)).toContainText('confirm');
     // The pin, bubble, ticks and circle are decoration: hidden from screen readers, no text.
-    const deco = h1.locator('[aria-hidden="true"]');
+    const deco = strip.locator('.hw [aria-hidden="true"]');
     expect(await deco.count()).toBeGreaterThanOrEqual(5);
     expect((await deco.allTextContents()).join('').trim()).toBe('');
     // Finished: pin on the full stop, read ticks drawn, "Booked." circled.
@@ -328,6 +445,13 @@ test.describe('home interactions', () => {
       await expect(page.locator(`#what-i-do a[href="/services/${slug}/"]`)).toBeVisible();
     for (const name of ['Local Visibility Setup', 'Website + Enquiry System', 'Website Launch'])
       await expect(page.locator('#what-i-do')).toContainText(`Package: ${name}`);
+    // Plain service names on the cards, and links that name the service they lead to.
+    for (const name of ['Local SEO and Google Business Profile', 'Enquiry follow-up and online booking', 'Web design and redesign'])
+      await expect(page.locator('#what-i-do').getByRole('heading', { name })).toBeVisible();
+    await expect(page.locator('#what-i-do a[href="/services/web-design/"]')).toContainText('Web design');
+    // Case studies link to the service they are evidence for.
+    await page.goto('/work/nest-and-rest-cleaning/');
+    await expect(page.locator('main a[href="/services/web-design/"]').first()).toContainText('Web design service');
   });
 
   test('the home page shows a labelled walkthrough with fictional data, keyboard-operable', async ({ page }) => {
@@ -463,16 +587,19 @@ test.describe('phones: short pages', () => {
   // Round 10 (competitor audit, which judges sections by usefulness rather than length) added the
   // labelled walkthrough to Home, package boundaries to Services and the professional intro to About.
   const BUDGET: Record<string, number> = {
-    '/': 12.5, // the real photo in the phone hero, the labelled walkthrough, and call/WhatsApp in the footer
-    '/services/': 13.5,
+    // 10 Nov 2026 (growth report): the explained process strip on Home, the three named services
+    // at the top of Services, the repair option, the AI search check, the scoped follow-up options
+    // with a sample test log, and "Offered as" links on case studies each add part of a screen.
+    '/': 12.75, // the real photo in the phone hero, the labelled walkthrough, and call/WhatsApp in the footer
+    '/services/': 14.75,
     '/work/': 4.5,
-    '/work/nest-and-rest-cleaning/': 7,
-    '/work/samp-hair-spa/': 7,
+    '/work/nest-and-rest-cleaning/': 7.25,
+    '/work/samp-hair-spa/': 7.25,
     '/about/': 7.5,
     '/contact/': 3.5,
-    '/services/web-design/': 10.75,
-    '/services/local-visibility/': 9.5,
-    '/services/enquiry-follow-up/': 10.5,
+    '/services/web-design/': 11.5,
+    '/services/local-visibility/': 10.75,
+    '/services/enquiry-follow-up/': 12.5,
     '/pricing/': 11.5,
   };
   for (const [path, max] of Object.entries(BUDGET)) {
@@ -519,7 +646,7 @@ test.describe('phones: short pages', () => {
       }
       expect(boxes[1].top).toBeGreaterThan(boxes[0].top);
       await expect(page.locator('#work [data-rail]')).toHaveCount(0);
-      await expect(cards.first()).toContainText('Website live');
+      await expect(cards.first()).toContainText(NEST_STATUS);
       await expect(cards.first()).toContainText('Business opens summer 2027');
       await expect(cards.nth(1)).toContainText('In progress');
       await noHorizontalOverflow(page);
@@ -648,6 +775,73 @@ test.describe('services', () => {
     await page.goto('/services/');
     for (const slug of ['web-design', 'local-visibility', 'enquiry-follow-up'])
       await expect(page.locator(`main a[href="/services/${slug}/"]`).first()).toBeVisible();
+  });
+
+  test('services overview: three named paths and the package comparison come first; every old anchor still works', async ({ page }) => {
+    await page.setViewportSize({ width: 1440, height: 900 });
+    await page.goto('/services/');
+    const paths = page.locator('#paths');
+    for (const [slug, name, pkg] of [
+      ['web-design', 'Web design and redesign', 'Website Launch'],
+      ['local-visibility', 'Local SEO and Google Business Profile', 'Local Visibility Setup'],
+      ['enquiry-follow-up', 'Enquiry follow-up and online booking', 'Website + Enquiry System'],
+    ]) {
+      const card = paths.locator('li', { has: page.locator(`a[href="/services/${slug}/"]`) });
+      await expect(card).toContainText(name);
+      await expect(card).toContainText(pkg);
+    }
+    const top = (id: string) => page.evaluate((i) => document.getElementById(i)!.getBoundingClientRect().top + scrollY, id);
+    expect(await top('paths')).toBeLessThan(await top('packages'));
+    expect(await top('packages')).toBeLessThan(await top('found'));
+    await expect(page.locator('#packages table')).toBeVisible();
+    // Links shared before today keep landing somewhere.
+    for (const id of ['found', 'answered', 'booked', 'extras', 'packages', 'check', 'process', 'faq', 'websites', 'seo', 'enquiry-workflows', 'social-content', 'print-design', 'business-profile', 'listings', 'local-plan', 'maintenance', 'booking', 'missed-calls'])
+      await expect(page.locator(`#${id}`), id).toHaveCount(1);
+  });
+
+  test('Brand & Content Sprint: a bounded add-on on the overview, with what is quoted separately', async ({ page }) => {
+    // It is the first add-on, and a link to it opens it like any other service.
+    await page.goto('/services/#brand-content');
+    const sprint = page.locator('#brand-content');
+    await expect(sprint).toHaveAttribute('open', '');
+    await expect(sprint).toContainText('Brand & Content Sprint');
+    await expect(sprint).toContainText('Three captioned post designs');
+    await expect(sprint).toContainText('Two Reel hooks');
+    await expect(sprint).toContainText('Quoted separately');
+    await expect(sprint).toContainText('Filming and editing');
+    await expect(sprint.getByRole('link', { name: 'Ask about the sprint' })).toHaveAttribute('href', '/contact/?service=social-content#brief');
+    // Not a page of its own until there is owner-approved sample work to show.
+    expect((await page.request.get('/services/brand-content/')).status()).toBe(404);
+  });
+
+  test('service pages name what is sold: a repair option, the AI search check, and scoped follow-up options', async ({ page }) => {
+    await page.goto('/services/web-design/');
+    const repair = page.locator('#repair');
+    await expect(repair).toContainText('repair');
+    await expect(repair).toContainText('one agreed page or one enquiry path');
+    await expect(repair.getByRole('link', { name: /free check/i })).toHaveAttribute('href', '/contact/?package=check-up#check');
+    await expect(page.locator('main')).toContainText('website redesign');
+    await expect(page.locator('main')).toContainText('Website Care');
+    await expect(page.locator('main')).toContainText('30 minutes');
+
+    await page.goto('/services/local-visibility/');
+    const ai = page.locator('#ai-search');
+    await expect(ai).toContainText('AI search visibility');
+    await expect(ai).toContainText('generative engine optimization');
+    await expect(ai).toContainText('answer engine optimization');
+    await expect(ai).toContainText('No one can guarantee');
+    await expect(page.locator('a[href="https://developers.google.com/search/docs/appearance/ai-features"]')).toBeVisible();
+    for (const term of ['Google Business Profile', 'Google Maps', 'genuine review', 'local SEO']) await expect(page.locator('main')).toContainText(term);
+
+    await page.goto('/services/enquiry-follow-up/');
+    for (const term of ['Missed-call text-back', 'Form follow-up', 'alert', 'Online booking set-up']) await expect(page.locator('main')).toContainText(term);
+    const log = page.locator('#test-log');
+    await expect(log).toContainText('Sample · fictional test log');
+    await expect(log).toContainText('handed to the owner');
+    await expect(log).toContainText('Request');
+    await expect(log).toContainText('only after the booking tool confirms');
+    // No chatbot is sold until there is a tested pilot to stand behind.
+    await expect(page.locator('main')).not.toContainText(/chatbot (pilot|set-?up) available/i);
   });
 
   test('pricing: built for review, but not linked while no price is approved', async ({ page }) => {
@@ -999,7 +1193,7 @@ test.describe('motion (restrained in round 7)', () => {
   test('buttons lean toward the pointer and settle back when it leaves', async ({ page }) => {
     await page.setViewportSize({ width: 1440, height: 900 });
     await page.goto('/');
-    const btn = page.locator('.hero').getByRole('link', { name: 'Start a project' });
+    const btn = page.locator('.hero').getByRole('link', { name: 'Get a free website and Google check' });
     const box = (await btn.boundingBox())!;
     await page.mouse.move(box.x + box.width * 0.9, box.y + box.height * 0.8, { steps: 4 });
     await expect.poll(() => btn.evaluate((e) => (e as HTMLElement).style.translate)).not.toBe('');
@@ -1060,7 +1254,7 @@ test.describe('motion (restrained in round 7)', () => {
 
 test.describe('case studies (round 7)', () => {
   for (const [path, website, extra] of [
-    ['/work/nest-and-rest-cleaning/', 'Website live', 'Business opens summer 2027'],
+    ['/work/nest-and-rest-cleaning/', NEST_STATUS, 'Business opens summer 2027'],
     ['/work/samp-hair-spa/', 'In progress, preview online', null],
   ] as const) {
     test(`${path} leads with a summary and shows dated, real test evidence`, async ({ page, request }) => {

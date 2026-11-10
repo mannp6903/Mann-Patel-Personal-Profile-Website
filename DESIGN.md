@@ -97,11 +97,14 @@ Content width `--container` 90rem with `--gutter` 1 → 3rem; text `--measure` 6
 desktop, one column on phones. Layouts alternate (split, full-bleed, sticky, list) so no two sections
 in a row look the same.
 
-**Home order (round 7; hero changed in rounds 8–10).** Hero (outcome headline + "for Toronto service
-businesses", two actions, and Mann's clear portrait) → **selected work** (both projects) → a labelled
-**walkthrough with fictional data** (round 10) → three service summaries, each naming its package → free
-check → how I work → questions → closing call to action. Real work starts by y≈920 at 1440×1000 and
-y≈1400 at 390×844 (tested; on phones the portrait is 5:4 and sits between the buttons and the work).
+**Home order (round 7; hero changed in rounds 8–10 and on 10 Nov 2026).** Hero (the service-led H1
+"Web design and local SEO for Toronto service businesses", the free-check button and "See the work",
+Mann's clear portrait, then the **process strip**: Found. Answered. Booked., each with what it means) →
+**selected work** (both projects) → a labelled **walkthrough with fictional data** (round 10) → three
+service summaries with plain names, each naming its package → free check → how I work → questions →
+closing call to action. Real work starts by y≈1120 at 1440×1000 and y≈1640 at 390×844 (tested; on
+phones the portrait is 5:4 and sits between the buttons and the strip). Why the H1 changed:
+[`docs/21-growth-seo-launch.md`](docs/21-growth-seo-launch.md).
 
 **Service pages (round 10).** `/services/` stays the overview (its `#anchors` still work) and links to
 three focused pages from one template (`pages/services/[slug].astro`, content in `data/service-pages.ts`):
@@ -172,9 +175,10 @@ hero words (weight and tracking settle in, and flash lime when the signal locks)
 Services, and the footer name. Everything is off under `prefers-reduced-motion`; content never waits
 on JavaScript.
 
-### The headline acts out its words (round 9)
+### The three words act out what they say (round 9; in the process strip since 10 Nov 2026)
 
-`Hero.astro` (markup and CSS) + `scripts/hero-words.ts` (replay). Each word plays a two-second
+The words are no longer the H1: they sit in the hero's three-step strip, each above one plain
+sentence. `Hero.astro` (markup and CSS) + `scripts/hero-words.ts` (replay). Each word plays a two-second
 scene that shows what it means, one after another, once, on arrival:
 
 | Word | Scene | Finished state |

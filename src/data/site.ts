@@ -11,6 +11,20 @@ import portraitImage from '../assets/mann-patel-portrait.jpg';
 export interface Business {
   name: string;
   url: string;
+  /**
+   * Does `url` load the real site today? While false, this site never links out to it: mentions go
+   * to `caseStudy`, the "Visit" button is hidden and the status reads `pausedStatus`
+   * (src/lib/work.ts). Check the address in a browser, then set true and run `npm run images`.
+   */
+  siteLive: boolean;
+  /** When `siteLive` was last checked (YYYY-MM-DD). */
+  siteChecked: string;
+  /** The case study on this site. */
+  caseStudy: string;
+  /** Website status shown on cards and the case study while the address is unreachable. */
+  pausedStatus: string;
+  /** One plain sentence on the case study while the address is unreachable. */
+  pausedNote: string;
   role: string;
   area: string;
   description: string;
@@ -20,8 +34,8 @@ export const profile = {
   name: 'Mann Patel',
   /** Short wordmark used in the header. */
   wordmark: 'Mann Patel',
-  headline: 'I help small businesses get found, answer every enquiry, and get booked.',
-  descriptor: 'Google profiles and reviews, enquiry follow-up and booking websites for small businesses in Toronto and the GTA',
+  headline: 'Web design and local SEO for Toronto service businesses.',
+  descriptor: 'Web design, local SEO and enquiry follow-up for service businesses in Toronto and the GTA',
   intro:
     'I’m Mann Patel, a Toronto small business founder. I help local businesses get found and chosen on Google, answer every enquiry fast, and turn website visits into bookings.',
   /** Public location: based in Toronto, serves the GTA (confirmed by Mann, 31 Oct 2026). */
@@ -63,6 +77,15 @@ export const businesses: Business[] = [
   {
     name: 'Nest & Rest Cleaning',
     url: 'https://nestnrestcleaning.com/',
+    // 10 Nov 2026: the growth audit reported a "site not found" page here earlier in the day;
+    // rechecked at 10:36 the same morning and the site loads, so the link stays on. If the address
+    // ever stops loading, set this to false: every mention then points at the case study instead.
+    siteLive: true,
+    siteChecked: '2026-11-10',
+    caseStudy: '/work/nest-and-rest-cleaning/',
+    pausedStatus: 'Launched Oct 2026 · live link paused',
+    pausedNote:
+      'The public address didn’t load when it was checked on 10 Nov 2026, so the link to it is paused. The screens and tests on this page come from the live site on the dates shown.',
     role: 'Founder & Owner',
     area: 'Scarborough and North York, Toronto',
     description:
