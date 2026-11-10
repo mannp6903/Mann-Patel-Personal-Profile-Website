@@ -20,9 +20,9 @@ interface Line {
   fade: Uint8Array; // background line strength: 0, 1, 2, or 3 = not drawn (soft oval vignette)
 }
 
-const INK = 'rgb(237 237 237)'; // --text
-const FAINT = ['rgb(237 237 237 / 0.035)', 'rgb(237 237 237 / 0.07)', 'rgb(237 237 237 / 0.12)'];
-const SIGNAL = '255 255 255'; // --signal
+const INK = 'rgb(242 241 236)'; // --text
+const FAINT = ['rgb(242 241 236 / 0.035)', 'rgb(242 241 236 / 0.07)', 'rgb(242 241 236 / 0.12)'];
+const SIGNAL = '212 248 74'; // --signal
 const easeOut = (t: number) => 1 - Math.pow(1 - t, 3);
 
 export function mountSignalPortrait(fig: HTMLElement) {

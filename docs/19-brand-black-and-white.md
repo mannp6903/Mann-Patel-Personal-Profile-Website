@@ -1,22 +1,23 @@
-# Brand update: MΛNN PΛTEL, black and white (10 Nov 2026)
+# Logo update: MΛNN PΛTEL (10 Nov 2026)
 
-Mann chose a new wordmark-only brand: **MΛNN PΛTEL**, his name in widely spaced capitals with the
+Mann chose a new wordmark-only logo: **MΛNN PΛTEL**, his name in widely spaced capitals with the
 two A's drawn without crossbars, in black and white. This round puts it on the site without changing
-layout, type, motion or copy.
+layout, type, motion, copy or colour.
+
+A first pass also turned the whole site black and white; Mann asked to bring the colour back, so the
+lime "Signal" palette stays exactly as it was. The logo itself is drawn in the text colour.
 
 ## What changed
 
 | Area | Before | Now | Files |
 | --- | --- | --- | --- |
 | Header logo | Live text "Mann Patel" (Signal Sans, letters widen on hover) + lime dot | Outlined MΛNN PΛTEL wordmark, 13–14 px tall, dims slightly on hover; the link keeps its accessible name | `src/components/ui/Wordmark.astro`, `src/components/Header.astro` |
-| Accent | Lime `#D4F84A` | White `#FFFFFF` (buttons, focus ring, highlights, the hero scenes, the tuner's static and lock flash, the signal field) | `src/styles/tokens.css`, `Hero.astro`, `TuneIn.astro`, `global.css`, `scripts/fx/field.ts`, `scripts/tune.ts`, `scripts/signal-portrait.ts` |
-| Greys | Warm (`#0B0B0C`, `#F2F1EC`…) | Neutral (`#000000`, `#EDEDED`, `#A1A1A1`, `#8F8F8F`…); every text colour still passes WCAG AA (table in `DESIGN.md`) | `src/styles/tokens.css` |
 | Favicon | Ink tile, M and lime dot | Black tile with a white Geist M | `public/favicon.svg`, `favicon-32.png`, `apple-touch-icon.png` |
-| Sharing images | Lime "Signal" card with the line portrait | Black card: the wordmark, "Found. Answered. Booked." and mannpatel.me; case-study cards recoloured | `scripts/make-images.mjs`, `scripts/make-project-cards.mjs`, `public/og/` |
+| Default sharing image | Lime "Signal" card with the line portrait | Black card: the wordmark, "Found. Answered. Booked." and mannpatel.me (case-study cards unchanged) | `scripts/make-images.mjs`, `public/og/default.png` |
 | Brand files | Fraunces wordmarks (5 files) | `mann-patel-wordmark.svg` (white), `mann-patel-wordmark-dark.svg` (black), `mann-patel-monogram.svg` | `public/brand/` |
 
-Not changed: the owner notification email (`src/lib/enquiry/email-html.ts`) keeps its lime badge,
-because only Mann sees it; the footer's kinetic name and the 404 mark are unchanged.
+Not changed: colours (tokens, effects, WebGL), the case-study sharing cards, the owner notification
+email, the footer's kinetic name and the 404 mark.
 
 ## The wordmark
 
@@ -36,4 +37,4 @@ delivered to Mann separately as `mannpatel-brand-kit.zip`.
 
 ## Rollback
 
-Revert the merge commit of this branch; the previous lime "Signal" colours and text wordmark return.
+Revert the merge commit of this branch; the previous text wordmark, favicon and sharing image return.

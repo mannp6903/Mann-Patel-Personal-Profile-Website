@@ -56,7 +56,7 @@ void main(){
   vec3 col=vec3(tex(uv+vec2(off,0.)).r,tex(uv).g,tex(uv-vec2(off,0.)).b);
   // Off-station the picture turns to lime monochrome (the site's signal colour).
   float l=dot(col,vec3(.2126,.7152,.0722));
-  vec3 lime=vec3(1.,1.,1.); // --signal (white since the Nov 2026 brand)
+  vec3 lime=vec3(.831,.973,.29);
   vec3 mono=mix(vec3(.03,.03,.035),lime,smoothstep(.05,.95,l));
   col=mix(col,mono,smoothstep(.15,.85,d));
   // Static.

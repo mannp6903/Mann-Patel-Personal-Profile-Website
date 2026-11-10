@@ -48,7 +48,7 @@ void main(){
   float rv=1.-smoothstep(u_intro*1.7-.3,u_intro*1.7,length(fd));
   float soft=noise(vec2(uv.x*asp,uv.y)*1.6+vec2(t*.05,-t*.03));
   float ga=smoothstep(.35,1.,soft)*focus*focus*u_glow*.07*rv;
-  vec3 lime=vec3(1.,1.,1.); // --signal (white since the Nov 2026 brand)
+  vec3 lime=vec3(.831,.973,.290);
 
   // Far from any dot: only the aurora (most pixels stop here).
   if(d>u_gap*.24){gl_FragColor=vec4(lime*ga,ga);return;}
@@ -87,7 +87,7 @@ void main(){
   float r=u_gap*(.04+.06*clamp(s,0.,1.5));
   float dotA=1.-smoothstep(r-.9*u_dpr,r+.35*u_dpr,d);
   float lit=clamp(m*1.4+ring*1.3+glow*.22,0.,1.);
-  vec3 ink=vec3(.6,.6,.6);
+  vec3 ink=vec3(.949,.945,.925);
   vec3 col=mix(ink,lime,lit);
   float alpha=dotA*clamp(.06+.22*n*n+glow*.32+m*.9+ring*.9,0.,1.)*crv;
   vec3 outc=col*alpha+lime*ga*(1.-alpha);

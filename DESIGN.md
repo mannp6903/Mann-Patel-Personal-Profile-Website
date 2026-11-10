@@ -1,9 +1,9 @@
 # DESIGN.md · "Signal" (round 5, Nov 2026), compact editorial portfolio (round 7)
 
-> **Brand update (10 Nov 2026): MΛNN PΛTEL, black and white.** The header logo is now the outlined
-> MΛNN PΛTEL wordmark (`components/ui/Wordmark.astro`, files in `public/brand/`), the lime accent is
-> replaced by white, and the greys are neutral. Layout, type and motion are unchanged. Details and
-> the full logo kit: [`docs/19-brand-black-and-white.md`](docs/19-brand-black-and-white.md).
+> **Logo update (10 Nov 2026): MΛNN PΛTEL.** The header logo is the outlined MΛNN PΛTEL wordmark
+> (`components/ui/Wordmark.astro`, files in `public/brand/`); the favicon is a white M on black.
+> Colours, layout, type and motion are unchanged: the lime accent stays. Details:
+> [`docs/19-brand-black-and-white.md`](docs/19-brand-black-and-white.md).
 
 The design system for mannpatel.me. Every page uses these tokens through the CSS variables in
 `src/styles/tokens.css`; components never use raw colours or one-off sizes.
@@ -25,29 +25,28 @@ kinetic name, the lime signal colour). Clearly different from the earlier "Front
 
 ## Colour
 
-Dark only (`color-scheme: dark`), black and white since 10 Nov 2026. Text contrast measured against `--bg`.
+Dark only (`color-scheme: dark`). Text contrast measured against `--bg`.
 
 | Token | Value | Role | Contrast |
 | --- | --- | --- | --- |
-| `--bg` | `#000000` | Page background | — |
-| `--bg-2` | `#0A0A0A` | Alternate sections, form fields | — |
-| `--surface` | `#141414` | Raised panels, menus, phone screens | — |
-| `--surface-2` | `#1C1C1C` | Hover on surfaces | — |
-| `--line` | `#262626` | Hairlines and dividers (decorative only) | — |
-| `--control` | `#737373` | Borders of inputs, checkboxes, outline buttons | 4.4:1 (≥ 3:1 for UI) |
-| `--text` | `#EDEDED` | Headings and body text | 17.9:1 |
-| `--text-2` | `#A1A1A1` | Secondary text, descriptions | 8.1:1 |
-| `--text-3` | `#8F8F8F` | Labels, captions, metadata | 6.5:1 |
-| `--signal` | `#FFFFFF` | The one accent: primary buttons, focus ring, highlights, live states | 21:1 |
-| `--on-signal` | `#000000` | Text and icons on `--signal` | 21:1 |
-| `--signal-wash` | `rgb(255 255 255 / 0.10)` | Selected chips, soft highlights | — |
-| `--error` | `#FF6B57` | Errors and destructive notices | 7.5:1 |
-| `--warn` | `#F5C451` | "Not connected" and preview notes | 12.9:1 |
-| `--paper` / `--ink` | `#EDEDED` / `#000000` | Inverted moments (rare): prose code, toasts | 17.9:1 |
+| `--bg` | `#0B0B0C` | Page background ("night") | — |
+| `--bg-2` | `#111113` | Alternate sections, form fields | — |
+| `--surface` | `#18181B` | Raised panels, menus, phone screens | — |
+| `--surface-2` | `#212125` | Hover on surfaces | — |
+| `--line` | `#2A2A2F` | Hairlines and dividers (decorative only) | — |
+| `--control` | `#6F6F78` | Borders of inputs, checkboxes, outline buttons | 3.95:1 (≥ 3:1 for UI) |
+| `--text` | `#F2F1EC` | Headings and body text | 17.4:1 |
+| `--text-2` | `#B3B2AB` | Secondary text, descriptions | 9.3:1 |
+| `--text-3` | `#8D8C86` | Labels, captions, metadata | 5.8:1 |
+| `--signal` | `#D4F84A` | The one accent: primary buttons, focus ring, highlights, live states | 16.2:1 |
+| `--on-signal` | `#0B0B0C` | Text and icons on `--signal` | 16.2:1 |
+| `--signal-wash` | `rgb(212 248 74 / 0.12)` | Selected chips, soft highlights | — |
+| `--error` | `#FF6B57` | Errors and destructive notices | 7.0:1 |
+| `--warn` | `#F5C451` | "Not connected" and preview notes | 12.1:1 |
+| `--paper` / `--ink` | `#F2F1EC` / `#0B0B0C` | Inverted moments (rare): prose code, toasts | 17.4:1 |
 
-Rules: the accent is white, and it marks *one* thing per view (the main button, the current state,
-the focus ring); everything else is neutral grey. Colour appears only for errors and warnings. No
-gradients on text, no purple, no glass.
+Rules: lime is never a background for long text; it marks *one* thing per view (the main button, the
+current state, the focus ring). No gradients on text, no purple, no glass.
 
 ## Typography
 

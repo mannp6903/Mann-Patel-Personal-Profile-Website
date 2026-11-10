@@ -53,26 +53,25 @@
   color-scheme: dark;
 
   /* ── Colour roles ── */
-  /* Black and white (Nov 2026 brand, MΛNN PΛTEL): neutral greys, white is the one accent. */
-  --bg: #000000;
-  --bg-2: #0a0a0a;
-  --surface: #141414;
-  --surface-2: #1c1c1c;
-  --line: #262626;
-  --control: #737373;
-  --text: #ededed;
-  --text-2: #a1a1a1;
-  --text-3: #8f8f8f;
-  --signal: #ffffff;
-  --signal-strong: #ffffff;
-  --on-signal: #000000;
-  --signal-wash: rgb(255 255 255 / 0.1);
+  --bg: #0b0b0c;
+  --bg-2: #111113;
+  --surface: #18181b;
+  --surface-2: #212125;
+  --line: #2a2a2f;
+  --control: #6f6f78;
+  --text: #f2f1ec;
+  --text-2: #b3b2ab;
+  --text-3: #8d8c86;
+  --signal: #d4f84a;
+  --signal-strong: #e4ff73;
+  --on-signal: #0b0b0c;
+  --signal-wash: rgb(212 248 74 / 0.12);
   --error: #ff6b57;
   --error-wash: rgb(255 107 87 / 0.1);
   --warn: #f5c451;
   --warn-wash: rgb(245 196 81 / 0.1);
-  --paper: #ededed;
-  --ink: #000000;
+  --paper: #f2f1ec;
+  --ink: #0b0b0c;
   --focus: var(--signal);
 
   /* ── Type ── */
