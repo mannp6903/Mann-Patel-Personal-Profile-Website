@@ -9,6 +9,7 @@ import ContactActions from './ContactActions.astro';
 import SocialLinks from './SocialLinks.astro';
 import Button from './ui/Button.astro';
 import Icon from './ui/Icon.astro';
+import Wordmark from './ui/Wordmark.astro';
 
 const path = Astro.url.pathname;
 const isCurrent = (href: string) => (href === '/' ? path === '/' : path.startsWith(href));
@@ -19,10 +20,7 @@ const sheetLinks = [{ href: '/', label: 'Home' }, ...nav, { href: '/contact/', l
   <div class="hdr__bar container">
     <a class="wordmark" href="/">
       <span class="visually-hidden">{profile.name}, home</span>
-      <span class="wordmark__name" aria-hidden="true">
-        {[...profile.name].map((ch) => (ch === ' ' ? <span class="wm-space"> </span> : <span class="wm-ch">{ch}</span>))}
-      </span>
-      <span class="wordmark__dot" aria-hidden="true"></span>
+      <Wordmark class="wordmark__logo" />
     </a>
 
     <p class="hdr__clock num" aria-hidden="true">
@@ -191,7 +189,7 @@ const sheetLinks = [{ href: '/', label: 'Home' }, ...nav, { href: '/contact/', l
     }
   }
   .hdr.is-scrolled {
-    background: rgb(11 11 12 / 0.82);
+    background: rgb(0 0 0 / 0.82);
     backdrop-filter: blur(14px) saturate(140%);
     border-bottom-color: var(--line);
   }
@@ -202,64 +200,30 @@ const sheetLinks = [{ href: '/', label: 'Home' }, ...nav, { href: '/contact/', l
     gap: var(--s-5);
   }
 
-  /* Wordmark: the letters widen one after another on hover. */
+  /* Wordmark: the outlined MΛNN PΛTEL logo (ui/Wordmark.astro), sized by its height. */
   .wordmark {
     display: inline-flex;
-    align-items: baseline;
-    gap: 0.18em;
-    min-height: var(--tap);
     align-items: center;
+    min-height: var(--tap);
+    color: var(--text);
     text-decoration: none;
-    font-size: 1.1875rem;
-    font-weight: 760;
-    letter-spacing: -0.03em;
-    white-space: nowrap;
+    flex-shrink: 0;
   }
-  .wordmark__name {
-    display: inline-flex;
+  /* The logo is a child component, so these selectors reach it with :global(). */
+  .wordmark :global(.wordmark__logo) {
+    display: block;
+    /* 11 px at 320 px wide (so the header fits beside Contact and Menu), 13 px from about 390 px. */
+    height: clamp(0.6875rem, 3.4vw, 0.8125rem);
+    width: auto;
+    transition: opacity var(--t-fast) var(--ease-out);
   }
-  .wm-ch {
-    display: inline-block;
-    font-stretch: 112%;
-    transition: font-stretch 600ms var(--ease-out), font-weight 600ms var(--ease-out);
+  .wordmark:hover :global(.wordmark__logo) {
+    opacity: 0.72;
   }
-  .wm-space {
-    width: 0.28em;
-  }
-  .wordmark:hover .wm-ch {
-    font-stretch: 125%;
-    font-weight: 860;
-  }
-  .wm-ch:nth-child(2) {
-    transition-delay: 30ms;
-  }
-  .wm-ch:nth-child(3) {
-    transition-delay: 60ms;
-  }
-  .wm-ch:nth-child(4) {
-    transition-delay: 90ms;
-  }
-  .wm-ch:nth-child(6) {
-    transition-delay: 120ms;
-  }
-  .wm-ch:nth-child(7) {
-    transition-delay: 150ms;
-  }
-  .wm-ch:nth-child(8) {
-    transition-delay: 180ms;
-  }
-  .wm-ch:nth-child(9) {
-    transition-delay: 210ms;
-  }
-  .wm-ch:nth-child(10) {
-    transition-delay: 240ms;
-  }
-  .wordmark__dot {
-    width: 0.42em;
-    height: 0.42em;
-    border-radius: 50%;
-    background: var(--signal);
-    transform: translateY(0.12em);
+  @media (min-width: 64em) {
+    .wordmark :global(.wordmark__logo) {
+      height: 0.875rem;
+    }
   }
 
   .hdr__clock {

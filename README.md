@@ -4,7 +4,7 @@ Personal profile and digital-services site for Mann Patel (production domain: **
 
 Built with **Astro 7** (static pages + one server endpoint for the project-brief form), vanilla TypeScript islands, and self-hosted OFL fonts. No CMS, no client framework, no tracking unless configured.
 
-**Design: "Signal", as a compact editorial portfolio (round 7, 8 Nov 2026).** Dark, with one lime accent and Mann's portrait drawn as a live signal. Real work comes straight after a compact hero (both projects, honestly labelled), then three service summaries, the free check, how I work and questions. Enquiries: a 3-step project brief and a 1-minute free check, with honest sending states and an email/copy fallback while direct delivery is off. Case studies lead with a summary and show dated, real test evidence. The system is in [`DESIGN.md`](DESIGN.md); round 7 (audit response, verification, remaining blocker, deploy and rollback) is in [`docs/14-round-7-editorial.md`](docs/14-round-7-editorial.md).
+**Design: "Signal", as a compact editorial portfolio (round 7, 8 Nov 2026), in the black-and-white MΛNN PΛTEL brand (10 Nov 2026).** Black, white and neutral greys, the outlined MΛNN PΛTEL wordmark in the header, and Mann's portrait as a live signal. Real work comes straight after a compact hero (both projects, honestly labelled), then three service summaries, the free check, how I work and questions. Enquiries: a 3-step project brief and a 1-minute free check, with honest sending states and an email/copy fallback while direct delivery is off. Case studies lead with a summary and show dated, real test evidence. The system is in [`DESIGN.md`](DESIGN.md); round 7 (audit response, verification, remaining blocker, deploy and rollback) is in [`docs/14-round-7-editorial.md`](docs/14-round-7-editorial.md).
 
 > **Status: content confirmed (31 Oct 2026).** All "To confirm" items are answered. Production deploys still run the pre-launch check, and the form's inbox address (`ENQUIRY_TO_EMAIL`) and phone number (`PUBLIC_CONTACT_PHONE`) are added in Cloudflare. See [`docs/OWNER-INPUTS.md`](docs/OWNER-INPUTS.md).
 
@@ -82,10 +82,11 @@ Cloudflare Workers, connected to GitHub: build command `npm run build:cloudflare
 | [`DESIGN.md`](DESIGN.md) | Round 5 design system "Signal": colour roles and contrast, type, spacing, components, imagery, motion |
 | [`docs/12-round-5-signal.md`](docs/12-round-5-signal.md) | Round 5: research, direction, every new feature, verification (tests, axe, Lighthouse), owner notes |
 | [`docs/13-round-6-live-signal.md`](docs/13-round-6-live-signal.md) | Round 6: the "Live Signal" effects layer, bugs fixed (incl. the local Cloudflare build), Lighthouse 99–100 |
+| [`docs/19-brand-black-and-white.md`](docs/19-brand-black-and-white.md) | Brand update: MΛNN PΛTEL wordmark, black-and-white palette, favicons and sharing images |
 | [`docs/14-round-7-editorial.md`](docs/14-round-7-editorial.md) | Round 7: the 8 Nov audit applied (work first, free-check path, honest delivery states, case-study evidence, package comparison), verification, the delivery blocker, deploy and rollback |
 | [`THIRD-PARTY-NOTICES.md`](THIRD-PARTY-NOTICES.md) | What the site uses that others made, and on what terms |
 | [`docs/OWNER-INPUTS.md`](docs/OWNER-INPUTS.md) | Questions and owner actions |
 
 ## Licences
 
-Fonts: Mona Sans (served as the subset "Signal Sans", renamed as its Reserved Font Name requires), Instrument Serif and Geist Mono, SIL Open Font License 1.1 (`public/fonts/LICENSES.txt`). The earlier wordmark files in `public/brand/` are outlined from Fraunces (SIL OFL 1.1). The portrait is Mann's own photo. Nest & Rest captures are screenshots of Mann's own website, nestnrestcleaning.com (live site, 31 Oct and 8 Nov 2026).
+Fonts: Mona Sans (served as the subset "Signal Sans", renamed as its Reserved Font Name requires), Instrument Serif and Geist Mono, SIL Open Font License 1.1 (`public/fonts/LICENSES.txt`). The MΛNN PΛTEL wordmark and monogram in `public/brand/` are outlined from Geist (Vercel, SIL OFL 1.1). The portrait is Mann's own photo. Nest & Rest captures are screenshots of Mann's own website, nestnrestcleaning.com (live site, 31 Oct and 8 Nov 2026).
