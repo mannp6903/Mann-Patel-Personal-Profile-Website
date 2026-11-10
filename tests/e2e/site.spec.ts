@@ -372,7 +372,6 @@ test.describe('home interactions', () => {
     await expect(tune).not.toHaveClass(/is-locked/);
     await page.keyboard.press('ArrowRight');
     await expect(tune).toHaveClass(/is-locked/);
-    await expect(page.locator('.hero')).toHaveClass(/is-locked/);
     await expect(dial).toHaveAttribute('aria-valuetext', '104.3 FM, signal locked');
     await expect(page.locator('[data-tune-status]')).toHaveText('Signal locked: Mann Patel, Toronto.');
     await expect.poll(detune).toBe(0);
@@ -387,6 +386,7 @@ test.describe('home interactions', () => {
     await expect(freq).toHaveText('104.3');
     await expect(page.locator('[data-tune]')).toHaveClass(/is-locked/);
     const screen = page.locator('[data-tune-screen]');
+    await screen.scrollIntoViewIfNeeded();
     const b = (await screen.boundingBox())!;
     await page.mouse.move(b.x + b.width * 0.6, b.y + b.height / 2);
     await page.mouse.down();
@@ -534,35 +534,34 @@ test.describe('home interactions', () => {
     });
   }
 
-  test('phones: Contact stays one tap away, and the clear portrait follows the buttons', async ({ page }) => {
+  test('phones: Contact stays one tap away, and the sculpture follows the buttons', async ({ page }) => {
     await page.setViewportSize({ width: 360, height: 800 });
     await page.goto('/');
     const cta = page.locator('[data-header]').getByRole('link', { name: 'Contact', exact: true });
     await expect(cta).toBeVisible();
     await expect(cta).toHaveAttribute('href', '/contact/');
     await expect(page.locator('[data-menu-open]')).toBeVisible();
+    const art = page.locator('[data-signal-sculpture]');
+    await expect(art).toBeVisible();
     const gap = await page.evaluate(
-      () => document.querySelector('[data-tune]')!.getBoundingClientRect().top - document.querySelector('.hero__actions')!.getBoundingClientRect().bottom,
+      () => document.querySelector('[data-signal-sculpture]')!.getBoundingClientRect().top - document.querySelector('.hero__actions')!.getBoundingClientRect().bottom,
     );
+    expect(gap).toBeGreaterThanOrEqual(0);
     expect(gap).toBeLessThan(60);
-    await page.locator('[data-tune-screen]').scrollIntoViewIfNeeded();
-    await page.waitForTimeout(1500);
-    await expect(page.locator('[data-tune]')).toHaveClass(/is-locked/);
-    await expect(page.locator('.hero')).not.toHaveClass(/is-tuning/);
   });
 
-  test('the real, whole photo is in the hero at every size, with the way into About', async ({ page }) => {
+  test('the founder section keeps the real, whole portrait and the way into About', async ({ page }) => {
     for (const [w, h] of [[390, 844], [820, 1180], [1440, 900]]) {
       await page.setViewportSize({ width: w, height: h });
       await page.goto('/');
-      const photo = page.locator('[data-tune] img');
+      const photo = page.locator('#how-i-work [data-tune] img');
+      await photo.scrollIntoViewIfNeeded();
       await expect(photo).toBeVisible();
       await expect(photo).toHaveAttribute('alt', /Mann Patel smiling/);
       await page.waitForFunction(() => (document.querySelector('[data-tune] img') as HTMLImageElement).naturalWidth > 0);
       await expect(page.locator('[data-tune]').getByRole('link', { name: 'Who is this guy?' })).toHaveAttribute('href', '/about/');
     }
-    await expect(page.locator('.hero__photo, #hero-art, .hero__avatar')).toHaveCount(0);
-    await expect(page.locator('section.about img')).toHaveCount(0);
+    await expect(page.locator('.hero [data-tune]')).toHaveCount(0);
   });
 
   test('without JavaScript, the header links show and content is visible', async ({ browser }) => {
@@ -571,7 +570,9 @@ test.describe('home interactions', () => {
     await page.goto('/');
     await expect(page.locator('.hdr__nav').getByRole('link', { name: 'Services' })).toBeVisible();
     await expect(page.locator('[data-menu-open]')).toBeHidden();
-    // The tuner without JavaScript: just the clear photo and its three lines; no dial.
+    await expect(page.locator('.signal-sculpture__poster')).toBeVisible();
+    await expect(page.locator('[data-signal-toggle]')).toBeHidden();
+    // The tuner without JavaScript: just the clear photo and its three lines.
     await expect(page.locator('[data-tune] img')).toBeVisible();
     expect(await page.locator('[data-tune] img').evaluate((e) => getComputedStyle(e).getPropertyValue('--d').trim())).toBe('0');
     await expect(page.locator('.tune__dial')).toBeHidden();
@@ -590,7 +591,7 @@ test.describe('phones: short pages', () => {
     // 10 Nov 2026 (growth report): the explained process strip on Home, the three named services
     // at the top of Services, the repair option, the AI search check, the scoped follow-up options
     // with a sample test log, and "Offered as" links on case studies each add part of a screen.
-    '/': 12.75, // the real photo in the phone hero, the labelled walkthrough, and call/WhatsApp in the footer
+    '/': 12.75, // sculpture, real work, the labelled walkthrough, and the founder’s portrait
     '/services/': 14.75,
     '/work/': 4.5,
     '/work/nest-and-rest-cleaning/': 7.25,
@@ -1176,8 +1177,29 @@ test.describe('motion (restrained in round 7)', () => {
     await page.mouse.move(400, 400);
     await page.waitForTimeout(1200);
     await expect(page.locator('.fx-field canvas')).toHaveCount(0);
+    await expect(page.locator('.signal-sculpture__poster')).toBeVisible();
+    await expect(page.locator('[data-signal-canvas]')).toBeHidden();
+    await expect(page.locator('[data-signal-toggle]')).toBeHidden();
     await expect(page.locator('[data-scramble] [aria-hidden="true"]')).toHaveCount(0);
     await ctx.close();
+  });
+
+  test('the signal sculpture renders and its keyboard control pauses and resumes the animation', async ({ page }) => {
+    await page.setViewportSize({ width: 1440, height: 900 });
+    await page.goto('/');
+    const canvas = page.locator('[data-signal-canvas]');
+    const snapshot = () => canvas.evaluate((node) => (node as HTMLCanvasElement).toDataURL());
+    await expect(canvas).toBeVisible();
+    const toggle = page.getByRole('button', { name: 'Pause signal animation' });
+    await toggle.focus();
+    await page.keyboard.press('Space');
+    await expect(toggle).toHaveAttribute('aria-pressed', 'true');
+    const still = await snapshot();
+    await page.waitForTimeout(150);
+    expect(await snapshot()).toBe(still);
+    await page.keyboard.press('Space');
+    await expect(toggle).toHaveAttribute('aria-pressed', 'false');
+    await expect.poll(snapshot).not.toBe(still);
   });
 
   test('removed effects stay removed: no marquee, cursor follower, tilt or scroll-lit text', async ({ page }) => {

@@ -47,8 +47,8 @@ const tx = ['Mann Patel, Toronto.', 'Builds websites that get found.', 'Built Ne
           sizes="(min-width: 64em) 30rem, (min-width: 40em) 19rem, min(26rem, 92vw)"
           format="webp"
           quality={80}
-          loading="eager"
-          fetchpriority="high"
+          loading="lazy"
+          decoding="async"
           class="tune__img"
           data-tune-img
         />
@@ -137,6 +137,14 @@ const tx = ['Mann Patel, Toronto.', 'Builds websites that get found.', 'Built Ne
     </figure>
   )
 }
+
+<script>
+  import { mountTuner } from '../../scripts/tune';
+  import { track } from '../../scripts/analytics';
+
+  document.querySelectorAll<HTMLElement>('[data-tune]').forEach(mountTuner);
+  addEventListener('tune:locked', (event) => track('tune_in', { method: (event as CustomEvent<{ how: string }>).detail.how }));
+</script>
 
 <style>
   .tune {

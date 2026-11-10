@@ -1,10 +1,4 @@
 ---
-/**
- * Selected work, straight after the hero: both real projects as image-led cards, side by side on
- * wide screens and stacked on phones (no sideways rail, so neither project can be missed).
- * Each card says what the relationship is, the website status (kept apart from whether the
- * business is trading), the customer problem and my role, then links to the case study.
- */
 import { getCollection } from 'astro:content';
 import Icon from '../ui/Icon.astro';
 import ProjectMedia from '../work/ProjectMedia.astro';
@@ -18,52 +12,52 @@ const fmtDate = (iso: string) =>
 <section class="sw section" id="work" aria-labelledby="work-title">
   <div class="container">
     <div class="sw__head">
-      <p class="eyebrow">Selected work</p>
-      <h2 id="work-title" class="sw__title">Real projects, <span class="accent">clearly labelled.</span></h2>
-      <a class="link-arrow sw__all" href="/work/">All work <Icon name="arrow" /></a>
+      <p class="eyebrow">01 / Selected work</p>
+      <h2 id="work-title" class="sw__title">Work in the wild<span>.</span></h2>
+      <a class="link-arrow sw__all" href="/work/">All work <Icon name="arrow-ne" /></a>
+      <p class="sw__intro">A business I’m building and a client site in progress. See what each project needed and how I approached it.</p>
     </div>
 
     <ol class="sw__list" role="list">
       {
-        work.map((w) => (
-          <li>
-            <article class="sw__card" aria-labelledby={`sw-${w.id}`} data-spotlight>
-              <a class="sw__media" href={`/work/${w.id}/`} tabindex="-1" aria-hidden="true">
-                <ProjectMedia scene={w.data.scene} sizes="(min-width: 64em) 42rem, 92vw" />
-              </a>
-              <div class="sw__body">
-                <p class="sw__labels">
-                  <span class="sw__tag">{w.data.relationship}</span>
-                  <span class:list={['sw__tag', projectSite(w.data).live ? 'sw__tag--live' : 'sw__tag--wip']}>
-                    <span class="sw__dot" aria-hidden="true" />
-                    {projectSite(w.data).websiteStatus}
-                  </span>
-                  {w.data.businessStatus && <span class="sw__tag">{w.data.businessStatus}</span>}
-                </p>
-                <h3 class="sw__name" id={`sw-${w.id}`}>
-                  <a href={`/work/${w.id}/`}>{w.data.title}</a>
-                </h3>
-                <dl class="sw__facts">
-                  <div>
-                    <dt>The problem</dt>
-                    <dd>{w.data.problem}</dd>
+        work.map((entry, index) => {
+          const project = entry.data;
+          const site = projectSite(project);
+          const href = `/work/${entry.id}/`;
+          return (
+            <li>
+              <article class="sw__card" aria-labelledby={`sw-${entry.id}`} data-spotlight>
+                <a class="sw__media" href={href} tabindex="-1" aria-hidden="true">
+                  <ProjectMedia scene={project.scene} sizes="(min-width: 64em) 49vw, 90vw" />
+                </a>
+                <div class="sw__body">
+                  <p class="sw__index num" aria-hidden="true">{String(index + 1).padStart(2, '0')} / {String(work.length).padStart(2, '0')}</p>
+                  <h3 class="sw__name" id={`sw-${entry.id}`}>
+                    <a href={href}>{project.title}</a>
+                  </h3>
+                  <p class="sw__labels">
+                    <span>{project.relationship}</span>
+                    <span class:list={['sw__state', { 'sw__state--live': site.live }]}>
+                      {site.websiteStatus}
+                    </span>
+                  </p>
+                  {project.businessStatus && <p class="sw__business">{project.businessStatus}</p>}
+                  <dl class="sw__facts">
+                    <div><dt>The problem</dt><dd>{project.problem}</dd></div>
+                    <div><dt>My role</dt><dd>{project.roleShort}</dd></div>
+                  </dl>
+                  <div class="sw__foot">
+                    <a class="link-arrow" href={href}>
+                      Read the case study <span class="visually-hidden">: {project.title}</span>
+                      <Icon name="arrow-ne" />
+                    </a>
+                    <p class="num sw__date">Checked {fmtDate(project.checked)}</p>
                   </div>
-                  <div>
-                    <dt>My role</dt>
-                    <dd>{w.data.roleShort}</dd>
-                  </div>
-                </dl>
-                <p class="sw__foot">
-                  <a class="link-arrow" href={`/work/${w.id}/`}>
-                    Read the case study <span class="visually-hidden">: {w.data.title}</span>
-                    <Icon name="arrow" />
-                  </a>
-                  <span class="num sw__date">Checked {fmtDate(w.data.checked)}</span>
-                </p>
-              </div>
-            </article>
-          </li>
-        ))
+                </div>
+              </article>
+            </li>
+          );
+        })
       }
     </ol>
   </div>
@@ -71,129 +65,118 @@ const fmtDate = (iso: string) =>
 
 <style>
   .sw {
-    padding-top: clamp(var(--s-6), 4vw, var(--s-8));
+    --text: #181a13;
+    --text-2: #43473b;
+    --text-3: #575a50;
+    --line: #c7c8ba;
+    --signal: #40541e;
+    --focus: #40541e;
+    padding-block: clamp(2.5rem, 6vw, 6rem);
+    background: #f0f0e8;
+    color: var(--text);
+    color-scheme: light;
   }
   .sw__head {
     display: grid;
-    grid-template-columns: 1fr auto;
+    grid-template-columns: minmax(0, 1fr) auto;
     align-items: end;
-    gap: var(--s-3) var(--s-5);
-    margin-bottom: clamp(var(--s-5), 3vw, var(--s-7));
-    padding-top: var(--s-5);
+    gap: var(--s-3) var(--s-4);
+    padding-top: var(--s-4);
+    margin-bottom: clamp(var(--s-6), 5vw, var(--s-9));
     border-top: 1px solid var(--line);
   }
-  .sw__head .eyebrow {
-    grid-column: 1 / -1;
-  }
+  .sw__head .eyebrow, .sw__intro { grid-column: 1 / -1; }
   .sw__title {
-    font-size: var(--fs-h2);
-    max-width: 18ch;
+    font-size: clamp(2.65rem, 8.5vw, 8.25rem);
+    letter-spacing: -0.085em;
+    line-height: 0.92;
+    font-weight: 650;
   }
-  .sw__all {
-    white-space: nowrap;
-  }
-  .sw__list {
-    display: grid;
-    gap: var(--s-5);
-  }
-  @media (min-width: 64em) {
-    .sw__list {
-      grid-template-columns: 1fr 1fr;
-      gap: var(--s-6);
-    }
-  }
-  .sw__list > li {
-    display: grid;
-  }
+  .sw__title span { color: var(--signal); }
+  .sw__intro { max-width: 58ch; color: var(--text-2); }
+  .sw__all { white-space: nowrap; }
+  .sw__list { display: grid; }
   .sw__card {
     display: grid;
-    grid-template-rows: auto 1fr;
-    border: 1px solid var(--line);
-    border-radius: var(--r-lg);
-    background: var(--surface);
-    overflow: hidden;
-    transition: border-color var(--t-base) var(--ease-out);
+    gap: var(--s-5);
+    padding-block: clamp(var(--s-4), 3vw, var(--s-7));
+    border-top: 1px solid var(--line);
   }
-  .sw__card:hover {
-    border-color: var(--control);
-  }
+  .sw__list > li:last-child { border-bottom: 1px solid var(--line); }
   .sw__media {
+    --bg-2: #bfc9c9;
+    position: relative;
     display: block;
+    align-self: start;
     text-decoration: none;
   }
-  .sw__media :global(.pm) {
-    border-radius: 0;
-  }
+  .sw__list > li:nth-child(even) .sw__media { --bg-2: #d5c4c9; }
+  .sw__media :global(.pm) { border-radius: 0; }
   .sw__body {
     display: grid;
-    align-content: start;
-    gap: var(--s-4);
-    padding: clamp(1.25rem, 2.5vw, 2rem);
+    align-content: center;
+    justify-items: start;
+    min-width: 0;
+    gap: var(--s-3);
   }
+  .sw__index, .sw__date {
+    color: var(--text-3);
+    font-size: var(--fs-xs);
+  }
+  .sw__name {
+    font-size: clamp(2.05rem, 4.25vw, 4.8rem);
+    font-weight: 625;
+    letter-spacing: -0.065em;
+    line-height: 0.98;
+    text-wrap: initial;
+  }
+  .sw__name a { text-decoration: none; }
+  .sw__name a:hover { color: var(--signal); }
   .sw__labels {
     display: flex;
     flex-wrap: wrap;
-    gap: var(--s-2);
+    gap: 0.35em 0.7em;
+    color: var(--text-3);
+    font-family: var(--font-mono);
+    font-size: 0.73rem;
   }
-  .sw__tag {
-    display: inline-flex;
-    align-items: center;
-    gap: 0.45em;
-    padding: 0.3em 0.7em;
+  .sw__labels > span {
+    padding: 0.32em 0.7em;
     border: 1px solid var(--line);
     border-radius: var(--r-pill);
-    font-family: var(--font-mono);
-    font-size: 0.75rem;
-    letter-spacing: 0.03em;
-    color: var(--text-2);
-    line-height: 1.3;
   }
-  .sw__dot {
-    width: 0.45rem;
-    height: 0.45rem;
-    border-radius: 50%;
-    background: var(--warn);
-  }
-  .sw__tag--live .sw__dot {
-    background: var(--signal);
-  }
-  .sw__name {
-    font-size: clamp(1.75rem, 1.3rem + 1.6vw, 2.6rem);
-    font-weight: 600;
-    letter-spacing: -0.04em;
-    line-height: 1;
-  }
-  .sw__name a {
-    text-decoration: none;
-  }
-  .sw__name a:hover {
-    color: var(--signal);
-  }
-  .sw__facts {
-    display: grid;
-    gap: var(--s-3);
-  }
+  .sw__state--live { color: var(--signal); }
+  .sw__business { color: var(--text-3); font-size: var(--fs-sm); }
+  .sw__facts { display: grid; gap: var(--s-2); }
   .sw__facts dt {
+    color: var(--text-3);
     font-family: var(--font-mono);
     font-size: var(--fs-xs);
     letter-spacing: var(--track-label);
     text-transform: uppercase;
-    color: var(--text-3);
   }
-  .sw__facts dd {
-    color: var(--text-2);
-    max-width: 58ch;
-  }
+  .sw__facts dd { color: var(--text-2); max-width: 47ch; }
   .sw__foot {
     display: flex;
     flex-wrap: wrap;
     align-items: center;
-    justify-content: space-between;
-    gap: var(--s-2) var(--s-4);
-    margin-top: var(--s-2);
+    gap: var(--s-2) var(--s-5);
   }
-  .sw__date {
-    font-size: var(--fs-xs);
-    color: var(--text-3);
+  @media (min-width: 64em) {
+    .sw__card {
+      grid-template-columns: minmax(0, 1.52fr) minmax(0, 1fr);
+      gap: clamp(var(--s-6), 5vw, var(--s-9));
+    }
+    .sw__list > li:nth-child(even) .sw__card { grid-template-columns: minmax(0, 1fr) minmax(0, 1.52fr); }
+    .sw__list > li:nth-child(even) .sw__media { grid-column: 2; grid-row: 1; }
+    .sw__list > li:nth-child(even) .sw__body { grid-column: 1; grid-row: 1; }
+  }
+  @media (max-width: 39.99em) {
+    .sw { padding-block: var(--s-6); }
+    .sw__head { grid-template-columns: 1fr; gap: var(--s-2); }
+    .sw__intro, .sw__facts dd { font-size: var(--fs-sm); }
+    .sw__index { display: none; }
+    .sw__body { gap: var(--s-2); }
+    .sw__all { grid-row: 4; justify-self: start; }
   }
 </style>

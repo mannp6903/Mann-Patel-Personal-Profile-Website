@@ -1,0 +1,113 @@
+---
+import { signalViewBox } from '../../scripts/signal-sculpture';
+import poster from '../../assets/signal-study.webp';
+
+interface Props {
+  class?: string;
+}
+const { class: cls } = Astro.props;
+const { width, height } = signalViewBox;
+---
+
+<figure class:list={['signal-sculpture', cls]} data-signal-sculpture>
+  <div class="signal-sculpture__stage" data-signal-stage aria-hidden="true">
+    <svg class="signal-sculpture__guide" viewBox={`0 0 ${width} ${height}`} fill="none" focusable="false">
+      <g stroke="currentColor" stroke-width="1">
+        <circle cx="320" cy="270" r="231" stroke-dasharray="2 8" />
+        <circle cx="320" cy="270" r="188" />
+        <ellipse cx="320" cy="270" rx="270" ry="88" transform="rotate(-31 320 270)" />
+        <path d="M320 26v488M33 270h574" stroke-dasharray="4 7" />
+        <path d="M39 69V40h29m504 0h29v29M39 471v29h29m504 0h29v-29" />
+      </g>
+      <g fill="currentColor">
+        <circle cx="320" cy="39" r="3" />
+        <circle cx="89" cy="270" r="3" />
+        <circle cx="551" cy="270" r="3" />
+        <circle cx="320" cy="501" r="3" />
+      </g>
+    </svg>
+    <img class="signal-sculpture__poster" src={poster.src} width={poster.width} height={poster.height} alt="" decoding="async" />
+    <canvas data-signal-canvas />
+    <span class="signal-sculpture__id num">FIG 01 <span>/</span> SIGNAL</span>
+    <span class="signal-sculpture__axis num">TOR <span>/</span> CA</span>
+  </div>
+  <figcaption class="signal-sculpture__caption">
+    <span>Signal study <span class="signal-sculpture__hint" aria-hidden="true">· Move to rotate</span></span>
+    <button type="button" data-signal-toggle aria-pressed="false" aria-label="Pause signal animation" hidden>
+      <svg viewBox="0 0 16 16" width="16" height="16" fill="none" aria-hidden="true" focusable="false">
+        <path class="signal-sculpture__pause" d="M6 4v8m4-8v8" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" />
+        <path class="signal-sculpture__play" d="m6 4 6 4-6 4z" fill="currentColor" />
+      </svg>
+    </button>
+  </figcaption>
+</figure>
+
+<script>
+  import { mountSignalSculpture } from '../../scripts/signal-sculpture';
+  document.querySelectorAll<HTMLElement>('[data-signal-sculpture]').forEach(mountSignalSculpture);
+</script>
+
+<style>
+  .signal-sculpture { position: relative; min-width: 0; width: 100%; }
+  .signal-sculpture__stage {
+    position: relative;
+    aspect-ratio: 640 / 540;
+    isolation: isolate;
+    background: radial-gradient(ellipse at 56% 52%, rgb(212 248 74 / 0.08), transparent 62%);
+  }
+  .signal-sculpture__guide,
+  .signal-sculpture__poster,
+  canvas { position: absolute; inset: 0; width: 100%; height: 100%; }
+  .signal-sculpture__guide { color: #454a34; }
+  .signal-sculpture__poster,
+  canvas {
+    pointer-events: none;
+    filter: drop-shadow(0 0 2rem rgb(171 227 65 / 0.13));
+  }
+  canvas,
+  [data-signal-frame] .signal-sculpture__poster { visibility: hidden; }
+  [data-signal-frame] canvas { visibility: visible; }
+  .signal-sculpture__id,
+  .signal-sculpture__axis {
+    position: absolute;
+    color: var(--text-3);
+    font-size: 0.68rem;
+    letter-spacing: 0.1em;
+  }
+  .signal-sculpture__id { top: 9.5%; left: 8.7%; }
+  .signal-sculpture__axis { right: 8.7%; bottom: 9.5%; }
+  .signal-sculpture__id span,
+  .signal-sculpture__axis span { color: var(--signal); }
+  .signal-sculpture__caption {
+    display: flex;
+    min-height: var(--tap);
+    align-items: center;
+    justify-content: space-between;
+    gap: var(--s-3);
+    margin-inline: 6.1%;
+    border-top: 1px solid var(--line);
+    color: var(--text-3);
+    font-family: var(--font-mono);
+    font-size: 0.75rem;
+  }
+  .signal-sculpture__hint { display: none; }
+  [data-signal-frame] .signal-sculpture__hint { display: inline; }
+  [data-signal-toggle] {
+    width: var(--tap);
+    height: var(--tap);
+    padding: 0;
+    border: 0;
+    background: transparent;
+    color: var(--text-2);
+    cursor: pointer;
+  }
+  [data-signal-toggle]:hover { color: var(--signal); }
+  [data-signal-toggle] svg { margin: auto; }
+  .signal-sculpture__play,
+  [aria-pressed='true'] .signal-sculpture__pause { display: none; }
+  [aria-pressed='true'] .signal-sculpture__play { display: initial; }
+  @media (prefers-reduced-motion: reduce) {
+    [data-signal-frame] .signal-sculpture__poster { visibility: visible; }
+    [data-signal-frame] canvas { visibility: hidden; }
+  }
+</style>
