@@ -13,7 +13,7 @@ What this website uses that was made by others, and on what terms. Checked 8 Nov
 | Mona Sans, served as **Signal Sans** | Fontsource latin subset, cut further by `scripts/subset-fonts.py` | SIL OFL 1.1 | A Modified Version; renamed because “Mona” is a Reserved Font Name. Notice and licence: `public/fonts/LICENSES.txt` |
 | Instrument Serif Italic | Fontsource latin subset, cut further | SIL OFL 1.1 | `public/fonts/LICENSES.txt` |
 | Geist Mono | Fontsource latin subset, cut further | SIL OFL 1.1 | `public/fonts/LICENSES.txt` |
-| Fraunces (outlines in older wordmark files in `public/brand/`) | Fraunces project | SIL OFL 1.1 | `public/fonts/LICENSES.txt` |
+| Geist (outlines in the MΛNN PΛTEL wordmark and monogram: `public/brand/`, `src/components/ui/Wordmark.astro`, `public/favicon.svg`) | Vercel, vercel/geist-font | SIL OFL 1.1 | `public/fonts/LICENSES.txt` |
 
 Everything else on the site (layouts, components, styles, the signal-line portrait, the WebGL dot
 field, the forms and their scripts) is original code in this repository.

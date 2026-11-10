@@ -1,5 +1,12 @@
 # DESIGN.md · "Signal" (round 5, Nov 2026), compact editorial portfolio (round 7)
 
+> **Logo update (10 Nov 2026): MΛNN PΛTEL.** The header logo is the outlined MΛNN PΛTEL wordmark
+> (`components/ui/Wordmark.astro`, files in `public/brand/`); the favicon is a white M on black.
+> To sit with the lighter logo, headlines are now semi-bold at normal width (weights 580–620, `font-stretch`
+> 100%, hover widening kept but softer) instead of heavy and expanded. Colours, layout and motion are
+> unchanged: the lime accent stays. Details:
+> [`docs/19-brand-black-and-white.md`](docs/19-brand-black-and-white.md).
+
 The design system for mannpatel.me. Every page uses these tokens through the CSS variables in
 `src/styles/tokens.css`; components never use raw colours or one-off sizes.
 
@@ -59,7 +66,7 @@ Self-hosted, SIL OFL 1.1, `font-display: swap`, metric-adjusted fallbacks.
 
 | Token | Size (fluid) | Line height | Weight · width | Use |
 | --- | --- | --- | --- | --- |
-| `--fs-display` | 3.4 → 10.5rem | 0.86 | 800 · 112–125 | Hero words, footer name |
+| `--fs-display` | 3.4 → 10.5rem | 0.86 | 620 · 100 (was 800 · 112–125 before 10 Nov 2026) | Hero words, footer name |
 | `--fs-h1` | 2.6 → 6rem | 0.95 | 720 · 110 | Page titles |
 | `--fs-h2` | 2 → 4rem | 1.0 | 680 · 108 | Section titles |
 | `--fs-h3` | 1.35 → 1.9rem | 1.15 | 620 · 104 | Item titles |

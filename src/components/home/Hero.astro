@@ -110,10 +110,10 @@ import TuneIn from './TuneIn.astro';
     flex-direction: column;
     align-items: flex-start;
     font-size: var(--fs-display);
-    font-weight: 800;
+    font-weight: 620;
     line-height: var(--lh-display);
     letter-spacing: var(--track-display);
-    font-stretch: 116%;
+    font-stretch: 100%;
   }
   /* The title's box overlaps the portrait on desktop: let the pointer through to the dots,
      except over the words themselves. */
@@ -127,7 +127,7 @@ import TuneIn from './TuneIn.astro';
   }
   .hw {
     display: block;
-    font-stretch: 116%;
+    font-stretch: 100%;
     padding-bottom: 0.04em;
     transition: font-stretch 900ms var(--ease-out), font-weight 900ms var(--ease-out), color 300ms;
   }
@@ -143,8 +143,8 @@ import TuneIn from './TuneIn.astro';
   }
   @media (hover: hover) {
     .hw:not(.hw--serif):hover {
-      font-stretch: 125%;
-      font-weight: 900;
+      font-stretch: 108%;
+      font-weight: 700;
     }
   }
   /* Stretch into place: visible from the first frame, so it never delays the page. */
