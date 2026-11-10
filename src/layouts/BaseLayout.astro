@@ -10,7 +10,7 @@ import { absoluteUrl, indexing } from '../lib/mode';
 interface Props {
   title: string;
   description: string;
-  /** Full title override (used on the home page). */
+  /** Full title override (the home page and About put the name first or inside the title). */
   fullTitle?: string;
   noindex?: boolean;
   ogImage?: string;
@@ -27,11 +27,11 @@ const {
   fullTitle,
   noindex = false,
   ogImage = '/og/default.png',
-  ogAlt = 'Mann Patel: found, answered, booked. Websites, local search and enquiry follow-up for small businesses in Toronto.',
+  ogAlt = 'Mann Patel: web design and local SEO for Toronto service businesses. Found, answered, booked.',
   jsonLd,
   footerCta = true,
 } = Astro.props;
-const pageTitle = fullTitle ?? `${title} · ${profile.name}`;
+const pageTitle = fullTitle ?? `${title} | ${profile.name}`;
 const canonical = absoluteUrl(Astro.url.pathname);
 const ogImageUrl = absoluteUrl(ogImage) ?? ogImage;
 const robots = indexing && !noindex ? 'index, follow' : 'noindex, nofollow';

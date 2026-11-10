@@ -11,6 +11,8 @@ const work = defineCollection({
   loader: glob({ pattern: '*.md', base: './src/content/work' }),
   schema: z.object({
     title: z.string(),
+    /** Page title for search results: says what the work is (the H1 stays the project's name). */
+    seoTitle: z.string(),
     order: z.number(),
     status: z.enum(['launched', 'prototype', 'in-progress']),
     statusConfirm: z.string().optional(),

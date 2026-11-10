@@ -117,6 +117,68 @@ test.describe('pages', () => {
     }
   });
 
+  // The copy map from the growth report (10 Nov 2026): each page names its service and the place.
+  const COPY: [string, string, string, string][] = [
+    ['/', 'Mann Patel | Web Design & Local SEO in Toronto', 'Web design and local SEO for Toronto service businesses', 'I build websites, improve local SEO and connect enquiry follow-up for Toronto service businesses. Start with a free website and Google check.'],
+    ['/services/', 'Website, Local SEO & Booking Services | Mann Patel', 'Website, local SEO and enquiry services', 'Compare web design, local SEO, Google Business Profile setup and enquiry automation for Toronto service businesses. See packages and request a quote.'],
+    ['/services/web-design/', 'Toronto Small Business Web Design | Mann Patel', 'Web design for Toronto small businesses', 'Get a mobile-friendly website or redesign with clear service pages, a tested enquiry path and a written handover. See projects and ask for a quote.'],
+    ['/services/local-visibility/', 'Local SEO & Google Business Profile Setup in Toronto | Mann Patel', 'Local SEO and Google Business Profile setup in Toronto', 'Improve your Google presence with eligible profile setup, listing updates and a review workflow. Ask about SEO foundations and an AI search check.'],
+    ['/services/enquiry-follow-up/', 'Enquiry Automation & Online Booking in Toronto | Mann Patel', 'Enquiry follow-up and online booking for Toronto businesses', 'Set up missed-call text-back, form follow-up or an online booking path with tools you own. Get one scoped workflow, tested and documented.'],
+    ['/work/', 'Toronto Small Business Website Projects | Mann Patel', 'Website projects for Toronto service businesses', 'See the Nest & Rest Cleaning website case study and Samp Hair & Spa preview, with dated work, project status and documented checks.'],
+  ];
+  test('search copy: titles, H1s and descriptions name the service and the place', async ({ page }) => {
+    for (const [path, title, h1, description] of COPY) {
+      await page.goto(path);
+      expect(await page.title(), path).toBe(title);
+      expect((await page.locator('h1').innerText()).replace(/\s+/g, ' ').trim(), path).toBe(h1);
+      await expect(page.locator('meta[name="description"]')).toHaveAttribute('content', description);
+      await expect(page.locator('meta[property="og:title"]')).toHaveAttribute('content', title);
+    }
+    // Case-study titles describe the work; the H1 stays the project's name.
+    await page.goto('/work/nest-and-rest-cleaning/');
+    expect(await page.title()).toBe('Nest & Rest Cleaning Website Case Study | Mann Patel');
+    await expect(page.locator('h1')).toHaveText('Nest & Rest Cleaning');
+    await page.goto('/work/samp-hair-spa/');
+    expect(await page.title()).toBe('Samp Hair & Spa Website Preview | Mann Patel');
+    // Every page has its own title and description.
+    const titles = new Set<string>();
+    const descriptions = new Set<string>();
+    for (const path of PAGES) {
+      await page.goto(path);
+      titles.add(await page.title());
+      descriptions.add((await page.locator('meta[name="description"]').getAttribute('content'))!);
+    }
+    expect(titles.size).toBe(PAGES.length);
+    expect(descriptions.size).toBe(PAGES.length);
+  });
+
+  test('structured data: one Person with a stable id, a WebSite on the home page, services that point to him', async ({ page }) => {
+    const graph = async (path: string) => {
+      await page.goto(path);
+      const blocks = await page.$$eval('script[type="application/ld+json"]', (s) => s.map((x) => JSON.parse(x.textContent || '{}')));
+      return { blocks, text: JSON.stringify(blocks) };
+    };
+    const home = await graph('/');
+    const person = home.blocks.find((b) => b['@type'] === 'Person');
+    const site = home.blocks.find((b) => b['@type'] === 'WebSite');
+    expect(person['@id']).toMatch(/\/#person$/);
+    expect(person.name).toBe('Mann Patel');
+    expect(site['@id']).toMatch(/\/#website$/);
+    expect(site.name).toBe('Mann Patel');
+    expect(site.publisher['@id']).toBe(person['@id']);
+    // The deprecated general type is gone everywhere; the profile page is About.
+    for (const path of ['/', '/services/', '/about/', '/services/web-design/']) expect((await graph(path)).text).not.toContain('ProfessionalService');
+    expect(home.text).not.toContain('ProfilePage');
+    const about = await graph('/about/');
+    const profilePage = about.blocks.find((b) => b['@type'] === 'ProfilePage');
+    expect(profilePage.mainEntity['@id']).toBe(person['@id']);
+    for (const slug of ['web-design', 'local-visibility', 'enquiry-follow-up']) {
+      const svc = (await graph(`/services/${slug}/`)).blocks.find((b) => b['@type'] === 'Service');
+      expect(svc.provider['@id']).toBe(person['@id']);
+      expect(JSON.stringify(svc.areaServed)).toContain('Toronto');
+    }
+  });
+
   test('robots.txt blocks indexing on previews', async ({ request }) => {
     const body = await (await request.get('/robots.txt')).text();
     expect(body).toContain('Disallow: /');
@@ -129,7 +191,7 @@ test.describe('pages', () => {
       expect(blocks.length).toBeGreaterThan(0);
       // No rating, street address or award properties (the words may appear in answers, e.g. "home address hidden").
       for (const b of blocks) expect(JSON.stringify(JSON.parse(b))).not.toMatch(/"(aggregateRating|address|award)":/i);
-      if (path === '/' || path === '/services/') expect(blocks.join(' ')).toContain('"ProfessionalService"');
+      if (path === '/' || path === '/services/') expect(blocks.join(' ')).toContain('"OfferCatalog"');
       if (path.startsWith('/services/') && path !== '/services/') expect(blocks.join(' ')).toContain('"Service"');
       // No price in structured data unless the page shows one.
       const shown = await page.locator('[data-price]').allInnerTexts();

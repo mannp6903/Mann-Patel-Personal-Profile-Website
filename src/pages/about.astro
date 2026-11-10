@@ -80,12 +80,14 @@ const chapters = [
     text: 'Today I work overnight at Walmart Canada, with a second role as a modular associate. I was trained on power equipment within my first 45 days, and I’ve been trusted as acting lead for the dairy and frozen department. I still learn something new every day.',
   },
 ];
-const jsonLd = { '@context': 'https://schema.org', '@type': 'AboutPage', mainEntity: personJsonLd() };
+// The page about Mann himself is the profile page; the home page carries the WebSite (src/lib/seo.ts).
+const jsonLd = { '@context': 'https://schema.org', '@type': 'ProfilePage', mainEntity: personJsonLd() };
 ---
 
 <BaseLayout
   title="About"
-  description="Mann Patel builds websites, Google listings and enquiry follow-up for Toronto service businesses, especially in North York and Scarborough. What he delivers, how work is checked, and his story from Palana in Gujarat to Toronto."
+  fullTitle="About Mann Patel | Website Designer in Toronto"
+  description="Mann Patel is an independent website designer in Toronto. He builds websites, local SEO and enquiry follow-up for service businesses, especially in North York and Scarborough. What he delivers, how work is checked, and his story from Palana in Gujarat to Toronto."
   jsonLd={jsonLd}
 >
   <header class="ab-head">

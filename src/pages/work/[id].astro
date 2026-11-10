@@ -44,7 +44,7 @@ const servicePagesShown = [...new Set(services.map((s) => servicePageForGroup(s.
 ---
 
 <BaseLayout
-  title={d.title}
+  title={d.seoTitle}
   description={d.description}
   jsonLd={crumbs ?? undefined}
   ogImage={`/og/work-${entry.id}.png`}

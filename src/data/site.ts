@@ -34,8 +34,8 @@ export const profile = {
   name: 'Mann Patel',
   /** Short wordmark used in the header. */
   wordmark: 'Mann Patel',
-  headline: 'I help small businesses get found, answer every enquiry, and get booked.',
-  descriptor: 'Google profiles and reviews, enquiry follow-up and booking websites for small businesses in Toronto and the GTA',
+  headline: 'Web design and local SEO for Toronto service businesses.',
+  descriptor: 'Web design, local SEO and enquiry follow-up for service businesses in Toronto and the GTA',
   intro:
     'I’m Mann Patel, a Toronto small business founder. I help local businesses get found and chosen on Google, answer every enquiry fast, and turn website visits into bookings.',
   /** Public location: based in Toronto, serves the GTA (confirmed by Mann, 31 Oct 2026). */

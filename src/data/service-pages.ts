@@ -20,10 +20,13 @@ export interface ServicePage {
   group: GroupId;
   /** Short name used in navigation and breadcrumbs. */
   short: string;
+  /** Page title for search results (" | Mann Patel" is added). */
   title: string;
   description: string;
   eyebrow: string;
-  /** H1 lines; the last one is set in lime (the .accent--signal half of the headline). */
+  /** The H1 as one sentence: the service and the place (growth report copy map, 10 Nov 2026). */
+  h1: string;
+  /** The same H1 split into display lines; the last one is set in lime. Must join back to `h1`. */
   lines: string[];
   lead: string;
   packages: PackageId[];
@@ -52,12 +55,13 @@ export const servicePages: ServicePage[] = [
     slug: 'web-design',
     group: 'booked',
     short: 'Web design',
-    title: 'Websites for Toronto service businesses',
+    title: 'Toronto Small Business Web Design',
     description:
-      'Clear, fast websites for owner-run service businesses in Toronto: up to five pages, one tested enquiry path, search basics and a written handover. Every account stays in your name.',
-    eyebrow: 'Web design',
-    lines: ['A clear website,', 'one enquiry path', 'that works.'],
-    lead: 'For owner-run service businesses in Toronto, especially North York and Scarborough: pages that answer what people ask before they call, one tested way to reach you, and every account in your name.',
+      'Get a mobile-friendly website or redesign with clear service pages, a tested enquiry path and a written handover. See projects and ask for a quote.',
+    eyebrow: 'Web design and redesign',
+    h1: 'Web design for Toronto small businesses',
+    lines: ['Web design', 'for Toronto small businesses'],
+    lead: 'A new website, or a redesign of one that is dated or hard to use on a phone, for owner-run service businesses in Toronto, especially North York and Scarborough: up to five pages that answer what people ask before they call, one tested enquiry path, and every account in your name.',
     packages: ['website-launch', 'care'],
     forWho: [
       'You run a cleaning, maintenance, trades or other home-service business, or another business that meets customers in person',
@@ -129,13 +133,14 @@ export const servicePages: ServicePage[] = [
   {
     slug: 'local-visibility',
     group: 'found',
-    short: 'Local visibility',
-    title: 'Google Business Profile and local visibility in Toronto',
+    short: 'Local SEO',
+    title: 'Local SEO & Google Business Profile Setup in Toronto',
     description:
-      'Google Business Profile set-up or clean-up for eligible Toronto service businesses, consistent listings and an honest review routine, with a before-and-after snapshot. No ranking guarantees.',
-    eyebrow: 'Local visibility',
-    lines: ['Be found on the map,', 'with reviews', 'that are real.'],
-    lead: 'For service businesses in Toronto that are hard to find on Google or Maps, or have few recent reviews: one eligible Google profile set up properly, your other listings made consistent, and a simple routine for asking every customer for a review.',
+      'Improve your Google presence with eligible profile setup, listing updates and a review workflow. Ask about SEO foundations and an AI search check.',
+    eyebrow: 'Local SEO and Google Maps',
+    h1: 'Local SEO and Google Business Profile setup in Toronto',
+    lines: ['Local SEO and Google Business', 'Profile setup in Toronto'],
+    lead: 'For service businesses in Toronto that are hard to find on Google or Google Maps, or have few recent reviews: one eligible Google Business Profile set up and optimized, your other listings made consistent, and a simple routine for asking every customer for a genuine review. No ranking guarantees.',
     packages: ['local-visibility'],
     forWho: [
       'You meet customers in person, at your address or at theirs, during the hours you post',
@@ -216,12 +221,13 @@ export const servicePages: ServicePage[] = [
     slug: 'enquiry-follow-up',
     group: 'answered',
     short: 'Enquiry follow-up',
-    title: 'Enquiry follow-up and booking for service businesses',
+    title: 'Enquiry Automation & Online Booking in Toronto',
     description:
-      'One follow-up workflow for Toronto service businesses: every enquiry answered and listed, with a booking tool connected, tested with sample data and documented so you can pause or change it.',
-    eyebrow: 'Enquiry follow-up',
-    lines: ['Every enquiry', 'answered, even', 'when you’re on a job.'],
-    lead: 'For owners who miss calls or messages while they work: one follow-up workflow, agreed in writing, set up in tools you own, tested with sample data, and written down so you can pause or change it.',
+      'Set up missed-call text-back, form follow-up or an online booking path with tools you own. Get one scoped workflow, tested and documented.',
+    eyebrow: 'Enquiry follow-up and booking',
+    h1: 'Enquiry follow-up and online booking for Toronto businesses',
+    lines: ['Enquiry follow-up and online booking', 'for Toronto businesses'],
+    lead: 'For owners who miss calls or messages while they work: missed-call text-back, form follow-up, alerts or an online booking path. One workflow, agreed in writing, set up in tools you own, tested with sample data, and written down so you can pause or change it.',
     packages: ['website-enquiry'],
     forWho: [
       'Calls ring out while you are on a job, and some of those people call someone else',
