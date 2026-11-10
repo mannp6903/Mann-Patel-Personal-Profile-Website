@@ -511,10 +511,12 @@ const servicePagesShown = [...new Set(services.map((s) => servicePageForGroup(s.
     color: var(--text-2);
     max-width: 60ch;
   }
-  /* Wide screens: one row; short facts take their width, role and problem share the rest. */
+  /* Wide screens: one row where it fits; short facts take their width, role and problem share the
+     rest (and drop to a second row when a longer status leaves them too little room). */
   @media (min-width: 64em) {
     .glance__grid {
       display: flex;
+      flex-wrap: wrap;
       gap: var(--s-5) var(--s-7);
     }
     .glance__grid > div {
@@ -522,7 +524,7 @@ const servicePagesShown = [...new Set(services.map((s) => servicePageForGroup(s.
       max-width: 14rem;
     }
     .glance__grid > .glance__wide {
-      flex: 1 1 0;
+      flex: 1 1 16rem;
       max-width: none;
     }
   }

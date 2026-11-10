@@ -77,9 +77,10 @@ export const businesses: Business[] = [
   {
     name: 'Nest & Rest Cleaning',
     url: 'https://nestnrestcleaning.com/',
-    // 10 Nov 2026: the address returned a "site not found" page from its host in the growth audit
-    // (two separate fetches). Paused until Mann confirms it loads again.
-    siteLive: false,
+    // 10 Nov 2026: the growth audit reported a "site not found" page here earlier in the day;
+    // rechecked at 10:36 the same morning and the site loads, so the link stays on. If the address
+    // ever stops loading, set this to false: every mention then points at the case study instead.
+    siteLive: true,
     siteChecked: '2026-11-10',
     caseStudy: '/work/nest-and-rest-cleaning/',
     pausedStatus: 'Launched Oct 2026 · live link paused',
