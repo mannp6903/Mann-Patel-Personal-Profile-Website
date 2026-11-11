@@ -11,10 +11,10 @@ export interface Faq {
 export const faqs: Faq[] = [
   {
     q: 'How much does it cost?',
-    a: 'Every project gets a written quote after a short brief, so you only pay for what your business needs. The Found & Answered check is free. Third-party costs such as your domain, email subscription, hosting or booking tools are billed to you directly by the provider, at their prices.',
+    a: 'Every project gets a written quote after a short brief, so you only pay for what your business needs. The website and Google check is free, and you don’t need it to get a quote. Third-party costs such as your domain, email subscription, hosting or booking tools are billed to you directly by the provider, at their prices.',
   },
   {
-    q: 'What is the free Found & Answered check?',
+    q: 'What is the free website and Google check?',
     a: 'I look your business up the way a customer would (Google, Maps, Apple Maps and AI assistants), compare your reviews with nearby competitors, and, with your permission, send a test enquiry and call after hours. You get a short written list of fixes, most important first. It’s free, with no obligation; if you want the fixes done, I quote them separately.',
   },
   {
@@ -51,6 +51,6 @@ export const faqs: Faq[] = [
   },
   {
     q: 'Where do you work?',
-    a: 'I’m based in Toronto and work with small businesses across the Greater Toronto Area (GTA).',
+    a: 'I’m based in Toronto and serve Toronto and the GTA, with a focus on Scarborough and North York.',
   },
 ];

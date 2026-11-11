@@ -1,4 +1,5 @@
 ---
+import { getImage } from 'astro:assets';
 import { signalViewBox } from '../../scripts/signal-sculpture';
 import poster from '../../assets/signal-study.webp';
 
@@ -7,6 +8,12 @@ interface Props {
 }
 const { class: cls } = Astro.props;
 const { width, height } = signalViewBox;
+
+// The still is the largest paint on phones (11 Nov 2026 audit): smaller files for smaller screens,
+// and a priority hint so it is fetched with the first batch of requests.
+const stills = await Promise.all([480, 640].map((w) => getImage({ src: poster, width: w, format: 'webp', quality: 72 })));
+const srcset = [...stills.map((s, i) => `${s.src} ${[480, 640][i]}w`), `${poster.src} ${poster.width}w`].join(', ');
+const sizes = '(min-width: 64em) min(42rem, 46vw), (min-width: 40em) 28rem, 17.5rem';
 ---
 
 <figure class:list={['signal-sculpture', cls]} data-signal-sculpture>
@@ -26,7 +33,17 @@ const { width, height } = signalViewBox;
         <circle cx="320" cy="501" r="3" />
       </g>
     </svg>
-    <img class="signal-sculpture__poster" src={poster.src} width={poster.width} height={poster.height} alt="" decoding="async" />
+    <img
+      class="signal-sculpture__poster"
+      src={poster.src}
+      srcset={srcset}
+      sizes={sizes}
+      width={poster.width}
+      height={poster.height}
+      alt=""
+      decoding="async"
+      fetchpriority="high"
+    />
     <canvas data-signal-canvas />
     <span class="signal-sculpture__id num">FIG 01 <span>/</span> SIGNAL</span>
     <span class="signal-sculpture__axis num">TOR <span>/</span> CA</span>
@@ -92,6 +109,10 @@ const { width, height } = signalViewBox;
   }
   .signal-sculpture__hint { display: none; }
   [data-signal-frame] .signal-sculpture__hint { display: inline; }
+  /* Touch screens have nothing to move: the sculpture turns on its own there. */
+  @media (hover: none) {
+    [data-signal-frame] .signal-sculpture__hint { display: none; }
+  }
   [data-signal-toggle] {
     width: var(--tap);
     height: var(--tap);

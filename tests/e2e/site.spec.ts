@@ -867,7 +867,7 @@ test.describe('services', () => {
   test('pricing: built for review, but not linked while no price is approved', async ({ page }) => {
     await page.goto('/pricing/');
     const prices = await page.locator('.pkg [data-price]').allInnerTexts();
-    const unpriced = prices.every((t) => t === 'Quoted after your free check');
+    const unpriced = prices.every((t) => t === 'Written quote after a short brief');
     for (const path of ['/', '/services/']) {
       await page.goto(path);
       const linked = await page.locator('a[href="/pricing/"]').count();
@@ -991,7 +991,7 @@ test.describe('enquiry form', () => {
     await page.locator('#f-email').fill('owner@example.ca');
     await next(page).click();
     await expect(page.locator('[data-step-count]')).toHaveText('Step 2 of 3');
-    for (const v of ['Get found and chosen', 'Never miss an enquiry', 'A website that books work', 'Print and social content', 'Not sure yet']) {
+    for (const v of ['Get found and chosen', 'Enquiry follow-up and booking', 'A website that books work', 'Print and social content', 'Not sure yet']) {
       await expect(page.locator('label.area', { hasText: v })).toBeVisible();
     }
     await expect(page.locator('[data-svc-detail]')).not.toHaveAttribute('open', '');
@@ -1392,5 +1392,96 @@ test.describe('free check (short path)', () => {
     await expect(main).toContainText('When the form can send directly');
     await expect(main).toContainText('opens your own email app');
     await expect(main).toContainText('Free check');
+  });
+});
+
+// 11 Nov 2026 audit (docs/23-website-audit/): the wording matches what the packages deliver, the
+// free check has one name, and phones reach useful content sooner.
+test.describe('audit of 11 Nov 2026', () => {
+  test('no page promises more than a package delivers, or gates a quote behind the free check', async ({ page }) => {
+    const banned = [
+      'Quoted after your free check',
+      'Never miss an enquiry',
+      'none are missed',
+      'each one gets a reply',
+      'answers every enquiry',
+      'Found & Answered',
+      'five to seven pages',
+    ];
+    for (const path of PAGES) {
+      await page.goto(path);
+      // Every answer and every package detail, open or not.
+      const text = await page.evaluate(() => document.body.textContent ?? '');
+      for (const phrase of banned) expect(text, `${path} should not say “${phrase}”`).not.toContain(phrase);
+    }
+  });
+
+  test('the free check has one name from the hero button to the form', async ({ page }) => {
+    await page.goto('/');
+    await page.locator('.hero').getByRole('link', { name: 'Get a free website and Google check' }).click();
+    await expect(page).toHaveURL(/\/contact\/\?package=check-up#check$/);
+    await expect(page.locator('#check-title')).toHaveText('Free website and Google check');
+    await page.goto('/');
+    await expect(page.locator('#check-title')).toContainText('Get a free website and Google check.');
+    await expect(page.locator('#check .fc__lead')).toContainText('Send your website or business name');
+  });
+
+  test('a quote follows a short brief: price lines say so and the check stays optional', async ({ page }) => {
+    await page.goto('/');
+    await expect(page.locator('#what-i-do')).toContainText('Website Launch · Written quote after a short brief');
+    await page.goto('/services/');
+    await expect(page.locator('#packages')).toContainText('The free check is optional and separate.');
+  });
+
+  test('the headline keeps its words; the emphasis is on the first line', async ({ page }) => {
+    await page.goto('/');
+    const lines = page.locator('#hero-title .hero__line');
+    await expect(lines.nth(0)).toHaveClass(/hero__line--signal/);
+    await expect(lines.nth(0)).toHaveText('Web design,');
+    await expect(lines.nth(2)).not.toHaveClass(/hero__line--signal/);
+  });
+
+  test('phones: the sculpture is compact, its still is sized for the screen, and the hint is hidden on touch', async ({ browser }) => {
+    const context = await browser.newContext({ viewport: { width: 390, height: 844 }, hasTouch: true, isMobile: true });
+    const page = await context.newPage();
+    await page.goto('/');
+    const stage = await page.locator('.signal-sculpture__stage').boundingBox();
+    expect(stage!.height).toBeLessThanOrEqual(245);
+    const still = page.locator('.signal-sculpture__poster');
+    await expect(still).toHaveAttribute('fetchpriority', 'high');
+    expect(await still.getAttribute('srcset')).toMatch(/480w.*640w.*960w/);
+    // The full-size still is the last candidate; a phone should fetch a smaller one.
+    const { loaded, largest } = await still.evaluate((img: HTMLImageElement) => ({
+      loaded: new URL(img.currentSrc).pathname,
+      largest: img.srcset.split(',').pop()!.trim().split(' ')[0],
+    }));
+    expect(loaded).not.toBe(largest);
+    // Once the live sculpture is drawing, a touch screen still shows no “Move to rotate”.
+    await page.waitForSelector('[data-signal-frame]');
+    await expect(page.locator('.signal-sculpture__hint')).toBeHidden();
+    await expect(page.locator('[data-signal-toggle]')).toBeVisible();
+    await context.close();
+  });
+
+  test('about on a phone: the portrait comes before the links and contact buttons', async ({ page }) => {
+    await page.setViewportSize({ width: 390, height: 844 });
+    await page.goto('/about/');
+    const pos = await page.evaluate(() => ({
+      lead: document.querySelector('.ab-head .lead')!.getBoundingClientRect().bottom + scrollY,
+      photo: document.querySelector('.ab-photo')!.getBoundingClientRect().top + scrollY,
+      reach: document.querySelector('.ab-reach')!.getBoundingClientRect().top + scrollY,
+    }));
+    expect(pos.photo).toBeGreaterThanOrEqual(pos.lead);
+    expect(pos.photo).toBeLessThan(pos.reach);
+    expect(pos.photo).toBeLessThanOrEqual(760);
+    await noHorizontalOverflow(page);
+    // Desktop keeps the photo beside the introduction.
+    await page.setViewportSize({ width: 1440, height: 900 });
+    const side = await page.evaluate(() => {
+      const t = document.querySelector('.ab-head__text')!.getBoundingClientRect();
+      const p = document.querySelector('.ab-photo')!.getBoundingClientRect();
+      return p.left >= t.right;
+    });
+    expect(side).toBe(true);
   });
 });

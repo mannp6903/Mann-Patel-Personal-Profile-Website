@@ -85,6 +85,7 @@ Cloudflare Workers, connected to GitHub: build command `npm run build:cloudflare
 | [`docs/13-round-6-live-signal.md`](docs/13-round-6-live-signal.md) | Round 6: the "Live Signal" effects layer, bugs fixed (incl. the local Cloudflare build), Lighthouse 99–100 |
 | [`docs/19-brand-black-and-white.md`](docs/19-brand-black-and-white.md) | Logo update: MΛNN PΛTEL wordmark, favicons and sharing image (colours unchanged) |
 | [`docs/14-round-7-editorial.md`](docs/14-round-7-editorial.md) | Round 7: the 8 Nov audit applied (work first, free-check path, honest delivery states, case-study evidence, package comparison), verification, the delivery blocker, deploy and rollback |
+| [`docs/23-website-audit/`](docs/23-website-audit/) | Full website audit (10 to 11 Nov 2026): review report and scorecard, prioritized issue register (CSV), approved copy deck, implementation prompt, plan and implementation report |
 | [`THIRD-PARTY-NOTICES.md`](THIRD-PARTY-NOTICES.md) | What the site uses that others made, and on what terms |
 | [`docs/OWNER-INPUTS.md`](docs/OWNER-INPUTS.md) | Questions and owner actions |
 

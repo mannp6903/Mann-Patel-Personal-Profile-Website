@@ -45,7 +45,7 @@ limitations:
   - The checks above are automated browser tests on the live site, not a manual accessibility audit.
 outcomes: Not yet measured. The business takes its first clients in summer 2027.
 nextStep: At launch, switch the forms on, send a real test booking end to end, and add measured results here.
-description: How Nest & Rest Cleaning presents prices, service areas and the owner so a brand-new cleaning business can earn trust online, how the site was redesigned in its first month, and why it says “Opening soon” until bookings open.
+description: How Nest & Rest Cleaning shows prices, service areas and its owner so a new cleaning business can earn trust online, and why it says “Opening soon”.
 ---
 
 ## The situation

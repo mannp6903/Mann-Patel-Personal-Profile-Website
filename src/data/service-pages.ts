@@ -4,7 +4,7 @@
  *
  * Rules: say what is actually delivered, link only to real work with its honest status, label every
  * sample as a sample, and promise nothing Google or a customer decides. Prices come from
- * src/data/packages.ts (shown as "Quoted after your free check" until Mann approves a figure).
+ * src/data/packages.ts (shown as "Written quote after a short brief" until Mann approves a figure).
  */
 import type { GroupId } from './services';
 import type { PackageId } from './packages';
@@ -97,7 +97,7 @@ export const servicePages: ServicePage[] = [
     lead: 'A new website, or a website redesign when yours is dated or hard to use on a phone, for owner-run service businesses in Toronto, especially North York and Scarborough: up to five pages that answer what people ask before they call, one tested enquiry path, and every account in your name.',
     packages: ['website-launch', 'care'],
     forWho: [
-      'You run a cleaning, maintenance, trades or other home-service business, or another business that meets customers in person',
+      'You run a cleaning, salon, maintenance, trades or other service business that meets customers in person',
       'You have no website, or one that is dated, slow on a phone or hard to update',
       'You want people to see your services, your area and how to reach you without having to call first',
     ],
@@ -372,7 +372,7 @@ export const servicePages: ServicePage[] = [
     },
     limits: [
       'One booking integration and one workflow are included; a second is quoted separately.',
-      'Your team still answers the enquiries; the workflow makes sure none are missed or forgotten.',
+      'Your team still answers the enquiries; the workflow sends the first reply and reminds you before one is forgotten.',
       'Tools that offer no supported way to connect can’t be connected; I say so in the scope.',
     ],
     costs:
