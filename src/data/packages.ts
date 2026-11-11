@@ -7,13 +7,13 @@
  *
  * Prices: `price.amount` stays `null` until Mann has costed and approved a figure. This repository
  * is public, so unapproved or proposed prices are never written here. While a price is null the
- * site says "Quoted after your free check" and /pricing/ is not linked or indexed.
+ * site says "Written quote after a short brief" and /pricing/ is not linked or indexed.
  */
 
 export type PackageId = 'website-launch' | 'website-enquiry' | 'local-visibility' | 'care' | 'check-up';
 
 export interface Price {
-  /** CAD, before tax. `null` = not approved yet (shown as "Quoted after your free check"). */
+  /** CAD, before tax. `null` = not approved yet (shown as "Written quote after a short brief"). */
   amount: number | null;
   unit: 'one-time' | 'month';
 }
@@ -77,7 +77,7 @@ export const packages: Package[] = [
     includes: [
       'Everything in Website Launch',
       'One booking integration: your booking or quote tool connected to the site, with reminders before appointments',
-      'One follow-up workflow, agreed in writing first: for example, every enquiry lands in one list with an instant reply and a reminder before anyone waits too long, or missed-call text-back',
+      'One follow-up workflow, agreed in writing first: for example, each website enquiry lands in one list with an instant reply and a reminder before anyone waits too long, or missed-call text-back',
       'Every step tested with sample data, including what happens when a step fails',
       'Consent records for follow-up messages, in line with Canada’s anti-spam law',
       'Handover: a diagram of the workflow, the test results, and how to pause or change it',
@@ -154,9 +154,9 @@ export const packages: Package[] = [
 /** Recommended low-commitment first step, free (see docs/11). */
 export const checkUp: Package = {
   id: 'check-up',
-  name: 'Free Found & Answered check',
+  name: 'Free website and Google check',
   boundary: 'A written list of fixes for your current setup, most important first.',
-  forWho: 'Owners who are not sure what to fix first. Free, with no obligation to buy anything.',
+  forWho: 'Owners in Toronto and the GTA who are not sure what to fix first. Free, with no obligation to buy anything.',
   includes: [
     'I look you up the way a customer would: Google, Maps, Apple Maps and AI assistants',
     'I compare your reviews with the top three businesses near you',
@@ -201,7 +201,7 @@ const cad = new Intl.NumberFormat('en-CA', { style: 'currency', currency: 'CAD',
 /** The one place price text is made, so every card, table and page says the same thing. */
 export function priceLabel(p: Package): { text: string; approved: boolean } {
   if (p.free) return { text: 'Free', approved: true };
-  if (p.price.amount === null) return { text: 'Quoted after your free check', approved: false };
+  if (p.price.amount === null) return { text: 'Written quote after a short brief', approved: false };
   const amount = cad.format(p.price.amount);
   return { text: p.price.unit === 'month' ? `From ${amount} a month` : `From ${amount}, one-time`, approved: true };
 }

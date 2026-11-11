@@ -6,7 +6,7 @@
 export const SERVICE_OPTIONS = [
   // Plain-language areas shown first on the form; the specific services below are optional detail.
   { id: 'area-found', label: 'Get found and chosen: Google, Maps and reviews', group: 'area', area: 'A' },
-  { id: 'area-follow-up', label: 'Never miss an enquiry: replies, booking and follow-up', group: 'area', area: 'B' },
+  { id: 'area-follow-up', label: 'Enquiry follow-up and booking: replies, reminders and one list', group: 'area', area: 'B' },
   { id: 'area-website', label: 'A website that books work', group: 'area', area: 'C' },
   { id: 'area-content', label: 'Print and social content', group: 'area', area: 'D' },
   { id: 'business-profile', label: 'Google Business Profile', group: 'A' },
@@ -32,7 +32,7 @@ export const PACKAGE_OPTIONS = [
   { id: 'website-enquiry', label: 'Website + Enquiry System' },
   { id: 'local-visibility', label: 'Local Visibility Setup' },
   { id: 'care', label: 'Website Care' },
-  { id: 'check-up', label: 'Free Found & Answered check' },
+  { id: 'check-up', label: 'Free website and Google check' },
 ] as const;
 
 export const BUDGET_OPTIONS = [

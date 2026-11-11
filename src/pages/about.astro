@@ -20,7 +20,7 @@ const glance = [
   },
   {
     t: 'Who it’s for',
-    d: 'Owner-run service businesses in Toronto, especially in North York and Scarborough: cleaning, maintenance, trades and other businesses that meet customers in person.',
+    d: 'Owner-run service businesses in Toronto and the GTA, especially in Scarborough and North York: cleaning, salons and personal care, maintenance, trades and other businesses that meet customers in person.',
   },
   {
     t: 'How work is checked',
@@ -69,7 +69,7 @@ const chapters = [
   },
   {
     place: 'Thunder Bay, ON',
-    text: 'Next I moved back to Thunder Bay with no job lined up. I worked at Dairy Queen, then got a job as a housekeeper at a casino. That winter I fell into depression. I lost the job after missing shifts while I was unwell, and for about six months after that I was in a very bad place.',
+    text: 'Next I moved to Thunder Bay, Ontario, with no job lined up. I worked at Dairy Queen, then got a job as a housekeeper at a casino. That winter I fell into depression. I lost the job after missing shifts while I was unwell, and for about six months after that I was in a very bad place.',
   },
   {
     place: 'North York',
@@ -87,7 +87,7 @@ const jsonLd = { '@context': 'https://schema.org', '@type': 'ProfilePage', mainE
 <BaseLayout
   title="About"
   fullTitle="About Mann Patel | Website Designer in Toronto"
-  description="Mann Patel is an independent website designer in Toronto. He builds websites, local SEO and enquiry follow-up for service businesses, especially in North York and Scarborough. What he delivers, how work is checked, and his story from Palana in Gujarat to Toronto."
+  description="Mann Patel is an independent website designer in Toronto. What he delivers, how the work is checked, and his story from Palana, Gujarat to Toronto."
   jsonLd={jsonLd}
 >
   <header class="ab-head">
@@ -101,8 +101,8 @@ const jsonLd = { '@context': 'https://schema.org', '@type': 'ProfilePage', mainE
           load
         />
         <p class="lead" data-reveal="load" style="--d:200">
-          Clear websites, Google and Maps listings, and follow-up that answers every enquiry, for owner-run businesses across
-          Toronto, especially North York and Scarborough. I’m also starting {nest.name}, my own home-cleaning business in
+          Clear websites, Google and Maps listings, and enquiry follow-up for owner-run businesses in Toronto and the GTA,
+          with a focus on Scarborough and North York. I’m also starting {nest.name}, my own home-cleaning business in
           {nest.area}, which opens for bookings in summer 2027.
         </p>
         <div class="ab-reach" data-reveal="load" style="--d:300">
@@ -238,8 +238,8 @@ const jsonLd = { '@context': 'https://schema.org', '@type': 'ProfilePage', mainE
           Building {nest.name} showed me how much the basics matter: a clear offer, a website people understand on their phone, a
           simple way to ask for a booking, and a habit of answering every message. Many owners are stuck with a page they can’t
           update, enquiries spread across DMs and voicemail, and no idea whether anyone finds them on Google. That’s the work I
-          offer: help small businesses get found and chosen on Google, answer every enquiry, and turn website visits into
-          bookings.
+          offer: help small businesses get found on Google, follow up on enquiries before they go cold, and turn website
+          visits into booking requests.
         </p>
       </div>
     </div>
@@ -446,8 +446,20 @@ const jsonLd = { '@context': 'https://schema.org', '@type': 'ProfilePage', mainE
 
   /* Phones: the story and the rules become swipeable cards, so the page reads in a few screens. */
   @media (max-width: 47.99em) {
+    /* The portrait comes straight after the introduction, before the links and contact buttons,
+       so a visitor checking who Mann is sees him within the first screen or so (11 Nov 2026 audit).
+       The text wrapper dissolves into the grid; the page order in the HTML is unchanged. */
     .ab-head__grid {
-      gap: var(--s-6);
+      gap: var(--s-5);
+    }
+    .ab-head__text {
+      display: contents;
+    }
+    .ab-photo {
+      order: 1;
+    }
+    .ab-reach {
+      order: 2;
     }
     .ab-photo :global(img) {
       aspect-ratio: 4 / 3;

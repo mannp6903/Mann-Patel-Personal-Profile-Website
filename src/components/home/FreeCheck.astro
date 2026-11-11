@@ -1,6 +1,6 @@
 ---
 /**
- * The free Found & Answered check: the one full-bleed signal-colour moment on the page.
+ * The free website and Google check: the one full-bleed signal-colour moment on the page.
  * The circular badge turns as you scroll (user-driven, never on its own).
  */
 import { checkUp } from '../../data/packages';
@@ -20,9 +20,12 @@ const ring = 'FREE CHECK · NO OBLIGATION · ';
       <p class="fc__label">Free · no obligation</p>
       <h2 id={`${id}-title`} class="fc__title" data-split>
         <span class="line-mask" style="--i:0"><span>Not sure what to fix first?</span></span>
-        <span class="line-mask" style="--i:1"><span>Get a free <em>Found &amp; Answered</em> check.</span></span>
+        <span class="line-mask" style="--i:1"><span>Get a free <em>website and Google</em> check.</span></span>
       </h2>
-      <p class="fc__lead">{checkUp.forWho}</p>
+      <p class="fc__lead">
+        Send your website or business name and I’ll email you a short written list of fixes, most important first. For
+        businesses in Toronto and the GTA.
+      </p>
       <div class="btn-row">
         <Button href="/contact/?package=check-up#check" variant="ink">Request the free check</Button>
       </div>

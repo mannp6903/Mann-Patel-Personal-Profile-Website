@@ -56,9 +56,9 @@ export const groups: ServiceGroup[] = [
     id: 'answered',
     letter: 'B',
     verb: 'Answer fast',
-    title: 'Never miss an enquiry',
+    title: 'Enquiry follow-up and booking',
     intro:
-      'Every call, form and message gets a quick, honest reply, even when you’re on a job, and lands in one list you actually check. Reminders help cut no-shows.',
+      'Missed callers and form enquiries get a quick, honest automatic reply and land in one list you check. Reminders help cut no-shows. You start with one tested workflow.',
   },
   {
     id: 'booked',
@@ -66,7 +66,7 @@ export const groups: ServiceGroup[] = [
     verb: 'Get booked',
     title: 'A website that books work',
     intro:
-      'A clear, fast site with a page for each service and a book-or-quote button on every page, kept working every month.',
+      'A clear, fast site that says what you do and where, with a book-or-quote button on every page. Monthly care is optional.',
   },
 ];
 
@@ -209,7 +209,7 @@ export const services: Service[] = [
     nextStep: 'Ask about the monthly plan when you request a setup quote.',
   },
 
-  // ───────────── B · Never miss an enquiry ─────────────
+  // ───────────── B · Enquiry follow-up and booking ─────────────
   {
     id: 'missed-calls',
     group: 'answered',
@@ -243,7 +243,7 @@ export const services: Service[] = [
     group: 'answered',
     name: 'One enquiry list and follow-up',
     summary:
-      'Every enquiry from calls, forms, Instagram and WhatsApp in one list with a status, and a reminder before anyone waits too long.',
+      'Enquiries from your form, calls and messages in one list with a status, and a reminder before anyone waits too long.',
     problem: 'Enquiries arrive by form, DM, email and voicemail; some get answered late and some never.',
     deliverables: [
       'One list (your existing tool, a free CRM or a spreadsheet) with a status for each enquiry',
@@ -321,7 +321,7 @@ export const services: Service[] = [
     group: 'booked',
     name: 'Website fix-up or new site',
     summary:
-      'Fix a tired site, or build a new one of five to seven pages: a page for each service, click-to-call, and a book-or-quote button on every page.',
+      'Fix a tired site, or build a new one of up to five pages, with clear service information, click-to-call and a book-or-quote button on every page.',
     problem: 'Your site is hard to use on a phone, doesn’t say clearly what you do and where, or has no easy way to book.',
     deliverables: [
       'Fix-up: service and area pages added, mobile and speed fixes, a book-or-quote button on every page',
@@ -387,11 +387,11 @@ export const services: Service[] = [
     id: 'maintenance',
     group: 'booked',
     name: 'Monthly care plan',
-    summary: 'Updates, backups and a monthly test of your forms, booking links and text-back, with small edits included.',
+    summary: 'A monthly test of your enquiry form and booking link, up to 30 minutes of small edits, and a note of what changed.',
     problem: 'Things work on launch day, then a form quietly stops sending or a renewal is missed.',
     deliverables: [
-      'A monthly test of your forms, booking links and missed-call text-back',
-      'Updates, backups and renewal-date reminders',
+      'A monthly test of your enquiry form and booking link, and text-back if you have it',
+      'Updates where your site needs them, and renewal-date reminders',
       'Small content edits within an agreed allowance',
       'A running change log you can read',
     ],

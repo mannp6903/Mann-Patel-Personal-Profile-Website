@@ -72,6 +72,8 @@ const fmtDate = (iso: string) =>
     --signal: #40541e;
     --focus: #40541e;
     padding-block: clamp(2.5rem, 6vw, 6rem);
+    /* Real work starts by y=1150 on a 1440px desktop (acceptance target, tests/e2e/site.spec.ts). */
+    padding-top: clamp(2.5rem, 4vw, 4rem);
     background: #f0f0e8;
     color: var(--text);
     color-scheme: light;

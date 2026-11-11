@@ -36,9 +36,9 @@ describe('packages: one source of truth (round 10)', () => {
     expect(r.ok && r.value.packageId).toBe('website-enquiry');
   });
 
-  it('prices: unapproved prices read “Quoted after your free check”; approved ones are formatted in CAD', () => {
+  it('prices: unapproved prices read “Written quote after a short brief”; approved ones are formatted in CAD', () => {
     const unpriced: Package = { ...packages[0], price: { amount: null, unit: 'one-time' } };
-    expect(priceLabel(unpriced)).toEqual({ text: 'Quoted after your free check', approved: false });
+    expect(priceLabel(unpriced)).toEqual({ text: 'Written quote after a short brief', approved: false });
     expect(priceLabel({ ...packages[0], price: { amount: 2500, unit: 'one-time' } }).text).toBe('From $2,500, one-time');
     expect(priceLabel({ ...packages[3], price: { amount: 150, unit: 'month' } }).text).toBe('From $150 a month');
     expect(priceLabel(checkUp).text).toBe('Free');

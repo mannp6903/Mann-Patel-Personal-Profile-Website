@@ -12,11 +12,12 @@ const mail = emailHref();
 // Only promise the channels that exist (the phone buttons need a configured number, src/lib/contact.ts).
 const description = contact.phone
   ? 'Send Mann Patel a short project brief, or reach him directly by email, phone, WhatsApp or text. Helping small businesses in Toronto and the GTA.'
-  : 'Send Mann Patel a short project brief, or email him directly. Helping small businesses in Toronto and the GTA get found, answer every enquiry and get booked.';
+  : 'Send Mann Patel a short project brief, or email him directly. Helping small businesses in Toronto and the GTA get found, follow up on enquiries and get booked.';
 ---
 
 <BaseLayout
   title="Contact"
+  fullTitle="Contact Mann Patel | Web Design & Local SEO in Toronto"
   description={description}
   footerCta={false}
 >
@@ -44,7 +45,7 @@ const description = contact.phone
           <ContactForm />
         </div>
         <section class="panel panel--check" id="check" data-panel="check" aria-labelledby="check-title" tabindex="-1">
-          <h2 id="check-title" class="panel__title">Free Found &amp; Answered check</h2>
+          <h2 id="check-title" class="panel__title">Free website and Google check</h2>
           <p class="muted panel__lead">
             I look you up the way a customer would and send a short written list of fixes, most important first. Tell me
             where to look; that’s all I need.

@@ -20,7 +20,7 @@ const groups: { title: string; items: Item[] }[] = [
     title: 'Actions',
     items: [
       { id: 'start', label: 'Start a project', hint: 'Send a short brief', icon: 'arrow', href: '/contact/#brief', keywords: 'contact hire quote brief form' },
-      { id: 'check', label: 'Request the free check', hint: 'Found & Answered check', icon: 'sparkle', href: '/contact/?package=check-up#check', keywords: 'free audit review' },
+      { id: 'check', label: 'Request the free check', hint: 'Website and Google check', icon: 'sparkle', href: '/contact/?package=check-up#check', keywords: 'free audit review' },
       ...(contact.email
         ? [
             { id: 'copy', label: 'Copy email address', hint: contact.email, icon: 'copy' as IconName, action: 'copy-email', keywords: 'email mail address' },

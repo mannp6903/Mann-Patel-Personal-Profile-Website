@@ -24,7 +24,7 @@ Everything below is tracked in code. Unverified **claims** are wrapped in `<Conf
 10. ~~Privacy details~~ **Decided (31 Oct 2026, Mann: "do whatever is best"; updated 1 Nov 2026):** Cloudflare hosts the site and delivers each enquiry by email (Cloudflare Email, no Resend), Google (Gmail) hosts the inbox; both are named on the Privacy page, which also covers calls, texts and WhatsApp. Enquiries that don't become projects are deleted from your inbox within 12 months. **Your part:** the Email Routing steps in `docs/05` §1, and once a year delete enquiry emails older than 12 months.
 11. **Pricing (round 10: packages decided, prices not yet).** You chose the four bounded packages from the competitor
     brief (Website Launch, Website + Enquiry System, Local Visibility Setup, Website Care) and to keep prices out of this
-    public repository until you have costed them. Until then every price line says “Quoted after your free check” and
+    public repository until you have costed them. Until then every price line says “Written quote after a short brief” (changed from “Quoted after your free check” on 11 Nov 2026) and
     `/pricing/` is built but not linked, not in the sitemap and `noindex`. **To publish:** cost each package (hours ×
     your rate + expenses + margin; the audit's cost check is a starting point), then set `price.amount` in
     `src/data/packages.ts`. The cards, the comparison table, the service pages, the structured data, the sitemap and the
@@ -32,6 +32,27 @@ Everything below is tracked in code. Unverified **claims** are wrapped in `<Conf
 12. ~~Brand name~~ **Answered (31 Oct 2026): "Mann Patel".** No studio name.
 
 13. ~~Samp Hair & Spa permission~~ **Answered (31 Oct 2026): yes**, the work-in-progress preview can be shown on the site. The project appears as *In progress* with a link to the Lovable preview. (Keep the salon's agreement in writing on file.)
+
+## From the 11 Nov 2026 audit (only Mann can do these)
+
+Full detail: [`docs/23-website-audit/`](23-website-audit/). Issue IDs refer to `Mann_Patel_Prioritized_Improvements.csv`.
+
+1. **Prove the forms deliver (MP-004).** The live endpoint reports `connected: true`, but nobody has yet confirmed that a brief
+   reaches your inbox. Run `npm run check:enquiry -- https://mannpatel.me --send --reply-to <your address>`, confirm both
+   “[Delivery test]” emails arrive and that replying goes to the reply-to address, and note the date here.
+2. **Finish and launch Samp Hair & Spa (MP-015), then ask for a testimonial (MP-003).** Fix the 31 contrast issues and the
+   ARIA issue, launch on the salon’s domain, re-run the tests, and ask the owner for a short written testimonial with
+   permission to publish it. This is the first third-party proof the site can show.
+3. **Cost and approve “from” prices (MP-005).** Set `price.amount` in `src/data/packages.ts`; everything else updates itself.
+4. **Search Console and a one-sheet enquiry log (MP-013).** Verify the domain, submit `/sitemap.xml`, and log each enquiry:
+   date, source, type, qualified, outcome.
+5. **Answer four questions.** Had you lived in Thunder Bay before Saint John (MP-012)? What reply time can you keep
+   (MP-024)? Do you meet clients in person (Business Profile eligibility, MP-014)? Is there relevant training or experience
+   you are willing to publish on About?
+6. **Cloudflare dashboard (MP-018, MP-019).** Add the “Redirect from WWW to root” rule; confirm “Always Use HTTPS” is on; then
+   enable HSTS (start with six months, no preload).
+7. **Free-check experiment (MP-023).** Keep the hero button as it is and log each check. After ten delivered checks, if fewer
+   than one led to a paid quote request, make “Start a project” the main hero button.
 
 ## Accounts and live actions (only Mann can do these)
 

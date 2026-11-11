@@ -42,7 +42,7 @@ limitations:
   - The accessibility findings above are still open.
 outcomes: None yet. The site hasn’t launched.
 nextStep: Fix the contrast and ARIA findings, confirm the final content with the salon, then launch and re-test.
-description: A work-in-progress website for Samp Hair & Spa in Scarborough, built from verified business facts with a clear service menu, live opening status and an honest appointment-request flow.
+description: 'A work-in-progress website for Samp Hair & Spa in Scarborough: a clear service menu, live opening status and an honest appointment-request flow.'
 ---
 
 ## The situation

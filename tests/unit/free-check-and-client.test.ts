@@ -87,7 +87,7 @@ describe('free check handling', () => {
       packageId: 'check-up', budget: '', timeframe: '', message: '', id: 'enq_1', receivedAt: '2026-11-08T12:00:00Z', source: 'website', lowTrust: false,
     };
     expect(ownerSubject(lead)).toBe('Free check request: Ada (adabakery.ca)');
-    expect(ownerEmailText(lead)).toContain('Starting point: Free Found & Answered check');
+    expect(ownerEmailText(lead)).toContain('Starting point: Free website and Google check');
     expect(ownerSubject({ ...lead, packageId: '', business: 'Ada Bakery' })).toBe('New enquiry: Ada (Ada Bakery)');
   });
 });
@@ -134,7 +134,7 @@ describe('copy and email fallbacks', () => {
     const text = briefText(data);
     expect(text).toContain('Name: Ada');
     expect(text).toContain('Website: adabakery.ca');
-    expect(text).toContain('Starting point: Free Found & Answered check');
+    expect(text).toContain('Starting point: Free website and Google check');
     expect(text).not.toContain('Phone:');
   });
 
