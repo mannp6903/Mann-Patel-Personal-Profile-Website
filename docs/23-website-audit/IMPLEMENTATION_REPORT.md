@@ -9,6 +9,7 @@ Completed 11 Nov 2026 (America/Toronto). Follows `IMPLEMENTATION_PLAN.md` in thi
 | Branch | `claude/new-session-l6zaca` |
 | Base | `fd1a563` (PR #23), the commit production served on 11 Nov 2026 |
 | Change commit | `c8d1bc4` |
+| Pull request | https://github.com/mannp6903/Mann-Patel-Personal-Profile-Website/pull/24 (open, not merged) |
 | Live site | https://mannpatel.me/ is **unchanged**. Nothing has been merged or deployed |
 | Preview | None was created from this environment. All browser checks ran on a local build of the branch |
 
