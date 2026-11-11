@@ -1,12 +1,13 @@
 ---
 /**
  * Process and founder: a short introduction (the full story lives on About), how a project runs
- * in five steps, and the ownership/handover commitments. No photo here: the portrait is in the hero.
+ * in five steps, with Mann’s interactive portrait alongside the introduction.
  */
 import { profile, businesses } from '../../data/site';
 import { businessHref } from '../../lib/work';
 import { process } from '../../data/services';
 import Icon from '../ui/Icon.astro';
+import TuneIn from './TuneIn.astro';
 
 const nest = businesses[0];
 const rules = [
@@ -20,7 +21,7 @@ const rules = [
 <section class="about section section--rule" id="how-i-work" aria-labelledby="about-title">
   <div class="container about__grid">
     <div class="about__head">
-      <p class="eyebrow">How I work</p>
+      <p class="eyebrow">04 / The person behind it</p>
       <h2 id="about-title" class="about__title">Hi, I’m Mann. <span class="accent">I’m building a business too.</span></h2>
       <p class="lead about__lead">
         I’m starting <a class="link" href={businessHref(nest)} rel={nest.siteLive ? 'noopener' : undefined}>{nest.name}</a> in {nest.area}, and built its website from
@@ -28,6 +29,7 @@ const rules = [
         language.
       </p>
       <a class="link-arrow" href="/about/">More about me <Icon name="arrow" /></a>
+      <TuneIn />
     </div>
 
     <div class="about__side">
@@ -68,6 +70,9 @@ const rules = [
 </section>
 
 <style>
+  @media (max-width: 39.99em) {
+    .about { padding-block: 2.25rem; }
+  }
   .about__grid {
     display: grid;
     gap: var(--s-7);
@@ -79,8 +84,10 @@ const rules = [
     justify-items: start;
   }
   .about__title {
-    font-size: var(--fs-h2);
-    max-width: 14ch;
+    font-size: clamp(2.65rem, 4.5vw, 5.5rem);
+    letter-spacing: -0.075em;
+    line-height: 0.98;
+    max-width: 15ch;
   }
   .about__lead {
     max-width: 40ch;
@@ -136,8 +143,6 @@ const rules = [
       gap: var(--s-9);
     }
     .about__head {
-      position: sticky;
-      top: calc(var(--header-h) + 2rem);
       align-self: start;
     }
   }

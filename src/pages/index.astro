@@ -10,15 +10,10 @@ import Faq from '../components/Faq.astro';
 import { personWithServicesJsonLd, websiteJsonLd } from '../lib/seo';
 ---
 
-<!--
-  Order (audits of 8 and 10 Nov 2026): a service-led hero with the process strip, the real work straight after it, a labelled
-  demonstration (round 10), three short service summaries with their packages, the free check,
-  how I work, questions and the closing call to action.
--->
 <BaseLayout
   title="Home"
-  fullTitle="Mann Patel | Web Design & Local SEO in Toronto"
-  description="I build websites, improve local SEO and connect enquiry follow-up for Toronto service businesses. Start with a free website and Google check."
+  fullTitle="Mann Patel | Web Design, Local SEO & Automation in Toronto"
+  description="Web design, local SEO and automation for Toronto businesses. Serving Toronto and the GTA, with a focus on Scarborough and North York."
   jsonLd={[websiteJsonLd(), personWithServicesJsonLd()]}
 >
   <Hero />

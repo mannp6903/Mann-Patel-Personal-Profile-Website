@@ -10,11 +10,10 @@ import Icon from '../ui/Icon.astro';
 <section class="wt section section--rule" id="walkthrough" aria-labelledby="wt-title">
   <div class="container wt__grid">
     <div class="wt__head">
-      <p class="eyebrow">See it work</p>
-      <h2 id="wt-title" class="wt__title">One enquiry, <span class="accent">never lost.</span></h2>
+      <p class="eyebrow">02 / In practice</p>
+      <h2 id="wt-title" class="wt__title">After the <span class="accent">enquiry.</span></h2>
       <p class="muted wt__note">
-        A walkthrough with a fictional business and customer: the reply, the reminder and the booking that a follow-up
-        workflow handles while you are on a job.
+        Try a sample workflow. Follow an enquiry from the first reply to a booking confirmation while the business owner is on a job.
       </p>
       <a class="link-arrow" href="/services/enquiry-follow-up/">How enquiry follow-up works <Icon name="arrow" /></a>
     </div>
@@ -23,6 +22,9 @@ import Icon from '../ui/Icon.astro';
 </section>
 
 <style>
+  @media (max-width: 39.99em) {
+    .wt { padding-block: 2.25rem; }
+  }
   .wt__grid {
     display: grid;
     gap: var(--s-6);
@@ -33,8 +35,10 @@ import Icon from '../ui/Icon.astro';
     align-content: start;
   }
   .wt__title {
-    font-size: var(--fs-h2);
-    max-width: 14ch;
+    font-size: clamp(3rem, 6.1vw, 6.75rem);
+    letter-spacing: -0.075em;
+    line-height: 0.92;
+    max-width: 10ch;
   }
   /* Phones: the label on the demo says it is fictional; the longer note is for wider screens. */
   @media (max-width: 39.99em) {

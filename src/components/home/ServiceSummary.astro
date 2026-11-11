@@ -20,11 +20,10 @@ import Icon from '../ui/Icon.astro';
 <section class="ss section section--rule" id="what-i-do" aria-labelledby="ss-title">
   <div class="container">
     <div class="ss__head">
-      <p class="eyebrow">What I do</p>
-      <h2 id="ss-title" class="ss__title">Three jobs. <span class="accent">One customer path.</span></h2>
+      <p class="eyebrow">03 / Services</p>
+      <h2 id="ss-title" class="ss__title">From search <span class="accent">to booked.</span></h2>
       <p class="ss__lead muted">
-        Most small businesses lose work in one of three places: they aren’t found, they don’t answer in time, or booking is
-        hard. I start with the one that costs you most.
+        I find the point where customers get stuck, then build the site, improve local visibility or connect the follow-up that helps them take the next step.
       </p>
     </div>
 
@@ -39,16 +38,18 @@ import Icon from '../ui/Icon.astro';
               <span class="eyebrow eyebrow--plain">{g.verb}</span>
             </p>
             <h3 class="ss__name">{servicePageForGroup(g.id)?.name ?? g.title}</h3>
-            <p class="muted">{g.intro}</p>
-            {packageFor[g.id] && (
-              <p class="ss__pkg small">
-                <span class="subtle">Package:</span> {packageFor[g.id]!.name} · <span class="subtle">{priceLabel(packageFor[g.id]!).text}</span>
-              </p>
-            )}
-            <a class="link-arrow" href={servicePageForGroup(g.id) ? `/services/${servicePageForGroup(g.id)!.slug}/` : `/services/#${g.id}`}>
-              {servicePageForGroup(g.id)?.short ?? g.title}: who it’s for and what’s included
-              <Icon name="arrow" />
-            </a>
+            <div class="ss__detail">
+              <p class="muted">{g.intro}</p>
+              {packageFor[g.id] && (
+                <p class="ss__pkg small">
+                  <span class="subtle">Package:</span> {packageFor[g.id]!.name} · <span class="subtle">{priceLabel(packageFor[g.id]!).text}</span>
+                </p>
+              )}
+              <a class="link-arrow" href={servicePageForGroup(g.id) ? `/services/${servicePageForGroup(g.id)!.slug}/` : `/services/#${g.id}`}>
+                {servicePageForGroup(g.id)?.short ?? g.title}: who it’s for and what’s included
+                <Icon name="arrow-ne" />
+              </a>
+            </div>
           </li>
         ))
       }
@@ -62,6 +63,9 @@ import Icon from '../ui/Icon.astro';
 </section>
 
 <style>
+  @media (max-width: 39.99em) {
+    .ss { padding-block: 2.25rem; }
+  }
   .ss__pkg {
     padding-top: var(--s-3);
     border-top: 1px dashed var(--line);
@@ -75,8 +79,10 @@ import Icon from '../ui/Icon.astro';
     margin-bottom: clamp(var(--s-6), 4vw, var(--s-8));
   }
   .ss__title {
-    font-size: var(--fs-h2);
-    max-width: 16ch;
+    font-size: clamp(3rem, 6.6vw, 7.25rem);
+    letter-spacing: -0.075em;
+    line-height: 0.93;
+    max-width: 13ch;
   }
   .ss__lead {
     font-size: var(--fs-lead);
@@ -110,18 +116,13 @@ import Icon from '../ui/Icon.astro';
     padding-block: var(--s-6);
     border-bottom: 1px solid var(--line);
   }
+  .ss__detail { display: grid; gap: var(--s-3); }
   @media (min-width: 56em) {
-    .ss__list {
-      grid-template-columns: repeat(3, minmax(0, 1fr));
-      border-bottom: 1px solid var(--line);
-    }
     .ss__item {
-      padding: var(--s-6) var(--s-6) var(--s-6) 0;
-      border-bottom: 0;
-    }
-    .ss__item + .ss__item {
-      padding-left: var(--s-6);
-      border-left: 1px solid var(--line);
+      grid-template-columns: minmax(6.5rem, 0.62fr) minmax(0, 1.25fr) minmax(0, 1.3fr);
+      gap: clamp(var(--s-4), 3vw, var(--s-7));
+      align-items: start;
+      padding-block: clamp(var(--s-6), 4vw, var(--s-8));
     }
   }
   .ss__step {
@@ -140,7 +141,10 @@ import Icon from '../ui/Icon.astro';
     font-size: var(--fs-sm);
   }
   .ss__name {
-    font-size: var(--fs-h3);
+    font-size: clamp(1.85rem, 3.2vw, 3.65rem);
+    letter-spacing: -0.06em;
+    line-height: 1.02;
+    text-wrap: initial;
   }
   .ss__extra {
     display: flex;

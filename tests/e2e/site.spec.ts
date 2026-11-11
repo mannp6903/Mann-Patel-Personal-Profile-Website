@@ -119,7 +119,7 @@ test.describe('pages', () => {
 
   // The copy map from the growth report (10 Nov 2026): each page names its service and the place.
   const COPY: [string, string, string, string][] = [
-    ['/', 'Mann Patel | Web Design & Local SEO in Toronto', 'Web design and local SEO for Toronto service businesses', 'I build websites, improve local SEO and connect enquiry follow-up for Toronto service businesses. Start with a free website and Google check.'],
+    ['/', 'Mann Patel | Web Design, Local SEO & Automation in Toronto', 'Web design, local SEO and automation for Toronto businesses.', 'Web design, local SEO and automation for Toronto businesses. Serving Toronto and the GTA, with a focus on Scarborough and North York.'],
     ['/services/', 'Website, Local SEO & Booking Services | Mann Patel', 'Website, local SEO and enquiry services', 'Compare web design, local SEO, Google Business Profile setup and enquiry automation for Toronto service businesses. See packages and request a quote.'],
     ['/services/web-design/', 'Toronto Small Business Web Design | Mann Patel', 'Web design for Toronto small businesses', 'Get a mobile-friendly website or redesign with clear service pages, a tested enquiry path and a written handover. See projects and ask for a quote.'],
     ['/services/local-visibility/', 'Local SEO & Google Business Profile Setup in Toronto | Mann Patel', 'Local SEO and Google Business Profile setup in Toronto', 'Improve your Google presence with eligible profile setup, listing updates and a review workflow. Ask about SEO foundations and an AI search check.'],
@@ -244,7 +244,7 @@ test.describe('layout', () => {
       await page.goto('/');
       // The H1 names the service and the place (growth report, 10 Nov 2026); the slogan moved to the process strip.
       const h1 = page.locator('h1');
-      expect((await h1.innerText()).replace(/\s+/g, ' ').trim()).toBe('Web design and local SEO for Toronto service businesses');
+      expect((await h1.innerText()).replace(/\s+/g, ' ').trim()).toBe('Web design, local SEO and automation for Toronto businesses.');
       await expect(h1).toBeInViewport();
       const hero = page.locator('.hero');
       await expect(hero.locator('.hero__where')).toHaveText('Mann Patel · Independent website designer');
@@ -252,7 +252,7 @@ test.describe('layout', () => {
       await expect(cta).toBeInViewport();
       await expect(cta).toHaveAttribute('href', '/contact/?package=check-up#check');
       await expect(hero.getByRole('link', { name: 'See the work' })).toHaveAttribute('href', '/work/');
-      await expect(hero).toContainText('Serving North York, Scarborough and the GTA. Your domain and accounts stay in your name.');
+      await expect(hero).toContainText('Serving Toronto and the GTA, with a focus on Scarborough and North York. Your domain and accounts stay in your name.');
       // Both actions come before anything else focusable in the hero.
       const firstTwo = await hero.locator('a, button').evaluateAll((els) => els.slice(0, 2).map((e) => e.textContent!.replace(/\s+/g, ' ').trim()));
       expect(firstTwo[0]).toContain('Get a free website and Google check');
@@ -287,12 +287,31 @@ test.describe('navigation', () => {
     await page.setViewportSize({ width: 390, height: 844 });
     await page.goto('/');
     const btn = page.locator('[data-menu-open]');
+    await expect(btn).toHaveAttribute('aria-expanded', 'false');
     await btn.click();
     const sheet = page.locator('#site-menu');
     await expect(sheet).toBeVisible();
+    await expect(btn).toHaveAttribute('aria-expanded', 'true');
+    await expect(sheet.getByRole('navigation', { name: 'Menu' }).getByRole('link')).toHaveCount(4);
+    await expect(sheet.locator('a[href="/contact/"]')).toHaveCount(1);
+    await expect(sheet.getByRole('link', { name: /Email Mann/ })).toHaveAttribute('href', /^mailto:info@mannpatel\.me\?/);
     await expect(sheet.getByRole('link', { name: 'Services' })).toBeVisible();
     await expect(sheet.locator('a[href="/terms/"]')).toBeVisible();
     await page.keyboard.press('Escape');
+    await expect(sheet).toBeHidden();
+    await expect(btn).toHaveAttribute('aria-expanded', 'false');
+    await expect(btn).toBeFocused();
+  });
+
+  test('phone menu dismisses from the backdrop and marks the current page', async ({ page }) => {
+    await page.setViewportSize({ width: 390, height: 844 });
+    await page.goto('/services/');
+    const btn = page.locator('[data-menu-open]');
+    await btn.click();
+    const sheet = page.locator('#site-menu');
+    await expect(sheet.getByRole('link', { name: 'Services', exact: true })).toHaveAttribute('aria-current', 'page');
+    await page.waitForTimeout(400);
+    await page.mouse.click(2, 400);
     await expect(sheet).toBeHidden();
     await expect(btn).toBeFocused();
   });
@@ -372,7 +391,6 @@ test.describe('home interactions', () => {
     await expect(tune).not.toHaveClass(/is-locked/);
     await page.keyboard.press('ArrowRight');
     await expect(tune).toHaveClass(/is-locked/);
-    await expect(page.locator('.hero')).toHaveClass(/is-locked/);
     await expect(dial).toHaveAttribute('aria-valuetext', '104.3 FM, signal locked');
     await expect(page.locator('[data-tune-status]')).toHaveText('Signal locked: Mann Patel, Toronto.');
     await expect.poll(detune).toBe(0);
@@ -387,6 +405,7 @@ test.describe('home interactions', () => {
     await expect(freq).toHaveText('104.3');
     await expect(page.locator('[data-tune]')).toHaveClass(/is-locked/);
     const screen = page.locator('[data-tune-screen]');
+    await screen.scrollIntoViewIfNeeded();
     const b = (await screen.boundingBox())!;
     await page.mouse.move(b.x + b.width * 0.6, b.y + b.height / 2);
     await page.mouse.down();
@@ -528,41 +547,40 @@ test.describe('home interactions', () => {
       await page.waitForTimeout(700);
       const fit = await sheet.evaluate((d) => d.scrollHeight - d.clientHeight);
       expect(fit).toBeLessThanOrEqual(1);
-      for (const name of ['Home', 'Services', 'Work', 'About', 'Contact', 'Start a project', 'Privacy', 'Terms'])
+      for (const name of ['Home', 'Services', 'Work', 'About', 'Start a project', 'Privacy', 'Terms'])
         await expect(sheet.getByRole('link', { name, exact: name !== 'Start a project' })).toBeInViewport();
       await expect(sheet.getByRole('link', { name: /Email Mann/ })).toBeInViewport();
     });
   }
 
-  test('phones: Contact stays one tap away, and the clear portrait follows the buttons', async ({ page }) => {
+  test('phones: Contact stays one tap away, and the sculpture follows the buttons', async ({ page }) => {
     await page.setViewportSize({ width: 360, height: 800 });
     await page.goto('/');
     const cta = page.locator('[data-header]').getByRole('link', { name: 'Contact', exact: true });
     await expect(cta).toBeVisible();
     await expect(cta).toHaveAttribute('href', '/contact/');
     await expect(page.locator('[data-menu-open]')).toBeVisible();
+    const art = page.locator('[data-signal-sculpture]');
+    await expect(art).toBeVisible();
     const gap = await page.evaluate(
-      () => document.querySelector('[data-tune]')!.getBoundingClientRect().top - document.querySelector('.hero__actions')!.getBoundingClientRect().bottom,
+      () => document.querySelector('[data-signal-sculpture]')!.getBoundingClientRect().top - document.querySelector('.hero__actions')!.getBoundingClientRect().bottom,
     );
+    expect(gap).toBeGreaterThanOrEqual(0);
     expect(gap).toBeLessThan(60);
-    await page.locator('[data-tune-screen]').scrollIntoViewIfNeeded();
-    await page.waitForTimeout(1500);
-    await expect(page.locator('[data-tune]')).toHaveClass(/is-locked/);
-    await expect(page.locator('.hero')).not.toHaveClass(/is-tuning/);
   });
 
-  test('the real, whole photo is in the hero at every size, with the way into About', async ({ page }) => {
+  test('the founder section keeps the real, whole portrait and the way into About', async ({ page }) => {
     for (const [w, h] of [[390, 844], [820, 1180], [1440, 900]]) {
       await page.setViewportSize({ width: w, height: h });
       await page.goto('/');
-      const photo = page.locator('[data-tune] img');
+      const photo = page.locator('#how-i-work [data-tune] img');
+      await photo.scrollIntoViewIfNeeded();
       await expect(photo).toBeVisible();
       await expect(photo).toHaveAttribute('alt', /Mann Patel smiling/);
       await page.waitForFunction(() => (document.querySelector('[data-tune] img') as HTMLImageElement).naturalWidth > 0);
       await expect(page.locator('[data-tune]').getByRole('link', { name: 'Who is this guy?' })).toHaveAttribute('href', '/about/');
     }
-    await expect(page.locator('.hero__photo, #hero-art, .hero__avatar')).toHaveCount(0);
-    await expect(page.locator('section.about img')).toHaveCount(0);
+    await expect(page.locator('.hero [data-tune]')).toHaveCount(0);
   });
 
   test('without JavaScript, the header links show and content is visible', async ({ browser }) => {
@@ -571,7 +589,9 @@ test.describe('home interactions', () => {
     await page.goto('/');
     await expect(page.locator('.hdr__nav').getByRole('link', { name: 'Services' })).toBeVisible();
     await expect(page.locator('[data-menu-open]')).toBeHidden();
-    // The tuner without JavaScript: just the clear photo and its three lines; no dial.
+    await expect(page.locator('.signal-sculpture__poster')).toBeVisible();
+    await expect(page.locator('[data-signal-toggle]')).toBeHidden();
+    // The tuner without JavaScript: just the clear photo and its three lines.
     await expect(page.locator('[data-tune] img')).toBeVisible();
     expect(await page.locator('[data-tune] img').evaluate((e) => getComputedStyle(e).getPropertyValue('--d').trim())).toBe('0');
     await expect(page.locator('.tune__dial')).toBeHidden();
@@ -590,7 +610,7 @@ test.describe('phones: short pages', () => {
     // 10 Nov 2026 (growth report): the explained process strip on Home, the three named services
     // at the top of Services, the repair option, the AI search check, the scoped follow-up options
     // with a sample test log, and "Offered as" links on case studies each add part of a screen.
-    '/': 12.75, // the real photo in the phone hero, the labelled walkthrough, and call/WhatsApp in the footer
+    '/': 12.75, // sculpture, real work, the labelled walkthrough, and the founder’s portrait
     '/services/': 14.75,
     '/work/': 4.5,
     '/work/nest-and-rest-cleaning/': 7.25,
@@ -900,18 +920,13 @@ test.describe('direct contact', () => {
     await expect(page.locator('#reach .ca__number')).toContainText(/\d{3}-\d{2}X-XXXX/);
   });
 
-  test('call and WhatsApp are in the footer and the phone menu; LinkedIn is a button in the footer, menu and About', async ({ page }) => {
+  test('call, WhatsApp and LinkedIn stay available in the footer; LinkedIn is also on About', async ({ page }) => {
     await page.setViewportSize({ width: 390, height: 844 });
     await page.goto('/');
     const footer = page.locator('footer');
     await expect(footer.locator('a[data-reach="call"]').first()).toHaveAttribute('href', /^tel:\+1\d{10}$/);
     await expect(footer.getByRole('link', { name: /Message on WhatsApp/ })).toHaveAttribute('href', /^https:\/\/wa\.me\/1\d{10}\?text=/);
     await expect(footer.getByRole('link', { name: 'Mann Patel on LinkedIn' })).toHaveAttribute('href', 'https://www.linkedin.com/in/mannp6903/');
-    await page.locator('[data-menu-open]').click();
-    const sheet = page.locator('[data-menu]');
-    await expect(sheet.getByRole('link', { name: 'Call Mann' })).toHaveAttribute('href', /^tel:\+1\d{10}$/);
-    await expect(sheet.getByRole('link', { name: /WhatsApp/ })).toHaveAttribute('href', /^https:\/\/wa\.me\//);
-    await expect(sheet.getByRole('link', { name: 'Mann Patel on LinkedIn' })).toBeInViewport();
     await page.goto('/about/');
     await expect(page.locator('main').getByRole('link', { name: 'Mann Patel on LinkedIn' })).toBeVisible();
     // Only confirmed profiles: no Instagram or Facebook button until a link is set.
@@ -1176,8 +1191,29 @@ test.describe('motion (restrained in round 7)', () => {
     await page.mouse.move(400, 400);
     await page.waitForTimeout(1200);
     await expect(page.locator('.fx-field canvas')).toHaveCount(0);
+    await expect(page.locator('.signal-sculpture__poster')).toBeVisible();
+    await expect(page.locator('[data-signal-canvas]')).toBeHidden();
+    await expect(page.locator('[data-signal-toggle]')).toBeHidden();
     await expect(page.locator('[data-scramble] [aria-hidden="true"]')).toHaveCount(0);
     await ctx.close();
+  });
+
+  test('the signal sculpture renders and its keyboard control pauses and resumes the animation', async ({ page }) => {
+    await page.setViewportSize({ width: 1440, height: 900 });
+    await page.goto('/');
+    const canvas = page.locator('[data-signal-canvas]');
+    const snapshot = () => canvas.evaluate((node) => (node as HTMLCanvasElement).toDataURL());
+    await expect(canvas).toBeVisible();
+    const toggle = page.getByRole('button', { name: 'Pause signal animation' });
+    await toggle.focus();
+    await page.keyboard.press('Space');
+    await expect(toggle).toHaveAttribute('aria-pressed', 'true');
+    const still = await snapshot();
+    await page.waitForTimeout(150);
+    expect(await snapshot()).toBe(still);
+    await page.keyboard.press('Space');
+    await expect(toggle).toHaveAttribute('aria-pressed', 'false');
+    await expect.poll(snapshot).not.toBe(still);
   });
 
   test('removed effects stay removed: no marquee, cursor follower, tilt or scroll-lit text', async ({ page }) => {
