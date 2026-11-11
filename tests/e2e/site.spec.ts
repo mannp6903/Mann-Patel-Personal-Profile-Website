@@ -119,7 +119,7 @@ test.describe('pages', () => {
 
   // The copy map from the growth report (10 Nov 2026): each page names its service and the place.
   const COPY: [string, string, string, string][] = [
-    ['/', 'Mann Patel | Web Design & Local SEO in Toronto', 'Web design and local SEO for Toronto service businesses', 'I build websites, improve local SEO and connect enquiry follow-up for Toronto service businesses. Start with a free website and Google check.'],
+    ['/', 'Mann Patel | Web Design, Local SEO & Automation in Toronto', 'Web design, local SEO and automation for Toronto businesses.', 'Web design, local SEO and automation for Toronto businesses. Serving Toronto and the GTA, with a focus on Scarborough and North York.'],
     ['/services/', 'Website, Local SEO & Booking Services | Mann Patel', 'Website, local SEO and enquiry services', 'Compare web design, local SEO, Google Business Profile setup and enquiry automation for Toronto service businesses. See packages and request a quote.'],
     ['/services/web-design/', 'Toronto Small Business Web Design | Mann Patel', 'Web design for Toronto small businesses', 'Get a mobile-friendly website or redesign with clear service pages, a tested enquiry path and a written handover. See projects and ask for a quote.'],
     ['/services/local-visibility/', 'Local SEO & Google Business Profile Setup in Toronto | Mann Patel', 'Local SEO and Google Business Profile setup in Toronto', 'Improve your Google presence with eligible profile setup, listing updates and a review workflow. Ask about SEO foundations and an AI search check.'],
@@ -244,7 +244,7 @@ test.describe('layout', () => {
       await page.goto('/');
       // The H1 names the service and the place (growth report, 10 Nov 2026); the slogan moved to the process strip.
       const h1 = page.locator('h1');
-      expect((await h1.innerText()).replace(/\s+/g, ' ').trim()).toBe('Web design and local SEO for Toronto service businesses');
+      expect((await h1.innerText()).replace(/\s+/g, ' ').trim()).toBe('Web design, local SEO and automation for Toronto businesses.');
       await expect(h1).toBeInViewport();
       const hero = page.locator('.hero');
       await expect(hero.locator('.hero__where')).toHaveText('Mann Patel · Independent website designer');
@@ -252,7 +252,7 @@ test.describe('layout', () => {
       await expect(cta).toBeInViewport();
       await expect(cta).toHaveAttribute('href', '/contact/?package=check-up#check');
       await expect(hero.getByRole('link', { name: 'See the work' })).toHaveAttribute('href', '/work/');
-      await expect(hero).toContainText('Serving North York, Scarborough and the GTA. Your domain and accounts stay in your name.');
+      await expect(hero).toContainText('Serving Toronto and the GTA, with a focus on Scarborough and North York. Your domain and accounts stay in your name.');
       // Both actions come before anything else focusable in the hero.
       const firstTwo = await hero.locator('a, button').evaluateAll((els) => els.slice(0, 2).map((e) => e.textContent!.replace(/\s+/g, ' ').trim()));
       expect(firstTwo[0]).toContain('Get a free website and Google check');
