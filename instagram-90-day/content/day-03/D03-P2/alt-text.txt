@@ -1,0 +1,16 @@
+01: Slide 1 of 8. Text: Owner’s playbook · 03 The 2-minute form test. A form can fail without telling anyone. Do this once a month.
+
+02: Slide 2 of 8. A phone showing a demo quote form. Labelled “Demo · fictional business”. Text: Step 1 Be the customer. Your phone, mobile data, and an email address that isn’t the business inbox.
+
+03: Slide 3 of 8. A phone showing a thank-you screen. Labelled “Demo · fictional business”. Text: Step 2 Read what they see. A good screen says who replies, and by when.
+
+04: Slide 4 of 8. A phone showing a lock screen with notifications. Labelled “Demo · fictional business”. Text: Step 3 Find it. Business inbox, then spam, then any other tab. Note the time.
+
+05: Slide 5 of 8. A checklist with tick boxes. Text: Step 4 Hit reply. Your reply should go to the customer Not to a no-reply address, and not back to the form tool. Check it arrived Look in the test address you used in step 1.
+
+06: Slide 6 of 8. Labelled “Demonstration · fictional data”. Text: Step 5 · Write it down Pass or fail. Form sent from a phone (Pass) Screen said who replies, and when (Pass) Arrived in the business inbox (Fail · spam) Reply reached the customer (Pass) One fail means fix it before you spend money sending people to the site.
+
+07: Slide 7 of 8. Text: If a step fails Where to look The “send to” address In the form settings. Is it an inbox someone reads? Spam rules Mark it “not spam” and add a rule for your form’s messages. The form tool’s delivery log Many tools keep one. It shows what was sent, and where. Whoever built the site Send them this post.
+
+08: Slide 8 of 8. Text: First Monday. Every month. Save this and set the reminder now. Tomorrow: The button that wasn’t there
+

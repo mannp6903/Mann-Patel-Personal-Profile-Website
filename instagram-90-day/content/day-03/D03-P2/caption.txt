@@ -1,0 +1,13 @@
+The 2-minute form test. Do it once a month.
+
+1. Be the customer: your phone, mobile data, and an email address that isn’t the business inbox.
+2. Read what they see: a good screen says who replies, and by when.
+3. Find it: business inbox, then spam, then any other tab. Note the time.
+4. Hit reply: it should reach the customer, not a no-reply address.
+5. Write it down: pass or fail for each step.
+
+If a step fails, start with the form’s “send to” address, then your spam rules, then the form tool’s delivery log if it has one.
+
+Save this and set a reminder for the first Monday of every month.
+
+#TorontoSmallBusiness #Scarborough #NorthYork #SmallBusinessWebsite #WebDesignToronto #SmallBusinessTips #CustomerService

@@ -1,0 +1,14 @@
+{
+  "name": "mann-patel-instagram-90-day-production",
+  "private": true,
+  "type": "module",
+  "description": "Render pipeline for the 90-day Instagram campaign. Isolated from the website build.",
+  "scripts": {
+    "audio": "python3 render/audio/synth.py source/audio",
+    "render": "node render/render.mjs",
+    "qa": "node render/qa.mjs"
+  },
+  "dependencies": {
+    "qrcode": "1.5.4"
+  }
+}

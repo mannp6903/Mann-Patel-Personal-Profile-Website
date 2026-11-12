@@ -1,0 +1,15 @@
+The customer thinks you got it.
+
+Sam fills in a quote form and sees “Thanks! We’ll be in touch.” Priya, the owner, never gets it. The form still sends to an old address a previous designer set up years ago. No error. No bounce. Nobody reading it.
+
+You can’t see this failure from the inside, so test it from the outside:
+1. Send a test enquiry from your phone.
+2. Check the inbox it should reach, and the spam folder.
+3. Reply to it: does your reply reach the customer?
+4. Do it again next month.
+
+(Demo with a fictional business. The failure is real and common.)
+
+Send this to whoever set up your website. The next post walks through the test step by step.
+
+#TorontoSmallBusiness #Scarborough #NorthYork #SmallBusinessWebsite #WebDesignToronto #SmallBusinessTips #CustomerService

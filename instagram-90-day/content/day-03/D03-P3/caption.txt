@@ -1,0 +1,9 @@
+A design rule I don’t bend: every form I build admits when it can’t send.
+
+If a message can’t be delivered, the visitor is told straight away. They keep everything they typed, and they get another way to reach you (an email address, a phone number). No fake “Thanks!” screen. That’s how my own contact form at mannpatel.me works.
+
+Why it matters: a customer who knows a message failed will try again. A customer who thinks it worked will wait, and then quietly go somewhere else.
+
+Your turn: does your form tell people who replies, and by when? Answer in the comments.
+
+#TorontoSmallBusiness #Scarborough #NorthYork #SmallBusinessWebsite #WebDesignToronto

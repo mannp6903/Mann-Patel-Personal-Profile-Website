@@ -1,0 +1,4 @@
+# Regenerable working files (production/render/audio/synth.py rebuilds the audio in ~40 s)
+production/source/audio/*.wav
+production/.cache/
+production/node_modules/

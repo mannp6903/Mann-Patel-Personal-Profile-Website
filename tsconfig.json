@@ -1,5 +1,5 @@
 {
   "extends": "astro/tsconfigs/strict",
   "include": [".astro/types.d.ts", "**/*"],
-  "exclude": ["dist", "node_modules", "private", "qa-output", "test-results", "preview-static", "preview-artifact"]
+  "exclude": ["dist", "node_modules", "private", "qa-output", "test-results", "preview-static", "preview-artifact", "instagram-90-day"]
 }
