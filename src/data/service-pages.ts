@@ -228,9 +228,10 @@ export const servicePages: ServicePage[] = [
       {
         id: 'ai-search',
         eyebrow: 'Included in the set-up',
-        title: 'AI search visibility check',
-        body: 'People now ask ChatGPT, Gemini and Perplexity to recommend a local business. I ask each one the same short list of questions a customer might ask, and record what it says about you on a dated sheet. You may see this called GEO (generative engine optimization) or AEO (answer engine optimization): making sure AI answers can find accurate, public facts about your business.',
+        title: 'AI search visibility check (AEO)',
+        body: 'People now ask ChatGPT, Gemini and Perplexity to recommend a local business. I ask each one the same short list of questions a customer might ask, and record what it says about you on a dated sheet. This work is called AEO (answer engine optimization), or sometimes GEO (generative engine optimization): making sure AI answers can find accurate, public facts about your business.',
         items: [
+          'Questions customers really ask, answered in plain words on your website, with FAQ and service details marked up so machines can read them',
           'The same questions each time, so a later check can be compared with this one',
           'What each assistant said, whether it linked your website, and which facts it used',
           'The fixes are the ordinary local SEO ones: accurate public details, clear pages and consistent listings',

@@ -26,6 +26,9 @@ export function personJsonLd() {
     name: profile.name,
     jobTitle: 'Independent website designer',
     description: profile.descriptor,
+    // Tells search engines (and Google's AI Overview) which Mann Patel this is: Nov 2026 searches for
+    // "mann patel.me" mixed this site up with a different person's similarly named domain.
+    disambiguatingDescription: 'Website designer and local SEO consultant based in Toronto, Ontario, Canada (mannpatel.me)',
     ...(url ? { url } : {}),
     // The real portrait (square crop, public/brand/), not the social share card.
     ...(profile.portrait && url ? { image: new URL('/brand/mann-patel-portrait.jpg', url).toString() } : {}),
@@ -51,6 +54,8 @@ export function personJsonLd() {
       'Website redesign',
       'Local SEO',
       'Google Business Profile',
+      'Answer engine optimization (AEO)',
+      'AI search visibility',
       'Google Search Console',
       'Google Analytics 4',
       'Enquiry follow-up',
