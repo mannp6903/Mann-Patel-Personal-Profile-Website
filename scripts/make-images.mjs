@@ -9,9 +9,32 @@ import { fileURLToPath } from 'node:url';
 const root = fileURLToPath(new URL('..', import.meta.url));
 await mkdir(`${root}public/og`, { recursive: true });
 
+// favicon.svg is the stacked MΛNN / PΛTEL icon (built by scripts/make-favicon.py).
+// Google Search wants a square icon whose size is a multiple of 48 px and crops it to a circle;
+// /favicon.ico is also the first place crawlers and older browsers look.
 const favicon = await readFile(`${root}public/favicon.svg`);
-await sharp(favicon, { density: 384 }).resize(32, 32).png().toFile(`${root}public/favicon-32.png`);
-await sharp(favicon, { density: 768 }).resize(180, 180).png().toFile(`${root}public/apple-touch-icon.png`);
+const iconPng = (size) => sharp(favicon, { density: 1024 }).resize(size, size).png().toBuffer();
+await writeFile(`${root}public/favicon-192.png`, await iconPng(192));
+await writeFile(`${root}public/apple-touch-icon.png`, await iconPng(180));
+// A multi-size .ico (16, 32, 48 px) holding PNG images, which every current browser reads.
+const icoSizes = [16, 32, 48];
+const icoImages = await Promise.all(icoSizes.map(iconPng));
+const icoHeader = Buffer.alloc(6 + 16 * icoSizes.length);
+icoHeader.writeUInt16LE(0, 0); // reserved
+icoHeader.writeUInt16LE(1, 2); // type: icon
+icoHeader.writeUInt16LE(icoSizes.length, 4);
+let icoOffset = icoHeader.length;
+icoSizes.forEach((size, i) => {
+  const entry = 6 + 16 * i;
+  icoHeader.writeUInt8(size, entry); // width
+  icoHeader.writeUInt8(size, entry + 1); // height
+  icoHeader.writeUInt16LE(1, entry + 4); // colour planes
+  icoHeader.writeUInt16LE(32, entry + 6); // bits per pixel
+  icoHeader.writeUInt32LE(icoImages[i].length, entry + 8);
+  icoHeader.writeUInt32LE(icoOffset, entry + 12);
+  icoOffset += icoImages[i].length;
+});
+await writeFile(`${root}public/favicon.ico`, Buffer.concat([icoHeader, ...icoImages]));
 
 const wordmark = (await readFile(`${root}public/brand/mann-patel-wordmark-lime.svg`, 'utf8'))
   .replace(/<title>.*?<\/title>/, '')
@@ -43,4 +66,4 @@ await page.waitForSelector('body[data-ready="1"]');
 await page.screenshot({ path: `${root}public/og/default.png` });
 await browser.close();
 await rm(tmp);
-console.log('wrote favicon-32.png, apple-touch-icon.png, og/default.png');
+console.log('wrote favicon.ico, favicon-192.png, apple-touch-icon.png, og/default.png');

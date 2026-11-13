@@ -1,7 +1,9 @@
 # DESIGN.md · "Signal" (round 5, Nov 2026), compact editorial portfolio (round 7)
 
 > **Logo update (10 Nov 2026): MΛNN PΛTEL.** The header logo is the outlined MΛNN PΛTEL wordmark
-> (`components/ui/Wordmark.astro`, files in `public/brand/`); the favicon is a white M on black.
+> (`components/ui/Wordmark.astro`, files in `public/brand/`). The favicon (13 Nov 2026) is the stacked
+> MΛNN / PΛTEL icon: black tile, off-white letters, lime Λ's, bold Geist outlines sized to survive Google's
+> circular crop (`scripts/make-favicon.py`, then `npm run images`).
 > To sit with the lighter logo, headlines are now semi-bold at normal width (weights 580–620, `font-stretch`
 > 100%, hover widening kept but softer) instead of heavy and expanded. Colours, layout and motion are
 > unchanged: the lime accent stays. Details:

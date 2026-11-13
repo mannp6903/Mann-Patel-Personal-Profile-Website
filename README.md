@@ -37,7 +37,8 @@ npm run preview             # node ./dist/server/entry.mjs → http://localhost:
 | `npm run test:e2e` | Browser tests (Playwright + axe): pages, accessibility, layout 320–1440 px and 200% text, menu, ⌘K menu, signal portrait, finder, reduced motion, no-JS, every form path including the email fallback, and the round-6 effects (WebGL field, cursor, magnetic, decoding, marquee, scroll-lit text, spotlight, tilt, transitions, script-free first screen). Run `npm run build` first. |
 | `npm run qa:captures` | Full-page screenshots at 360/390/768/1024/1440 + overflow report (server must be running) |
 | `npm run qa:lighthouse` | Lighthouse mobile run (`npm i --no-save lighthouse` first) |
-| `npm run images` | Regenerate favicons, the default sharing image and one sharing card per case study (from its real capture and status) |
+| `python3 scripts/make-favicon.py` | Rebuild `public/favicon.svg`, the stacked MΛNN / PΛTEL icon (`pip install fonttools brotli` first; then run `npm run images`) |
+| `npm run images` | Regenerate favicon.ico and the PNG icons, the default sharing image and one sharing card per case study (from its real capture and status) |
 | `python3 scripts/subset-fonts.py` | Re-cut the web fonts to the characters the copy uses (`pip install fonttools brotli` first) |
 | `npm run preview:static` | Export a server-less copy with relative links to `preview-static/` (for private previews; the form shows "not connected") |
 | `npm run prelaunch` | Production gate: env, preview markers, canonicals, robots/sitemap, internal links |
