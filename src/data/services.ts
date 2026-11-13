@@ -171,7 +171,7 @@ export const services: Service[] = [
   {
     id: 'listings',
     group: 'found',
-    name: 'Apple Maps, Bing and AI assistant check',
+    name: 'Apple Maps, Bing and AI answers (AEO) check',
     summary:
       'Your name, address, phone and hours made consistent on Apple Maps, Bing, Yelp and Facebook, plus a check of what ChatGPT, Gemini and Perplexity say about you.',
     problem:

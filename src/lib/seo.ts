@@ -54,6 +54,8 @@ export function personJsonLd() {
       'Website redesign',
       'Local SEO',
       'Google Business Profile',
+      'Answer engine optimization (AEO)',
+      'AI search visibility',
       'Google Search Console',
       'Google Analytics 4',
       'Enquiry follow-up',
