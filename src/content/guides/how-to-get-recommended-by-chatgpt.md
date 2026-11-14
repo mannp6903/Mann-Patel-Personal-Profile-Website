@@ -2,7 +2,8 @@
 title: How to get your business recommended by ChatGPT and Google AI Overviews
 seoTitle: How to Get Recommended by ChatGPT
 description: 'How ChatGPT, Gemini and Google AI Overviews find local businesses, and the plain local SEO work that helps them describe yours accurately.'
-draft: true
+draft: false
+published: 2026-11-14
 service: /services/ai-search-optimization/
 related:
   - google-business-profile-without-a-storefront

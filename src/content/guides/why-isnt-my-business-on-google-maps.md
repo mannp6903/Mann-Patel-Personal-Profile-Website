@@ -2,7 +2,8 @@
 title: Why isn’t my business on Google Maps? A checklist
 seoTitle: Why Isn’t My Business on Google Maps?
 description: 'A checklist for when your business doesn’t show on Google Maps: eligibility, verification, category, service area and listings. Or ask for a free check.'
-draft: true
+draft: false
+published: 2026-11-14
 service: /services/local-visibility/
 related:
   - google-business-profile-without-a-storefront

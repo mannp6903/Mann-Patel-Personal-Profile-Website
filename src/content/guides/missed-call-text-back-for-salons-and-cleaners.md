@@ -2,7 +2,8 @@
 title: Missed-call text-back for salons and cleaning companies
 seoTitle: Missed-Call Text-Back for Salons and Cleaners
 description: 'How missed-call text-back works for salons and cleaning companies, what it costs to run, and what to set up so callers don’t move on.'
-draft: true
+draft: false
+published: 2026-11-14
 service: /services/enquiry-follow-up/
 related:
   - how-much-does-a-website-cost-in-toronto

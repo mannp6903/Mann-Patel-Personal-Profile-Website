@@ -62,14 +62,12 @@ Plan and status: [`docs/seo/PLAN.md`](seo/PLAN.md). These pages wait on you; not
    names, e.g. `neighbourhoods: ['First neighbourhood', 'Second neighbourhood']`. That one change publishes
    `/web-design-scarborough/`: it is built, added to the sitemap, and linked from the "Based in Scarborough" lines in
    the footer, the service pages and the industry pages. Until then it is a draft you can see in a preview build only.
-2. **Read and publish the remaining three guides.** Five guides are in `src/content/guides/`. The cost guide and the
-   Google Business Profile guide were **published on 14 Nov 2026** (at your request: "make everything live"). The other
-   three were **written in full on 14 Nov 2026** and wait for your review: getting recommended by ChatGPT and Google AI
-   Overviews, missed-call text-back for salons and cleaners, and the Google Maps checklist. Their claims about Google,
-   OpenAI, Microsoft and Canada's anti-spam law link to those organisations' own pages. Things only you have were left
-   out rather than invented: a real example from your own AI checks, screenshots from a real check, your phone
-   provider's prices. Add them if you like. To publish one, set `draft: false` and `published: 2026-11-28` (the day you
-   publish) in its front matter; one every two weeks was the plan.
+2. **Read the five guides on the live site.** All five in `src/content/guides/` were **published on 14 Nov 2026** at your
+   request ("make everything live"): the cost guide, the Google Business Profile guide, getting recommended by ChatGPT
+   and Google AI Overviews, missed-call text-back for salons and cleaners, and the Google Maps checklist. Tell me
+   anything to change. Things only you have were left out rather than invented, and can be added: a real example from
+   your own AI checks, screenshots from a real check, your phone provider's prices. To unpublish one, set
+   `draft: true`. New guides: write them in `src/content/guides/`, then set `draft: false` and `published: YYYY-MM-DD`.
 3. **After each publish:** deploy, then request indexing in Search Console for the new address (see
    [`docs/seo/OFFSITE-CHECKLIST.md`](seo/OFFSITE-CHECKLIST.md)).
 
