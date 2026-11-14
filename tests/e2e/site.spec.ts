@@ -119,7 +119,7 @@ test.describe('pages', () => {
 
   // The copy map from the growth report (10 Nov 2026): each page names its service and the place.
   const COPY: [string, string, string, string][] = [
-    ['/', 'Mann Patel | Web Design, Local SEO & AI Automation in Toronto', 'Web design, local SEO and AI automation for Toronto businesses.', 'Web design, local SEO and AI automation for Toronto businesses. Websites from $1,950 CAD for up to five pages. Serving Toronto and the GTA, with a focus on Scarborough and North York.'],
+    ['/', 'Mann Patel | Local SEO, Websites & AI Automation in Toronto', 'Local SEO, websites and AI automation. Get found on Google and in AI search (GEO and AEO), then turn searches into bookings. For Toronto businesses.', 'Local SEO, websites and AI automation for Toronto businesses: Google Business Profile, AI search optimization (GEO and AEO) and enquiry follow-up. Websites from $1,950 CAD.'],
     ['/services/', 'Website, Local SEO & Booking Services | Mann Patel', 'Website, local SEO and enquiry services', 'Compare web design, local SEO, Google Business Profile setup and enquiry automation for Toronto service businesses. See packages and request a quote.'],
     ['/services/web-design/', 'Toronto Small Business Web Design | Mann Patel', 'Web design for Toronto small businesses', 'Get a mobile-friendly website or redesign with clear service pages, a tested enquiry path and a written handover. See projects and ask for a quote.'],
     ['/services/local-visibility/', 'Local SEO & Google Business Profile Setup in Toronto | Mann Patel', 'Local SEO and Google Business Profile setup in Toronto', 'Improve your Google presence with eligible profile setup, listing updates and a review workflow. Ask about SEO foundations and an AI search check.'],
@@ -244,25 +244,28 @@ test.describe('layout', () => {
       await page.goto('/');
       // The H1 names the service and the place (growth report, 10 Nov 2026); the slogan moved to the process strip.
       const h1 = page.locator('h1');
-      expect((await h1.innerText()).replace(/\s+/g, ' ').trim()).toBe('Web design, local SEO and AI automation for Toronto businesses.');
+      expect((await h1.innerText()).replace(/\s+/g, ' ').trim()).toBe('Local SEO, websites and AI automation. Get found on Google and in AI search (GEO and AEO), then turn searches into bookings. For Toronto businesses.');
       await expect(h1).toBeInViewport();
       const hero = page.locator('.hero');
-      // 14 Nov 2026: who you're dealing with comes first, with his photo.
+      // 14 Nov 2026: who you're dealing with comes first (round 3: no small face; the photo is the graph's core).
       await expect(hero.locator('.hero__hi')).toHaveText('Hi, I’m Mann Patel.');
-      await expect(hero.locator('.hero__face')).toBeInViewport();
+      await expect(hero.locator('.hero__face')).toHaveCount(0);
       const cta = hero.getByRole('link', { name: 'Get a free website and Google check' });
       await expect(cta).toBeInViewport();
       await expect(cta).toHaveAttribute('href', '/contact/?package=check-up#check');
       await expect(hero.getByRole('link', { name: 'See prices' })).toHaveAttribute('href', '/pricing/');
-      await expect(hero.locator('.hero__price')).toContainText('$1,950 for a website of up to five pages.');
+      await expect(hero.locator('.hero__price')).toContainText('$1,950 website');
+      // 14 Nov 2026 (round 2): the hero names every service, not only websites.
+      for (const name of ['Local SEO & Google Business Profile', 'AI search visibility (GEO & AEO)', 'Enquiry follow-up & AI automation', 'Online booking', 'Websites & fixes', 'Care, print & social'])
+        await expect(hero.locator('.hero__services')).toContainText(name);
       await expect(hero.locator('.hero__price')).toBeInViewport();
       // Dated examples of real work sit next to the buttons (Quickstart, 13 Nov 2026).
       await expect(hero.locator('.hero__recent a[href="/work/samp-hair-spa/"]')).toContainText('Oct 2026');
       await expect(hero.locator('.hero__recent a[href="/work/nest-and-rest-cleaning/"]')).toContainText('Oct 2026');
-      // Both actions come before anything else focusable in the hero.
-      const firstTwo = await hero.locator('a, button').evaluateAll((els) => els.slice(0, 2).map((e) => e.textContent!.replace(/\s+/g, ' ').trim()));
-      expect(firstTwo[0]).toContain('Get a free website and Google check');
-      expect(firstTwo[1]).toContain('See prices');
+      // The two actions sit side by side, in this order.
+      const actions = await hero.locator('.hero__actions .btn-row a').evaluateAll((els) => els.map((e) => e.textContent!.replace(/\s+/g, ' ').trim()));
+      expect(actions[0]).toContain('Get a free website and Google check');
+      expect(actions[1]).toContain('See prices');
     });
   }
 
@@ -275,7 +278,8 @@ test.describe('layout', () => {
     // 14 Nov 2026: the hero carries the photo graph and prices instead; same budgets on desktop,
     // and on phones the large photo graph replaces the sculpture and the process strip.
     [1440, 1000, 1150, 1500],
-    [390, 844, 1800, 1900],
+    // 14 Nov 2026 (round 2): the phone hero now names every service, so it moved down about 100 px.
+    [390, 844, 1900, 2050],
   ]) {
     test(`selected work starts by y=${maxHeading} at ${w}x${h}`, async ({ page }) => {
       await page.setViewportSize({ width: w, height: h });
@@ -510,18 +514,29 @@ test.describe('home interactions', () => {
     });
   }
 
-  test('phones: Contact stays one tap away, and the photo graph follows the buttons', async ({ page }) => {
+  test('phones: the header has only the logo and Menu (no separate Contact button), and the photo graph follows the buttons', async ({ page }) => {
     await page.setViewportSize({ width: 360, height: 800 });
     await page.goto('/');
-    const cta = page.locator('[data-header]').getByRole('link', { name: 'Contact', exact: true });
-    await expect(cta).toBeVisible();
-    await expect(cta).toHaveAttribute('href', '/contact/');
+    // 14 Nov 2026 (round 2): Mann asked to remove the top Contact button on phones; Contact stays in the menu.
+    await expect(page.locator('[data-header]').getByRole('link', { name: 'Contact', exact: true })).toBeHidden();
     await expect(page.locator('[data-menu-open]')).toBeVisible();
     const gap = await page.evaluate(
-      () => document.querySelector('[data-agent-graph]')!.getBoundingClientRect().top - document.querySelector('.hero__actions')!.getBoundingClientRect().bottom,
+      () => document.querySelector('[data-agent-graph]')!.getBoundingClientRect().top - document.querySelector('.hero__text')!.getBoundingClientRect().bottom,
     );
     expect(gap).toBeGreaterThanOrEqual(0);
     expect(gap).toBeLessThan(60);
+  });
+
+  test('small phones: the headline and both buttons fit on the first screen', async ({ page }) => {
+    // 14 Nov 2026: Mann saw the first screen cut off on his phone; the service list now follows the buttons on phones.
+    for (const [w, h] of [[320, 568], [360, 640], [375, 667], [390, 844]]) {
+      await page.setViewportSize({ width: w, height: h });
+      await page.goto('/');
+      await expect(page.locator('h1')).toBeInViewport({ ratio: 1 });
+      await expect(page.locator('.hero').getByRole('link', { name: 'Get a free website and Google check' })).toBeInViewport({ ratio: 1 });
+      await expect(page.locator('.hero').getByRole('link', { name: 'See prices' })).toBeInViewport({ ratio: 1 });
+      await noHorizontalOverflow(page);
+    }
   });
 
   test('the founder section keeps the real, whole portrait and the way into About', async ({ page }) => {
@@ -563,7 +578,7 @@ test.describe('phones: short pages', () => {
     // with a sample test log, and "Offered as" links on case studies each add part of a screen.
     // 14 Nov 2026: Home swaps the walkthrough for the price list; Pricing gains a fifth offer
     // (Website Fix) and a worked salon example.
-    '/': 13.25, // photo graph, real work, prices, and the founder’s portrait
+    '/': 13.5, // agent graph, every service named in the hero (round 2), real work, prices, and the founder’s portrait
     '/services/': 15.75,
     '/work/': 4.5,
     '/work/nest-and-rest-cleaning/': 7.25,
@@ -1370,7 +1385,7 @@ test.describe('audit of 11 Nov 2026', () => {
   test('published prices agree everywhere, and the check stays optional', async ({ page }) => {
     await page.goto('/');
     await expect(page.locator('#what-i-do')).toContainText('Website Launch · $1,950');
-    await expect(page.locator('.hero__price')).toContainText('$450–$850');
+    await expect(page.locator('.hero__price')).toContainText('$650 Google and AI visibility setup');
     await page.goto('/services/');
     await expect(page.locator('#packages')).toContainText('The free check is separate.');
     await page.goto('/pricing/');
@@ -1380,9 +1395,9 @@ test.describe('audit of 11 Nov 2026', () => {
   test('the headline keeps its service and place words', async ({ page }) => {
     await page.goto('/');
     const lines = page.locator('#hero-title .hero__line');
-    await expect(lines.nth(0)).toHaveText('Web design, local SEO');
-    await expect(lines.nth(1)).toHaveText('and AI automation');
-    await expect(page.locator('#hero-title .hero__place')).toHaveText('for Toronto businesses.');
+    await expect(lines.nth(0)).toHaveText('Local SEO, websites');
+    await expect(lines.nth(1)).toHaveText('and AI automation.');
+    await expect(page.locator('#hero-title .hero__place')).toHaveText('Get found on Google and in AI search (GEO and AEO), then turn searches into bookings. For Toronto businesses.');
   });
 
   test('phones: the hero photo is sized for the screen, and the pause button is reachable on touch', async ({ browser }) => {
