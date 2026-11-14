@@ -110,9 +110,8 @@ describe('guides', () => {
       if (g.field('outline') === 'true') expect(g.field('draft'), `${g.slug}: an outline can't be published`).toBe('true');
       if (g.field('draft') === 'false') expect(g.field('published'), g.slug).toMatch(/^\d{4}-\d{2}-\d{2}$/);
     }
-    // The two written in full are the ones that aren't outlines.
-    const full = all.filter((g) => g.field('outline') !== 'true').map((g) => g.slug).sort();
-    expect(full).toEqual(['google-business-profile-without-a-storefront', 'how-much-does-a-website-cost-in-toronto']);
+    // All five are written in full (the last three drafted 14 Nov 2026, waiting for Mann to publish).
+    expect(all.filter((g) => g.field('outline') === 'true').map((g) => g.slug)).toEqual([]);
   });
 
   it('the cost and Business Profile guides link to each other, their service page and /pricing/', () => {
@@ -125,10 +124,23 @@ describe('guides', () => {
     for (const g of [cost, gbp]) expect(g.body, g.slug).toContain('](/pricing/)');
   });
 
-  it('the outlines lead where the plan says: the $3,350 package and the free check', () => {
+  it('the later guides lead where the plan says: the AI search page, the $3,350 package and the free check', () => {
+    expect(bySlug('how-to-get-recommended-by-chatgpt').field('service')).toBe('/services/ai-search-optimization/');
+    expect(bySlug('how-to-get-recommended-by-chatgpt').body).toContain('](/services/ai-search-optimization/)');
     expect(bySlug('missed-call-text-back-for-salons-and-cleaners').field('service')).toBe('/services/enquiry-follow-up/');
     expect(bySlug('missed-call-text-back-for-salons-and-cleaners').body).toContain('$3,350');
     expect(bySlug('why-isnt-my-business-on-google-maps').body).toContain('/contact/?package=check-up#check');
+  });
+
+  it('the Business Profile guide states Google’s opening-date rule correctly (help answer 9174409)', () => {
+    const gbp = bySlug('google-business-profile-without-a-storefront').body;
+    expect(gbp).toMatch(/90 days/);
+    expect(gbp).toContain('support.google.com/business/answer/9174409');
+    expect(gbp).not.toMatch(/shortly before you open/);
+  });
+
+  it('no guide carries an unfinished note (they render on previews, and a published TODO fails the SEO check)', () => {
+    for (const g of all) expect(g.src, g.slug).not.toMatch(/TODO|Outline only/);
   });
 
   it('never links to another guide in the text (a draft would 404 in production); related guides do that', () => {

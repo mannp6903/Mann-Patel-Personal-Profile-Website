@@ -1,6 +1,10 @@
 import { describe, expect, it } from 'vitest';
 import { servicePages, moreServicePages } from '../../src/data/service-pages';
 import { packageById, packages } from '../../src/data/packages';
+import { faqs, overviewFaqs } from '../../src/data/faqs';
+import { industryPages } from '../../src/data/industry-pages';
+import { areas } from '../../src/data/areas';
+import { readFileSync } from 'node:fs';
 
 // SEO audit Phase 4 (14 Nov 2026, Mann chose these two): Website Care and AI search optimization get pages of
 // their own, rendered by the service page template, without joining the three main services.
@@ -43,6 +47,35 @@ describe('more service pages (SEO audit Phase 4)', () => {
     expect(text).not.toMatch(/guaranteed? (rankings?|results|leads|traffic|placement|mentions?)|#1 on google|first page of google|will recommend you/i);
     const published = new Set(packages.flatMap((p) => [p.price.amount, p.price.max]).filter((n) => typeof n === 'number'));
     for (const m of text.matchAll(/\$([\d,]+)/g)) expect(published.has(Number(m[1].replace(/,/g, ''))), m[0]).toBe(true);
+  });
+
+  it('each page quotes only its own package’s price', () => {
+    for (const p of moreServicePages) {
+      const own = new Set(p.packages.flatMap((id) => [packageById(id)!.price.amount, packageById(id)!.price.max]).filter((n) => typeof n === 'number'));
+      for (const m of JSON.stringify(p).matchAll(/\$([\d,]+)/g)) expect(own.has(Number(m[1].replace(/,/g, ''))), `${p.slug}: ${m[0]}`).toBe(true);
+    }
+  });
+
+  it('the AI page never says website fixes are part of Local Visibility Setup (they are quoted separately)', () => {
+    const ai = moreServicePages[1];
+    const text = [ai.lead, ai.notFor, ...ai.steps.map((s) => s.body), ...ai.limits, ai.costs, ai.handover, ...ai.faqs.map((f) => f.a)].join(' ');
+    for (const sentence of text.split(/(?<=[.!?])\s+/))
+      if (/Local Visibility Setup|\$650|part of/i.test(sentence) && /website/i.test(sentence)) expect(sentence).toMatch(/quoted/i);
+    // Repeat checks after the set-up aren't part of it.
+    expect(ai.faqs.find((f) => /how often/i.test(f.q))!.a).toMatch(/yourself/);
+  });
+
+  it('asks no question another page already answers (each question in one place)', () => {
+    const pricing = [...readFileSync('src/pages/pricing.astro', 'utf8').matchAll(/\bq: '([^']+)'/g)].map((m) => m[1]);
+    const elsewhere = [...faqs, ...overviewFaqs, ...servicePages.flatMap((p) => p.faqs), ...industryPages.flatMap((p) => p.faqs), ...areas.flatMap((a) => a.faqs)]
+      .map((f) => f.q)
+      .concat(pricing);
+    const norm = (q: string) => q.toLowerCase().replace(/[^a-z]+/g, ' ').trim();
+    const seen = new Set(elsewhere.map(norm));
+    for (const p of moreServicePages) for (const f of p.faqs) expect(seen.has(norm(f.q)), `${p.slug}: "${f.q}"`).toBe(false);
+    // Nor the home page's GEO/AEO question in other words.
+    for (const f of moreServicePages[1].faqs) expect(f.q, f.q).not.toMatch(/what are (geo|aeo)|recommended by chatgpt/i);
+    expect(moreServicePages[0].faqs.map((f) => f.q)).not.toContain('Can I stop?');
   });
 
   it('labels every sample as fictional', () => {

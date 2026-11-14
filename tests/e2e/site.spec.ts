@@ -904,19 +904,25 @@ test.describe('more service pages (SEO audit Phase 4)', () => {
       // The "Service by service" details belong to the three main service pages only.
       await expect(page.locator('#details')).toHaveCount(0);
       expect(await page.evaluate(() => document.querySelector('main')?.lastElementChild?.id)).toBe('check');
-      // Every sample is labelled.
-      for (const badge of await page.locator('.sp__badge').allInnerTexts()) expect(badge).toMatch(/Sample/);
+      // Every sample is labelled as fictional.
+      const badges = await page.locator('.sp__badge').allInnerTexts();
+      expect(badges.length).toBeGreaterThan(0);
+      for (const badge of badges) expect(badge).toMatch(/Sample · fictional/);
       const svc = (await page.$$eval('script[type="application/ld+json"]', (s) => s.map((x) => JSON.parse(x.textContent || '{}')))).find(
         (b) => b['@type'] === 'Service',
       );
       expect(svc.provider['@id']).toMatch(/#business$/);
       expect(svc.offers.map((o: { name: string }) => o.name)).toEqual([pkg]);
+      // A monthly price says it is monthly.
+      if (price.includes('a month')) expect(svc.offers[0].priceSpecification).toMatchObject({ '@type': 'UnitPriceSpecification', unitCode: 'MON' });
     });
   }
 
   test('the AI search page says what it is part of and promises nothing', async ({ page }) => {
     await page.goto('/services/ai-search-optimization/');
     await expect(page.locator('main')).toContainText('part of Local Visibility Setup');
+    // Website fixes are quoted separately, never part of the $650.
+    await expect(page.locator('.ph__lead')).not.toContainText('your website');
     await expect(page.locator('main')).toContainText('No one can promise what an AI assistant says');
   });
 

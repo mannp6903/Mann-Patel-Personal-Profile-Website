@@ -519,10 +519,6 @@ export const moreServicePages: ServicePage[] = [
         a: 'I tell you what happened and fix it, or quote the fix first if it is more than a small repair. The monthly test is there so you hear about a broken form from me, not from a lost customer.',
       },
       {
-        q: 'Can I stop?',
-        a: 'Any month. You keep the site, the change log and every login, and my access is removed.',
-      },
-      {
         q: 'How much does website maintenance cost?',
         a: 'Website Care is $149 a month, in Canadian dollars plus tax. Your domain, hosting and any tool subscriptions stay billed to you directly by each provider.',
       },
@@ -540,7 +536,7 @@ export const moreServicePages: ServicePage[] = [
     eyebrow: 'AI search visibility',
     h1: 'AI search optimization for Toronto businesses',
     lines: ['AI search optimization', 'for Toronto businesses'],
-    lead: 'People now ask ChatGPT, Gemini and Perplexity to recommend a local business. I check what each one says about yours, record it on a dated sheet, and fix the public facts they draw on: your Google Business Profile, your listings and your website. It is part of Local Visibility Setup, because the fixes are ordinary local SEO done carefully.',
+    lead: 'People now ask ChatGPT, Gemini and Perplexity to recommend a local business. I check what each one says about yours, record it on a dated sheet, and fix the public facts they draw on in your Google Business Profile and listings. It is part of Local Visibility Setup, because the fixes are ordinary local SEO done carefully; website fixes are listed in priority order and quoted separately.',
     packages: ['local-visibility'],
     forWho: [
       'People ask an AI assistant for a business like yours, and you don’t know what it says',
@@ -593,20 +589,20 @@ export const moreServicePages: ServicePage[] = [
       'You keep the dated sheet (the questions, each answer, whether it linked your website and which facts it used) and the list of fixes made, so you can repeat the check yourself.',
     faqs: [
       {
-        q: 'What are AEO and GEO?',
-        a: 'Answer engine optimization and generative engine optimization: making your business easy for AI tools such as ChatGPT, Gemini, Perplexity and Google AI Overviews to find, understand and describe accurately. In practice it is careful local SEO: accurate public details, clear pages and consistent listings.',
+        q: 'Is AI search optimization different from local SEO?',
+        a: 'Mostly not. AI assistants describe a local business from public facts: its Google Business Profile, its listings, its reviews and its website. Getting those facts right and consistent is local SEO done carefully, plus a dated record of what each assistant says.',
       },
       {
-        q: 'Can you get my business recommended by ChatGPT?',
-        a: 'No one can promise that. What I can do is check what it says now, fix the public facts it draws on, and check again with the same questions, so you can see the difference on a dated sheet.',
+        q: 'Which AI assistants do you check?',
+        a: 'ChatGPT, Gemini and Perplexity, with the same questions each time. Google’s AI Overviews draw on Google Search itself, so accurate Google details and clear pages matter there too.',
       },
       {
         q: 'Is this a separate package?',
-        a: 'No. The check is part of Local Visibility Setup ($650), because the fixes are the same local SEO work: your Google Business Profile, your listings and your website.',
+        a: 'No. The check is part of Local Visibility Setup ($650), together with your Google Business Profile and listings. Website fixes it turns up are listed in priority order and quoted separately.',
       },
       {
         q: 'How often should the check be repeated?',
-        a: 'Answers change between tools and from day to day, so one answer means little. Repeating the same questions every month or two, and comparing the dated sheets, shows the trend.',
+        a: 'Answers change between tools and from day to day, so one answer means little. The set-up includes the check before and after the changes; after that, you can repeat the same questions yourself every month or two with the dated sheet and compare.',
       },
     ],
     sources: [

@@ -11,7 +11,7 @@ import DraftNote from '../components/DraftNote.astro';
 import Icon from '../components/ui/Icon.astro';
 import FreeCheck from '../components/home/FreeCheck.astro';
 import { profile } from '../data/site';
-import { servicePages } from '../data/service-pages';
+import { servicePages, moreServicePages } from '../data/service-pages';
 import { absoluteUrl } from '../lib/mode';
 import { breadcrumbJsonLd, personRef } from '../lib/seo';
 
@@ -24,7 +24,7 @@ const { guide, related } = Astro.props;
 const g = guide.data;
 const path = `/guides/${guide.id}/`;
 const url = absoluteUrl(path);
-const service = servicePages.find((s) => `/services/${s.slug}/` === g.service);
+const service = [...servicePages, ...moreServicePages].find((s) => `/services/${s.slug}/` === g.service);
 const fmt = (iso: string) =>
   new Intl.DateTimeFormat('en-CA', { day: 'numeric', month: 'long', year: 'numeric', timeZone: 'UTC' }).format(new Date(`${iso}T12:00:00Z`));
 
