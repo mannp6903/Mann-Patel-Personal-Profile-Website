@@ -119,7 +119,7 @@ test.describe('pages', () => {
 
   // The copy map from the growth report (10 Nov 2026): each page names its service and the place.
   const COPY: [string, string, string, string][] = [
-    ['/', 'Mann Patel | Web Design, Local SEO & AI Automation in Toronto', 'Web design, local SEO and AI automation for Toronto businesses.', 'Web design, local SEO and AI automation for Toronto businesses. Websites from $1,950 CAD for up to five pages. Serving Toronto and the GTA, with a focus on Scarborough and North York.'],
+    ['/', 'Mann Patel | Local SEO, AI Search (GEO & AEO) & Web Design, Toronto', 'Get found on Google, Maps and AI answers. Local SEO, AI search optimization (GEO and AEO), websites and enquiry automation for Toronto businesses.', 'Local SEO, Google Business Profile, AI search optimization (GEO and AEO), websites and enquiry automation for Toronto businesses. Websites from $1,950 CAD.'],
     ['/services/', 'Website, Local SEO & Booking Services | Mann Patel', 'Website, local SEO and enquiry services', 'Compare web design, local SEO, Google Business Profile setup and enquiry automation for Toronto service businesses. See packages and request a quote.'],
     ['/services/web-design/', 'Toronto Small Business Web Design | Mann Patel', 'Web design for Toronto small businesses', 'Get a mobile-friendly website or redesign with clear service pages, a tested enquiry path and a written handover. See projects and ask for a quote.'],
     ['/services/local-visibility/', 'Local SEO & Google Business Profile Setup in Toronto | Mann Patel', 'Local SEO and Google Business Profile setup in Toronto', 'Improve your Google presence with eligible profile setup, listing updates and a review workflow. Ask about SEO foundations and an AI search check.'],
@@ -244,7 +244,7 @@ test.describe('layout', () => {
       await page.goto('/');
       // The H1 names the service and the place (growth report, 10 Nov 2026); the slogan moved to the process strip.
       const h1 = page.locator('h1');
-      expect((await h1.innerText()).replace(/\s+/g, ' ').trim()).toBe('Web design, local SEO and AI automation for Toronto businesses.');
+      expect((await h1.innerText()).replace(/\s+/g, ' ').trim()).toBe('Get found on Google, Maps and AI answers. Local SEO, AI search optimization (GEO and AEO), websites and enquiry automation for Toronto businesses.');
       await expect(h1).toBeInViewport();
       const hero = page.locator('.hero');
       // 14 Nov 2026: who you're dealing with comes first, with his photo.
@@ -255,14 +255,17 @@ test.describe('layout', () => {
       await expect(cta).toHaveAttribute('href', '/contact/?package=check-up#check');
       await expect(hero.getByRole('link', { name: 'See prices' })).toHaveAttribute('href', '/pricing/');
       await expect(hero.locator('.hero__price')).toContainText('$1,950 for a website of up to five pages.');
+      // 14 Nov 2026 (round 2): the hero names every service, not only websites.
+      for (const name of ['Local SEO & Google Business Profile', 'AI search visibility (GEO & AEO)', 'Websites & fixes', 'Enquiry follow-up & AI automation', 'Online booking', 'Care, print & social'])
+        await expect(hero.locator('.hero__services')).toContainText(name);
       await expect(hero.locator('.hero__price')).toBeInViewport();
       // Dated examples of real work sit next to the buttons (Quickstart, 13 Nov 2026).
       await expect(hero.locator('.hero__recent a[href="/work/samp-hair-spa/"]')).toContainText('Oct 2026');
       await expect(hero.locator('.hero__recent a[href="/work/nest-and-rest-cleaning/"]')).toContainText('Oct 2026');
-      // Both actions come before anything else focusable in the hero.
-      const firstTwo = await hero.locator('a, button').evaluateAll((els) => els.slice(0, 2).map((e) => e.textContent!.replace(/\s+/g, ' ').trim()));
-      expect(firstTwo[0]).toContain('Get a free website and Google check');
-      expect(firstTwo[1]).toContain('See prices');
+      // The two actions sit side by side, in this order.
+      const actions = await hero.locator('.hero__actions .btn-row a').evaluateAll((els) => els.map((e) => e.textContent!.replace(/\s+/g, ' ').trim()));
+      expect(actions[0]).toContain('Get a free website and Google check');
+      expect(actions[1]).toContain('See prices');
     });
   }
 
@@ -275,7 +278,8 @@ test.describe('layout', () => {
     // 14 Nov 2026: the hero carries the photo graph and prices instead; same budgets on desktop,
     // and on phones the large photo graph replaces the sculpture and the process strip.
     [1440, 1000, 1150, 1500],
-    [390, 844, 1800, 1900],
+    // 14 Nov 2026 (round 2): the phone hero now names every service, so it moved down about 100 px.
+    [390, 844, 1900, 2050],
   ]) {
     test(`selected work starts by y=${maxHeading} at ${w}x${h}`, async ({ page }) => {
       await page.setViewportSize({ width: w, height: h });
@@ -373,16 +377,16 @@ test.describe('navigation', () => {
 });
 
 test.describe('home interactions', () => {
-  test('the hero photo is the core of the agent graph: real, sized for the screen, and loaded first', async ({ page }) => {
+  test('the agent graph core is the client business, not a photo, and sized for the screen', async ({ page }) => {
     for (const [w, h, min] of [[390, 844, 170], [1440, 900, 190]]) {
       await page.setViewportSize({ width: w, height: h });
       await page.goto('/');
-      const photo = page.locator('.hero [data-agent-graph] .ag__photo');
-      await expect(photo).toBeVisible();
-      await expect(photo).toHaveAttribute('alt', /Mann Patel smiling/);
-      await expect(photo).toHaveAttribute('fetchpriority', 'high');
-      await page.waitForFunction(() => (document.querySelector('.ag__photo') as HTMLImageElement).naturalWidth > 0);
-      const box = (await photo.boundingBox())!;
+      const core = page.locator('.hero [data-agent-graph] .ag__core');
+      await expect(core).toBeVisible();
+      await expect(core).toContainText('business');
+      // 14 Nov 2026 (round 2): Mann asked for no circular photo in the graph.
+      await expect(page.locator('.hero [data-agent-graph] img')).toHaveCount(0);
+      const box = (await core.boundingBox())!;
       expect(box.width).toBeGreaterThanOrEqual(min);
       // Only the layout for this screen is shown: left-to-right on desktop, top-to-bottom on phones.
       await expect(page.locator(w >= 1024 ? '.ag__svg--wide' : '.ag__svg--tall')).toBeVisible();
@@ -510,12 +514,11 @@ test.describe('home interactions', () => {
     });
   }
 
-  test('phones: Contact stays one tap away, and the photo graph follows the buttons', async ({ page }) => {
+  test('phones: the header has only the logo and Menu (no separate Contact button), and the graph follows the buttons', async ({ page }) => {
     await page.setViewportSize({ width: 360, height: 800 });
     await page.goto('/');
-    const cta = page.locator('[data-header]').getByRole('link', { name: 'Contact', exact: true });
-    await expect(cta).toBeVisible();
-    await expect(cta).toHaveAttribute('href', '/contact/');
+    // 14 Nov 2026 (round 2): Mann asked to remove the top Contact button on phones; Contact stays in the menu.
+    await expect(page.locator('[data-header]').getByRole('link', { name: 'Contact', exact: true })).toBeHidden();
     await expect(page.locator('[data-menu-open]')).toBeVisible();
     const gap = await page.evaluate(
       () => document.querySelector('[data-agent-graph]')!.getBoundingClientRect().top - document.querySelector('.hero__actions')!.getBoundingClientRect().bottom,
@@ -545,7 +548,7 @@ test.describe('home interactions', () => {
     await expect(page.locator('[data-menu-open]')).toBeHidden();
     // The graph is drawn without JavaScript; only its pause button needs a script.
     await expect(page.locator('.ag__svg--tall')).toBeVisible();
-    await expect(page.locator('.ag__photo')).toBeVisible();
+    await expect(page.locator('.ag__core')).toBeVisible();
     await expect(page.locator('[data-ag-toggle]')).toBeHidden();
     await expect(page.locator('.about__photo img')).toHaveCount(1);
     await ctx.close();
@@ -563,7 +566,7 @@ test.describe('phones: short pages', () => {
     // with a sample test log, and "Offered as" links on case studies each add part of a screen.
     // 14 Nov 2026: Home swaps the walkthrough for the price list; Pricing gains a fifth offer
     // (Website Fix) and a worked salon example.
-    '/': 13.25, // photo graph, real work, prices, and the founder’s portrait
+    '/': 13.5, // agent graph, every service named in the hero (round 2), real work, prices, and the founder’s portrait
     '/services/': 15.75,
     '/work/': 4.5,
     '/work/nest-and-rest-cleaning/': 7.25,
@@ -1139,7 +1142,7 @@ test.describe('motion (restrained in round 7)', () => {
     await page.mouse.move(400, 400);
     await page.waitForTimeout(1200);
     await expect(page.locator('canvas')).toHaveCount(0);
-    await expect(page.locator('.ag__photo')).toBeVisible();
+    await expect(page.locator('.ag__core')).toBeVisible();
     await expect(page.locator('[data-ag-toggle]')).toBeHidden();
     await expect(page.locator('[data-scramble] [aria-hidden="true"]')).toHaveCount(0);
     await ctx.close();
@@ -1370,7 +1373,8 @@ test.describe('audit of 11 Nov 2026', () => {
   test('published prices agree everywhere, and the check stays optional', async ({ page }) => {
     await page.goto('/');
     await expect(page.locator('#what-i-do')).toContainText('Website Launch · $1,950');
-    await expect(page.locator('.hero__price')).toContainText('$450–$850');
+    await expect(page.locator('.hero__price')).toContainText('$650 Google and AI visibility setup.');
+    await expect(page.locator('.hero__price')).toContainText('$149 a month for care');
     await page.goto('/services/');
     await expect(page.locator('#packages')).toContainText('The free check is separate.');
     await page.goto('/pricing/');
@@ -1380,20 +1384,20 @@ test.describe('audit of 11 Nov 2026', () => {
   test('the headline keeps its service and place words', async ({ page }) => {
     await page.goto('/');
     const lines = page.locator('#hero-title .hero__line');
-    await expect(lines.nth(0)).toHaveText('Web design, local SEO');
-    await expect(lines.nth(1)).toHaveText('and AI automation');
-    await expect(page.locator('#hero-title .hero__place')).toHaveText('for Toronto businesses.');
+    await expect(lines.nth(0)).toHaveText('Get found on Google,');
+    await expect(lines.nth(1)).toHaveText('Maps and AI answers.');
+    await expect(page.locator('#hero-title .hero__place')).toHaveText(
+      'Local SEO, AI search optimization (GEO and AEO), websites and enquiry automation for Toronto businesses.',
+    );
   });
 
-  test('phones: the hero photo is sized for the screen, and the pause button is reachable on touch', async ({ browser }) => {
+  test('phones: the hero loads no large photo, and the pause button is reachable on touch', async ({ browser }) => {
     const context = await browser.newContext({ viewport: { width: 390, height: 844 }, hasTouch: true, isMobile: true });
     const page = await context.newPage();
     await page.goto('/');
-    const photo = page.locator('.ag__photo');
-    expect(await photo.getAttribute('srcset')).toMatch(/240w.*360w.*480w.*640w/);
-    await page.waitForFunction(() => (document.querySelector('.ag__photo') as HTMLImageElement).complete);
-    const loaded = await photo.evaluate((img: HTMLImageElement) => new URL(img.currentSrc).pathname);
-    expect(loaded).not.toMatch(/240w/);
+    // Only the small face next to the greeting is an image in the hero.
+    await expect(page.locator('.hero img')).toHaveCount(1);
+    await expect(page.locator('.hero img.hero__face')).toHaveCount(1);
     await expect(page.locator('[data-ag-toggle]')).toBeVisible();
     const box = (await page.locator('[data-ag-toggle]').boundingBox())!;
     expect(box.width).toBeGreaterThanOrEqual(44);

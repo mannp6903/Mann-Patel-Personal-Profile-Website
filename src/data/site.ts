@@ -35,7 +35,7 @@ export const profile = {
   /** Short wordmark used in the header. */
   wordmark: 'Mann Patel',
   headline: 'Web design, local SEO and automation for Toronto businesses.',
-  descriptor: 'Web design, local SEO and automation for businesses in Toronto and the GTA',
+  descriptor: 'Local SEO, Google Business Profile, AI search visibility (GEO and AEO), web design and enquiry automation for businesses in Toronto and the GTA',
   intro:
     'I’m Mann Patel, a Toronto small business founder. I help local businesses get found on Google, reply to enquiries faster, and turn website visits into booking requests.',
   /** Public location: based in Toronto, serves the GTA (confirmed by Mann, 31 Oct 2026). */

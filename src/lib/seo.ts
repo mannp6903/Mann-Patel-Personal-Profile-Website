@@ -24,11 +24,11 @@ export function personJsonLd() {
     '@type': 'Person',
     '@id': personId(),
     name: profile.name,
-    jobTitle: 'Independent website designer',
+    jobTitle: 'Web designer, local SEO and AI automation consultant',
     description: profile.descriptor,
     // Tells search engines (and Google's AI Overview) which Mann Patel this is: Nov 2026 searches for
     // "mann patel.me" mixed this site up with a different person's similarly named domain.
-    disambiguatingDescription: 'Website designer and local SEO consultant based in Toronto, Ontario, Canada (mannpatel.me)',
+    disambiguatingDescription: 'Web designer, local SEO and AI search (GEO/AEO) consultant based in Toronto, Ontario, Canada (mannpatel.me)',
     ...(url ? { url } : {}),
     // The real portrait (square crop, public/brand/), not the social share card.
     ...(profile.portrait && url ? { image: new URL('/brand/mann-patel-portrait.jpg', url).toString() } : {}),
@@ -55,11 +55,17 @@ export function personJsonLd() {
       'Local SEO',
       'Google Business Profile',
       'Answer engine optimization (AEO)',
+      'Generative engine optimization (GEO)',
       'AI search visibility',
+      'Google AI Overviews',
+      'Structured data (schema.org)',
       'Google Search Console',
       'Google Analytics 4',
+      'AI automation for small businesses',
       'Enquiry follow-up',
+      'Missed-call text-back',
       'Online booking setup',
+      'Website maintenance',
     ],
   };
 }
@@ -104,15 +110,28 @@ export function personWithServicesJsonLd() {
     hasOfferCatalog: {
       '@type': 'OfferCatalog',
       name: 'Services',
-      itemListElement: servicePages.map((p) => ({
-        '@type': 'Offer',
-        itemOffered: {
-          '@type': 'Service',
-          name: p.h1,
-          areaServed: 'Toronto',
-          ...(url ? { url: `${url}services/${p.slug}/` } : {}),
+      itemListElement: [
+        ...servicePages.map((p) => ({
+          '@type': 'Offer',
+          itemOffered: {
+            '@type': 'Service',
+            name: p.h1,
+            areaServed: 'Toronto',
+            ...(url ? { url: `${url}services/${p.slug}/` } : {}),
+          },
+        })),
+        // Part of the local visibility set-up, named on its own because people search for it.
+        {
+          '@type': 'Offer',
+          itemOffered: {
+            '@type': 'Service',
+            name: 'AI search visibility check (GEO and AEO)',
+            serviceType: 'Generative engine optimization',
+            areaServed: 'Toronto',
+            ...(url ? { url: `${url}services/local-visibility/#ai-search` } : {}),
+          },
         },
-      })),
+      ],
     },
   };
 }

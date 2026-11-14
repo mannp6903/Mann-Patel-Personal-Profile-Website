@@ -1,9 +1,11 @@
 ---
 /**
- * Home hero (14 Nov 2026). Who you're dealing with first (Mann's photo and name), what he does
- * (the H1 keeps the service and place words for search), one free first step, the price of a
- * website up front, and two dated examples of real work next to the buttons. The visual is the
- * agent graph (AgentGraph.astro): a neural network with Mann's photo as the core node.
+ * Home hero (14 Nov 2026, round 2). Who you're dealing with first (Mann's name and a small face),
+ * then the outcome he sells across every service, not only websites: found on Google, Maps and AI
+ * answers, then enquiries answered and booked. The H1 and lead carry the search words (local SEO,
+ * Google Business Profile, GEO/AEO, AI automation, web design, Toronto) in plain sentences. A short
+ * list names every service, then one free first step and real prices. The visual is the agent
+ * graph (AgentGraph.astro), with the client's business as the core node.
  */
 import { Image } from 'astro:assets';
 import { profile } from '../../data/site';
@@ -15,7 +17,16 @@ import AgentGraph from './AgentGraph.astro';
 import face from '../../assets/mann-patel-face.jpg';
 
 const launch = packageById('website-launch')!;
-const fix = packageById('website-fix')!;
+const local = packageById('local-visibility')!;
+const care = packageById('care')!;
+const services = [
+  { href: '/services/local-visibility/', name: 'Local SEO & Google Business Profile' },
+  { href: '/services/local-visibility/#ai-search', name: 'AI search visibility (GEO & AEO)' },
+  { href: '/services/web-design/', name: 'Websites & fixes' },
+  { href: '/services/enquiry-follow-up/', name: 'Enquiry follow-up & AI automation' },
+  { href: '/services/enquiry-follow-up/', name: 'Online booking' },
+  { href: '/services/#extras', name: 'Care, print & social' },
+];
 const recent = [
   { href: '/work/samp-hair-spa/', name: 'Samp Hair & Spa', note: 'Salon website, client preview', date: 'Oct 2026' },
   { href: '/work/nest-and-rest-cleaning/', name: 'Nest & Rest Cleaning', note: 'My own business, launched', date: 'Oct 2026' },
@@ -29,20 +40,32 @@ const recent = [
         <Image src={face} alt="" width={96} height={96} class="hero__face" loading="eager" />
         <p>
           <span class="hero__hi">Hi, I’m {profile.name}.</span>
-          <span class="hero__role">Independent web designer in Scarborough, Toronto</span>
+          <span class="hero__role">Local SEO, AI search and web design in Scarborough, Toronto</span>
         </p>
         <p class="status status--live hero__status"><span class="status__dot" aria-hidden="true"></span>Taking new projects</p>
       </div>
 
       <h1 class="hero__title" id="hero-title">
-        <span class="hero__line">Web design, local SEO</span>
-        <span class="hero__line">and AI automation</span>
-        <span class="hero__place">for Toronto businesses.</span>
+        <span class="hero__line">Get found on Google,</span>
+        <span class="hero__line">Maps and AI answers.</span>
+        <span class="hero__place">Local SEO, AI search optimization (GEO and AEO), websites and enquiry automation for Toronto businesses.</span>
       </h1>
 
       <p class="hero__lead">
-        I build websites that help nearby customers find you, trust you and book. You own every account, and every price is written down before I start.
+        I help local businesses get found, chosen and booked: from your Google profile and the answers ChatGPT, Gemini and
+        Google AI Overviews give about you, to your website and the follow-up that turns enquiries into bookings. You own every
+        account, and every price is written down first.
       </p>
+
+      <ul class="hero__services" role="list" aria-label="Services">
+        {
+          services.map((sv) => (
+            <li>
+              <a href={sv.href}>{sv.name}</a>
+            </li>
+          ))
+        }
+      </ul>
 
       <div class="hero__actions">
         <div class="btn-row">
@@ -50,9 +73,9 @@ const recent = [
           <Button href="/pricing/" variant="ghost" class="hero__price-link">See prices</Button>
         </div>
         <p class="hero__price">
+          <span><b>{priceLabel(local).text}</b> Google and AI visibility setup.</span>
           <span><b>{priceLabel(launch).text}</b> for a website of up to five pages.</span>
-          <span><b>{priceLabel(fix).text}</b> to fix one problem on your current site.</span>
-          <span class="subtle">CAD, plus tax.</span>
+          <span><b>{priceLabel(care).text}</b> for care and updates. <span class="subtle">CAD, plus tax.</span></span>
         </p>
         <ContactActions compact label="Or reach me directly" class="hero__reach" />
       </div>
@@ -156,13 +179,45 @@ const recent = [
     display: block;
     margin-top: 0.5em;
     color: var(--text-2);
-    font-size: clamp(1.05rem, 1.6vw, 1.45rem);
+    max-width: 40ch;
+    font-size: clamp(1rem, 1.4vw, 1.3rem);
     font-weight: 520;
     letter-spacing: -0.025em;
     line-height: 1.25;
   }
+  .hero__services {
+    display: flex;
+    flex-wrap: wrap;
+    gap: var(--s-2);
+    max-width: 40rem;
+  }
+  .hero__services a {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.45em;
+    min-height: 2rem;
+    padding: 0.25rem 0.7rem;
+    border: 1px solid var(--line);
+    border-radius: var(--r-pill);
+    color: var(--text);
+    font-size: var(--fs-xs);
+    font-weight: 520;
+    text-decoration: none;
+    transition: border-color var(--t-fast), background-color var(--t-fast);
+  }
+  .hero__services a::before {
+    content: '';
+    width: 0.4rem;
+    height: 0.4rem;
+    border-radius: 50%;
+    background: var(--signal);
+  }
+  .hero__services a:hover {
+    border-color: var(--control);
+    background: var(--surface);
+  }
   .hero__lead {
-    max-width: 44ch;
+    max-width: 52ch;
     color: var(--text-2);
     font-size: clamp(1rem, 1.3vw, 1.2rem);
     line-height: 1.55;
@@ -253,6 +308,9 @@ const recent = [
 
   @media (max-width: 39.99em) {
     .hero__text { gap: var(--s-4); }
+    .hero__lead { font-size: 0.95rem; }
+    .hero__services { gap: 0.4rem; }
+    .hero__services a { font-size: 0.74rem; min-height: 1.9rem; padding-inline: 0.6rem; }
     .hero__status, .hero__actions :global(.hero__reach) { display: none; }
     .hero__actions :global(.btn-row) {
       display: grid;
@@ -294,7 +352,7 @@ const recent = [
     .hero :global(.hero__graph) { grid-area: graph; }
     .hero__recent { grid-area: recent; align-self: start; }
     .hero__title {
-      font-size: clamp(3.6rem, 5.2vw, 5.6rem);
+      font-size: clamp(3.1rem, 4.1vw, 4.6rem);
     }
   }
 </style>
