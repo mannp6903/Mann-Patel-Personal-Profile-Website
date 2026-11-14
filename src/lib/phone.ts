@@ -1,6 +1,6 @@
 /**
  * Phone helpers with no imports, so the browser script can use them too.
- * See src/lib/contact.ts for why the number is masked and encoded.
+ * See src/lib/contact.ts for how the number is stored and shown (in full since 14 Nov 2026).
  */
 
 /** "+1 (647) 555-0142" → "16475550142"; a 10-digit Canadian/US number gets the leading 1. */

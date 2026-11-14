@@ -11,6 +11,9 @@
  * 14 Nov 2026 (profile update): the H1 is the two service lines only; the outcome line moved out of
  * the H1 into a short subline, the repeated lead paragraph was dropped, and a quiet link under the
  * recent work leads to /vision/.
+ *
+ * 14 Nov 2026 (SEO audit): the H1 is "Websites and local SEO for Toronto small businesses." (place and
+ * customer, docs/seo/PLAN.md A7); AI search and automation stay in the subline and the service list.
  */
 import { profile } from '../../data/site';
 import { packageById, priceLabel } from '../../data/packages';
@@ -44,11 +47,12 @@ const recent = [
         <p class="status status--live hero__status"><span class="status__dot" aria-hidden="true"></span>Taking new projects</p>
       </div>
 
+      <!-- 14 Nov 2026 (SEO audit): the H1 names the place and the customer. The subline no longer repeats "Toronto". -->
       <h1 class="hero__title" id="hero-title">
-        <span class="hero__line">Local SEO, websites</span>
-        <span class="hero__line">and AI automation.</span>
+        <span class="hero__line">Websites and local SEO</span>
+        <span class="hero__line">for Toronto small businesses.</span>
       </h1>
-      <p class="hero__place">Get found on Google and in AI answers, then turn searches into bookings. For Toronto businesses.</p>
+      <p class="hero__place">Get found on Google and in AI answers, then turn searches into bookings.</p>
 
       <ul class="hero__services" role="list" aria-label="Services">
         {

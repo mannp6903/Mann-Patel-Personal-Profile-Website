@@ -19,6 +19,11 @@ export interface Shot {
   src: ImageMetadata;
   alt: string;
   caption: string;
+  /**
+   * Short alt for the phone capture where it overlaps the desktop one (ProjectMedia): it shows the same
+   * page, so it says only what the desktop alt doesn't: that this is the phone view (SEO audit, 14 Nov 2026).
+   */
+  altShort?: string;
 }
 export interface Detail {
   src: ImageMetadata;
@@ -49,6 +54,7 @@ export const captures: Record<'nest-and-rest' | 'samp', CaptureSet> = {
       src: nrMobile,
       alt: 'Nest & Rest Cleaning home page on a phone: an “Opening soon: no bookings yet” bar, the Opening soon notice, “We clean. You rest.” over the Toronto skyline, a See prices button and an Opening soon bar at the bottom.',
       caption: 'Live site on a phone, 360 px, same day.',
+      altShort: 'The same Nest & Rest Cleaning home page on a phone, 360 pixels wide.',
     },
     earlier: {
       src: nrEarlier,
@@ -96,6 +102,7 @@ export const captures: Record<'nest-and-rest' | 'samp', CaptureSet> = {
       src: sampMobile,
       alt: 'Samp Hair & Spa preview on a phone: the salon logo, the headline “Where beauty meets calm.” and a short description of services.',
       caption: 'Same preview on a phone, 360 px.',
+      altShort: 'The same Samp Hair & Spa preview on a phone, 360 pixels wide.',
     },
     details: [
       {

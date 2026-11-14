@@ -7,6 +7,7 @@ import ContactActions from '../../components/ContactActions.astro';
 import Icon from '../../components/ui/Icon.astro';
 import { contact, emailHref } from '../../lib/contact';
 import { profile } from '../../data/site';
+import { businessJsonLd } from '../../lib/seo';
 
 const mail = emailHref();
 // Only promise the channels that exist (the phone buttons need a configured number, src/lib/contact.ts).
@@ -19,6 +20,7 @@ const description = contact.phone
   title="Contact"
   fullTitle="Contact Mann Patel | Web Design & Local SEO in Toronto"
   description={description}
+  jsonLd={businessJsonLd()}
   footerCta={false}
 >
   <PageHead

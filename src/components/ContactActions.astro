@@ -10,7 +10,7 @@ import Icon from './ui/Icon.astro';
 interface Props {
   /** Visible label above the buttons (optional). */
   label?: string;
-  /** Show the email and masked number under the buttons. */
+  /** Show the email and the full phone number (tap to call) under the buttons. */
   showNumber?: boolean;
   /** Icon-only round buttons (header menu, hero). */
   compact?: boolean;
@@ -65,13 +65,10 @@ const channels = [
           {contact.email && <span>{contact.email}</span>}
           {phone && (
             <span class="ca__phone">
-              <span class="visually-hidden" data-phone-note>
-                Phone, partly hidden for privacy:{' '}
-              </span>
-              <span data-phone-text tabindex="-1">{phone.masked}</span>
-              <button class="ca__show" type="button" data-phone-show data-k={phone.key} hidden>
-                Show number
-              </button>
+              <a href={phone.tel} data-contact="phone" data-phone-text>
+                <span class="visually-hidden">Call </span>
+                {phone.display}
+              </a>
             </span>
           )}
         </p>
@@ -154,22 +151,13 @@ const channels = [
     align-items: center;
     gap: var(--s-3);
   }
-  .ca__show {
-    min-height: 2rem;
-    padding: 0 0.7rem;
-    border: 1px solid var(--line);
-    border-radius: var(--r-pill);
-    background: transparent;
-    color: var(--text-2);
-    font: inherit;
-    font-size: var(--fs-xs);
-    cursor: pointer;
-    transition:
-      border-color var(--t-fast),
-      color var(--t-fast);
+  /* The full number, shown as text that dials on tap (SEO audit, 14 Nov 2026: same as Google and directories). */
+  .ca__phone a {
+    color: inherit;
+    text-decoration: none;
+    transition: color var(--t-fast);
   }
-  .ca__show:hover {
-    border-color: var(--control);
+  .ca__phone a:hover {
     color: var(--text);
   }
 </style>

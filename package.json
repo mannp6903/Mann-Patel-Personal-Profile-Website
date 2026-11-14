@@ -21,7 +21,8 @@
     "build:cloudflare": "node scripts/build-cloudflare.mjs",
     "deploy:cloudflare": "npm run build:cloudflare && wrangler deploy",
     "check:enquiry": "node scripts/check-enquiry.mjs",
-    "check:redirects": "node scripts/check-redirects.mjs"
+    "check:redirects": "node scripts/check-redirects.mjs",
+    "check:seo": "node scripts/seo-check.mjs"
   },
   "dependencies": {
     "@astrojs/cloudflare": "^14.4.3",

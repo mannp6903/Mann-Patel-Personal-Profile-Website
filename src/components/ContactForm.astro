@@ -44,10 +44,12 @@ const tick = '<svg viewBox="0 0 16 16"><path d="m3.5 8.5 3 3 6-7" /></svg>';
       </ol>
     </div>
 
+    <!-- Form states are not headings and are not in the page until they are needed (SEO audit, 14 Nov 2026):
+         the summary title and the success message are copied from <template>s into live regions after submit. -->
     <div class="error-summary" role="alert" tabindex="-1" data-error-summary hidden>
-      <h2 class="es-title">Please check these fields</h2>
       <ul data-error-list></ul>
     </div>
+    <template data-es-title-tpl><p class="es-title">Please check these fields</p></template>
     <div class="notice notice--warn" data-not-connected hidden role="status">
       <p>
         <strong>This form can’t send to my inbox directly yet.</strong>
@@ -233,22 +235,25 @@ const tick = '<svg viewBox="0 0 16 16"><path d="m3.5 8.5 3 3 6-7" /></svg>';
     </p>
   </form>
 
-  <section class="success" data-success hidden tabindex="-1" aria-labelledby="success-title">
-    <svg class="success__mark" viewBox="0 0 80 80" aria-hidden="true">
-      <circle cx="40" cy="40" r="36"></circle>
-      <path d="m25 41 10 10 21-23"></path>
-    </svg>
-    <p class="eyebrow">Accepted</p>
-    <h2 id="success-title">Thanks, <span data-success-name></span>. Your brief is on its way.</h2>
-    <p class="muted" data-success-ack></p>
-    <ol class="next" role="list">
-      <li><span class="num">01</span> I read every brief myself.</li>
-      <li><span class="num">02</span> I reply by email with questions or a suggested next step.</li>
-      <li><span class="num">03</span> If we go ahead, you get a written scope before any work starts.</li>
-    </ol>
-    <p class="small subtle">Reference: <span class="num" data-success-id></span></p>
-    <p><a class="link-arrow" href="/work/">While you wait, see my work <Icon name="arrow" /></a></p>
-  </section>
+  <div class="success-live" aria-live="polite" data-success-live></div>
+  <template data-success-tpl>
+    <section class="success" data-success tabindex="-1" aria-labelledby="success-title">
+      <svg class="success__mark" viewBox="0 0 80 80" aria-hidden="true">
+        <circle cx="40" cy="40" r="36"></circle>
+        <path d="m25 41 10 10 21-23"></path>
+      </svg>
+      <p class="eyebrow">Accepted</p>
+      <p id="success-title" class="success__title">Thanks, <span data-success-name></span>. Your brief is on its way.</p>
+      <p class="muted" data-success-ack></p>
+      <ol class="next" role="list">
+        <li><span class="num">01</span> I read every brief myself.</li>
+        <li><span class="num">02</span> I reply by email with questions or a suggested next step.</li>
+        <li><span class="num">03</span> If we go ahead, you get a written scope before any work starts.</li>
+      </ol>
+      <p class="small subtle">Reference: <span class="num" data-success-id></span></p>
+      <p><a class="link-arrow" href="/work/">While you wait, see my work <Icon name="arrow" /></a></p>
+    </section>
+  </template>
 </div>
 
 {PUBLIC_TURNSTILE_SITE_KEY && <script is:inline src="https://challenges.cloudflare.com/turnstile/v0/api.js" async defer></script>}
@@ -275,7 +280,9 @@ const tick = '<svg viewBox="0 0 16 16"><path d="m3.5 8.5 3 3 6-7" /></svg>';
     const idInput = root.querySelector<HTMLInputElement>('[data-submission-id]')!;
     const counter = root.querySelector<HTMLElement>('[data-counter]')!;
     const message = form.elements.namedItem('message') as HTMLTextAreaElement;
-    const success = root.querySelector<HTMLElement>('[data-success]')!;
+    const successLive = root.querySelector<HTMLElement>('[data-success-live]')!;
+    const successTpl = root.querySelector<HTMLTemplateElement>('[data-success-tpl]')!;
+    const esTitleTpl = root.querySelector<HTMLTemplateElement>('[data-es-title-tpl]')!;
     const notConnected = root.querySelector<HTMLElement>('[data-not-connected]')!;
     const altEmail = root.dataset.email || document.querySelector<HTMLElement>('[data-alt-email]')?.textContent?.trim() || '';
     const mailNote = root.querySelector<HTMLElement>('[data-mail-note]')!;
@@ -425,6 +432,7 @@ const tick = '<svg viewBox="0 0 16 16"><path d="m3.5 8.5 3 3 6-7" /></svg>';
       form.querySelectorAll<HTMLElement>('[data-error-for]').forEach((el) => (el.textContent = ''));
       summary.hidden = true;
       summaryList.replaceChildren();
+      summary.querySelector('.es-title')?.remove();
     };
     const targetFor = (field: string) => form.querySelector<HTMLElement>(fieldTarget[field] ?? `[name="${field}"]`);
     const showErrors = (errors: FieldErrors) => {
@@ -454,6 +462,7 @@ const tick = '<svg viewBox="0 0 16 16"><path d="m3.5 8.5 3 3 6-7" /></svg>';
       }
       const inStep = entries.filter(([f]) => (stepOf[f] ?? 2) === firstStep);
       if (inStep.length > 1) {
+        summary.prepend(esTitleTpl.content.cloneNode(true));
         summary.hidden = false;
         summary.focus();
       } else {
@@ -555,6 +564,8 @@ const tick = '<svg viewBox="0 0 16 16"><path d="m3.5 8.5 3 3 6-7" /></svg>';
 
       if (outcome.kind === 'accepted') {
         const firstName = String(data.name).split(' ')[0];
+        successLive.replaceChildren(successTpl.content.cloneNode(true));
+        const success = successLive.querySelector<HTMLElement>('[data-success]')!;
         root.querySelector('[data-success-name]')!.textContent = firstName;
         root.querySelector('[data-success-id]')!.textContent = body.id;
         root.querySelector('[data-success-ack]')!.textContent =
@@ -564,7 +575,6 @@ const tick = '<svg viewBox="0 0 16 16"><path d="m3.5 8.5 3 3 6-7" /></svg>';
               ? `Your brief was received, but the confirmation email couldn’t be sent. I’ll still reply to ${data.email}.`
               : `The website accepted it and the email service took it for delivery to my inbox. I’ll reply to ${data.email}.`;
         form.hidden = true;
-        success.hidden = false;
         success.focus();
         success.scrollIntoView({ block: 'start' });
         trackOnce(body.id, 'generate_lead', {
@@ -947,6 +957,9 @@ const tick = '<svg viewBox="0 0 16 16"><path d="m3.5 8.5 3 3 6-7" /></svg>';
   }
   .es-title {
     font-size: 1.125rem;
+    font-weight: 600;
+    letter-spacing: var(--track-head);
+    line-height: 1;
     color: var(--error);
     margin-bottom: var(--s-2);
   }
@@ -969,8 +982,12 @@ const tick = '<svg viewBox="0 0 16 16"><path d="m3.5 8.5 3 3 6-7" /></svg>';
   .success:focus {
     outline: none;
   }
-  .success h2 {
+  .success__title {
     font-size: clamp(1.8rem, 1.4rem + 1.8vw, 3rem);
+    font-weight: 600;
+    letter-spacing: var(--track-head);
+    line-height: 1;
+    text-wrap: balance;
     max-width: 20ch;
   }
   .success__mark {

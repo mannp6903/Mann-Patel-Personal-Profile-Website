@@ -53,7 +53,7 @@ const nest = businesses[0];
 
   <div class="ftr__grid container">
     <nav class="ftr__col ftr__col--pages" aria-label="Footer">
-      <h2 class="ftr__h">Pages</h2>
+      <p class="ftr__h">Pages</p>
       <ul role="list">
         <li><a class="link-quiet" href="/">Home</a></li>
         {nav.map((n) => <li><a class="link-quiet" href={n.href}>{n.label}</a></li>)}
@@ -61,7 +61,7 @@ const nest = businesses[0];
       </ul>
     </nav>
     <div class="ftr__col ftr__col--services">
-      <h2 class="ftr__h">Services</h2>
+      <p class="ftr__h">Services</p>
       <ul role="list">
         {groups.map((g) => {
           const sp = servicePageForGroup(g.id);
@@ -72,7 +72,7 @@ const nest = businesses[0];
       </ul>
     </div>
     <div class="ftr__col ftr__col--wide">
-      <h2 class="ftr__h">Contact</h2>
+      <p class="ftr__h">Contact</p>
       <ul role="list">
         {
           contact.email && (
@@ -90,10 +90,10 @@ const nest = businesses[0];
         {
           contact.phone && (
             <li class="ftr__phone">
-              <a class="link-quiet num" href="/contact/#reach" data-reach="call" data-k={contact.phone.key} data-contact="phone">
+              <a class="link-quiet num" href={contact.phone.tel} data-reach="call" data-k={contact.phone.key} data-contact="phone">
                 <Icon name="phone" />
-                <span class="visually-hidden">Call, number partly hidden for privacy: </span>
-                {contact.phone.masked}
+                <span class="visually-hidden">Call </span>
+                {contact.phone.display}
               </a>
             </li>
           )
@@ -108,11 +108,11 @@ const nest = businesses[0];
             </li>
           )
         }
-        <li class="subtle">Based in {profile.location}. Working across {profile.serviceArea}.</li>
+        <li class="subtle">Based in {profile.location}, working across {profile.serviceArea}.</li>
       </ul>
     </div>
     <div class="ftr__col">
-      <h2 class="ftr__h">Elsewhere</h2>
+      <p class="ftr__h">Elsewhere</p>
       <SocialLinks class="ftr__social" />
       <ul role="list">
         <li>
@@ -202,8 +202,11 @@ const nest = businesses[0];
       grid-column: auto;
     }
   }
+  /* Column labels: styled paragraphs, not headings (SEO audit, 14 Nov 2026). */
   .ftr__h {
+    margin-top: 0;
     margin-bottom: var(--s-4);
+    line-height: 1;
     font-family: var(--font-mono);
     font-size: var(--fs-xs);
     font-weight: 500;
