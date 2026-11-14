@@ -21,13 +21,11 @@ import AgentGraph from './AgentGraph.astro';
 
 const launch = packageById('website-launch')!;
 const local = packageById('local-visibility')!;
+// 14 Nov 2026: only the three core services (Mann's call); the rest live on /services/.
 const services = [
-  { href: '/services/local-visibility/', name: 'Local SEO & Google Business Profile' },
-  { href: '/services/local-visibility/#ai-search', name: 'AI search visibility (GEO & AEO)' },
-  { href: '/services/enquiry-follow-up/', name: 'Enquiry follow-up & AI automation' },
-  { href: '/services/enquiry-follow-up/', name: 'Online booking' },
-  { href: '/services/web-design/', name: 'Websites & fixes' },
-  { href: '/services/#extras', name: 'Care, print & social' },
+  { href: '/services/local-visibility/', name: 'Local SEO & AI search' },
+  { href: '/services/enquiry-follow-up/', name: 'Enquiry follow-up & booking' },
+  { href: '/services/web-design/', name: 'Websites' },
 ];
 const recent = [
   { href: '/work/samp-hair-spa/', name: 'Samp Hair & Spa', note: 'Salon website, client preview', date: 'Oct 2026' },

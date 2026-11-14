@@ -256,8 +256,9 @@ test.describe('layout', () => {
       await expect(cta).toHaveAttribute('href', '/contact/?package=check-up#check');
       await expect(hero.getByRole('link', { name: 'See prices' })).toHaveAttribute('href', '/pricing/');
       await expect(hero.locator('.hero__price')).toContainText('$1,950 website');
-      // 14 Nov 2026 (round 2): the hero names every service, not only websites.
-      for (const name of ['Local SEO & Google Business Profile', 'AI search visibility (GEO & AEO)', 'Enquiry follow-up & AI automation', 'Online booking', 'Websites & fixes', 'Care, print & social'])
+      // 14 Nov 2026 (founder profile): the hero names only the three core services.
+      await expect(hero.locator('.hero__services li')).toHaveCount(3);
+      for (const name of ['Local SEO & AI search', 'Enquiry follow-up & booking', 'Websites'])
         await expect(hero.locator('.hero__services')).toContainText(name);
       await expect(hero.locator('.hero__price')).toBeInViewport();
       // Dated examples of real work sit next to the buttons (Quickstart, 13 Nov 2026).
@@ -1413,7 +1414,7 @@ test.describe('audit of 11 Nov 2026', () => {
     await page.goto('/vision/');
     await expect(page.locator('h1')).toContainText('Local businesses do the work.');
     for (const href of ['/work/nest-and-rest-cleaning/', '/work/samp-hair-spa/', '/services/']) await expect(page.locator(`main a[href="${href}"]`).first()).toBeVisible();
-    await expect(page.getByRole('heading', { name: 'CHECKMATE' })).toBeVisible();
+    await expect(page.locator('main')).not.toContainText('CHECKMATE');
   });
 
   test('the headline keeps its service and place words', async ({ page }) => {

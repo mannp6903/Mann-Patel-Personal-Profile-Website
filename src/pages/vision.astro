@@ -40,13 +40,6 @@ const ventures = [
     href: nest.caseStudy,
     link: 'Read the case study',
   },
-  {
-    tag: 'C',
-    name: 'CHECKMATE',
-    status: 'Design studio',
-    text: 'My design brand for print and identity work: business cards, flyers and logos for small businesses, made in Figma and Canva.',
-    confirm: 'how CHECKMATE should be described in public, and whether it appears on this page',
-  },
 ];
 
 const shipped = [
@@ -85,7 +78,7 @@ const jsonLd = { '@context': 'https://schema.org', '@type': 'ProfilePage', mainE
     <div class="container">
       <div class="section-head">
         <p class="eyebrow">01 / Ventures</p>
-        <Heading id="ventures-title" lines={['Three businesses,', '<span class="accent">one idea.</span>']} />
+        <Heading id="ventures-title" lines={['Two businesses,', '<span class="accent">one idea.</span>']} />
       </div>
       <ol class="vi-ventures" role="list">
         {
@@ -267,7 +260,7 @@ const jsonLd = { '@context': 'https://schema.org', '@type': 'ProfilePage', mainE
   }
   @media (min-width: 48em) {
     .vi-ventures {
-      grid-template-columns: repeat(3, minmax(0, 1fr));
+      grid-template-columns: repeat(2, minmax(0, 1fr));
     }
   }
   @media (min-width: 64em) {
