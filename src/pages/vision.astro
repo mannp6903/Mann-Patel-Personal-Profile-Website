@@ -1,18 +1,17 @@
 ---
 /**
- * Vision (14 Nov 2026): the founder page for partners and investors. Who Mann is, the idea that ties
- * his ventures together, what has actually shipped (dated, linked), and what comes next.
+ * Vision (14 Nov 2026): what Mann is building, for professionals who may want to build with him. The idea
+ * that ties his work together, what has actually shipped (dated, linked), and what comes next.
  *
- * Every fact here is already confirmed elsewhere on the site (About, case studies, packages). New
- * claims Mann hasn't signed off yet are wrapped in <Confirm>, which shows in previews and fails the
- * production build until they are confirmed or removed.
+ * Every fact here is already confirmed elsewhere on the site (About, case studies, packages) or was
+ * approved by Mann in the 14 Nov 2026 thread (no investors for now; open to professionals who want to
+ * build together; no CHECKMATE; no "Founder" title).
  */
 import BaseLayout from '../layouts/BaseLayout.astro';
 import PageHead from '../components/PageHead.astro';
 import Heading from '../components/ui/Heading.astro';
 import Button from '../components/ui/Button.astro';
 import Icon from '../components/ui/Icon.astro';
-import Confirm from '../components/Confirm.astro';
 import ContactActions from '../components/ContactActions.astro';
 import SocialLinks from '../components/SocialLinks.astro';
 import { profile, businesses } from '../data/site';
@@ -36,7 +35,7 @@ const ventures = [
     tag: 'B',
     name: nest.name,
     status: 'Website live · bookings open summer 2027',
-    text: 'My own home-cleaning business in Scarborough and North York. People do the cleaning; the plan is for software and AI to handle the rest: marketing, scheduling, supply orders, payroll and customer feedback. It is where I test every system before I sell it.',
+    text: 'A home-cleaning business I’m getting ready to open in Scarborough and North York. People do the cleaning; the plan is for software and AI to handle the rest: marketing, scheduling, supply orders, payroll and customer feedback. It is where I test every system before I sell it.',
     href: nest.caseStudy,
     link: 'Read the case study',
   },
@@ -59,7 +58,7 @@ const jsonLd = { '@context': 'https://schema.org', '@type': 'ProfilePage', mainE
 
 <BaseLayout
   title="Vision"
-  fullTitle="Vision | Mann Patel, Founder in Toronto"
+  fullTitle="Vision | Mann Patel, Web Designer & AI Automation Builder in Toronto"
   description="What Mann Patel is building: local businesses that do the work while software and AI handle the rest. His ventures, what has shipped, and what comes next."
   jsonLd={jsonLd}
 >
@@ -88,7 +87,6 @@ const jsonLd = { '@context': 'https://schema.org', '@type': 'ProfilePage', mainE
               <h3>{v.name}</h3>
               <p class="vi-venture__status num">{v.status}</p>
               <p class="muted">{v.text}</p>
-              {v.confirm && <Confirm note={v.confirm} />}
               {v.href && (
                 <a class="link-arrow" href={v.href}>
                   {v.link} <Icon name="arrow" />
@@ -129,7 +127,6 @@ const jsonLd = { '@context': 'https://schema.org', '@type': 'ProfilePage', mainE
       <div class="stack" style="--stack: var(--s-4)">
         <p class="eyebrow">03 / Next</p>
         <Heading id="next-title" lines={['Prove it small,', '<span class="accent">then repeat it.</span>']} />
-        <Confirm note="the order and dates of these next steps" />
       </div>
       <ol class="vi-list" role="list">
         {
@@ -168,11 +165,10 @@ const jsonLd = { '@context': 'https://schema.org', '@type': 'ProfilePage', mainE
     <div class="container vi-split">
       <div class="stack" style="--stack: var(--s-4)">
         <p class="eyebrow">05 / Let’s talk</p>
-        <Heading id="talk-title" lines={['If you build or back businesses,', '<span class="accent accent--signal">I’d like to learn from you.</span>']} />
+        <Heading id="talk-title" lines={['Want to build', '<span class="accent accent--signal">something together?</span>']} />
       </div>
       <div class="stack" style="--stack: var(--s-5)">
-        <p class="lead">I’m open to advice, introductions and partnerships. I answer every message myself.</p>
-        <Confirm note="what you are asking partners and investors for" />
+        <p class="lead">If you’re a professional with an idea, a skill or a project, and you’d like to connect and build something together, I’m open to it. I answer every message myself.</p>
         <ContactActions label={`Reach ${profile.name.split(' ')[0]}`} />
         <SocialLinks label="Find me online" />
       </div>

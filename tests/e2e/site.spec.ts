@@ -1424,7 +1424,7 @@ test.describe('audit of 11 Nov 2026', () => {
     await expect(lines.nth(1)).toHaveText('and AI automation.');
     // 14 Nov 2026 (founder profile): the outcome line sits under the H1 instead of inside it.
     await expect(page.locator('#hero-title .hero__place')).toHaveCount(0);
-    await expect(page.locator('.hero .hero__place')).toHaveText('Get found on Google and in AI answers (GEO and AEO), then turn searches into bookings. For Toronto businesses. You own every account.');
+    await expect(page.locator('.hero .hero__place')).toHaveText('Get found on Google and in AI answers, then turn searches into bookings. For Toronto businesses.');
   });
 
   test('phones: the hero photo is sized for the screen, and the pause button is reachable on touch', async ({ browser }) => {

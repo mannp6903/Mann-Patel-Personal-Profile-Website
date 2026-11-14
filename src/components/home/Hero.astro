@@ -8,9 +8,9 @@
  * graph (AgentGraph.astro), with Mann's photo as the core node. Kept short on purpose: one H1, one
  * subline, a service list, two buttons. Websites are one service among several.
  *
- * 14 Nov 2026 (founder profile): the H1 is the two service lines only; the outcome line moved out of
+ * 14 Nov 2026 (profile update): the H1 is the two service lines only; the outcome line moved out of
  * the H1 into a short subline, the repeated lead paragraph was dropped, and a quiet link under the
- * recent work leads partners and investors to /vision/.
+ * recent work leads to /vision/.
  */
 import { profile } from '../../data/site';
 import { packageById, priceLabel } from '../../data/packages';
@@ -39,7 +39,7 @@ const recent = [
       <div class="hero__hello">
         <p>
           <span class="hero__hi">Hi, I’m {profile.name}.</span>
-          <span class="hero__role">Founder and builder · Scarborough, Toronto</span>
+          <span class="hero__role">Web designer and AI automation builder · Toronto</span>
         </p>
         <p class="status status--live hero__status"><span class="status__dot" aria-hidden="true"></span>Taking new projects</p>
       </div>
@@ -48,7 +48,7 @@ const recent = [
         <span class="hero__line">Local SEO, websites</span>
         <span class="hero__line">and AI automation.</span>
       </h1>
-      <p class="hero__place">Get found on Google and in AI answers (GEO and AEO), then turn searches into bookings. For Toronto businesses. You own every account.</p>
+      <p class="hero__place">Get found on Google and in AI answers, then turn searches into bookings. For Toronto businesses.</p>
 
       <ul class="hero__services" role="list" aria-label="Services">
         {
@@ -92,7 +92,7 @@ const recent = [
           ))
         }
       </ul>
-      <a class="hero__vision link-arrow" href="/vision/">For partners and investors: what I’m building <Icon name="arrow" /></a>
+      <a class="hero__vision link-arrow" href="/vision/">What I’m building, and how to build with me <Icon name="arrow" /></a>
     </div>
   </div>
 </section>
@@ -151,7 +151,7 @@ const recent = [
   }
 
   .hero__title {
-    font-size: clamp(2.45rem, 10.4vw, 4.6rem);
+    font-size: clamp(2.1rem, 9.4vw, 4.6rem);
     font-weight: 650;
     line-height: 0.95;
     letter-spacing: -0.06em;

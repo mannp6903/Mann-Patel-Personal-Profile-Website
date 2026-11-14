@@ -37,7 +37,7 @@ export const profile = {
   headline: 'Web design, local SEO and automation for Toronto businesses.',
   descriptor: 'Local SEO, Google Business Profile, AI search visibility (GEO and AEO), web design and enquiry automation for businesses in Toronto and the GTA',
   intro:
-    'I’m Mann Patel, a Toronto small business founder. I help local businesses get found on Google, reply to enquiries faster, and turn website visits into booking requests.',
+    'I’m Mann Patel, a Toronto web designer and AI automation builder. I help local businesses get found on Google, reply to enquiries faster, and turn website visits into booking requests.',
   /** Public location: based in Toronto, serves the GTA (confirmed by Mann, 31 Oct 2026). */
   location: 'Toronto',
   serviceArea: 'Toronto and the GTA',
@@ -86,7 +86,8 @@ export const businesses: Business[] = [
     pausedStatus: 'Launched Oct 2026 · live link paused',
     pausedNote:
       'The public address didn’t load when it was checked on 10 Nov 2026, so the link to it is paused. The screens and tests on this page come from the live site on the dates shown.',
-    role: 'Founder & Owner',
+    // 14 Nov 2026: not "Founder" until the business is registered (Mann's call).
+    role: 'Getting it ready to open',
     area: 'Scarborough and North York, Toronto',
     description:
       'Home cleaning in Scarborough and North York with prices shown up front, a room-by-room checklist of what’s included, and the owner at the door. The site says “Opening soon” until bookings open in summer 2027, and I’ll clean every home myself while the business grows.',
@@ -99,7 +100,7 @@ export const nav = [
   { href: '/services/', label: 'Services' },
   { href: '/pricing/', label: 'Pricing' },
   { href: '/about/', label: 'About' },
-  // 14 Nov 2026: the founder page for partners and investors (what Mann is building and why).
+  // 14 Nov 2026: what Mann is building, and an open door to professionals who want to build with him.
   { href: '/vision/', label: 'Vision' },
 ] as const;
 
