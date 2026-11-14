@@ -18,7 +18,8 @@ interface Props {
   class?: string;
 }
 const { class: cls } = Astro.props;
-const portrait = profile.portrait;
+// The closer hero crop (14 Nov 2026) fills the round core better than the wider portrait.
+const portrait = profile.heroPortrait ?? profile.portrait;
 
 type Pt = { x: number; y: number };
 interface Layout {

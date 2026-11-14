@@ -1,4 +1,5 @@
 import portraitImage from '../assets/mann-patel-portrait.jpg';
+import heroImage from '../assets/mann-patel-hero.jpg';
 
 /**
  * Profile and site settings.
@@ -44,6 +45,11 @@ export const profile = {
   /** Real portrait only (supplied by Mann, 31 Oct 2026). */
   portrait: {
     src: portraitImage,
+    alt: 'Mann Patel smiling, in a dark green sweatshirt, on a tree-lined street at dusk.',
+  } as null | { src: ImageMetadata; alt: string },
+  /** Closer crop of the same photo for the round core of the home hero graph (supplied by Mann, 14 Nov 2026). */
+  heroPortrait: {
+    src: heroImage,
     alt: 'Mann Patel smiling, in a dark green sweatshirt, on a tree-lined street at dusk.',
   } as null | { src: ImageMetadata; alt: string },
   contact: {
