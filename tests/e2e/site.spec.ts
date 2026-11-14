@@ -24,6 +24,7 @@ const PAGES = [
   '/services/local-visibility/',
   '/services/enquiry-follow-up/',
   '/pricing/',
+  '/vision/',
 ];
 
 async function noHorizontalOverflow(page: Page) {
@@ -119,7 +120,7 @@ test.describe('pages', () => {
 
   // The copy map from the growth report (10 Nov 2026): each page names its service and the place.
   const COPY: [string, string, string, string][] = [
-    ['/', 'Mann Patel | Local SEO, Websites & AI Automation in Toronto', 'Local SEO, websites and AI automation. Get found on Google and in AI search (GEO and AEO), then turn searches into bookings. For Toronto businesses.', 'Local SEO, websites and AI automation for Toronto businesses: Google Business Profile, AI search optimization (GEO and AEO) and enquiry follow-up. Websites from $1,950 CAD.'],
+    ['/', 'Mann Patel | Local SEO, Websites & AI Automation in Toronto', 'Local SEO, websites and AI automation.', 'Local SEO, websites and AI automation for Toronto businesses: Google Business Profile, AI search optimization (GEO and AEO) and enquiry follow-up. Websites from $1,950 CAD.'],
     ['/services/', 'Website, Local SEO & Booking Services | Mann Patel', 'Website, local SEO and enquiry services', 'Compare web design, local SEO, Google Business Profile setup and enquiry automation for Toronto service businesses. See packages and request a quote.'],
     ['/services/web-design/', 'Toronto Small Business Web Design | Mann Patel', 'Web design for Toronto small businesses', 'Get a mobile-friendly website or redesign with clear service pages, a tested enquiry path and a written handover. See projects and ask for a quote.'],
     ['/services/local-visibility/', 'Local SEO & Google Business Profile Setup in Toronto | Mann Patel', 'Local SEO and Google Business Profile setup in Toronto', 'Improve your Google presence with eligible profile setup, listing updates and a review workflow. Ask about SEO foundations and an AI search check.'],
@@ -244,7 +245,7 @@ test.describe('layout', () => {
       await page.goto('/');
       // The H1 names the service and the place (growth report, 10 Nov 2026); the slogan moved to the process strip.
       const h1 = page.locator('h1');
-      expect((await h1.innerText()).replace(/\s+/g, ' ').trim()).toBe('Local SEO, websites and AI automation. Get found on Google and in AI search (GEO and AEO), then turn searches into bookings. For Toronto businesses.');
+      expect((await h1.innerText()).replace(/\s+/g, ' ').trim()).toBe('Local SEO, websites and AI automation.');
       await expect(h1).toBeInViewport();
       const hero = page.locator('.hero');
       // 14 Nov 2026: who you're dealing with comes first (round 3: no small face; the photo is the graph's core).
@@ -304,8 +305,9 @@ test.describe('navigation', () => {
     const sheet = page.locator('#site-menu');
     await expect(sheet).toBeVisible();
     await expect(btn).toHaveAttribute('aria-expanded', 'true');
-    await expect(sheet.getByRole('navigation', { name: 'Menu' }).getByRole('link')).toHaveCount(5);
+    await expect(sheet.getByRole('navigation', { name: 'Menu' }).getByRole('link')).toHaveCount(6);
     await expect(sheet.getByRole('link', { name: 'Pricing', exact: true })).toHaveAttribute('href', '/pricing/');
+    await expect(sheet.getByRole('link', { name: 'Vision', exact: true })).toHaveAttribute('href', '/vision/');
     await expect(sheet.locator('a[href="/contact/"]')).toHaveCount(1);
     await expect(sheet.getByRole('link', { name: /Email Mann/ })).toHaveAttribute('href', /^mailto:info@mannpatel\.me\?/);
     await expect(sheet.getByRole('link', { name: 'Services' })).toBeVisible();
@@ -508,7 +510,7 @@ test.describe('home interactions', () => {
       await page.waitForTimeout(700);
       const fit = await sheet.evaluate((d) => d.scrollHeight - d.clientHeight);
       expect(fit).toBeLessThanOrEqual(1);
-      for (const name of ['Home', 'Work', 'Services', 'Pricing', 'About', 'Contact', 'Privacy', 'Terms'])
+      for (const name of ['Home', 'Work', 'Services', 'Pricing', 'About', 'Vision', 'Contact', 'Privacy', 'Terms'])
         await expect(sheet.getByRole('link', { name, exact: true }).first()).toBeInViewport();
       await expect(sheet.getByRole('link', { name: /Email Mann/ })).toBeInViewport();
     });
@@ -1392,12 +1394,36 @@ test.describe('audit of 11 Nov 2026', () => {
     await expect(page.locator('main')).toContainText('$975 at kickoff and $975 once the site passes those checks');
   });
 
+  test('presenter mode: ?present=1 enlarges the type, stays on across pages, and arrow keys move section by section', async ({ page }) => {
+    await page.setViewportSize({ width: 1440, height: 900 });
+    await page.goto('/?present=1');
+    await expect(page.locator('html')).toHaveAttribute('data-present', '');
+    expect(await page.evaluate(() => getComputedStyle(document.documentElement).fontSize)).toBe('18px');
+    await page.keyboard.press('ArrowRight');
+    await expect.poll(() => page.evaluate(() => scrollY)).toBeGreaterThan(200);
+    await page.goto('/vision/');
+    await expect(page.locator('html')).toHaveAttribute('data-present', '');
+    await page.goto('/?present=0');
+    await expect(page.locator('html')).not.toHaveAttribute('data-present', '');
+  });
+
+  test('the vision page: founder story for partners, linked from the menu and the hero, with real shipped work', async ({ page }) => {
+    await page.goto('/');
+    await expect(page.locator('.hero a.hero__vision')).toHaveAttribute('href', '/vision/');
+    await page.goto('/vision/');
+    await expect(page.locator('h1')).toContainText('Local businesses do the work.');
+    for (const href of ['/work/nest-and-rest-cleaning/', '/work/samp-hair-spa/', '/services/']) await expect(page.locator(`main a[href="${href}"]`).first()).toBeVisible();
+    await expect(page.getByRole('heading', { name: 'CHECKMATE' })).toBeVisible();
+  });
+
   test('the headline keeps its service and place words', async ({ page }) => {
     await page.goto('/');
     const lines = page.locator('#hero-title .hero__line');
     await expect(lines.nth(0)).toHaveText('Local SEO, websites');
     await expect(lines.nth(1)).toHaveText('and AI automation.');
-    await expect(page.locator('#hero-title .hero__place')).toHaveText('Get found on Google and in AI search (GEO and AEO), then turn searches into bookings. For Toronto businesses.');
+    // 14 Nov 2026 (founder profile): the outcome line sits under the H1 instead of inside it.
+    await expect(page.locator('#hero-title .hero__place')).toHaveCount(0);
+    await expect(page.locator('.hero .hero__place')).toHaveText('Get found on Google and in AI answers (GEO and AEO), then turn searches into bookings. For Toronto businesses. You own every account.');
   });
 
   test('phones: the hero photo is sized for the screen, and the pause button is reachable on touch', async ({ browser }) => {

@@ -46,6 +46,7 @@ const groups: { title: string; items: Item[] }[] = [
       { id: 'p-work', label: 'Work', hint: '/work/', icon: 'grid', href: '/work/', keywords: 'projects portfolio case study' },
       ...work.map((w) => ({ id: `w-${w.id}`, label: w.data.title, hint: 'Case study', icon: 'arrow-ne' as IconName, href: `/work/${w.id}/` })),
       { id: 'p-about', label: 'About Mann', hint: '/about/', icon: 'user', href: '/about/', keywords: 'story bio' },
+      { id: 'p-vision', label: 'Vision', hint: '/vision/', icon: 'arrow-ne', href: '/vision/', keywords: 'investors partners founder ventures checkmate plan' },
       { id: 'p-contact', label: 'Contact', hint: '/contact/', icon: 'chat', href: '/contact/' },
       { id: 'p-privacy', label: 'Privacy Policy', hint: '/privacy/', icon: 'shield', href: '/privacy/' },
       { id: 'p-terms', label: 'Terms of Use', hint: '/terms/', icon: 'shield', href: '/terms/' },

@@ -71,6 +71,13 @@ const ld = jsonLd ? (Array.isArray(jsonLd) ? jsonLd : [jsonLd]) : [];
       (function () {
         var d = document.documentElement;
         d.classList.add('js');
+        // Presenter mode (src/scripts/present.ts): ?present=1 turns it on for this tab, ?present=0 off.
+        try {
+          var q = new URLSearchParams(location.search).get('present');
+          if (q === '1') sessionStorage.setItem('present', '1');
+          if (q === '0') sessionStorage.removeItem('present');
+          if (sessionStorage.getItem('present') === '1') d.setAttribute('data-present', '');
+        } catch (e) {}
         if (!window.matchMedia('(prefers-reduced-motion: reduce)').matches) {
           d.classList.add('js-motion');
           // Failsafe: if the motion script never runs, never leave content hidden.
@@ -95,6 +102,7 @@ const ld = jsonLd ? (Array.isArray(jsonLd) ? jsonLd : [jsonLd]) : [];
       import '../scripts/motion';
       import '../scripts/reach';
       import '../scripts/fx/index';
+      import '../scripts/present';
     </script>
   </body>
 </html>

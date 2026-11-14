@@ -1270,3 +1270,12 @@ fieldset > legend + * {
     transform: translateY(40px) scale(0.965);
   }
 }
+
+/* Presenter mode (?present=1, src/scripts/present.ts): larger type for a projector, steady visuals. */
+html[data-present] {
+  font-size: 112.5%;
+  scroll-padding-top: 0;
+}
+html[data-present] .hdr__clock {
+  display: none;
+}

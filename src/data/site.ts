@@ -99,6 +99,8 @@ export const nav = [
   { href: '/services/', label: 'Services' },
   { href: '/pricing/', label: 'Pricing' },
   { href: '/about/', label: 'About' },
+  // 14 Nov 2026: the founder page for partners and investors (what Mann is building and why).
+  { href: '/vision/', label: 'Vision' },
 ] as const;
 
 export const primaryCta = { href: '/contact/', label: 'Contact' } as const;

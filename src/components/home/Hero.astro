@@ -6,7 +6,11 @@
  * Google Business Profile, GEO/AEO, AI automation, web design, Toronto) in plain sentences. A short
  * list names every service, then one free first step and real prices. The visual is the agent
  * graph (AgentGraph.astro), with Mann's photo as the core node. Kept short on purpose: one H1, one
- * subline, two sentences, a service list, two buttons. Websites are one service among several.
+ * subline, a service list, two buttons. Websites are one service among several.
+ *
+ * 14 Nov 2026 (founder profile): the H1 is the two service lines only; the outcome line moved out of
+ * the H1 into a short subline, the repeated lead paragraph was dropped, and a quiet link under the
+ * recent work leads partners and investors to /vision/.
  */
 import { profile } from '../../data/site';
 import { packageById, priceLabel } from '../../data/packages';
@@ -37,7 +41,7 @@ const recent = [
       <div class="hero__hello">
         <p>
           <span class="hero__hi">Hi, I’m {profile.name}.</span>
-          <span class="hero__role">Local SEO, websites and AI automation in Scarborough, Toronto</span>
+          <span class="hero__role">Founder and builder · Scarborough, Toronto</span>
         </p>
         <p class="status status--live hero__status"><span class="status__dot" aria-hidden="true"></span>Taking new projects</p>
       </div>
@@ -45,13 +49,8 @@ const recent = [
       <h1 class="hero__title" id="hero-title">
         <span class="hero__line">Local SEO, websites</span>
         <span class="hero__line">and AI automation.</span>
-        <span class="hero__place">Get found on Google and in AI search (GEO and AEO), then turn searches into bookings. For Toronto businesses.</span>
       </h1>
-
-      <p class="hero__lead">
-        I help local businesses show up when customers search on Google or ask ChatGPT, then turn those searches into enquiries
-        and bookings. You own every account, and every price is written down first.
-      </p>
+      <p class="hero__place">Get found on Google and in AI answers (GEO and AEO), then turn searches into bookings. For Toronto businesses. You own every account.</p>
 
       <ul class="hero__services" role="list" aria-label="Services">
         {
@@ -95,6 +94,7 @@ const recent = [
           ))
         }
       </ul>
+      <a class="hero__vision link-arrow" href="/vision/">For partners and investors: what I’m building <Icon name="arrow" /></a>
     </div>
   </div>
 </section>
@@ -164,7 +164,7 @@ const recent = [
   }
   .hero__place {
     display: block;
-    margin-top: 0.5em;
+    margin-top: calc(-1 * var(--s-2));
     color: var(--text-2);
     max-width: 40ch;
     font-size: clamp(1rem, 1.4vw, 1.3rem);
@@ -202,12 +202,6 @@ const recent = [
   .hero__services a:hover {
     border-color: var(--control);
     background: var(--surface);
-  }
-  .hero__lead {
-    max-width: 52ch;
-    color: var(--text-2);
-    font-size: clamp(1rem, 1.3vw, 1.2rem);
-    line-height: 1.55;
   }
   .hero__actions {
     display: grid;
@@ -247,7 +241,7 @@ const recent = [
     display: grid;
     gap: var(--s-2);
   }
-  .hero__recent a {
+  .hero__recent li a {
     display: grid;
     grid-template-columns: minmax(0, 1fr) auto;
     align-items: center;
@@ -260,7 +254,7 @@ const recent = [
     text-decoration: none;
     transition: border-color var(--t-fast), background-color var(--t-fast);
   }
-  .hero__recent a:hover {
+  .hero__recent li a:hover {
     border-color: var(--control);
     background: var(--surface);
   }
@@ -273,7 +267,12 @@ const recent = [
     font-size: var(--fs-xs);
     color: var(--text-3);
   }
-  .hero__recent a :global(.icon) {
+  .hero__vision {
+    justify-self: start;
+    margin-top: var(--s-1);
+    font-size: var(--fs-sm);
+  }
+  .hero__recent li a :global(.icon) {
     grid-column: 2;
     grid-row: 1 / span 2;
     color: var(--signal);
@@ -295,7 +294,6 @@ const recent = [
 
   @media (max-width: 39.99em) {
     .hero__text { gap: var(--s-4); }
-    .hero__lead { font-size: 0.95rem; }
     .hero__services { gap: 0.4rem; order: 1; }
     /* Phones: the buttons come straight after the lead so they fit on the first screen; the service list follows them. */
     .hero__place { font-size: 0.98rem; margin-top: 0.45em; }
@@ -322,7 +320,6 @@ const recent = [
   @media (max-width: 22.5em) {
     /* The smallest phones (320 px): smaller type so the buttons still fit on the first screen. */
     .hero__title { font-size: 2.1rem; }
-    .hero__lead { font-size: 0.88rem; line-height: 1.5; }
     .hero__text { gap: var(--s-3); }
   }
   @media (min-width: 40em) and (max-width: 63.99em) {
