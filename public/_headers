@@ -1,9 +1,9 @@
 # Response headers for static files on Cloudflare (replaces the old netlify.toml rules).
+# The security headers for every page (HSTS, COOP, nosniff, framing, referrer, permissions and a report-only Content
+# Security Policy hashed for the built pages) come from src/lib/security-headers.ts: the build writes them in place
+# of the marker line below (astro.config.mjs → security-headers). Edit them there, not here.
 /*
-  X-Content-Type-Options: nosniff
-  Referrer-Policy: strict-origin-when-cross-origin
-  Permissions-Policy: camera=(), microphone=(), geolocation=(), interest-cohort=()
-  X-Frame-Options: DENY
+  # Security headers: written here at build time from src/lib/security-headers.ts
 
 /fonts/*
   Cache-Control: public, max-age=31536000, immutable

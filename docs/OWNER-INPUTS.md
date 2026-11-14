@@ -49,8 +49,12 @@ Full detail: [`docs/23-website-audit/`](23-website-audit/). Issue IDs refer to `
 5. **Answer four questions.** Had you lived in Thunder Bay before Saint John (MP-012)? What reply time can you keep
    (MP-024)? Do you meet clients in person (Business Profile eligibility, MP-014)? Is there relevant training or experience
    you are willing to publish on About?
-6. **Cloudflare dashboard (MP-018, MP-019).** Add the “Redirect from WWW to root” rule; confirm “Always Use HTTPS” is on; then
-   enable HSTS (start with six months, no preload).
+6. **Cloudflare dashboard (MP-018, MP-019).** Add the “Redirect from WWW to root” rule; confirm “Always Use HTTPS” is on.
+   HSTS is now sent by the site itself (six months, no preload; SEO audit Phase 4, 14 Nov 2026), so leave the dashboard's
+   HSTS setting off to avoid two different values. **Content Security Policy:** it runs in report-only mode first, so
+   nothing can break. After the deploy, open a few pages in Chrome with DevTools → Console and look for messages starting
+   “[Report Only] Refused to…”. If there are none after a week (or only ones you recognise), ask me to switch it to
+   enforcing: it is one word in `src/lib/security-headers.ts`.
 7. **Free-check experiment (MP-023).** Keep the hero button as it is and log each check. After ten delivered checks, if fewer
    than one led to a paid quote request, make “Start a project” the main hero button.
 

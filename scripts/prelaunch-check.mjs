@@ -172,6 +172,12 @@ if (cloudflare) {
   const missing = paths.filter((path) => !lines.has(`${path.replace(/\/$/, '')} ${path} 301`));
   check(paths.length > 0 && missing.length === 0, `_redirects: ${paths.length} sitemap pages redirect permanently to their trailing-slash address`, `_redirects is missing a 301 for: ${missing.join(', ') || 'every page (file not written?)'}`);
   check(![...lines].some((l) => l.startsWith('/api')), '_redirects leaves /api/ alone', '_redirects must not redirect /api/ (the form posts there)');
+  // Security headers (SEO audit Phase 4): written into _headers by the build (src/lib/security-headers.ts).
+  const headers = await readFile(join(root, '_headers'), 'utf8').catch(() => '');
+  const sec = ['Strict-Transport-Security', 'Cross-Origin-Opener-Policy', 'X-Content-Type-Options', 'Content-Security-Policy'].filter(
+    (h) => !new RegExp(`^\\s+${h}(-Report-Only)?:`, 'm').test(headers),
+  );
+  check(sec.length === 0 && !headers.includes('# Security headers: written here'), '_headers carries the security headers (HSTS, COOP, CSP)', `_headers is missing: ${sec.join(', ') || 'the build step (marker still there)'}`);
 }
 
 // ── Report ──────────────────────────────────────────────────
