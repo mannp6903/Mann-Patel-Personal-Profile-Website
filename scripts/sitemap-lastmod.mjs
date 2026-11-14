@@ -1,11 +1,17 @@
 // Sitemap <lastmod> dates (SEO audit, 14 Nov 2026; docs/seo/PLAN.md A8). Used by astro.config.mjs.
 //
 // Each URL gets the date of the latest git commit that touched its own source files: the page, the
-// dynamic route that renders it, and its content or data file. Files with uncommitted changes count as
-// changed now (local builds); with no git history at all, the build date is used. Node built-ins only.
+// dynamic route that renders it, its content or data file, and the shared sources behind every page's
+// structured data and contact details (GLOBAL). Files with uncommitted changes count as changed now (local
+// builds); with no git history at all, the build date is used. Node built-ins only.
 import { spawnSync } from 'node:child_process';
 import { existsSync } from 'node:fs';
 
+/**
+ * Shared sources behind every page: the structured data (business and Person nodes), the profile, contact
+ * details and location shown in the footer. A change here changes what every page says or marks up.
+ */
+const GLOBAL = ['src/lib/seo.ts', 'src/data/site.ts', 'src/lib/contact.ts'];
 /** Shared data that changes what a page says, beyond its own .astro file. */
 const EXTRA = {
   '/': ['src/components/home', 'src/data/faqs.ts'],
@@ -35,7 +41,7 @@ export function sourcesFor(pathname) {
       files.push(...(ROUTE_DATA[parent] ?? []));
     }
   }
-  files.push(...(EXTRA[pathname] ?? []));
+  files.push(...(EXTRA[pathname] ?? []), ...GLOBAL);
   return [...new Set(files)].filter((f) => existsSync(f));
 }
 

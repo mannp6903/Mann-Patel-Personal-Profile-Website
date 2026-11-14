@@ -9,6 +9,17 @@ verification (Mann's approval, 14 Nov 2026). No PR, no deploy. Stop after each p
 
 Status: Phase 1 done · Phase 2 next · Phase 3 · Phase 4 (ask before each item).
 
+### Verification log
+
+- **Phase 1 (14 Nov 2026):** `npm run check:seo` 0 errors, 1 warning (/privacy/ description 158 characters; not an
+  audit item); a build copy with 10 injected faults failed all of them. `npm run check` 0 errors; `npm test` 78/78;
+  `npm run test:e2e` 132/132 (local server, file delivery, no real submissions). Lighthouse 13.6 mobile on the local
+  production-like build: / 98/100/100/100 (baseline 98/100/100/100), /pricing/ 99, /contact/ 98,
+  /services/local-visibility/ 100, /work/ 100 (accessibility, best practices and SEO 100 on all). Subagent review:
+  4 small gaps fixed (checklist phone format, shared sources in lastmod, empty-sitemap and site-wide TODO checks,
+  phone e2e test follows PUBLIC_CONTACT_PHONE). Phase 1 landed as three commits: squashing needs a force-push,
+  which is blocked here; "Squash and merge" gives one commit.
+
 ---
 
 ## Repository map (found in Step 0, 14 Nov 2026)

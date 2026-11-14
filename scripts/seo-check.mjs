@@ -128,7 +128,8 @@ if (!existsSync(indexFile)) {
       else if (Number.isNaN(Date.parse(lastmod))) err('sitemap lastmod', `${loc} has an invalid date "${lastmod}"`);
     }
   }
-  if (sitemapUrls.length && !errors.some((e) => e.startsWith('sitemap'))) passes.push(`sitemap: ${sitemapUrls.length} URLs, all with <lastmod>`);
+  if (!sitemapUrls.length) err('sitemap', 'the sitemap lists no URLs');
+  else if (!errors.some((e) => e.startsWith('sitemap'))) passes.push(`sitemap: ${sitemapUrls.length} URLs, all with <lastmod>`);
 }
 const published = sitemapUrls.map((u) => new URL(u).pathname);
 for (const path of published) if (!pages.has(path)) err('sitemap', `${path} is in the sitemap but not built`);
@@ -138,6 +139,8 @@ const titles = new Map();
 for (const [path, p] of pages) {
   const isPublished = published.includes(path);
   if (p.h1s.length !== 1) err('one H1', `${path} has ${p.h1s.length} H1s`);
+  // Every built page, not only the sitemap: the 404 and "received" pages are seen by visitors too.
+  if (/\bTODO\b/.test(p.html)) err('no TODO in published pages', `${path} contains "TODO"`);
   if (!p.title) err('title', `${path} has no <title>`);
   titles.set(p.title, [...(titles.get(p.title) ?? []), path]);
   if (isPublished) {
@@ -148,7 +151,6 @@ for (const [path, p] of pages) {
     if (!/<html lang="en-CA"/.test(p.html)) err('lang', `${path} is not lang="en-CA"`);
     const canonical = (p.html.match(/<link rel="canonical" href="([^"]+)"/) || [])[1];
     if (canonical !== `${SITE}${path}`) err('canonical', `${path} canonical is ${canonical ?? 'missing'}`);
-    if (/\bTODO\b/.test(p.html)) err('no TODO in published pages', `${path} contains "TODO"`);
     for (const term of HEAD_TERMS) {
       const re = new RegExp(`\\b${term.replace(/ /g, '\\s+')}\\b`, 'i');
       if (re.test(p.title) || p.h1s.some((h) => re.test(h))) warn('head terms', `${path} targets "${term}" in its title or H1`);
