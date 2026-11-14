@@ -7,7 +7,9 @@
 > an inline-SVG neural network with Google, Maps and AI answers on one side, Enquiry, Reply and Booking on
 > the other, and Mann's real photo as the core node. Lime pulses travel the edges (CSS only, no canvas or
 > WebGL), with a pause button, an off-screen pause and a still diagram under reduced motion. Left-to-right
-> from 64em, top-to-bottom on phones. The founder section shows the plain portrait. The menu is Work,
+> from 64em, top-to-bottom on phones. Since 14 Nov 2026 the core uses a closer crop of the photo
+> (`assets/mann-patel-hero.jpg`), and the photo appears only once on Home: the lower section is now
+> **How I work** (five steps and four promises) with no second photo or "Hi, I'm Mann". The menu is Work,
 > Services, Pricing, About and Contact; Home gains a price list (`PricingTeaser.astro`).
 > Details: [`docs/24-final-upgrade.md`](docs/24-final-upgrade.md).
 >

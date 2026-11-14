@@ -542,16 +542,21 @@ test.describe('home interactions', () => {
     }
   });
 
-  test('the founder section keeps the real, whole portrait and the way into About', async ({ page }) => {
+  test('the hero graph shows the close-crop photo; the lower section no longer repeats the photo and intro', async ({ page }) => {
+    // 14 Nov 2026 (Mann's call): his photo and introduction appear once, in the hero.
     for (const [w, h] of [[390, 844], [820, 1180], [1440, 900]]) {
       await page.setViewportSize({ width: w, height: h });
       await page.goto('/');
-      const photo = page.locator('#how-i-work .about__photo img');
-      await photo.scrollIntoViewIfNeeded();
+      const photo = page.locator('.hero .ag__photo');
       await expect(photo).toBeVisible();
       await expect(photo).toHaveAttribute('alt', /Mann Patel smiling/);
-      await page.waitForFunction(() => (document.querySelector('.about__photo img') as HTMLImageElement).naturalWidth > 0);
-      await expect(page.locator('#how-i-work').getByRole('link', { name: 'More about me' })).toHaveAttribute('href', '/about/');
+      await expect(photo).toHaveAttribute('src', /mann-patel-hero/);
+      await page.waitForFunction(() => (document.querySelector('.hero .ag__photo') as HTMLImageElement).naturalWidth > 0);
+      await expect(page.locator('main img[alt*="Mann Patel smiling"]')).toHaveCount(1);
+      const section = page.locator('#how-i-work');
+      await expect(section.getByRole('heading', { level: 2 })).toHaveText('Clear steps. No surprises.');
+      await expect(section.getByText('Hi, I’m Mann')).toHaveCount(0);
+      await expect(section.getByRole('link', { name: 'More about me' })).toHaveAttribute('href', '/about/');
     }
   });
 
@@ -565,7 +570,6 @@ test.describe('home interactions', () => {
     await expect(page.locator('.ag__svg--tall')).toBeVisible();
     await expect(page.locator('.ag__photo')).toBeVisible();
     await expect(page.locator('[data-ag-toggle]')).toBeHidden();
-    await expect(page.locator('.about__photo img')).toHaveCount(1);
     await ctx.close();
   });
 });
@@ -581,7 +585,7 @@ test.describe('phones: short pages', () => {
     // with a sample test log, and "Offered as" links on case studies each add part of a screen.
     // 14 Nov 2026: Home swaps the walkthrough for the price list; Pricing gains a fifth offer
     // (Website Fix) and a worked salon example.
-    '/': 13.5, // agent graph, every service named in the hero (round 2), real work, prices, and the founder’s portrait
+    '/': 13.5, // agent graph, every service named in the hero (round 2), real work, prices, and how I work (no second photo since 14 Nov 2026)
     '/services/': 15.75,
     '/work/': 4.5,
     '/work/nest-and-rest-cleaning/': 7.25,
