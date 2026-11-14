@@ -31,16 +31,18 @@ Sources: Mann's request in the project thread, the **First Client Quickstart** (
   each is a single permanent hop to `https://mannpatel.me/...` with path and parameters kept, and the
   page is self-canonical.
 
-## Still to do in Cloudflare (cannot be done from the repository)
+## www and http redirects (done in the Worker, 14 Nov 2026)
 
-Static pages are served before the Worker runs, so host redirects are dashboard settings
-(`docs/21-growth-seo-launch.md`, "Redirects"):
+The dashboard steps turned out to be hard on a phone, so the redirects now live in the repository:
+`wrangler.jsonc` sets `assets.run_worker_first: true` and `main: ./src/worker/entry.ts`. The Worker
+sends `www.mannpatel.me` and `http://` to `https://mannpatel.me` with one 301 (path, query and the
+trailing slash kept; logic in `src/lib/canonical-url.ts`, unit tested), then serves the static files
+through the ASSETS binding with the original request, so `_headers`, `_redirects`, ETags and 304s are
+unchanged. Every request now counts as a Worker request (the free plan allows 100,000 a day).
+"Always Use HTTPS" in the dashboard is optional now; turning it on does no harm.
 
-1. SSL/TLS → Edge Certificates → **Always Use HTTPS**: on.
-2. Rules → Redirect Rules → "Redirect from WWW to root": `www.mannpatel.me/*` → `https://mannpatel.me/${1}`,
-   **301**, preserve query string.
-3. Run `npm run check:redirects` from a computer with internet access. Then inspect Home, the three service
-   pages and /pricing/ in Search Console.
+Run `npm run check:redirects` from a computer with internet access, then inspect Home, the three
+service pages and /pricing/ in Search Console.
 
 Then follow the Quickstart's form test: send one test through each form with `?ga_debug=1`, confirm both
 emails arrive, and confirm one `generate_lead` per form in DebugView.
