@@ -1,0 +1,38 @@
+---
+/**
+ * Says a page is an unpublished draft (SEO audit Phase 3). Drafts are built only in previews and `astro dev`
+ * (src/lib/published.ts), so this never reaches the public site; it also never renders in production.
+ */
+import { isProduction } from '../lib/mode';
+
+interface Props {
+  /** "Outline" for a guide that is headings and notes only. */
+  kind?: 'Draft' | 'Outline';
+  note: string;
+}
+const { kind = 'Draft', note } = Astro.props;
+---
+
+{
+  !isProduction && (
+    <div class="container">
+      <p class="draft" data-draft>
+        <b>{kind}, not published.</b> {note}
+      </p>
+    </div>
+  )
+}
+
+<style>
+  .draft {
+    margin-top: var(--s-5);
+    padding: var(--s-3) var(--s-4);
+    border: 1px dashed var(--signal);
+    border-radius: var(--r-md);
+    font-size: var(--fs-sm);
+    color: var(--text-2);
+  }
+  .draft b {
+    color: var(--text);
+  }
+</style>

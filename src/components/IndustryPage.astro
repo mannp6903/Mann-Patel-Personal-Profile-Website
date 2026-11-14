@@ -1,0 +1,327 @@
+---
+/**
+ * Industry page template (SEO audit Phase 3, 14 Nov 2026): /websites-for-cleaning-companies/ and
+ * /websites-for-salons-and-spas/. Content: src/data/industry-pages.ts.
+ *
+ * Order (plan B3): the case study first, with the honest labels from src/content/work/, then the package that
+ * fits, the questions, related pages and the free check. Prices come from src/data/packages.ts.
+ */
+import { getEntry } from 'astro:content';
+import BaseLayout from '../layouts/BaseLayout.astro';
+import PageHead from './PageHead.astro';
+import Crumbs from './Crumbs.astro';
+import Button from './ui/Button.astro';
+import Icon from './ui/Icon.astro';
+import PackageCard from './packages/PackageCard.astro';
+import ProjectMedia from './work/ProjectMedia.astro';
+import FreeCheck from './home/FreeCheck.astro';
+import { profile } from '../data/site';
+import { industryPages, type IndustryPage } from '../data/industry-pages';
+import { servicePageBySlug, type ServicePage } from '../data/service-pages';
+import { packageById, priceLabel, type Package } from '../data/packages';
+import { absoluteUrl } from '../lib/mode';
+import { breadcrumbJsonLd, businessRef } from '../lib/seo';
+import { projectSite } from '../lib/work';
+import { areaHref } from '../lib/published';
+
+interface Props {
+  page: IndustryPage;
+}
+const { page } = Astro.props;
+const path = `/${page.slug}/`;
+const url = absoluteUrl(path);
+const pkgs = page.packages.map((id) => packageById(id)).filter(Boolean) as Package[];
+const main = pkgs[0];
+const work = await getEntry('work', page.caseStudy);
+if (!work) throw new Error(`${path}: case study "${page.caseStudy}" not found in src/content/work/`);
+const w = work.data;
+const site = projectSite(w);
+const services = page.services.map((slug) => servicePageBySlug(slug)).filter(Boolean) as ServicePage[];
+const others = industryPages.filter((p) => p.slug !== page.slug);
+const scarborough = areaHref('scarborough');
+const lines = page.lines.map((l, i) => (i === page.lines.length - 1 ? `<span class="accent accent--signal">${l}</span>` : l));
+
+// Structured data matches the page: the service, sold by the business, at the prices shown.
+const serviceLd = {
+  '@context': 'https://schema.org',
+  '@type': 'Service',
+  name: page.h1,
+  description: page.description,
+  serviceType: 'Website design',
+  ...(url ? { url } : {}),
+  provider: businessRef(),
+  audience: { '@type': 'BusinessAudience', audienceType: page.short },
+  areaServed: [
+    { '@type': 'City', name: 'Toronto' },
+    { '@type': 'AdministrativeArea', name: 'Greater Toronto Area' },
+  ],
+  offers: pkgs
+    .filter((p) => p.price.amount !== null)
+    .map((p) => ({ '@type': 'Offer', name: p.name, price: p.price.amount, priceCurrency: 'CAD', description: p.boundary })),
+};
+const faqLd = {
+  '@context': 'https://schema.org',
+  '@type': 'FAQPage',
+  mainEntity: page.faqs.map((f) => ({ '@type': 'Question', name: f.q, acceptedAnswer: { '@type': 'Answer', text: f.a } })),
+};
+const crumbs = breadcrumbJsonLd([
+  { name: 'Home', path: '/' },
+  { name: 'Services', path: '/services/' },
+  { name: page.short, path },
+]);
+---
+
+<BaseLayout title={page.title} description={page.description} jsonLd={[serviceLd, faqLd, ...(crumbs ? [crumbs] : [])]}>
+  <Crumbs items={[{ label: 'Services', href: '/services/' }, { label: page.short }]} />
+
+  <PageHead eyebrow={page.eyebrow} lines={lines} lead={page.lead} compact>
+    <div class="ip__actions" data-reveal="load" style="--d:300">
+      <div class="btn-row">
+        <Button href={`/contact/?package=${main.id}#brief`}>Request a quote</Button>
+        <Button href="/contact/?package=check-up#check" variant="ghost">Start with the free check</Button>
+      </div>
+      <p class="ip__local small">
+        Based in {scarborough ? <a class="link" href={scarborough}>{profile.location}</a> : profile.location}, working across {profile.serviceArea}.
+      </p>
+    </div>
+  </PageHead>
+
+  <section class="section section--rule" data-case-study aria-labelledby="case-title">
+    <div class="container ip__case">
+      <div class="stack" style="--stack: var(--s-5)">
+        <p class="eyebrow">The case study</p>
+        <h2 id="case-title" class="ip__h2">{w.title}</h2>
+        <p class="ip__tags small">
+          <span>{w.relationship}</span>
+          <span>{site.websiteStatus}</span>
+          {w.businessStatus && <span>{w.businessStatus}</span>}
+        </p>
+        <p class="muted">{page.caseIntro}</p>
+        {
+          w.result && (
+            <p class="small">
+              <b>Results:</b> {w.result}
+            </p>
+          )
+        }
+        <a class="link-arrow" href={`/work/${work.id}/`}>
+          Case study, dated screens and test results <Icon name="arrow" />
+        </a>
+      </div>
+      <ProjectMedia scene={w.scene} sizes="(min-width: 64em) 40rem, 92vw" />
+    </div>
+
+    <div class="container ip__shows-wrap">
+      <p class="eyebrow">What its website answers</p>
+      <ol class="ip__shows" role="list">
+        {
+          page.shows.map((s, i) => (
+            <li data-reveal style={`--d:${i * 60}`}>
+              <span class="num ip__n">{String(i + 1).padStart(2, '0')}</span>
+              <h3>{s.title}</h3>
+              <p class="muted">{s.body}</p>
+            </li>
+          ))
+        }
+      </ol>
+    </div>
+  </section>
+
+  <section class="section section--alt" data-packages aria-labelledby="ip-pkg-title">
+    <div class="container stack" style="--stack: var(--s-6)">
+      <div class="section-head">
+        <p class="eyebrow">The package that fits</p>
+        <h2 id="ip-pkg-title" class="ip__h2">
+          {main.name}, <span class="accent">{priceLabel(main).text}.</span>
+        </h2>
+        <p class="muted">{page.packageNote}</p>
+      </div>
+      <ol class="ip__pkgs" role="list">
+        {pkgs.map((p, i) => <PackageCard pkg={p} index={i} />)}
+      </ol>
+      <a class="link-arrow" href="/pricing/">Every package side by side, and what each leaves out <Icon name="arrow" /></a>
+    </div>
+  </section>
+
+  <section class="section" aria-labelledby="ip-faq-title">
+    <div class="container ip__split">
+      <div class="stack" style="--stack: var(--s-4)">
+        <p class="eyebrow">Questions</p>
+        <h2 id="ip-faq-title" class="ip__h2">Asked <span class="accent">before buying.</span></h2>
+      </div>
+      <div>
+        {
+          page.faqs.map((f) => (
+            <details class="acc" name="ip-faq">
+              <summary>
+                <span>{f.q}</span>
+                <span class="acc__plus" aria-hidden="true" />
+              </summary>
+              <div class="acc__body">
+                <p>{f.a}</p>
+              </div>
+            </details>
+          ))
+        }
+      </div>
+    </div>
+  </section>
+
+  <nav class="section section--rule" aria-labelledby="ip-more-title">
+    <div class="container">
+      <h2 id="ip-more-title" class="eyebrow">Related</h2>
+      <ul class="ip__more" role="list">
+        {
+          services.map((s) => (
+            <li>
+              <a class="ip__more-link" href={`/services/${s.slug}/`}>
+                <span>{s.short}</span>
+                <span class="muted small">{s.title}</span>
+                <Icon name="arrow" />
+              </a>
+            </li>
+          ))
+        }
+        {
+          others.map((o) => (
+            <li>
+              <a class="ip__more-link" href={`/${o.slug}/`}>
+                <span>{o.short}</span>
+                <span class="muted small">{o.title}</span>
+                <Icon name="arrow" />
+              </a>
+            </li>
+          ))
+        }
+      </ul>
+    </div>
+  </nav>
+
+  <FreeCheck id="check" />
+</BaseLayout>
+
+<style>
+  .ip__actions {
+    display: grid;
+    gap: var(--s-3);
+    margin-top: var(--s-2);
+  }
+  .ip__local {
+    max-width: 60ch;
+    color: var(--text-2);
+  }
+  .ip__h2 {
+    font-size: var(--fs-h2);
+    max-width: 20ch;
+  }
+  .ip__case {
+    display: grid;
+    gap: var(--s-7);
+    align-items: start;
+  }
+  @media (min-width: 64em) {
+    .ip__case {
+      grid-template-columns: minmax(0, 0.9fr) minmax(0, 1.1fr);
+      gap: var(--s-8);
+    }
+  }
+  .ip__tags {
+    display: flex;
+    flex-wrap: wrap;
+    gap: var(--s-2);
+  }
+  .ip__tags span {
+    padding: 0.15rem 0.6rem;
+    border: 1px solid var(--line);
+    border-radius: var(--r-pill);
+    font-family: var(--font-mono);
+    font-size: 0.75rem;
+    color: var(--text-2);
+  }
+  .ip__shows-wrap {
+    display: grid;
+    gap: var(--s-5);
+    margin-top: var(--s-8);
+  }
+  .ip__shows {
+    display: grid;
+    gap: var(--s-5);
+  }
+  @media (min-width: 48em) {
+    .ip__shows {
+      grid-template-columns: repeat(2, minmax(0, 1fr));
+    }
+  }
+  @media (min-width: 80em) {
+    .ip__shows {
+      grid-template-columns: repeat(4, minmax(0, 1fr));
+    }
+  }
+  .ip__shows li {
+    display: grid;
+    align-content: start;
+    gap: var(--s-2);
+    padding-top: var(--s-4);
+    border-top: 1px solid var(--line);
+  }
+  .ip__shows h3 {
+    font-size: 1.125rem;
+    font-weight: 600;
+  }
+  .ip__n {
+    font-size: var(--fs-xs);
+    color: var(--signal);
+  }
+  .ip__pkgs {
+    display: grid;
+    gap: var(--s-4);
+  }
+  @media (min-width: 56em) {
+    .ip__pkgs {
+      grid-template-columns: repeat(2, minmax(0, 1fr));
+    }
+  }
+  .ip__split {
+    display: grid;
+    gap: var(--s-6);
+  }
+  @media (min-width: 64em) {
+    .ip__split {
+      grid-template-columns: minmax(0, 0.8fr) minmax(0, 1.2fr);
+      gap: var(--s-9);
+    }
+  }
+  .ip__more {
+    display: grid;
+    margin-top: var(--s-4);
+    border-top: 1px solid var(--line);
+  }
+  .ip__more li {
+    border-bottom: 1px solid var(--line);
+  }
+  .ip__more-link {
+    display: grid;
+    grid-template-columns: minmax(0, 1fr) auto;
+    align-items: center;
+    gap: 0.15rem var(--s-4);
+    padding-block: var(--s-4);
+    text-decoration: none;
+  }
+  .ip__more-link > span:first-child {
+    font-size: var(--fs-h3);
+    font-weight: 600;
+    letter-spacing: -0.02em;
+  }
+  .ip__more-link > .small {
+    grid-column: 1;
+  }
+  .ip__more-link :global(.icon) {
+    grid-row: 1 / span 2;
+    grid-column: 2;
+    color: var(--signal);
+    transition: transform var(--t-fast) var(--ease-out);
+  }
+  .ip__more-link:hover :global(.icon) {
+    transform: translateX(4px);
+  }
+</style>

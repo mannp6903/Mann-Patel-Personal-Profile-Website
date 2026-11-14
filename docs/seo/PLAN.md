@@ -5,9 +5,10 @@ ends up **done in code**, **scheduled in a later phase**, or on the **off-site c
 ([`docs/seo/OFFSITE-CHECKLIST.md`](OFFSITE-CHECKLIST.md)). Nothing is dropped.
 
 Branch: `seo-audit-2026-11`, one commit per phase, pushed to `origin seo-audit-2026-11` after each phase passes
-verification (Mann's approval, 14 Nov 2026). No PR, no deploy. Stop after each phase and wait for Mann.
+verification (Mann's approval, 14 Nov 2026). No PR, no deploy. Stop after each phase and wait for Mann. (In practice each
+phase was merged by its own pull request at Mann's request; Phase 3 was built on `claude/zen-maxwell-tkspc1`.)
 
-Status: Phase 1 done and live (PR #33, merged 14 Nov 2026) · Phase 2 done (not yet live) · Phase 3 next · Phase 4 (ask before each item).
+Status: Phase 1 done and live (PR #33, merged 14 Nov 2026) · Phase 2 done (PR #34, merged 14 Nov 2026) · Phase 3 done and merged (14 Nov 2026; the Scarborough page and three outline guides wait on Mann, see below) · Phase 4 (ask before each item).
 
 ### Verification log
 
@@ -25,6 +26,17 @@ Status: Phase 1 done and live (PR #33, merged 14 Nov 2026) · Phase 2 done (not 
   the three service pages 100, /work/ 100 (accessibility, best practices and SEO 100 on all). Subagent review: 7 gaps,
   fixed (add-on limits shown, full process moved to /about/#process, home FAQPage, forward script hardened and moved
   inside the page, malformed-hash handling, stricter overview check); the word count is left for Mann to decide.
+
+- **Phase 3 (14 Nov 2026):** `npm run check:seo` 0 errors, 2 warnings (the two above; /services/ is now 851 words with
+  the "By trade" line), 19 sitemap URLs (+ two industry pages, /guides/ and two guides); the Scarborough page and the
+  outlines are absent, unlisted and unlinked. Injected faults (draft built, draft linked, missing breadcrumb, free
+  check removed, keyword dropped) all fail the check; a simulated publish of the Scarborough page builds and links it.
+  `npm run check` 0 errors; `npm test` 94/94; `npm run test:e2e` 146/146; `npm run build:cloudflare` pre-launch 0
+  errors. Lighthouse 13.6 mobile, local production-like build: / 99/100/100/100, both industry pages, /services/,
+  /services/web-design/ and /work/ 100/100/100/100. Subagent review: nothing critical; fixed the free-check rule (it
+  passed on every page because of the footer link), tests that would fail when Mann publishes, the guide's
+  eligibility list, the salon booking-tool answer, the /guides/ copy, drafts in an indexable preview build, the Article
+  author and missing lastmod sources.
 
 ---
 
@@ -116,9 +128,9 @@ HTML outside `<template>`; capture images never have empty alt text.
 | # | Audit item | Phase | Files | Change | Verify |
 | --- | --- | --- | --- | --- | --- |
 | B1 | Slim /services/ (6,641 → ~600 words) | P2 | `services.astro`, `data/services.ts`, `data/faqs.ts`, `data/service-pages.ts`, `lib/seo.ts`, inbound links | **First** list the content unique to /services/ and where it moves (per-service scope → its service page; package compare → /pricing/ only; add-ons + sprint → short block; Finder/Process/FAQ kept or moved). Then cut to an overview routing to the 3 service pages + /pricing/. Old `#anchors` still land (kept sections or a small hash-forward script, e.g. `/services/#booking` → `/services/enquiry-follow-up/#booking`); internal links updated directly. FAQPage = visible FAQs | word count, FAQ schema = visible, e2e anchors |
-| B2 | Scarborough page | P3 (draft) | `src/pages/web-design-scarborough.astro`, `src/data/areas.ts` | Samp Hair & Spa (Scarborough client, in progress), Nest & Rest (own business), GBP link, FAQ, "Based in Scarborough". Neighbourhoods `TODO(Mann)` → `draft: true`, not built or in sitemap until supplied | draft preview; absent from prod build |
-| B3 | Industry pages: cleaning, salons/spas | P3 | `src/pages/websites-for-cleaning-companies.astro`, `src/pages/websites-for-salons-and-spas.astro`, `src/data/industry-pages.ts` | Lead with the case study (Nest & Rest honestly framed as Mann's own business opening summer 2027; Samp as an in-progress client preview), then the package: cleaning → Website Launch $1,950 (+ Local Visibility Setup $650); salons → Website + Enquiry System $3,350 for online booking, Website Launch as the lighter option | new-page rules |
-| B4 | /guides/ section | P3 | `src/content.config.ts` (`guides`), `src/content/guides/*.md`, `src/pages/guides/index.astro`, `src/pages/guides/[slug].astro`, `src/layouts/GuideLayout.astro` | Article schema (author `/#person`, datePublished/dateModified); `draft` flag filtered out of build and sitemap (drafts render in `astro dev` only); /guides/ index built only when ≥1 guide is published. One every two weeks (Mann flips `draft: false`) | no drafts in dist |
+| B2 | Scarborough page | P3 (draft) | `src/pages/web-design-[area].astro`, `src/data/areas.ts` | Samp Hair & Spa (Scarborough client, in progress), Nest & Rest (own business), GBP link, FAQ, "Based in Scarborough". Neighbourhoods `TODO(Mann)` → `draft: true`, not built or in sitemap until supplied | draft preview; absent from prod build |
+| B3 | Industry pages: cleaning, salons/spas | P3 | `src/pages/websites-for-cleaning-companies.astro`, `src/pages/websites-for-salons-and-spas.astro`, `src/data/industry-pages.ts`, `src/components/IndustryPage.astro` | Lead with the case study (Nest & Rest honestly framed as Mann's own business opening summer 2027; Samp as an in-progress client preview), then the package: cleaning → Website Launch $1,950 (+ Local Visibility Setup $650); salons → Website + Enquiry System $3,350 for online booking, Website Launch as the lighter option | new-page rules |
+| B4 | /guides/ section | P3 | `src/content.config.ts` (`guides`), `src/content/guides/*.md`, `src/pages/guides/[...index].astro`, `src/pages/guides/[slug].astro`, `src/layouts/GuideLayout.astro`, `src/lib/published.ts` | Article schema (author `/#person`, datePublished/dateModified); `draft` flag filtered out of production builds and the sitemap (drafts render in previews and `astro dev`, marked as drafts); /guides/ index built only when ≥1 guide is published. One every two weeks (Mann flips `draft: false`) | no drafts in dist |
 | B5 | Review routine | P2 + checklist | `src/data/reviews.ts` (empty), `src/components/ReviewsStrip.astro`, home + service pages | Renders nothing until real reviews exist; never Review/AggregateRating schema | seo-check |
 | B6 | 6–8 directories | Checklist | | Bing Places, Apple Business Connect, Yelp, Clutch, DesignRush, GoodFirms, Digital Main Street vendor list | |
 | B7 | Monthly AI answer check | Checklist | | Log table (date, tool, question, appeared Y/N) | |
@@ -298,6 +310,30 @@ on /services/, on arrival and on hash change; own keys only, malformed addresses
 - Scarborough page (`/web-design-scarborough/`; "web design scarborough", "web designer scarborough ontario"): real local proof, neighbourhoods served [TODO(Mann)], GBP link (`gbp` in `src/data/site.ts`), FAQ. Unpublished draft until Mann supplies neighbourhoods.
 - /guides/: index + layout (Article schema, author = Person, dates, draft flag excluded from build and sitemap). Fully draft the cost guide ("how much does a website cost in Toronto", built only on the published prices) and the home-based GBP guide ("google business profile without a storefront address"). They link to each other, to the matching service page and to /pricing/. Outline-only drafts: "how to get my business recommended by ChatGPT" (and AI Overviews); missed-call text-back for salons and cleaners (leads to the $3,350 package); "Why isn't my business on Google Maps?" checklist → free check. Mann publishes one every two weeks.
 - Link the new pages in and out: web-design service page, the matching case study, /services/, /work/, footer or "Based in Scarborough" line as appropriate.
+
+#### What was built (14 Nov 2026)
+
+| Page | Status | Leads with / links |
+| --- | --- | --- |
+| `/websites-for-cleaning-companies/` ("Cleaning Company Website Design in Toronto") | Live with the next deploy | Nest & Rest case study (own business, website live, opens summer 2027, no results claimed) → Website Launch $1,950 + Local Visibility Setup $650 → 5 FAQs → related → free check |
+| `/websites-for-salons-and-spas/` ("Salon & Spa Website Design in Toronto") | Live with the next deploy | Samp Hair & Spa (client, in progress, accessibility findings open) → Website + Enquiry System $3,350, Website Launch $1,950 as the lighter option → 5 FAQs → related → free check |
+| `/web-design-scarborough/` ("Web Design in Scarborough, Ontario") | **Draft** until Mann lists neighbourhoods in `src/data/areas.ts` | Local work (Samp, Nest & Rest), GBP link, neighbourhoods [TODO(Mann)], services and prices, 4 FAQs ("Scarborough, Ontario, or Scarborough in England?"), full business node, free check |
+| `/guides/` + 5 guides | Cost guide and Business Profile guide **published 14 Nov 2026** (Mann: "make everything live"); the three outlines stay **drafts** | Cost guide and Business Profile guide in full; ChatGPT/AI Overviews, missed-call text-back and Google Maps checklist as outlines (can't be published while `outline: true`) |
+
+Links in and out: the web design service page links both industry pages, enquiry follow-up links the salon page, local
+visibility links the cleaning page ("More services"); /services/ and /work/ have a "By trade" line; each case study
+links its industry page ("For your trade"). Once public: the "Based in Scarborough" lines (footer, service and
+industry pages) link the Scarborough page; service pages and /pricing/ link their guides; the footer links /guides/.
+Guide-to-guide links come only from `related` in the front matter and appear only when both guides are public.
+
+Decisions made while building (Phase 3):
+- Drafts render in **preview builds and `astro dev`** (not dev only), with a visible "Draft" or "Outline" note, so they
+  can be reviewed on a preview; production builds never build, list or link them (`src/lib/published.ts`; checked by
+  `seo-check.mjs`). This follows the repo's preview/production convention (`<Confirm>`, `<PreviewNote>`).
+- The Scarborough page is a draft while `neighbourhoods` is null or empty: one switch, no separate `draft` flag.
+- File names: `src/pages/web-design-[area].astro` and `src/pages/guides/[...index].astro`, because a fixed `.astro`
+  page is always built; a dynamic route can leave a draft out.
+- Guide dates accept `published: 2026-11-28` with or without quotes (YAML reads the unquoted form as a date).
 
 ### PHASE 4: LATER (ask before each)
 

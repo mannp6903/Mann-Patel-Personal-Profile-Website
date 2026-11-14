@@ -1,0 +1,95 @@
+---
+/**
+ * The /guides/ index (SEO audit Phase 3, 14 Nov 2026). A rest route with an empty parameter builds /guides/,
+ * and only while at least one guide is visible (published, or any guide in previews): with every guide still
+ * a draft, production has no /guides/ page and nothing links to it.
+ */
+import BaseLayout from '../../layouts/BaseLayout.astro';
+import PageHead from '../../components/PageHead.astro';
+import Crumbs from '../../components/Crumbs.astro';
+import Icon from '../../components/ui/Icon.astro';
+import FreeCheck from '../../components/home/FreeCheck.astro';
+import { breadcrumbJsonLd } from '../../lib/seo';
+import { visibleGuides } from '../../lib/published';
+
+export async function getStaticPaths() {
+  return (await visibleGuides()).length ? [{ params: { index: undefined } }] : [];
+}
+
+const guides = await visibleGuides();
+const fmt = (iso: string) =>
+  new Intl.DateTimeFormat('en-CA', { day: 'numeric', month: 'short', year: 'numeric', timeZone: 'UTC' }).format(new Date(`${iso}T12:00:00Z`));
+const crumbs = breadcrumbJsonLd([
+  { name: 'Home', path: '/' },
+  { name: 'Guides', path: '/guides/' },
+]);
+---
+
+<BaseLayout
+  title="Small Business Website & Local SEO Guides"
+  description="Plain answers for Toronto small business owners about websites, Google Maps and local SEO: what things cost and what to check first. By Mann Patel."
+  jsonLd={crumbs ?? undefined}
+>
+  <Crumbs items={[{ label: 'Home', href: '/' }, { label: 'Guides' }]} />
+  <PageHead
+    eyebrow="Guides"
+    compact
+    lines={['Guides for small', '<span class="accent accent--signal">business owners</span>']}
+    lead="Plain answers to what owners in Toronto and the GTA ask me most about websites, Google Maps and being found. Each one ends with the free check."
+  />
+
+  <section class="section section--tight" aria-label="Guides">
+    <div class="container">
+      <ol class="gl" role="list">
+        {
+          guides.map((g) => (
+            <li class="gl__item">
+              <p class="gl__meta small subtle">
+                {g.data.draft ? (g.data.outline ? 'Outline · not published' : 'Draft · not published') : fmt(g.data.published!)}
+              </p>
+              <h2 class="gl__title">
+                <a href={`/guides/${g.id}/`}>{g.data.title}</a>
+              </h2>
+              <p class="muted">{g.data.description}</p>
+              <a class="link-arrow" href={`/guides/${g.id}/`}>
+                Read the guide<span class="visually-hidden">: {g.data.title}</span> <Icon name="arrow" />
+              </a>
+            </li>
+          ))
+        }
+      </ol>
+    </div>
+  </section>
+
+  <FreeCheck id="check" />
+</BaseLayout>
+
+<style>
+  .gl {
+    display: grid;
+    border-top: 1px solid var(--line);
+  }
+  .gl__item {
+    display: grid;
+    gap: var(--s-3);
+    padding-block: var(--s-6);
+    border-bottom: 1px solid var(--line);
+  }
+  .gl__meta {
+    font-family: var(--font-mono);
+    font-size: var(--fs-xs);
+  }
+  .gl__title {
+    font-size: var(--fs-h3);
+    max-width: 30ch;
+  }
+  .gl__title a {
+    text-decoration: none;
+  }
+  .gl__title a:hover {
+    text-decoration: underline;
+  }
+  .gl .muted {
+    max-width: 60ch;
+  }
+</style>

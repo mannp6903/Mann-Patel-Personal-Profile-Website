@@ -1,0 +1,304 @@
+---
+/**
+ * Area pages (SEO audit Phase 3, 14 Nov 2026; plan B2): /web-design-scarborough/. Content: src/data/areas.ts.
+ *
+ * A page is a draft until Mann lists the neighbourhoods he serves (`neighbourhoods: null`): built in previews
+ * and `astro dev` with a "To confirm" note, never in production (src/lib/published.ts). It carries the full
+ * business node (city-level address only), real local proof and the Google Business Profile link.
+ */
+import { getCollection } from 'astro:content';
+import BaseLayout from '../layouts/BaseLayout.astro';
+import PageHead from '../components/PageHead.astro';
+import Crumbs from '../components/Crumbs.astro';
+import DraftNote from '../components/DraftNote.astro';
+import Confirm from '../components/Confirm.astro';
+import Button from '../components/ui/Button.astro';
+import Icon from '../components/ui/Icon.astro';
+import FreeCheck from '../components/home/FreeCheck.astro';
+import { gbp, profile } from '../data/site';
+import { areaIsDraft, areaPath, type Area } from '../data/areas';
+import { servicePages } from '../data/service-pages';
+import { industryPages } from '../data/industry-pages';
+import { packages, priceLabel } from '../data/packages';
+import { breadcrumbJsonLd, businessJsonLd } from '../lib/seo';
+import { projectSite } from '../lib/work';
+import { visibleAreas } from '../lib/published';
+
+export function getStaticPaths() {
+  return visibleAreas().map((area) => ({ params: { area: area.slug }, props: { area } }));
+}
+
+interface Props {
+  area: Area;
+}
+const { area } = Astro.props;
+const draft = areaIsDraft(area);
+const path = areaPath(area);
+// Local proof: the projects in this area, with their honest labels.
+const work = (await getCollection('work')).sort((a, b) => a.data.order - b.data.order).filter((w) => w.data.location?.includes(area.name));
+const lines = area.lines.map((l, i) => (i === area.lines.length - 1 ? `<span class="accent accent--signal">${l}</span>` : l));
+const faqLd = {
+  '@context': 'https://schema.org',
+  '@type': 'FAQPage',
+  mainEntity: area.faqs.map((f) => ({ '@type': 'Question', name: f.q, acceptedAnswer: { '@type': 'Answer', text: f.a } })),
+};
+const crumbs = breadcrumbJsonLd([
+  { name: 'Home', path: '/' },
+  { name: area.h1, path },
+]);
+---
+
+<BaseLayout title={area.title} description={area.description} jsonLd={[businessJsonLd(), faqLd, ...(crumbs ? [crumbs] : [])]}>
+  <Crumbs items={[{ label: 'Home', href: '/' }, { label: `Web design in ${area.name}` }]} />
+  {draft && <DraftNote note="It is left out of the live site, the sitemap and every link until the neighbourhoods below are listed in src/data/areas.ts." />}
+
+  <PageHead eyebrow={area.eyebrow} lines={lines} lead={area.lead} compact>
+    <div class="ar__actions" data-reveal="load" style="--d:300">
+      <div class="btn-row">
+        <Button href="/contact/#brief">Request a quote</Button>
+        <Button href="/contact/?package=check-up#check" variant="ghost">Start with the free check</Button>
+      </div>
+      <a class="link-arrow small" href={gbp.url} rel="noopener">
+        {profile.name} on Google Maps <Icon name="arrow-ne" />
+      </a>
+    </div>
+  </PageHead>
+
+  <section class="section section--rule" aria-labelledby="ar-work-title">
+    <div class="container stack" style="--stack: var(--s-6)">
+      <div class="section-head">
+        <p class="eyebrow">Local work</p>
+        <h2 id="ar-work-title" class="ar__h2">Real work in {area.name}, <span class="accent">clearly labelled.</span></h2>
+      </div>
+      <ul class="ar__work" role="list">
+        {
+          work.map((w) => (
+            <li>
+              <p class="ar__tags small">
+                <span>{w.data.relationship}</span>
+                <span>{projectSite(w.data).websiteStatus}</span>
+                {w.data.businessStatus && <span>{w.data.businessStatus}</span>}
+              </p>
+              <h3>
+                <a href={`/work/${w.id}/`}>{w.data.title}</a>
+              </h3>
+              <p class="muted">
+                {w.data.industry} · {w.data.location}
+              </p>
+              <p class="small">{w.data.result}</p>
+              <a class="link-arrow" href={`/work/${w.id}/`}>
+                Case study<span class="visually-hidden">: {w.data.title}</span> <Icon name="arrow" />
+              </a>
+            </li>
+          ))
+        }
+      </ul>
+    </div>
+  </section>
+
+  <section class="section section--alt" data-neighbourhoods aria-labelledby="ar-areas-title">
+    <div class="container ar__split">
+      <div class="stack" style="--stack: var(--s-4)">
+        <p class="eyebrow">Where I work</p>
+        <h2 id="ar-areas-title" class="ar__h2">Neighbourhoods <span class="accent">I serve.</span></h2>
+      </div>
+      <div class="stack" style="--stack: var(--s-4)">
+        {
+          area.neighbourhoods?.length ? (
+            <ul class="ar__hoods" role="list">
+              {area.neighbourhoods.map((n) => (
+                <li>{n}</li>
+              ))}
+            </ul>
+          ) : (
+            <p>
+              <Confirm note={`the ${area.name} neighbourhoods Mann serves (src/data/areas.ts)`} />
+            </p>
+          )
+        }
+        <p class="muted">Based in {profile.location}, working across {profile.serviceArea}.</p>
+      </div>
+    </div>
+  </section>
+
+  <section class="section" aria-labelledby="ar-services-title">
+    <div class="container stack" style="--stack: var(--s-6)">
+      <div class="section-head">
+        <p class="eyebrow">What I do</p>
+        <h2 id="ar-services-title" class="ar__h2">Found, answered, <span class="accent">booked.</span></h2>
+        <p class="muted">
+          Published prices:{' '}
+          {packages.map((p, i) => (
+            <>
+              {i > 0 && (i === packages.length - 1 ? ' and ' : ', ')}
+              {p.name} <b class="num">{priceLabel(p).text}</b>
+            </>
+          ))}
+          , in Canadian dollars plus tax.
+        </p>
+      </div>
+      <ul class="ar__more" role="list">
+        {
+          servicePages.map((s) => (
+            <li>
+              <a class="ar__more-link" href={`/services/${s.slug}/`}>
+                <span>{s.short}</span>
+                <span class="muted small">{s.card}</span>
+                <Icon name="arrow" />
+              </a>
+            </li>
+          ))
+        }
+        {
+          industryPages.map((p) => (
+            <li>
+              <a class="ar__more-link" href={`/${p.slug}/`}>
+                <span>{p.linkLabel}</span>
+                <span class="muted small">{p.title}</span>
+                <Icon name="arrow" />
+              </a>
+            </li>
+          ))
+        }
+        <li>
+          <a class="ar__more-link" href="/pricing/">
+            <span>Pricing</span>
+            <span class="muted small">Every package side by side, and what each leaves out</span>
+            <Icon name="arrow" />
+          </a>
+        </li>
+      </ul>
+    </div>
+  </section>
+
+  <section class="section section--rule" aria-labelledby="ar-faq-title">
+    <div class="container ar__split">
+      <div class="stack" style="--stack: var(--s-4)">
+        <p class="eyebrow">Questions</p>
+        <h2 id="ar-faq-title" class="ar__h2">Asked <span class="accent">locally.</span></h2>
+      </div>
+      <div>
+        {
+          area.faqs.map((f) => (
+            <details class="acc" name="ar-faq">
+              <summary>
+                <span>{f.q}</span>
+                <span class="acc__plus" aria-hidden="true" />
+              </summary>
+              <div class="acc__body">
+                <p>{f.a}</p>
+              </div>
+            </details>
+          ))
+        }
+      </div>
+    </div>
+  </section>
+
+  <FreeCheck id="check" />
+</BaseLayout>
+
+<style>
+  .ar__actions {
+    display: grid;
+    gap: var(--s-4);
+    justify-items: start;
+    margin-top: var(--s-2);
+  }
+  .ar__h2 {
+    font-size: var(--fs-h2);
+    max-width: 20ch;
+  }
+  .ar__split {
+    display: grid;
+    gap: var(--s-6);
+  }
+  @media (min-width: 64em) {
+    .ar__split {
+      grid-template-columns: minmax(0, 0.8fr) minmax(0, 1.2fr);
+      gap: var(--s-9);
+    }
+  }
+  .ar__work {
+    display: grid;
+    gap: var(--s-4);
+  }
+  @media (min-width: 56em) {
+    .ar__work {
+      grid-template-columns: 1fr 1fr;
+    }
+  }
+  .ar__work li {
+    display: grid;
+    gap: var(--s-3);
+    align-content: start;
+    padding: clamp(var(--s-4), 2.5vw, var(--s-6));
+    border: 1px solid var(--line);
+    border-radius: var(--r-lg);
+    background: var(--surface);
+  }
+  .ar__work h3 {
+    font-size: var(--fs-h3);
+  }
+  .ar__work h3 a {
+    text-decoration: none;
+  }
+  .ar__work h3 a:hover {
+    text-decoration: underline;
+  }
+  .ar__tags {
+    display: flex;
+    flex-wrap: wrap;
+    gap: var(--s-2);
+  }
+  .ar__tags span {
+    padding: 0.15rem 0.6rem;
+    border: 1px solid var(--line);
+    border-radius: var(--r-pill);
+    font-family: var(--font-mono);
+    font-size: 0.75rem;
+    color: var(--text-2);
+  }
+  .ar__hoods {
+    display: flex;
+    flex-wrap: wrap;
+    gap: var(--s-2);
+  }
+  .ar__hoods li {
+    padding: 0.3rem 0.8rem;
+    border: 1px solid var(--line);
+    border-radius: var(--r-pill);
+  }
+  .ar__more {
+    display: grid;
+    border-top: 1px solid var(--line);
+  }
+  .ar__more li {
+    border-bottom: 1px solid var(--line);
+  }
+  .ar__more-link {
+    display: grid;
+    grid-template-columns: minmax(0, 1fr) auto;
+    align-items: center;
+    gap: 0.15rem var(--s-4);
+    padding-block: var(--s-4);
+    text-decoration: none;
+  }
+  .ar__more-link > span:first-child {
+    font-size: var(--fs-h3);
+    font-weight: 600;
+    letter-spacing: -0.02em;
+  }
+  .ar__more-link > .small {
+    grid-column: 1;
+  }
+  .ar__more-link :global(.icon) {
+    grid-row: 1 / span 2;
+    grid-column: 2;
+    color: var(--signal);
+    transition: transform var(--t-fast) var(--ease-out);
+  }
+  .ar__more-link:hover :global(.icon) {
+    transform: translateX(4px);
+  }
+</style>

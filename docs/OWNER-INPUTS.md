@@ -54,6 +54,23 @@ Full detail: [`docs/23-website-audit/`](23-website-audit/). Issue IDs refer to `
 7. **Free-check experiment (MP-023).** Keep the hero button as it is and log each check. After ten delivered checks, if fewer
    than one led to a paid quote request, make “Start a project” the main hero button.
 
+## From the SEO audit, Phase 3 (14 Nov 2026)
+
+Plan and status: [`docs/seo/PLAN.md`](seo/PLAN.md). These pages wait on you; nothing about them is invented.
+
+1. **List the Scarborough neighbourhoods you serve.** In `src/data/areas.ts`, replace `neighbourhoods: null` with the
+   names, e.g. `neighbourhoods: ['First neighbourhood', 'Second neighbourhood']`. That one change publishes
+   `/web-design-scarborough/`: it is built, added to the sitemap, and linked from the "Based in Scarborough" lines in
+   the footer, the service pages and the industry pages. Until then it is a draft you can see in a preview build only.
+2. **Finish and publish the three outline guides.** Five guides are in `src/content/guides/`. The cost guide and the
+   Google Business Profile guide were **published on 14 Nov 2026** (at your request: "make everything live"); please read
+   them on the live site and tell me anything to change. The ChatGPT, missed-call text-back and Google Maps guides are
+   outlines with `TODO(Mann)` notes. Write one up (or ask me to), then set `outline: false`, `draft: false` and
+   `published: 2026-11-28` (the day you publish) in its front matter. An outline can't be published; the build stops
+   if you try.
+3. **After each publish:** deploy, then request indexing in Search Console for the new address (see
+   [`docs/seo/OFFSITE-CHECKLIST.md`](seo/OFFSITE-CHECKLIST.md)).
+
 ## Accounts and live actions (only Mann can do these)
 
 | Action | Why | Where it's explained |
@@ -78,6 +95,9 @@ Full detail: [`docs/23-website-audit/`](23-website-audit/). Issue IDs refer to `
 | Fictional walkthrough (home and enquiry follow-up page) | `src/components/EnquiryDemo.astro` |
 | FAQ | `src/data/faqs.ts` |
 | Case studies | `src/content/work/*.md` |
+| Industry pages (cleaning companies, salons and spas) | `src/data/industry-pages.ts` |
+| Area pages (Scarborough) and their neighbourhoods | `src/data/areas.ts` |
+| Guides (drafts until `draft: false`) | `src/content/guides/*.md` |
 | About story and principles | `src/pages/about.astro` |
 | Home hero wording | `src/components/home/Hero.astro` |
 | Example phone screens (fictional salon) | `src/components/home/PhoneScreen.astro` |

@@ -17,7 +17,7 @@ Use the same details everywhere (name, phone and website must match character fo
 ## 1. Google Search Console (check: already verified)
 
 - [ ] Open the `sc-domain:mannpatel.me` property and confirm it shows as verified.
-- [ ] Sitemaps: confirm `https://mannpatel.me/sitemap.xml` (the one listed in robots.txt) is submitted and reads "Success", with 14 URLs discovered (more once Phase 3 pages go live).
+- [ ] Sitemaps: confirm `https://mannpatel.me/sitemap.xml` (the one listed in robots.txt) is submitted and reads "Success", with 14 URLs discovered (16 once Phase 3 is deployed: the two industry pages; one more for the Scarborough page and two or more for the guides as each is published).
 - [ ] URL Inspection → Request indexing for each of:
   - [ ] https://mannpatel.me/
   - [ ] https://mannpatel.me/services/web-design/
@@ -26,7 +26,7 @@ Use the same details everywhere (name, phone and website must match character fo
   - [ ] https://mannpatel.me/pricing/
   - [ ] https://mannpatel.me/about/
 - [ ] Indexing → Pages: check how many pages are indexed and why any are not (indexation was the audit's only **Fail**). Note the date and count here: ______
-- [ ] After each phase is deployed, request indexing again for the pages that changed (and the new pages in Phase 3).
+- [ ] After each phase is deployed, request indexing again for the pages that changed (and the new pages in Phase 3: `/websites-for-cleaning-companies/`, `/websites-for-salons-and-spas/`, then `/web-design-scarborough/`, `/guides/` and each guide as they are published).
 
 ## 2. Bing Webmaster Tools
 

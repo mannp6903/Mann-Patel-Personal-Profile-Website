@@ -1,6 +1,7 @@
 import { defineCollection } from 'astro:content';
 import { glob } from 'astro/loaders';
 import { z } from 'astro/zod';
+import { isoDay } from './lib/iso-day';
 
 /**
  * Work entries. `status` is shown on every card and page:
@@ -53,4 +54,36 @@ const work = defineCollection({
   }),
 });
 
-export const collections = { work };
+/**
+ * Guides (SEO audit Phase 3, 14 Nov 2026; docs/seo/PLAN.md B4): /guides/ and /guides/<file name>/.
+ * `draft: true` keeps a guide out of production builds, the sitemap and every link; previews and `astro dev`
+ * show it with a "Draft" note. Mann publishes one every two weeks: set `draft: false` and `published`.
+ * An outline (`outline: true`) can't be published until it is written in full.
+ */
+const guides = defineCollection({
+  loader: glob({ pattern: '*.md', base: './src/content/guides' }),
+  schema: z
+    .object({
+      /** The H1 and the Article headline. */
+      title: z.string(),
+      /** Page title for search results (" | Mann Patel" is added, so 47 characters at most). */
+      seoTitle: z.string().max(47),
+      description: z.string().max(155),
+      draft: z.boolean(),
+      /** Headings and notes only, not written in full yet. */
+      outline: z.boolean().default(false),
+      /** YYYY-MM-DD (quoted or not). Required to publish. */
+      published: isoDay.optional(),
+      /** YYYY-MM-DD, when the guide was last changed after publishing. */
+      updated: isoDay.optional(),
+      /** The service page the guide leads to (linked from the guide, and it links back). */
+      service: z.enum(['/services/web-design/', '/services/local-visibility/', '/services/enquiry-follow-up/']),
+      /** Other guides (file names without .md) to link under "Read next", shown only once they are published. */
+      related: z.array(z.string()).default([]),
+    })
+    .refine((g) => g.draft || (!g.outline && g.published), {
+      message: 'A published guide (draft: false) needs a published date and must not be an outline.',
+    }),
+});
+
+export const collections = { work, guides };

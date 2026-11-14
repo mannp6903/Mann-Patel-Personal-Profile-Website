@@ -1,0 +1,39 @@
+---
+/**
+ * Visible breadcrumb trail for the pages added in SEO audit Phase 3 (the structured-data BreadcrumbList is
+ * passed to BaseLayout separately). The last item is the current page. Same look as the service pages' trail.
+ */
+interface Props {
+  items: { label: string; href?: string }[];
+}
+const { items } = Astro.props;
+---
+
+<nav class="crumbs container" aria-label="Breadcrumb">
+  <ol role="list">
+    {items.map((it) => (it.href ? <li><a href={it.href}>{it.label}</a></li> : <li aria-current="page">{it.label}</li>))}
+  </ol>
+</nav>
+
+<style>
+  .crumbs {
+    padding-top: var(--s-5);
+    font-size: var(--fs-xs);
+    font-family: var(--font-mono);
+    letter-spacing: 0.04em;
+    color: var(--text-3);
+  }
+  .crumbs ol {
+    display: flex;
+    flex-wrap: wrap;
+    gap: var(--s-2);
+  }
+  .crumbs li + li::before {
+    content: '/';
+    margin-right: var(--s-2);
+    color: var(--control);
+  }
+  .crumbs a {
+    color: var(--text-2);
+  }
+</style>

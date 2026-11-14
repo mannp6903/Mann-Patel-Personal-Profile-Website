@@ -16,6 +16,7 @@ import ContactActions from './ContactActions.astro';
 import SocialLinks from './SocialLinks.astro';
 import Wordmark from './ui/Wordmark.astro';
 import { businessHref } from '../lib/work';
+import { areaHref, visibleGuides } from '../lib/published';
 
 interface Props {
   cta?: boolean;
@@ -24,6 +25,9 @@ const { cta = true } = Astro.props;
 const year = new Date().getFullYear();
 const mail = emailHref();
 const nest = businesses[0];
+// SEO audit Phase 3: the Scarborough page and the guides are linked only once they are public (previews show drafts).
+const scarborough = areaHref('scarborough');
+const hasGuides = (await visibleGuides()).length > 0;
 ---
 
 <footer class="ftr">
@@ -57,6 +61,7 @@ const nest = businesses[0];
       <ul role="list">
         <li><a class="link-quiet" href="/">Home</a></li>
         {nav.map((n) => <li><a class="link-quiet" href={n.href}>{n.label}</a></li>)}
+        {hasGuides && <li><a class="link-quiet" href="/guides/">Guides</a></li>}
         <li><a class="link-quiet" href="/contact/">Contact</a></li>
       </ul>
     </nav>
@@ -108,7 +113,9 @@ const nest = businesses[0];
             </li>
           )
         }
-        <li class="subtle">Based in {profile.location}, working across {profile.serviceArea}.</li>
+        <li class="subtle">
+          <span>Based in {scarborough ? <a class="ftr__area" href={scarborough}>{profile.location}</a> : profile.location}, working across {profile.serviceArea}.</span>
+        </li>
       </ul>
     </div>
     <div class="ftr__col">
@@ -248,6 +255,17 @@ const nest = businesses[0];
   }
   .ftr__email {
     gap: var(--s-2);
+  }
+  /* The "Based in Scarborough" link, inside the sentence (SEO audit Phase 3, once the page is public). */
+  .ftr__area {
+    color: var(--text-2);
+    text-decoration: underline;
+    text-decoration-color: var(--line);
+    text-underline-offset: 0.2em;
+    transition: color var(--t-fast);
+  }
+  .ftr__area:hover {
+    color: var(--signal);
   }
   .ftr__col :global(.ftr__social) {
     margin-bottom: var(--s-4);

@@ -7,6 +7,7 @@ import ProjectMedia from '../../components/work/ProjectMedia.astro';
 import Icon from '../../components/ui/Icon.astro';
 import { breadcrumbJsonLd } from '../../lib/seo';
 import { projectSite } from '../../lib/work';
+import { industryPages } from '../../data/industry-pages';
 
 const work = (await getCollection('work')).sort((a, b) => a.data.order - b.data.order);
 const crumbs = breadcrumbJsonLd([
@@ -76,6 +77,17 @@ const crumbs = breadcrumbJsonLd([
           ))
         }
       </ol>
+
+      <!-- SEO audit Phase 3 (14 Nov 2026): each project leads an industry page. -->
+      <p class="trades small">
+        <span class="subtle">By trade:</span>{' '}
+        {industryPages.map((ip, i) => (
+          <>
+            {i > 0 && ' · '}
+            <a class="link" href={`/${ip.slug}/`}>{ip.linkLabel}</a>
+          </>
+        ))}
+      </p>
 
       <aside class="note" data-reveal>
         <p class="eyebrow eyebrow--plain">What you won’t see here</p>
@@ -179,5 +191,8 @@ const crumbs = breadcrumbJsonLd([
       grid-template-columns: minmax(0, 0.85fr) minmax(0, 1.15fr);
       gap: var(--s-8);
     }
+  }
+  .trades {
+    margin-top: var(--s-6);
   }
 </style>
