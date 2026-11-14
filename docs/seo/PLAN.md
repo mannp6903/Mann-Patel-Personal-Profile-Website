@@ -38,6 +38,13 @@ Status: Phase 1 done and live (PR #33, merged 14 Nov 2026) · Phase 2 done (PR #
   eligibility list, the salon booking-tool answer, the /guides/ copy, drafts in an indexable preview build, the Article
   author and missing lastmod sources.
 
+- **Phase 4 review and guides (14 Nov 2026):** subagent review of Phase 4 (merged as PR #36 before it finished, at
+  Mann's request): fixed the AI page saying website fixes were part of the $650 (they are quoted separately), FAQs
+  repeated from other pages, the monthly price in structured data, repeat checks implied as included, sitemap sources
+  and weak tests. Also fixed the live Business Profile guide's opening-date line (Google: a date up to a year ahead,
+  shown 90 days before opening). The three outline guides were written in full (still drafts; claims cited to Google,
+  OpenAI, Microsoft and the CRTC); a simulated publish of all three passes seo-check (24 URLs). `npm test` 105/105,
+  `npm run test:e2e` 152/152, `npm run check` 0 errors.
 - **Phase 4 (14 Nov 2026):** `npm run check:seo` 0 errors, 2 warnings (as before; /services/ 862 words), 21 sitemap URLs.
   `npm run check` 0 errors; `npm test` 100/100; `npm run test:e2e` 152/152. Lighthouse 13.6 mobile, local
   production-like build: / and /pricing/ 99/100/100/100; /services/website-care/, /services/ai-search-optimization/
@@ -323,7 +330,7 @@ on /services/, on arrival and on hash change; own keys only, malformed addresses
 | `/websites-for-cleaning-companies/` ("Cleaning Company Website Design in Toronto") | Live with the next deploy | Nest & Rest case study (own business, website live, opens summer 2027, no results claimed) → Website Launch $1,950 + Local Visibility Setup $650 → 5 FAQs → related → free check |
 | `/websites-for-salons-and-spas/` ("Salon & Spa Website Design in Toronto") | Live with the next deploy | Samp Hair & Spa (client, in progress, accessibility findings open) → Website + Enquiry System $3,350, Website Launch $1,950 as the lighter option → 5 FAQs → related → free check |
 | `/web-design-scarborough/` ("Web Design in Scarborough, Ontario") | **Draft** until Mann lists neighbourhoods in `src/data/areas.ts` | Local work (Samp, Nest & Rest), GBP link, neighbourhoods [TODO(Mann)], services and prices, 4 FAQs ("Scarborough, Ontario, or Scarborough in England?"), full business node, free check |
-| `/guides/` + 5 guides | Cost guide and Business Profile guide **published 14 Nov 2026** (Mann: "make everything live"); the three outlines stay **drafts** | Cost guide and Business Profile guide in full; ChatGPT/AI Overviews, missed-call text-back and Google Maps checklist as outlines (can't be published while `outline: true`) |
+| `/guides/` + 5 guides | Cost guide and Business Profile guide **published 14 Nov 2026** (Mann: "make everything live"); the other three written in full the same day, **drafts** until Mann publishes them | Cost guide and Business Profile guide in full; ChatGPT/AI Overviews, missed-call text-back and Google Maps checklist as outlines (can't be published while `outline: true`) |
 
 Links in and out: the web design service page links both industry pages, enquiry follow-up links the salon page, local
 visibility links the cleaning page ("More services"); /services/ and /work/ have a "By trade" line; each case study

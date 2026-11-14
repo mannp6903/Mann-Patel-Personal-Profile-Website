@@ -77,7 +77,14 @@ const guides = defineCollection({
       /** YYYY-MM-DD, when the guide was last changed after publishing. */
       updated: isoDay.optional(),
       /** The service page the guide leads to (linked from the guide, and it links back). */
-      service: z.enum(['/services/web-design/', '/services/local-visibility/', '/services/enquiry-follow-up/']),
+      service: z.enum([
+        '/services/web-design/',
+        '/services/local-visibility/',
+        '/services/enquiry-follow-up/',
+        // SEO audit Phase 4 pages.
+        '/services/website-care/',
+        '/services/ai-search-optimization/',
+      ]),
       /** Other guides (file names without .md) to link under "Read next", shown only once they are published. */
       related: z.array(z.string()).default([]),
     })

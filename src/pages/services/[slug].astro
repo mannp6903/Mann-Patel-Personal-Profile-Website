@@ -69,7 +69,17 @@ const serviceLd = {
     ? {
         offers: pkgs
           .filter((p) => p.price.amount !== null)
-          .map((p) => ({ '@type': 'Offer', name: p.name, price: p.price.amount, priceCurrency: 'CAD', description: p.boundary })),
+          .map((p) => ({
+            '@type': 'Offer',
+            name: p.name,
+            price: p.price.amount,
+            priceCurrency: 'CAD',
+            description: p.boundary,
+            // A monthly plan says so (Website Care, $149 a month).
+            ...(p.price.unit === 'month'
+              ? { priceSpecification: { '@type': 'UnitPriceSpecification', price: p.price.amount, priceCurrency: 'CAD', unitCode: 'MON' } }
+              : {}),
+          })),
       }
     : {}),
 };

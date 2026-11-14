@@ -18,9 +18,8 @@ Yes, if you meet your customers in person, at their home or business, during the
 
 - online-only businesses, which never meet customers in person
 - a business that uses a virtual office, mailbox or other address it doesn't actually work from, just to appear in a neighbourhood
-- a business that hasn't opened yet: Google only lets you add a future opening date shortly before you open
 
-The [guidelines](https://support.google.com/business/answer/3038177?hl=en) list the rest.
+The [guidelines](https://support.google.com/business/answer/3038177?hl=en) list the rest. Not open yet? You can add an opening date up to a year ahead, but the profile only appears on Google in the 90 days before you open ([Google: add a business opening date](https://support.google.com/business/answer/9174409?hl=en)).
 
 If customers also come to you, for example to a studio at your home, the address can be shown as well as your service area. If you always go to them, keep it hidden.
 

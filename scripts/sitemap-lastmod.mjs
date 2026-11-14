@@ -16,7 +16,7 @@ const GLOBAL = ['src/lib/seo.ts', 'src/data/site.ts', 'src/lib/contact.ts'];
 const EXTRA = {
   '/': ['src/components/home', 'src/data/faqs.ts'],
   '/pricing/': ['src/data/packages.ts', 'src/components/packages'],
-  '/services/': ['src/data/services.ts', 'src/data/faqs.ts', 'src/data/packages.ts', 'src/components/packages'],
+  '/services/': ['src/data/services.ts', 'src/data/faqs.ts', 'src/data/packages.ts', 'src/components/packages', 'src/data/service-pages.ts', 'src/data/industry-pages.ts'],
   '/contact/': ['src/components/ContactForm.astro', 'src/components/CheckForm.astro'],
   '/work/': ['src/content/work', 'src/data/captures.ts'],
   // SEO audit Phase 3 (14 Nov 2026): industry pages, the Scarborough page and the guides index.
@@ -27,7 +27,7 @@ const EXTRA = {
 };
 /** Data behind a dynamic route's pages (e.g. /services/web-design/ ← src/data/service-pages.ts). */
 const ROUTE_DATA = {
-  services: ['src/data/service-pages.ts', 'src/data/packages.ts'],
+  services: ['src/data/service-pages.ts', 'src/data/packages.ts', 'src/components/packages', 'src/components/home/FreeCheck.astro'],
   work: ['src/data/captures.ts'],
   guides: ['src/layouts/GuideLayout.astro'],
 };
