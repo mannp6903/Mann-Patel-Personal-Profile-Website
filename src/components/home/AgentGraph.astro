@@ -2,21 +2,23 @@
 /**
  * The hero visual (14 Nov 2026): "the agent graph". A small neural network drawn as a diagram of
  * the work: where customers come from (Google, Maps, AI answers) on one side, what they need to
- * happen (an enquiry, a reply, a booking) on the other, and the client's business as the core node
- * in the middle (Mann asked, 14 Nov 2026, for no photo here; his photo lives in the About section).
- * Light pulses travel the connections, so the network looks like it is thinking.
+ * happen (an enquiry, a reply, a booking) on the other, and Mann's real photo as the core node in
+ * the middle. Light pulses travel the connections, so the network looks like it is thinking.
  *
  * Built as one inline SVG with CSS animation: no canvas, no WebGL, no script needed to draw it.
  * Two layouts are generated from the same description: left-to-right on wide screens and
- * top-to-bottom on phones (so the core can be large on a 390 px screen). Reduced motion shows the
+ * top-to-bottom on phones (so the photo can be large on a 390 px screen). Reduced motion shows the
  * finished, still diagram. A pause button stops the pulses (WCAG 2.2.2); the small script also
  * pauses them while the graph is off screen.
  */
+import { Image } from 'astro:assets';
+import { profile } from '../../data/site';
 
 interface Props {
   class?: string;
 }
 const { class: cls } = Astro.props;
+const portrait = profile.portrait;
 
 type Pt = { x: number; y: number };
 interface Layout {
@@ -181,17 +183,28 @@ const pt = pct(tall);
       ))
     }
 
-    <div class="ag__core" aria-hidden="true">
-      <div class="ag__orb">
-        <span class="ag__orb-k">Your</span>
-        <span class="ag__orb-name">business</span>
-        <span class="ag__orb-tags">Site · Search · AI · Replies</span>
-      </div>
-    </div>
+    {
+      portrait && (
+        <div class="ag__core">
+          <Image
+            src={portrait.src}
+            alt={portrait.alt}
+            widths={[240, 360, 480, 640]}
+            sizes="(min-width: 64em) 15rem, (min-width: 40em) 14rem, 52vw"
+            format="webp"
+            quality={80}
+            loading="eager"
+            fetchpriority="high"
+            decoding="async"
+            class="ag__photo"
+          />
+        </div>
+      )
+    }
   </div>
 
   <figcaption class="ag__caption">
-    <span class="ag__who"><b>Mann Patel</b> connects the middle: your website, Google profile, AI answers and enquiry follow-up, so a search becomes a booking.</span>
+    <span class="ag__who"><b>Mann Patel</b> connects the middle: your Google profile, AI answers, website and enquiry follow-up, so a search becomes a booking.</span>
     <button type="button" class="ag__toggle" data-ag-toggle aria-pressed="false" hidden>
       <svg viewBox="0 0 16 16" width="14" height="14" aria-hidden="true" focusable="false">
         <path class="ag__i-pause" d="M5.5 3.5v9m5-9v9" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" fill="none" />
@@ -346,7 +359,7 @@ const pt = pct(tall);
     font-weight: 650;
   }
 
-  /* The core: the client's business, drawn as a glowing node (no photo). */
+  /* The portrait: a real photo as the core node. */
   .ag__core {
     position: absolute;
     left: var(--cx);
@@ -355,41 +368,18 @@ const pt = pct(tall);
     aspect-ratio: 1;
     transform: translate(-50%, -50%);
     border-radius: 50%;
-    padding: 4px;
+    padding: 5px;
     background: conic-gradient(from 210deg, var(--signal), rgb(212 248 74 / 0.15) 40%, var(--signal) 70%, rgb(212 248 74 / 0.3));
-    box-shadow: 0 0 0 1px rgb(212 248 74 / 0.25), 0 0 60px -10px rgb(212 248 74 / 0.45), 0 24px 60px -18px rgb(0 0 0 / 0.9);
+    box-shadow: 0 0 0 1px rgb(212 248 74 / 0.25), 0 24px 60px -18px rgb(0 0 0 / 0.9);
   }
-  .ag__orb {
-    display: grid;
-    place-content: center;
-    justify-items: center;
+  .ag__photo {
+    display: block;
     width: 100%;
     height: 100%;
     border-radius: 50%;
-    text-align: center;
-    background:
-      radial-gradient(circle at 50% 30%, rgb(212 248 74 / 0.22), transparent 60%),
-      radial-gradient(circle at 50% 50%, #181a12, #0d0e0a 72%);
-    container-type: inline-size;
-  }
-  .ag__orb-k {
-    font-size: 9cqi;
-    color: var(--text-2);
-    letter-spacing: 0.02em;
-    line-height: 1;
-  }
-  .ag__orb-name {
-    font-size: 17cqi;
-    font-weight: 650;
-    letter-spacing: -0.05em;
-    line-height: 1;
-    color: var(--signal);
-  }
-  .ag__orb-tags {
-    margin-top: 5cqi;
-    font-size: 6.4cqi;
-    color: var(--text-3);
-    white-space: nowrap;
+    object-fit: cover;
+    object-position: 50% 18%;
+    background: var(--surface);
   }
 
   .ag__caption {

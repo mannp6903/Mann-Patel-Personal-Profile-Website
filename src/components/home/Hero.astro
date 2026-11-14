@@ -1,30 +1,28 @@
 ---
 /**
- * Home hero (14 Nov 2026, round 2). Who you're dealing with first (Mann's name and a small face),
+ * Home hero (14 Nov 2026, round 3). Who you're dealing with first (Mann's name; his photo is the graph's core),
  * then the outcome he sells across every service, not only websites: found on Google, Maps and AI
  * answers, then enquiries answered and booked. The H1 and lead carry the search words (local SEO,
  * Google Business Profile, GEO/AEO, AI automation, web design, Toronto) in plain sentences. A short
  * list names every service, then one free first step and real prices. The visual is the agent
- * graph (AgentGraph.astro), with the client's business as the core node.
+ * graph (AgentGraph.astro), with Mann's photo as the core node. Kept short on purpose: one H1, one
+ * subline, two sentences, a service list, two buttons. Websites are one service among several.
  */
-import { Image } from 'astro:assets';
 import { profile } from '../../data/site';
 import { packageById, priceLabel } from '../../data/packages';
 import Button from '../ui/Button.astro';
 import Icon from '../ui/Icon.astro';
 import ContactActions from '../ContactActions.astro';
 import AgentGraph from './AgentGraph.astro';
-import face from '../../assets/mann-patel-face.jpg';
 
 const launch = packageById('website-launch')!;
 const local = packageById('local-visibility')!;
-const care = packageById('care')!;
 const services = [
   { href: '/services/local-visibility/', name: 'Local SEO & Google Business Profile' },
   { href: '/services/local-visibility/#ai-search', name: 'AI search visibility (GEO & AEO)' },
-  { href: '/services/web-design/', name: 'Websites & fixes' },
   { href: '/services/enquiry-follow-up/', name: 'Enquiry follow-up & AI automation' },
   { href: '/services/enquiry-follow-up/', name: 'Online booking' },
+  { href: '/services/web-design/', name: 'Websites & fixes' },
   { href: '/services/#extras', name: 'Care, print & social' },
 ];
 const recent = [
@@ -37,7 +35,6 @@ const recent = [
   <div class="hero__inner container">
     <div class="hero__text">
       <div class="hero__hello">
-        <Image src={face} alt="" width={96} height={96} class="hero__face" loading="eager" />
         <p>
           <span class="hero__hi">Hi, I’m {profile.name}.</span>
           <span class="hero__role">Local SEO, AI search and web design in Scarborough, Toronto</span>
@@ -48,13 +45,12 @@ const recent = [
       <h1 class="hero__title" id="hero-title">
         <span class="hero__line">Get found on Google,</span>
         <span class="hero__line">Maps and AI answers.</span>
-        <span class="hero__place">Local SEO, AI search optimization (GEO and AEO), websites and enquiry automation for Toronto businesses.</span>
+        <span class="hero__place">Local SEO, AI search (GEO and AEO) and web design for Toronto businesses.</span>
       </h1>
 
       <p class="hero__lead">
-        I help local businesses get found, chosen and booked: from your Google profile and the answers ChatGPT, Gemini and
-        Google AI Overviews give about you, to your website and the follow-up that turns enquiries into bookings. You own every
-        account, and every price is written down first.
+        I help local businesses show up when customers search on Google or ask ChatGPT, then turn those searches into enquiries
+        and bookings. You own every account, and every price is written down first.
       </p>
 
       <ul class="hero__services" role="list" aria-label="Services">
@@ -73,9 +69,7 @@ const recent = [
           <Button href="/pricing/" variant="ghost" class="hero__price-link">See prices</Button>
         </div>
         <p class="hero__price">
-          <span><b>{priceLabel(local).text}</b> Google and AI visibility setup.</span>
-          <span><b>{priceLabel(launch).text}</b> for a website of up to five pages.</span>
-          <span><b>{priceLabel(care).text}</b> for care and updates. <span class="subtle">CAD, plus tax.</span></span>
+          <span><b>{priceLabel(local).text}</b> Google and AI visibility setup · <b>{priceLabel(launch).text}</b> website · <span class="subtle">CAD, plus tax.</span></span>
         </p>
         <ContactActions compact label="Or reach me directly" class="hero__reach" />
       </div>
@@ -139,13 +133,6 @@ const recent = [
     flex-wrap: wrap;
     align-items: center;
     gap: var(--s-3);
-  }
-  .hero__face {
-    width: 3rem;
-    height: 3rem;
-    border-radius: 50%;
-    object-fit: cover;
-    box-shadow: 0 0 0 2px var(--bg), 0 0 0 3.5px var(--signal);
   }
   .hero__hello p:not(.status) {
     flex: 1 1 0;
