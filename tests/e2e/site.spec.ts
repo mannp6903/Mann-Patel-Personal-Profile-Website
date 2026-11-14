@@ -114,18 +114,22 @@ test.describe('pages', () => {
       await page.goto('/');
       const ld = (await page.$$eval('script[type="application/ld+json"]', (s) => s.map((x) => x.textContent || ''))).join(' ');
       expect(ld).not.toContain('nestnrestcleaning.com');
-      expect(ld).toContain('Nest & Rest Cleaning');
+      // 14 Nov 2026 (SEO audit): no worksFor at all; the Person is a Toronto web designer.
+      expect(ld).not.toContain('worksFor');
     }
   });
 
-  // The copy map from the growth report (10 Nov 2026): each page names its service and the place.
+  // The copy map from the growth report (10 Nov 2026), updated by the SEO audit (14 Nov 2026,
+  // docs/seo/PLAN.md): each page names its service and the place.
   const COPY: [string, string, string, string][] = [
-    ['/', 'Mann Patel | Local SEO, Websites & AI Automation in Toronto', 'Local SEO, websites and AI automation.', 'Local SEO, websites and AI automation for Toronto businesses: Google Business Profile, AI search optimization (GEO and AEO) and enquiry follow-up. Websites from $1,950 CAD.'],
+    ['/', 'Mann Patel | Local SEO, Websites & AI Automation in Toronto', 'Websites and local SEO for Toronto small businesses.', 'Websites, local SEO and Google Business Profile setup for Toronto small businesses. Published prices: websites from $1,950 CAD. Free website check.'],
     ['/services/', 'Website, Local SEO & Booking Services | Mann Patel', 'Website, local SEO and enquiry services', 'Compare web design, local SEO, Google Business Profile setup and enquiry automation for Toronto service businesses. See packages and request a quote.'],
     ['/services/web-design/', 'Toronto Small Business Web Design | Mann Patel', 'Web design for Toronto small businesses', 'Get a mobile-friendly website or redesign with clear service pages, a tested enquiry path and a written handover. See projects and ask for a quote.'],
-    ['/services/local-visibility/', 'Local SEO & Google Business Profile Setup in Toronto | Mann Patel', 'Local SEO and Google Business Profile setup in Toronto', 'Improve your Google presence with eligible profile setup, listing updates and a review workflow. Ask about SEO foundations and an AI search check.'],
+    ['/services/local-visibility/', 'Local SEO & Google Business Profile Toronto | Mann Patel', 'Local SEO and Google Business Profile setup in Toronto', 'Improve your Google presence with eligible profile setup, listing updates and a review workflow. Ask about SEO foundations and an AI search check.'],
     ['/services/enquiry-follow-up/', 'Enquiry Automation & Online Booking in Toronto | Mann Patel', 'Enquiry follow-up and online booking for Toronto businesses', 'Set up missed-call text-back, form follow-up or an online booking path with tools you own. Get one scoped workflow, tested and documented.'],
     ['/work/', 'Toronto Small Business Website Projects | Mann Patel', 'Website projects for Toronto service businesses', 'See the Nest & Rest Cleaning website case study and Samp Hair & Spa preview, with dated work, project status and documented checks.'],
+    ['/pricing/', 'Web Design & Local SEO Pricing in Toronto | Mann Patel', 'What it costs, and what it covers.', 'Published prices in CAD: 5-page website $1,950, website + booking $3,350, fixes $450–$850, local SEO setup $650, care $149/month. Toronto and GTA.'],
+    ['/vision/', 'Vision | Mann Patel, Web Designer in Toronto', 'Local businesses do the work. Software should run the rest.', 'What Mann Patel is building: local businesses that do the work while software and AI handle the rest. His ventures, what has shipped, and what comes next.'],
   ];
   test('search copy: titles, H1s and descriptions name the service and the place', async ({ page }) => {
     for (const [path, title, h1, description] of COPY) {
@@ -167,15 +171,28 @@ test.describe('pages', () => {
     expect(site['@id']).toMatch(/\/#website$/);
     expect(site.name).toBe('Mann Patel');
     expect(site.publisher['@id']).toBe(person['@id']);
-    // The deprecated general type is gone everywhere; the profile page is About.
-    for (const path of ['/', '/services/', '/about/', '/services/web-design/']) expect((await graph(path)).text).not.toContain('ProfessionalService');
+    // 14 Nov 2026 (SEO audit): one business entity (ProfessionalService "Mann Patel") with the phone,
+    // a city-level address only, the areas served and the Google Business Profile; Mann is its founder.
+    const biz = home.blocks.find((b) => b['@type'] === 'ProfessionalService');
+    expect(biz['@id']).toMatch(/\/#business$/);
+    expect(biz.name).toBe('Mann Patel');
+    expect(biz.telephone).toBe('+1-647-978-6903');
+    expect(biz.email).toBe('info@mannpatel.me');
+    expect(biz.founder['@id']).toBe(person['@id']);
+    expect(biz.address).toEqual({ '@type': 'PostalAddress', addressLocality: 'Scarborough', addressRegion: 'ON', addressCountry: 'CA' });
+    expect(JSON.stringify(biz.areaServed)).toMatch(/Scarborough.*North York.*Toronto/);
+    expect(biz.priceRange).toBe('$149–$3,350 CAD');
+    expect(biz.sameAs).toContain('https://maps.app.goo.gl/dYccTa9jQJczpeac6');
+    expect(home.text).not.toMatch(/worksFor|streetAddress|postalCode|AggregateRating|"Review"/);
+    const contactBiz = (await graph('/contact/')).blocks.find((b) => b['@type'] === 'ProfessionalService');
+    expect(contactBiz.telephone).toBe('+1-647-978-6903');
     expect(home.text).not.toContain('ProfilePage');
     const about = await graph('/about/');
     const profilePage = about.blocks.find((b) => b['@type'] === 'ProfilePage');
     expect(profilePage.mainEntity['@id']).toBe(person['@id']);
     for (const slug of ['web-design', 'local-visibility', 'enquiry-follow-up']) {
       const svc = (await graph(`/services/${slug}/`)).blocks.find((b) => b['@type'] === 'Service');
-      expect(svc.provider['@id']).toBe(person['@id']);
+      expect(svc.provider['@id']).toBe(biz['@id']);
       expect(JSON.stringify(svc.areaServed)).toContain('Toronto');
     }
   });
@@ -204,8 +221,14 @@ test.describe('pages', () => {
       await page.goto(path);
       const blocks = await page.$$eval('script[type="application/ld+json"]', (s) => s.map((x) => x.textContent || ''));
       expect(blocks.length).toBeGreaterThan(0);
-      // No rating, street address or award properties (the words may appear in answers, e.g. "home address hidden").
-      for (const b of blocks) expect(JSON.stringify(JSON.parse(b))).not.toMatch(/"(aggregateRating|address|award)":/i);
+      // No rating, review, street address, postal code or award properties (the words may appear in answers,
+      // e.g. "home address hidden"). Since 14 Nov 2026 the business has a city-level address only (Mann's decision).
+      for (const b of blocks) {
+        const json = JSON.stringify(JSON.parse(b));
+        expect(json).not.toMatch(/"(aggregateRating|review|streetAddress|postalCode|award)":/i);
+        for (const m of json.matchAll(/"address":(\{[^}]*\})/g))
+          expect(Object.keys(JSON.parse(m[1])).sort()).toEqual(['@type', 'addressCountry', 'addressLocality', 'addressRegion']);
+      }
       if (path === '/' || path === '/services/') expect(blocks.join(' ')).toContain('"OfferCatalog"');
       if (path.startsWith('/services/') && path !== '/services/') expect(blocks.join(' ')).toContain('"Service"');
       // No price in structured data unless the page shows one.
@@ -245,7 +268,7 @@ test.describe('layout', () => {
       await page.goto('/');
       // The H1 names the service and the place (growth report, 10 Nov 2026); the slogan moved to the process strip.
       const h1 = page.locator('h1');
-      expect((await h1.innerText()).replace(/\s+/g, ' ').trim()).toBe('Local SEO, websites and AI automation.');
+      expect((await h1.innerText()).replace(/\s+/g, ' ').trim()).toBe('Websites and local SEO for Toronto small businesses.');
       await expect(h1).toBeInViewport();
       const hero = page.locator('.hero');
       // 14 Nov 2026: who you're dealing with comes first (round 3: no small face; the photo is the graph's core).
@@ -590,12 +613,14 @@ test.describe('phones: short pages', () => {
     '/work/': 4.5,
     '/work/nest-and-rest-cleaning/': 7.25,
     '/work/samp-hair-spa/': 7.25,
-    '/about/': 7.5,
-    '/contact/': 3.5,
+    // 14 Nov 2026 (SEO audit): "Based in Scarborough…" stays visible in the phone footer (+1 line on every page).
+    '/about/': 7.75,
+    '/contact/': 3.75,
     '/services/web-design/': 12.5, // plus the Website Fix package
     '/services/local-visibility/': 10.75,
     '/services/enquiry-follow-up/': 12.5,
-    '/pricing/': 14.75,
+    // 14 Nov 2026 (SEO audit): the intro names Toronto and the GTA, one more line on a phone.
+    '/pricing/': 15,
   };
   for (const [path, max] of Object.entries(BUDGET)) {
     test(`${path} stays under ${max} phone screens`, async ({ page }) => {
@@ -878,21 +903,19 @@ test.describe('legal pages', () => {
 });
 
 test.describe('direct contact', () => {
-  test('email, call, WhatsApp and text buttons work, and the full number is not in the HTML', async ({ page, request }) => {
+  test('email, call, WhatsApp and text buttons work', async ({ page }) => {
     await page.goto('/');
     const hero = page.locator('.hero__reach');
     await expect(hero.getByRole('link', { name: /Email Mann/ })).toHaveAttribute('href', /^mailto:info@mannpatel\.me\?subject=/);
     const call = hero.getByRole('link', { name: 'Call Mann' });
     test.skip((await call.count()) === 0, 'Build with PUBLIC_CONTACT_PHONE (e.g. +16475550142) to test the phone buttons.');
-    const html = await (await request.get('/')).text();
     const digits = (await call.getAttribute('href'))!.replace(/\D/g, '');
     expect(digits).toMatch(/^1\d{10}$/);
-    expect(html).not.toContain(digits.slice(1));
     await expect(call).toHaveAttribute('href', `tel:+${digits}`);
     await expect(hero.getByRole('link', { name: /WhatsApp/ })).toHaveAttribute('href', new RegExp(`^https://wa\\.me/${digits}\\?text=`));
     await expect(hero.getByRole('link', { name: /text message/ })).toHaveAttribute('href', new RegExp(`^sms:\\+${digits}`));
     await page.goto('/contact/');
-    await expect(page.locator('#reach .ca__number')).toContainText(/\d{3}-\d{2}X-XXXX/);
+    await expect(page.locator('#reach .ca__number')).toContainText(/\d{3}-\d{3}-\d{4}/);
   });
 
   test('call, WhatsApp and LinkedIn stay available in the footer; LinkedIn is also on About', async ({ page }) => {
@@ -911,17 +934,31 @@ test.describe('direct contact', () => {
     expect(ld).toContain('https://www.linkedin.com/in/mannp6903/');
   });
 
-  test('"Show number" reveals the full number on request; the page source never has it', async ({ page, request }) => {
+  // 14 Nov 2026 (SEO audit, Mann's decision): the full number is shown and listed in the business structured
+  // data, so it matches Google Business Profile and directories. It replaces the masked number and "Show number".
+  test('the full number is shown as a tap-to-call link in the footer and on /contact/, with "Based in Scarborough"', async ({ page, request }) => {
     await page.setViewportSize({ width: 1440, height: 900 });
     await page.goto('/contact/');
     const reach = page.locator('#reach');
-    await expect(reach.locator('[data-phone-text]')).toHaveText(/^\d{3}-\d{2}X-XXXX$/);
-    const full = (await reach.locator('a[data-reach="call"]').first().getAttribute('href'))!.replace(/\D/g, '');
-    for (const path of ['/', '/contact/', '/about/', '/services/'])
-      expect(await (await request.get(path)).text()).not.toContain(full.slice(1));
-    await reach.getByRole('button', { name: 'Show number' }).click();
-    await expect(reach.locator('[data-phone-text]')).toHaveText(`${full.slice(1, 4)}-${full.slice(4, 7)}-${full.slice(7)}`);
-    await expect(reach.locator('[data-phone-text]')).toBeFocused();
+    const number = reach.locator('[data-phone-text]');
+    await expect(number).toHaveText('Call 647-978-6903');
+    await expect(number).toHaveAttribute('href', 'tel:+16479786903');
+    await expect(reach.getByRole('button', { name: 'Show number' })).toHaveCount(0);
+    await expect(reach).toContainText('Based in Scarborough, working across Toronto and the GTA.');
+    await page.goto('/');
+    const footerCall = page.locator('footer .ftr__phone a[data-reach="call"]');
+    await expect(footerCall).toContainText('647-978-6903');
+    await expect(footerCall).toHaveAttribute('href', 'tel:+16479786903');
+    await expect(page.locator('footer')).toContainText('Based in Scarborough, working across Toronto and the GTA.');
+    expect(await (await request.get('/')).text()).not.toContain('X-XXXX');
+  });
+
+  test('footer column labels are styled text, not headings', async ({ page }) => {
+    await page.goto('/');
+    const labels = page.locator('footer .ftr__h');
+    await expect(labels).toHaveText(['Pages', 'Services', 'Contact', 'Elsewhere']);
+    expect(await labels.evaluateAll((els) => els.map((e) => e.tagName))).toEqual(['P', 'P', 'P', 'P']);
+    await expect(page.locator('footer').getByRole('heading', { name: /^(Pages|Services|Contact|Elsewhere)$/ })).toHaveCount(0);
   });
 
   test('copy buttons copy the email address and confirm it', async ({ browser }) => {
@@ -996,10 +1033,15 @@ test.describe('enquiry form', () => {
 
   test('shows accessible errors for missing or wrong fields, step by step', async ({ page }) => {
     await page.goto('/contact/');
+    // Form states are not headings and are not in the page before submit (SEO audit, 14 Nov 2026).
+    await expect(page.getByText('Please check these fields')).toHaveCount(0);
+    await expect(page.getByText(/is on its way/)).toHaveCount(0);
     await next(page).click();
     const summary = page.locator('[data-error-summary]');
     await expect(summary).toBeVisible();
     await expect(summary).toBeFocused();
+    await expect(summary).toContainText('Please check these fields');
+    await expect(summary.getByRole('heading')).toHaveCount(0);
     await expect(summary.locator('li')).toHaveCount(2);
     await expect(page.locator('#f-name')).toHaveAttribute('aria-invalid', 'true');
     await expect(page.locator('#f-email')).toHaveAttribute('aria-invalid', 'true');
@@ -1036,6 +1078,8 @@ test.describe('enquiry form', () => {
     await expect(success).toBeFocused();
     // Honest wording: accepted and passed on for delivery, not "arrived in the inbox".
     await expect(success).toContainText('Your brief is on its way');
+    await expect(success.getByRole('heading')).toHaveCount(0);
+    await expect(page.locator('[data-brief] [data-success-live]')).toHaveAttribute('aria-live', 'polite');
     await expect(success).toContainText('the email service took it for delivery');
     await expect(success).toContainText('took it for delivery');
     expect(sawSending).toBe(true);
@@ -1424,11 +1468,11 @@ test.describe('audit of 11 Nov 2026', () => {
   test('the headline keeps its service and place words', async ({ page }) => {
     await page.goto('/');
     const lines = page.locator('#hero-title .hero__line');
-    await expect(lines.nth(0)).toHaveText('Local SEO, websites');
-    await expect(lines.nth(1)).toHaveText('and AI automation.');
+    await expect(lines.nth(0)).toHaveText('Websites and local SEO');
+    await expect(lines.nth(1)).toHaveText('for Toronto small businesses.');
     // 14 Nov 2026 (founder profile): the outcome line sits under the H1 instead of inside it.
     await expect(page.locator('#hero-title .hero__place')).toHaveCount(0);
-    await expect(page.locator('.hero .hero__place')).toHaveText('Get found on Google and in AI answers, then turn searches into bookings. For Toronto businesses.');
+    await expect(page.locator('.hero .hero__place')).toHaveText('Get found on Google and in AI answers, then turn searches into bookings.');
   });
 
   test('phones: the hero photo is sized for the screen, and the pause button is reachable on touch', async ({ browser }) => {
