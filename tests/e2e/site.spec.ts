@@ -119,7 +119,7 @@ test.describe('pages', () => {
 
   // The copy map from the growth report (10 Nov 2026): each page names its service and the place.
   const COPY: [string, string, string, string][] = [
-    ['/', 'Mann Patel | Local SEO, AI Search (GEO & AEO) & Web Design, Toronto', 'Get found on Google, Maps and AI answers. Local SEO, AI search (GEO and AEO) and web design for Toronto businesses.', 'Local SEO, Google Business Profile, AI search optimization (GEO and AEO), websites and enquiry automation for Toronto businesses. Websites from $1,950 CAD.'],
+    ['/', 'Mann Patel | Local SEO, Websites & AI Automation in Toronto', 'Local SEO, websites and AI automation. Get found on Google and in AI search (GEO and AEO), then turn searches into bookings. For Toronto businesses.', 'Local SEO, websites and AI automation for Toronto businesses: Google Business Profile, AI search optimization (GEO and AEO) and enquiry follow-up. Websites from $1,950 CAD.'],
     ['/services/', 'Website, Local SEO & Booking Services | Mann Patel', 'Website, local SEO and enquiry services', 'Compare web design, local SEO, Google Business Profile setup and enquiry automation for Toronto service businesses. See packages and request a quote.'],
     ['/services/web-design/', 'Toronto Small Business Web Design | Mann Patel', 'Web design for Toronto small businesses', 'Get a mobile-friendly website or redesign with clear service pages, a tested enquiry path and a written handover. See projects and ask for a quote.'],
     ['/services/local-visibility/', 'Local SEO & Google Business Profile Setup in Toronto | Mann Patel', 'Local SEO and Google Business Profile setup in Toronto', 'Improve your Google presence with eligible profile setup, listing updates and a review workflow. Ask about SEO foundations and an AI search check.'],
@@ -244,7 +244,7 @@ test.describe('layout', () => {
       await page.goto('/');
       // The H1 names the service and the place (growth report, 10 Nov 2026); the slogan moved to the process strip.
       const h1 = page.locator('h1');
-      expect((await h1.innerText()).replace(/\s+/g, ' ').trim()).toBe('Get found on Google, Maps and AI answers. Local SEO, AI search (GEO and AEO) and web design for Toronto businesses.');
+      expect((await h1.innerText()).replace(/\s+/g, ' ').trim()).toBe('Local SEO, websites and AI automation. Get found on Google and in AI search (GEO and AEO), then turn searches into bookings. For Toronto businesses.');
       await expect(h1).toBeInViewport();
       const hero = page.locator('.hero');
       // 14 Nov 2026: who you're dealing with comes first (round 3: no small face; the photo is the graph's core).
@@ -1383,9 +1383,9 @@ test.describe('audit of 11 Nov 2026', () => {
   test('the headline keeps its service and place words', async ({ page }) => {
     await page.goto('/');
     const lines = page.locator('#hero-title .hero__line');
-    await expect(lines.nth(0)).toHaveText('Get found on Google,');
-    await expect(lines.nth(1)).toHaveText('Maps and AI answers.');
-    await expect(page.locator('#hero-title .hero__place')).toHaveText('Local SEO, AI search (GEO and AEO) and web design for Toronto businesses.');
+    await expect(lines.nth(0)).toHaveText('Local SEO, websites');
+    await expect(lines.nth(1)).toHaveText('and AI automation.');
+    await expect(page.locator('#hero-title .hero__place')).toHaveText('Get found on Google and in AI search (GEO and AEO), then turn searches into bookings. For Toronto businesses.');
   });
 
   test('phones: the hero photo is sized for the screen, and the pause button is reachable on touch', async ({ browser }) => {
