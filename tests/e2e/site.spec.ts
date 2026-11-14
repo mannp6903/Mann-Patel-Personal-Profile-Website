@@ -1449,6 +1449,8 @@ test.describe('audit of 11 Nov 2026', () => {
   test('about on a phone: the portrait comes before the links and contact buttons', async ({ page }) => {
     await page.setViewportSize({ width: 390, height: 844 });
     await page.goto('/about/');
+    // 14 Nov 2026: About uses the same close-crop photo as the hero.
+    await expect(page.locator('.ab-photo img')).toHaveAttribute('src', /mann-patel-hero/);
     const pos = await page.evaluate(() => ({
       lead: document.querySelector('.ab-head .lead')!.getBoundingClientRect().bottom + scrollY,
       photo: document.querySelector('.ab-photo')!.getBoundingClientRect().top + scrollY,

@@ -1,5 +1,4 @@
-import portraitImage from '../assets/mann-patel-portrait.jpg';
-import heroImage from '../assets/mann-patel-hero.jpg';
+import portraitImage from '../assets/mann-patel-hero.jpg';
 
 /**
  * Profile and site settings.
@@ -42,14 +41,12 @@ export const profile = {
   /** Public location: based in Toronto, serves the GTA (confirmed by Mann, 31 Oct 2026). */
   location: 'Toronto',
   serviceArea: 'Toronto and the GTA',
-  /** Real portrait only (supplied by Mann, 31 Oct 2026). */
+  /**
+   * Real portrait only. Since 14 Nov 2026 this is the closer crop Mann supplied, used in the home hero
+   * graph and on About (the wider 31 Oct 2026 crop, assets/mann-patel-portrait.jpg, is no longer used).
+   */
   portrait: {
     src: portraitImage,
-    alt: 'Mann Patel smiling, in a dark green sweatshirt, on a tree-lined street at dusk.',
-  } as null | { src: ImageMetadata; alt: string },
-  /** Closer crop of the same photo for the round core of the home hero graph (supplied by Mann, 14 Nov 2026). */
-  heroPortrait: {
-    src: heroImage,
     alt: 'Mann Patel smiling, in a dark green sweatshirt, on a tree-lined street at dusk.',
   } as null | { src: ImageMetadata; alt: string },
   contact: {
