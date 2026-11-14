@@ -10,7 +10,7 @@ import ProjectMedia from '../../components/work/ProjectMedia.astro';
 import Confirm from '../../components/Confirm.astro';
 import { serviceById } from '../../data/services';
 import { captures } from '../../data/captures';
-import { servicePageForGroup, type ServicePage } from '../../data/service-pages';
+import { servicePageForGroup, serviceHref, type ServicePage } from '../../data/service-pages';
 import { breadcrumbJsonLd } from '../../lib/seo';
 import { projectSite } from '../../lib/work';
 
@@ -137,7 +137,7 @@ const servicePagesShown = [...new Set(services.map((s) => servicePageForGroup(s.
                 <ul role="list">
                   {services.map((s) => (
                     <li>
-                      <a class="link" href={`/services/#${s.id}`}>
+                      <a class="link" href={serviceHref(s.id)}>
                         {s.name}
                       </a>
                     </li>

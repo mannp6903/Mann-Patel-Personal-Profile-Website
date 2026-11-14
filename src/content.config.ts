@@ -42,6 +42,13 @@ const work = defineCollection({
       .default([]),
     limitations: z.array(z.string()).default([]),
     outcomes: z.string(),
+    /**
+     * One line each under the project on /work/ (SEO audit Phase 2, 14 Nov 2026). Taken only from the case
+     * study itself: no invented results. Optional so a new project can't show a placeholder.
+     */
+    industry: z.string().optional(),
+    location: z.string().optional(),
+    result: z.string().optional(),
     nextStep: z.string(),
   }),
 });

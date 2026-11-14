@@ -1,6 +1,6 @@
 import { profile, sameAs, businessSameAs } from '../data/site';
 import { groups, addOns, servicesInGroup } from '../data/services';
-import { servicePages } from '../data/service-pages';
+import { servicePages, serviceHref } from '../data/service-pages';
 import { packages } from '../data/packages';
 import { contact } from './contact';
 import { absoluteUrl } from './mode';
@@ -202,7 +202,7 @@ export function servicesJsonLd() {
           { '@type': 'City', name: 'Toronto' },
           { '@type': 'AdministrativeArea', name: 'Greater Toronto Area' },
         ],
-        itemOffered: { '@type': 'Service', name: s.name, ...(url ? { url: `${url}services/#${s.id}` } : {}) },
+        itemOffered: { '@type': 'Service', name: s.name, ...(url ? { url: new URL(serviceHref(s.id), url).toString() } : {}) },
       })),
     })),
   };

@@ -1,0 +1,89 @@
+---
+/**
+ * Reviews strip (SEO audit Phase 2, 14 Nov 2026) for the home page and the service pages. It shows real
+ * client reviews from src/data/reviews.ts and renders nothing at all while that list is empty, so no
+ * placeholder, invented quote or empty section ever reaches the page. No Review/AggregateRating markup:
+ * search engines don't allow self-serving review stars for Mann's own business.
+ */
+import { reviews } from '../data/reviews';
+
+interface Props {
+  /** How many to show (newest first). */
+  limit?: number;
+}
+const { limit = 3 } = Astro.props;
+const list = [...reviews].sort((a, b) => b.date.localeCompare(a.date)).slice(0, limit);
+const fmt = (iso: string) =>
+  new Intl.DateTimeFormat('en-CA', { month: 'short', year: 'numeric', timeZone: 'UTC' }).format(new Date(`${iso}T12:00:00Z`));
+---
+
+{
+  list.length > 0 && (
+    <section class="section section--rule rv" aria-labelledby="rv-title" data-reviews>
+      <div class="container stack" style="--stack: var(--s-6)">
+        <div class="section-head">
+          <p class="eyebrow">Reviews</p>
+          <h2 id="rv-title" class="rv__h2">
+            In clients’ <span class="accent">own words.</span>
+          </h2>
+        </div>
+        <ul class="rv__list" role="list">
+          {list.map((r) => (
+            <li>
+              <figure class="rv__item">
+                <blockquote>
+                  <p>{r.quote}</p>
+                </blockquote>
+                <figcaption class="small">
+                  <b>{r.name}</b>
+                  {r.business && <span>, {r.business}</span>}
+                  <span class="subtle">
+                    {' · '}
+                    {r.url ? (
+                      <a class="link" href={r.url} rel="noopener">
+                        {r.source}
+                      </a>
+                    ) : (
+                      r.source
+                    )}
+                    {', '}
+                    <time datetime={r.date}>{fmt(r.date)}</time>
+                  </span>
+                </figcaption>
+              </figure>
+            </li>
+          ))}
+        </ul>
+      </div>
+    </section>
+  )
+}
+
+<style>
+  .rv__h2 {
+    font-size: var(--fs-h2);
+    max-width: 20ch;
+  }
+  .rv__list {
+    display: grid;
+    gap: var(--s-4);
+  }
+  @media (min-width: 56em) {
+    .rv__list {
+      grid-template-columns: repeat(3, minmax(0, 1fr));
+    }
+  }
+  .rv__item {
+    display: grid;
+    gap: var(--s-4);
+    height: 100%;
+    padding: clamp(1.25rem, 2.5vw, 2rem);
+    border: 1px solid var(--line);
+    border-radius: var(--r-lg);
+  }
+  .rv__item blockquote {
+    font-size: 1.0625rem;
+    line-height: 1.5;
+    color: var(--text);
+  }
+</style>

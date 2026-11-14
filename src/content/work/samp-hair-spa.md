@@ -41,6 +41,9 @@ limitations:
   - The appointment form prepares a request; it never confirms a booking. Its final step wasn’t submitted in testing, so nothing was sent to the salon.
   - The accessibility findings above are still open.
 outcomes: None yet. The site hasn’t launched.
+industry: Hair salon and spa (client)
+location: Scarborough, Toronto
+result: No results yet. The site hasn’t launched; the preview is online for review.
 nextStep: Fix the contrast and ARIA findings, confirm the final content with the salon, then launch and re-test.
 description: 'A work-in-progress website for Samp Hair & Spa in Scarborough: a clear service menu, live opening status and an honest appointment-request flow.'
 ---

@@ -6,6 +6,7 @@ import Button from '../components/ui/Button.astro';
 import Icon from '../components/ui/Icon.astro';
 import ContactActions from '../components/ContactActions.astro';
 import SocialLinks from '../components/SocialLinks.astro';
+import Process from '../components/Process.astro';
 import { profile, businesses } from '../data/site';
 import { businessHref } from '../lib/work';
 import { personJsonLd } from '../lib/seo';
@@ -101,8 +102,8 @@ const jsonLd = { '@context': 'https://schema.org', '@type': 'ProfilePage', mainE
           load
         />
         <p class="lead" data-reveal="load" style="--d:200">
-          Clear websites, Google and Maps listings, and enquiry follow-up for owner-run businesses in Toronto and the GTA,
-          with a focus on Scarborough and North York. I’m also starting {nest.name}, my own home-cleaning business in
+          I’m a freelance web designer in Toronto, based in Scarborough: clear websites, Google and Maps listings, and
+          enquiry follow-up for owner-run small businesses across Toronto and the GTA, with a focus on Scarborough and North York. I’m also starting {nest.name}, my own home-cleaning business in
           {nest.area}, which opens for bookings in summer 2027.
         </p>
         <div class="ab-reach" data-reveal="load" style="--d:300">
@@ -162,6 +163,9 @@ const jsonLd = { '@context': 'https://schema.org', '@type': 'ProfilePage', mainE
       </dl>
     </div>
   </section>
+
+  <!-- SEO audit Phase 2 (14 Nov 2026): the five steps with what you do and what I do, moved from the old /services/. -->
+  <Process />
 
   <section class="section section--alt section--rule" aria-labelledby="principles-title">
     <div class="container">

@@ -7,11 +7,20 @@ import PricingTeaser from '../components/home/PricingTeaser.astro';
 import FreeCheck from '../components/home/FreeCheck.astro';
 import HowIWork from '../components/home/HowIWork.astro';
 import Faq from '../components/Faq.astro';
+import ReviewsStrip from '../components/ReviewsStrip.astro';
 import { packageById, priceLabel } from '../data/packages';
+import { faqs } from '../data/faqs';
 import { businessJsonLd, personJsonLd, websiteJsonLd } from '../lib/seo';
 
 // SEO audit copy (14 Nov 2026, 147 characters). The price comes from src/data/packages.ts.
 const launch = packageById('website-launch')!;
+// FAQPage for the questions this page shows (SEO audit Phase 2: they used to be marked up only on /services/).
+const homeFaqs = faqs.slice(0, 5).filter((f) => !f.confirm); // the same five <Faq limit={5}> shows
+const faqLd = {
+  '@context': 'https://schema.org',
+  '@type': 'FAQPage',
+  mainEntity: homeFaqs.map((f) => ({ '@type': 'Question', name: f.q, acceptedAnswer: { '@type': 'Answer', text: f.a } })),
+};
 const description = `Websites, local SEO and Google Business Profile setup for Toronto small businesses. Published prices: websites from ${priceLabel(launch).text} CAD. Free website check.`;
 ---
 
@@ -19,10 +28,12 @@ const description = `Websites, local SEO and Google Business Profile setup for T
   title="Home"
   fullTitle="Mann Patel | Local SEO, Websites & AI Automation in Toronto"
   description={description}
-  jsonLd={[websiteJsonLd(), businessJsonLd({ withServices: true }), { '@context': 'https://schema.org', ...personJsonLd() }]}
+  jsonLd={[websiteJsonLd(), businessJsonLd({ withServices: true }), { '@context': 'https://schema.org', ...personJsonLd() }, faqLd]}
 >
   <Hero />
   <SelectedWork />
+  <!-- Real client reviews only (src/data/reviews.ts); renders nothing until there are some. -->
+  <ReviewsStrip />
   <ServiceSummary />
   <PricingTeaser />
   <FreeCheck />

@@ -7,7 +7,7 @@ ends up **done in code**, **scheduled in a later phase**, or on the **off-site c
 Branch: `seo-audit-2026-11`, one commit per phase, pushed to `origin seo-audit-2026-11` after each phase passes
 verification (Mann's approval, 14 Nov 2026). No PR, no deploy. Stop after each phase and wait for Mann.
 
-Status: Phase 1 done · Phase 2 next · Phase 3 · Phase 4 (ask before each item).
+Status: Phase 1 done and live (PR #33, merged 14 Nov 2026) · Phase 2 done (not yet live) · Phase 3 next · Phase 4 (ask before each item).
 
 ### Verification log
 
@@ -19,6 +19,12 @@ Status: Phase 1 done · Phase 2 next · Phase 3 · Phase 4 (ask before each item
   4 small gaps fixed (checklist phone format, shared sources in lastmod, empty-sitemap and site-wide TODO checks,
   phone e2e test follows PUBLIC_CONTACT_PHONE). Phase 1 landed as three commits: squashing needs a force-push,
   which is blocked here; "Squash and merge" gives one commit.
+- **Phase 2 (14 Nov 2026):** `npm run check:seo` 0 errors, 2 warnings (/privacy/ description 158 characters; /services/
+  840 words against the ~600 aim, see the open decision above). `npm run check` 0 errors; `npm test` 78/78;
+  `npm run test:e2e` 132/132. Lighthouse 13.6 mobile, local production-like build: / 99, /about/ 99, /services/ 100,
+  the three service pages 100, /work/ 100 (accessibility, best practices and SEO 100 on all). Subagent review: 7 gaps,
+  fixed (add-on limits shown, full process moved to /about/#process, home FAQPage, forward script hardened and moved
+  inside the page, malformed-hash handling, stricter overview check); the word count is left for Mann to decide.
 
 ---
 
@@ -228,7 +234,56 @@ HTML outside `<template>`; capture images never have empty alt text.
 7. Footer/contact: phone visible plus "Based in Scarborough, working across Toronto and the GTA".
 8. `docs/seo/OFFSITE-CHECKLIST.md` (outside src/ and public/), checkboxes. Search Console and GBP are check items.
 
-### PHASE 2: FIX EXISTING PAGES
+### PHASE 2: FIX EXISTING PAGES (done)
+
+#### /services/ inventory: what was on the page and where it went (14 Nov 2026)
+
+Before: 6,653 words; 72% of /pricing/ and 43% of /services/web-design/ repeated on it (8-word shingles of the main
+content, matching the audit). After: 840 words (seo-check count); 2% and 0%. `seo-check.mjs` fails if any service
+page or /pricing/ is more than 20% repeated on /services/, if the page has no main content or passes 1,000 words, and
+warns above 650. **Open decision for Mann:** the page is ~240 words over the ~600 target because the add-ons (print,
+social, sprint) have no other page and must state their limits, plus the shared free check (147) and finder (123).
+Reaching ~600 means an add-ons page of their own, or moving the finder off /services/.
+
+| Content on the old /services/ | Words | Where it is now |
+| --- | --- | --- |
+| Five package cards and the side-by-side comparison | 1,914 | /pricing/ only (already there in full). /services/#packages keeps one line of prices and a link to /pricing/. |
+| A · Get found: Business Profile, reviews, listings, monthly "Stay found" plan (deliverables, what I need, not included, handover, terms) | 939 | /services/local-visibility/ → "Service by service" (#business-profile, #reviews, #listings, #local-plan), `src/components/ServiceDetails.astro` |
+| B · Answer fast: missed calls, enquiry workflows, booking, integrations | 921 | /services/enquiry-follow-up/ → "Service by service" (#missed-calls, #enquiry-workflows, #booking, #integrations) |
+| C · Get booked: websites, search basics, maintenance | 732 | /services/web-design/ → "Service by service" (#websites, #seo, #maintenance) |
+| + Add-ons: print, social content, Brand & Content Sprint | 642 | Stays on /services/ (#extras, #print-design, #social-content, #brand-content): each add-on's one-line summary and its full "Not included" list, the sprint's full included / quoted-separately lists. Not shown any more (kept in `src/data/services.ts` for a later add-ons page): the print and social "Sounds familiar?", deliverable lists, "What I need", handover and term notes. |
+| "On this page" jump bar | 18 | Removed (short page) |
+| Free website and Google check | 147 | Stays (#check) |
+| Finder (three questions) | 123 | Stays (#finder); its service links now go to each service's new home |
+| Process (five steps, what you do and what I do) | 195 | /about/#process (the same `Process.astro`); the home page keeps its short version (#how-i-work, "my" half only); /services/#process forwards to /about/#process |
+| FAQ (15 questions) | 850 | Home keeps its five (`faqs` in `src/data/faqs.ts`). /services/ keeps "Where do you work?" (now "based in Scarborough"). Moved: "Can you get us more reviews?" → local visibility; "What do you need from me?" → web design; "Do you use AI tools?" → enquiry follow-up; "Do you make flyers…?" → the add-ons text. Not repeated (already answered on the page named): cost, "$1,950", payments, ownership (/pricing/); top of Google (local visibility); how long (web design); after launch (web design handover, /pricing/ Care); free check (#check, /pricing/); GEO/AEO (home, local visibility #ai-search). |
+
+Old anchors: the sections that stayed keep their ids; every other old `/services/#…` address forwards (inline script
+on /services/, on arrival and on hash change; own keys only, malformed addresses ignored) to the page that holds it, e.g. `/services/#booking` →
+`/services/enquiry-follow-up/#booking`, which opens that service. Internal links, the Finder, the case studies'
+"Services shown" links and the structured-data URLs point at the new homes directly (`serviceHref()` in
+`src/data/service-pages.ts`).
+
+#### Other Phase 2 changes
+
+- Home page: FAQPage structured data for its five visible questions (they were marked up only on the old /services/).
+- Reviews strip: `src/data/reviews.ts` (empty) → `src/components/ReviewsStrip.astro` on the home page (after the work)
+  and every service page (before the package); renders nothing until a real review is added; no review schema.
+- Service pages: "Based in Scarborough, working across Toronto and the GTA" plus local proof (Samp Hair & Spa, a
+  Scarborough salon, website in progress; Nest & Rest, Mann's own business in Scarborough and North York), under the
+  price line in the page head.
+- /work/: industry, location and one result line per project (new optional `industry`, `location`, `result` fields
+  in `src/content.config.ts`), worded only from each case study.
+- /services/web-design/: "Website redesign in Toronto" section (#redesign, built on the Website Launch package),
+  "freelance web designer in Toronto"; /about/ lead: "I’m a freelance web designer in Toronto, based in Scarborough…
+  owner-run small businesses".
+- Keyword fit: local visibility lead ("Local SEO for small businesses in Toronto… Google Business Profile setup");
+  enquiry follow-up lead ("For small businesses that miss calls…", missed-call text-back) and a salon/online booking
+  line in "A good fit if…"; /pricing/ example ("affordable web design in Toronto"); home hero role line ("Web designer
+  in Toronto · local SEO and AI automation", next to "Hi, I’m Mann Patel."). No head-on "web design toronto" or
+  "seo company toronto".
+
+#### Brief (Mann, 14 Nov 2026)
 
 - /services/: cut 6,641 words to ~600 that route to each service page and /pricing/; package detail stays on /pricing/ only. Before cutting, list content unique to /services/ and where it moves. Keep FAQPage schema matching the visible FAQs.
 - Reviews strip component for home + service pages, fed by an empty data file; renders nothing until real reviews exist.
