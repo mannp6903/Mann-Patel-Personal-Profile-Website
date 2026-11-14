@@ -5,9 +5,10 @@ ends up **done in code**, **scheduled in a later phase**, or on the **off-site c
 ([`docs/seo/OFFSITE-CHECKLIST.md`](OFFSITE-CHECKLIST.md)). Nothing is dropped.
 
 Branch: `seo-audit-2026-11`, one commit per phase, pushed to `origin seo-audit-2026-11` after each phase passes
-verification (Mann's approval, 14 Nov 2026). No PR, no deploy. Stop after each phase and wait for Mann.
+verification (Mann's approval, 14 Nov 2026). No PR, no deploy. Stop after each phase and wait for Mann. (In practice each
+phase was merged by its own pull request at Mann's request; Phase 3 was built on `claude/zen-maxwell-tkspc1`.)
 
-Status: Phase 1 done and live (PR #33, merged 14 Nov 2026) · Phase 2 done (PR #34, merged 14 Nov 2026) · Phase 3 done (branch `claude/zen-maxwell-tkspc1`, not yet merged; the Scarborough page and the guides wait on Mann, see below) · Phase 4 (ask before each item).
+Status: Phase 1 done and live (PR #33, merged 14 Nov 2026) · Phase 2 done (PR #34, merged 14 Nov 2026) · Phase 3 done and merged (14 Nov 2026; the Scarborough page and three outline guides wait on Mann, see below) · Phase 4 (ask before each item).
 
 ### Verification log
 
@@ -25,6 +26,17 @@ Status: Phase 1 done and live (PR #33, merged 14 Nov 2026) · Phase 2 done (PR #
   the three service pages 100, /work/ 100 (accessibility, best practices and SEO 100 on all). Subagent review: 7 gaps,
   fixed (add-on limits shown, full process moved to /about/#process, home FAQPage, forward script hardened and moved
   inside the page, malformed-hash handling, stricter overview check); the word count is left for Mann to decide.
+
+- **Phase 3 (14 Nov 2026):** `npm run check:seo` 0 errors, 2 warnings (the two above; /services/ is now 851 words with
+  the "By trade" line), 19 sitemap URLs (+ two industry pages, /guides/ and two guides); the Scarborough page and the
+  outlines are absent, unlisted and unlinked. Injected faults (draft built, draft linked, missing breadcrumb, free
+  check removed, keyword dropped) all fail the check; a simulated publish of the Scarborough page builds and links it.
+  `npm run check` 0 errors; `npm test` 94/94; `npm run test:e2e` 146/146; `npm run build:cloudflare` pre-launch 0
+  errors. Lighthouse 13.6 mobile, local production-like build: / 99/100/100/100, both industry pages, /services/,
+  /services/web-design/ and /work/ 100/100/100/100. Subagent review: nothing critical; fixed the free-check rule (it
+  passed on every page because of the footer link), tests that would fail when Mann publishes, the guide's
+  eligibility list, the salon booking-tool answer, the /guides/ copy, drafts in an indexable preview build, the Article
+  author and missing lastmod sources.
 
 ---
 
@@ -306,7 +318,7 @@ on /services/, on arrival and on hash change; own keys only, malformed addresses
 | `/websites-for-cleaning-companies/` ("Cleaning Company Website Design in Toronto") | Live with the next deploy | Nest & Rest case study (own business, website live, opens summer 2027, no results claimed) → Website Launch $1,950 + Local Visibility Setup $650 → 5 FAQs → related → free check |
 | `/websites-for-salons-and-spas/` ("Salon & Spa Website Design in Toronto") | Live with the next deploy | Samp Hair & Spa (client, in progress, accessibility findings open) → Website + Enquiry System $3,350, Website Launch $1,950 as the lighter option → 5 FAQs → related → free check |
 | `/web-design-scarborough/` ("Web Design in Scarborough, Ontario") | **Draft** until Mann lists neighbourhoods in `src/data/areas.ts` | Local work (Samp, Nest & Rest), GBP link, neighbourhoods [TODO(Mann)], services and prices, 4 FAQs ("Scarborough, Ontario, or Scarborough in England?"), full business node, free check |
-| `/guides/` + 5 guides | **Drafts** until Mann sets `draft: false` and `published` | Cost guide and Business Profile guide in full; ChatGPT/AI Overviews, missed-call text-back and Google Maps checklist as outlines (can't be published while `outline: true`) |
+| `/guides/` + 5 guides | Cost guide and Business Profile guide **published 14 Nov 2026** (Mann: "make everything live"); the three outlines stay **drafts** | Cost guide and Business Profile guide in full; ChatGPT/AI Overviews, missed-call text-back and Google Maps checklist as outlines (can't be published while `outline: true`) |
 
 Links in and out: the web design service page links both industry pages, enquiry follow-up links the salon page, local
 visibility links the cleaning page ("More services"); /services/ and /work/ have a "By trade" line; each case study

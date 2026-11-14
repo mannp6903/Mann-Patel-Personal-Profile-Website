@@ -2,7 +2,8 @@
 title: How much does a website cost in Toronto?
 seoTitle: How Much Does a Website Cost in Toronto?
 description: 'What a small business website costs in Toronto, using my published prices: what each price covers, what you pay other providers, and what changes a quote.'
-draft: true
+draft: false
+published: 2026-11-14
 service: /services/web-design/
 related:
   - google-business-profile-without-a-storefront

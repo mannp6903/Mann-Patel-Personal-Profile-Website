@@ -4,10 +4,11 @@
  * build: not built, not in the sitemap, not linked. Every page and link that depends on a draft asks here.
  */
 import { getCollection, type CollectionEntry } from 'astro:content';
-import { isProduction } from './mode';
+import { indexing, isProduction } from './mode';
 import { areas, areaIsDraft, areaPath } from '../data/areas';
 
-export const showDrafts = !isProduction;
+/** Never in production, and never in a build search engines may index (even if SITE_MODE was left at preview). */
+export const showDrafts = !isProduction && !indexing;
 
 /** Guides to build and link: published ones newest first, then drafts (previews only), by title. */
 export async function visibleGuides(): Promise<CollectionEntry<'guides'>[]> {

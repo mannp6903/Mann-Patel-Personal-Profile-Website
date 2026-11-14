@@ -34,7 +34,7 @@ const articleLd = {
   headline: g.title,
   description: g.description,
   inLanguage: 'en-CA',
-  author: { ...personRef(), ...(absoluteUrl('/about/') ? { url: absoluteUrl('/about/') } : {}) },
+  author: personRef(),
   publisher: personRef(),
   ...(g.published ? { datePublished: g.published, dateModified: g.updated ?? g.published } : {}),
   ...(url ? { url, mainEntityOfPage: url } : {}),

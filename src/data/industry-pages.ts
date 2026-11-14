@@ -109,7 +109,7 @@ export const industryPages: IndustryPage[] = [
     eyebrow: 'For salons and spas',
     h1: 'Salon and spa website design in Toronto',
     lines: ['Salon and spa website', 'design in Toronto'],
-    lead: 'Websites for hair salons, spas and beauty businesses in Toronto and the GTA: a service menu clients can scan on a phone, your real hours, and online booking set up with the tool you already use. The example is a Scarborough salon and spa whose website I’m building now.',
+    lead: 'Websites for hair salons, spas and beauty businesses in Toronto and the GTA: a service menu clients can scan on a phone, your real hours, and an appointment request or online booking connected to your booking tool. The example is a Scarborough salon and spa whose website I’m building now, with an appointment request form.',
     caseStudy: 'samp-hair-spa',
     caseIntro:
       'Samp Hair & Spa is a salon and spa in Scarborough, and a client. Its new website is in progress: the preview is online for review, the accessibility findings from my tests are still open, and nothing has launched, so no results are claimed.',
@@ -140,7 +140,7 @@ export const industryPages: IndustryPage[] = [
       },
       {
         q: 'I already use a booking app. Do I have to switch?',
-        a: 'No. Online booking is set up with the tool you already use, or I recommend one if you don’t have one yet. Its subscription stays billed to you by the provider.',
+        a: 'Not if it can do the job. I connect the booking tool you already pay for where it can; if it can’t, or you don’t have one yet, I recommend an option and list its cost before you decide. Its subscription stays billed to you by the provider.',
       },
       {
         q: 'What about the calls I miss while I’m with a client?',

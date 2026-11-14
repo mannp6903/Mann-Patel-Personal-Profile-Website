@@ -62,12 +62,12 @@ Plan and status: [`docs/seo/PLAN.md`](seo/PLAN.md). These pages wait on you; not
    names, e.g. `neighbourhoods: ['First neighbourhood', 'Second neighbourhood']`. That one change publishes
    `/web-design-scarborough/`: it is built, added to the sitemap, and linked from the "Based in Scarborough" lines in
    the footer, the service pages and the industry pages. Until then it is a draft you can see in a preview build only.
-2. **Publish the guides, one every two weeks.** Five are in `src/content/guides/`: the cost guide and the Google Business
-   Profile guide are written in full; the ChatGPT, missed-call text-back and Google Maps guides are outlines with
-   `TODO(Mann)` notes. To publish one, read it, then set `draft: false` and `published: 2026-11-28` (the day you publish)
-   in its front matter. The first one also creates `/guides/` and the "Guides" link in the footer. An outline can't be
-   published until it is written in full (`outline: false`); the build stops if you try. Suggested order: cost guide,
-   Business Profile guide, then the outlines as you finish them.
+2. **Finish and publish the three outline guides.** Five guides are in `src/content/guides/`. The cost guide and the
+   Google Business Profile guide were **published on 14 Nov 2026** (at your request: "make everything live"); please read
+   them on the live site and tell me anything to change. The ChatGPT, missed-call text-back and Google Maps guides are
+   outlines with `TODO(Mann)` notes. Write one up (or ask me to), then set `outline: false`, `draft: false` and
+   `published: 2026-11-28` (the day you publish) in its front matter. An outline can't be published; the build stops
+   if you try.
 3. **After each publish:** deploy, then request indexing in Search Console for the new address (see
    [`docs/seo/OFFSITE-CHECKLIST.md`](seo/OFFSITE-CHECKLIST.md)).
 

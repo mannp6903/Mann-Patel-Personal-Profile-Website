@@ -327,7 +327,12 @@ for (const path of newPages) {
     continue;
   }
   if (!nodes(p.ld).some((n) => types(n).includes('BreadcrumbList'))) err('new pages', `${path} has no BreadcrumbList`);
-  if (!p.hrefs.some((h) => h.replace(SITE, '') === FREE_CHECK)) err('new pages', `${path} has no link to the free check (${FREE_CHECK})`);
+  // Ends with the free check: the last section in <main> is the free-check block (#check). Every page has a
+  // free-check link in the footer and the phone menu, so a link alone proves nothing.
+  const main = (p.html.match(/<main\b[\s\S]*<\/main>/) || [''])[0];
+  const lastSection = [...main.matchAll(/<section\b[^>]*>/g)].pop()?.[0] ?? '';
+  if (!/\bid="check"/.test(lastSection) || !main.includes(`href="${FREE_CHECK}"`))
+    err('new pages', `${path} doesn't end with the free check (the last section in <main> must be #check, linking ${FREE_CHECK})`);
   if (!published.includes(path)) err('new pages', `${path} is not in the sitemap`);
 }
 for (const path of drafts) {

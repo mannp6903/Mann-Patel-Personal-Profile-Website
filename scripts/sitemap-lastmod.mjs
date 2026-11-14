@@ -20,9 +20,9 @@ const EXTRA = {
   '/contact/': ['src/components/ContactForm.astro', 'src/components/CheckForm.astro'],
   '/work/': ['src/content/work', 'src/data/captures.ts'],
   // SEO audit Phase 3 (14 Nov 2026): industry pages, the Scarborough page and the guides index.
-  '/websites-for-cleaning-companies/': ['src/data/industry-pages.ts', 'src/components/IndustryPage.astro', 'src/data/packages.ts', 'src/components/packages', 'src/content/work/nest-and-rest-cleaning.md'],
-  '/websites-for-salons-and-spas/': ['src/data/industry-pages.ts', 'src/components/IndustryPage.astro', 'src/data/packages.ts', 'src/components/packages', 'src/content/work/samp-hair-spa.md'],
-  '/web-design-scarborough/': ['src/pages/web-design-[area].astro', 'src/data/areas.ts', 'src/data/industry-pages.ts', 'src/content/work'],
+  '/websites-for-cleaning-companies/': ['src/data/industry-pages.ts', 'src/components/IndustryPage.astro', 'src/data/packages.ts', 'src/components/packages', 'src/data/service-pages.ts', 'src/data/captures.ts', 'src/lib/work.ts', 'src/content/work/nest-and-rest-cleaning.md'],
+  '/websites-for-salons-and-spas/': ['src/data/industry-pages.ts', 'src/components/IndustryPage.astro', 'src/data/packages.ts', 'src/components/packages', 'src/data/service-pages.ts', 'src/data/captures.ts', 'src/lib/work.ts', 'src/content/work/samp-hair-spa.md'],
+  '/web-design-scarborough/': ['src/pages/web-design-[area].astro', 'src/data/areas.ts', 'src/data/industry-pages.ts', 'src/data/packages.ts', 'src/data/service-pages.ts', 'src/lib/work.ts', 'src/content/work'],
   '/guides/': ['src/pages/guides/[...index].astro', 'src/content/guides'],
 };
 /** Data behind a dynamic route's pages (e.g. /services/web-design/ ← src/data/service-pages.ts). */

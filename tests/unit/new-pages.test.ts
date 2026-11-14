@@ -95,7 +95,7 @@ describe('guides', () => {
   const all = files.map(guide);
   const bySlug = (slug: string) => all.find((g) => g.slug === slug)!;
 
-  it('five guides: two full drafts and three outlines, all unpublished until Mann flips draft: false', () => {
+  it('five guides; an outline is never published, and a published guide has a date', () => {
     expect(all.map((g) => g.slug).sort()).toEqual(
       [
         'google-business-profile-without-a-storefront',
@@ -105,9 +105,14 @@ describe('guides', () => {
         'why-isnt-my-business-on-google-maps',
       ].sort(),
     );
-    for (const g of all) expect(g.field('draft'), g.slug).toBe('true');
-    const outlines = all.filter((g) => g.field('outline') === 'true').map((g) => g.slug).sort();
-    expect(outlines).toEqual(['how-to-get-recommended-by-chatgpt', 'missed-call-text-back-for-salons-and-cleaners', 'why-isnt-my-business-on-google-maps']);
+    for (const g of all) {
+      expect(['true', 'false'], g.slug).toContain(g.field('draft'));
+      if (g.field('outline') === 'true') expect(g.field('draft'), `${g.slug}: an outline can't be published`).toBe('true');
+      if (g.field('draft') === 'false') expect(g.field('published'), g.slug).toMatch(/^\d{4}-\d{2}-\d{2}$/);
+    }
+    // The two written in full are the ones that aren't outlines.
+    const full = all.filter((g) => g.field('outline') !== 'true').map((g) => g.slug).sort();
+    expect(full).toEqual(['google-business-profile-without-a-storefront', 'how-much-does-a-website-cost-in-toronto']);
   });
 
   it('the cost and Business Profile guides link to each other, their service page and /pricing/', () => {

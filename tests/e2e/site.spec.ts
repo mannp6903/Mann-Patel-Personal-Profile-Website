@@ -9,7 +9,13 @@ const NEST_URL = 'https://nestnrestcleaning.com/';
 const NEST_LIVE = /siteLive: true/.test(readFileSync('src/data/site.ts', 'utf8'));
 const NEST_STATUS = NEST_LIVE ? 'Website live' : 'Launched Oct 2026 · live link paused';
 
-/** The guides (src/content/guides/): two full drafts and three outlines, all drafts until Mann publishes them. */
+// Drafts follow their switches in the source, so publishing (Mann's job) never turns these tests red:
+// a guide is a draft while its front matter says `draft: true`; the Scarborough page while `neighbourhoods: null`.
+const guideIsDraft = (slug: string) => /^draft:\s*true\s*$/m.test(readFileSync(`src/content/guides/${slug}.md`, 'utf8'));
+const guideIsOutline = (slug: string) => /^outline:\s*true\s*$/m.test(readFileSync(`src/content/guides/${slug}.md`, 'utf8'));
+const SCARBOROUGH_DRAFT = /\bneighbourhoods:\s*(null|\[\s*\])/.test(readFileSync('src/data/areas.ts', 'utf8'));
+
+/** The guides (src/content/guides/): the first two published 14 Nov 2026; three outlines, still drafts. */
 const GUIDES = [
   'how-much-does-a-website-cost-in-toronto',
   'google-business-profile-without-a-storefront',
@@ -34,8 +40,8 @@ const PAGES = [
   '/services/enquiry-follow-up/',
   '/pricing/',
   '/vision/',
-  // SEO audit Phase 3 (14 Nov 2026). The Scarborough page and the guides are drafts: built in previews like
-  // this one, never in production (scripts/seo-check.mjs checks the production build).
+  // SEO audit Phase 3 (14 Nov 2026). The Scarborough page and the outline guides are drafts: built in previews
+  // like this one, never in production (scripts/seo-check.mjs checks the production build).
   '/websites-for-cleaning-companies/',
   '/websites-for-salons-and-spas/',
   '/web-design-scarborough/',
@@ -813,8 +819,14 @@ test.describe('new pages (SEO audit Phase 3)', () => {
 
   test('Scarborough: real local proof and the Google Business Profile; a marked draft until the neighbourhoods are supplied', async ({ page }) => {
     await page.goto('/web-design-scarborough/');
-    await expect(page.locator('[data-draft]')).toBeVisible();
-    await expect(page.locator('[data-neighbourhoods] [data-confirm]')).toContainText('neighbourhoods');
+    if (SCARBOROUGH_DRAFT) {
+      await expect(page.locator('[data-draft]')).toBeVisible();
+      await expect(page.locator('[data-neighbourhoods] [data-confirm]')).toContainText('neighbourhoods');
+    } else {
+      await expect(page.locator('[data-draft]')).toHaveCount(0);
+      await expect(page.locator('[data-neighbourhoods] [data-confirm]')).toHaveCount(0);
+      expect(await page.locator('[data-neighbourhoods] li').count()).toBeGreaterThan(0);
+    }
     await expect(page.locator('main a[href="https://maps.app.goo.gl/dYccTa9jQJczpeac6"]').first()).toBeAttached();
     await expect(page.locator('main')).toContainText('Samp Hair & Spa');
     await expect(page.locator('main')).toContainText('web designer based in Scarborough, Ontario');
@@ -829,15 +841,28 @@ test.describe('new pages (SEO audit Phase 3)', () => {
     await expect(page.locator('footer a[href="/web-design-scarborough/"]')).toBeAttached();
   });
 
-  test('guides: an index, Article data by Mann, the cost and Business Profile cluster, drafts and outlines marked', async ({ page }) => {
+  test('guides: an index, Article data by Mann, the cost and Business Profile cluster, outlines marked', async ({ page }) => {
     await page.goto('/guides/');
     for (const g of GUIDES) await expect(page.locator(`main a[href="/guides/${g}/"]`).first()).toBeAttached();
     expect(await lastSectionId(page)).toBe('check');
 
+    // Every guide: a draft note while it's a draft ("Outline" for outlines); once published, a date instead.
+    for (const g of GUIDES) {
+      await page.goto(`/guides/${g}/`);
+      const article = (await ld(page)).find((b) => b['@type'] === 'Article');
+      expect(article.author['@id'], g).toMatch(/#person$/);
+      if (guideIsDraft(g)) {
+        await expect(page.locator('[data-draft]'), g).toContainText(guideIsOutline(g) ? 'Outline' : 'Draft');
+        expect(article.datePublished, g).toBeUndefined();
+      } else {
+        await expect(page.locator('[data-draft]'), g).toHaveCount(0);
+        expect(article.datePublished, g).toMatch(/^\d{4}-\d{2}-\d{2}$/);
+        await expect(page.locator(`main time[datetime="${article.datePublished}"]`), g).toBeAttached();
+      }
+    }
+
     await page.goto(`/guides/${GUIDES[0]}/`);
-    await expect(page.locator('[data-draft]')).toBeVisible();
     const article = (await ld(page)).find((b) => b['@type'] === 'Article');
-    expect(article.author['@id']).toMatch(/#person$/);
     expect(article.headline).toBe((await page.locator('h1').innerText()).replace(/\s+/g, ' ').trim());
     for (const to of ['/pricing/', '/services/web-design/', `/guides/${GUIDES[1]}/`, '/contact/?package=check-up#check'])
       await expect(page.locator(`main a[href="${to}"]`).first(), to).toBeAttached();
@@ -846,9 +871,6 @@ test.describe('new pages (SEO audit Phase 3)', () => {
     await page.goto(`/guides/${GUIDES[1]}/`);
     for (const to of ['/pricing/', '/services/local-visibility/', `/guides/${GUIDES[0]}/`])
       await expect(page.locator(`main a[href="${to}"]`).first(), to).toBeAttached();
-
-    await page.goto('/guides/why-isnt-my-business-on-google-maps/');
-    await expect(page.locator('[data-draft]')).toContainText('Outline');
 
     // Service pages and /pricing/ point to their guides, and the footer to the index, while any are visible.
     await page.goto('/services/web-design/');

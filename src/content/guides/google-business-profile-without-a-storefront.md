@@ -2,7 +2,8 @@
 title: Google Business Profile without a storefront address
 seoTitle: Google Business Profile Without a Storefront
 description: 'Work from home or at your customers’ place? How to set up a Google Business Profile as a service-area business, with your home address hidden.'
-draft: true
+draft: false
+published: 2026-11-14
 service: /services/local-visibility/
 related:
   - how-much-does-a-website-cost-in-toronto
@@ -13,10 +14,13 @@ If you clean homes, fix things or run your business from home, you can still hav
 
 ## Can you have a profile without a storefront?
 
-Yes, if you meet your customers in person, at their home or business, during the hours you post. Google's guidelines are written for businesses that make in-person contact with customers. Two kinds of business are not eligible:
+Yes, if you meet your customers in person, at their home or business, during the hours you post. Google's guidelines are written for businesses that make in-person contact with customers. Among the businesses that aren't eligible:
 
 - online-only businesses, which never meet customers in person
 - a business that uses a virtual office, mailbox or other address it doesn't actually work from, just to appear in a neighbourhood
+- a business that hasn't opened yet: Google only lets you add a future opening date shortly before you open
+
+The [guidelines](https://support.google.com/business/answer/3038177?hl=en) list the rest.
 
 If customers also come to you, for example to a studio at your home, the address can be shown as well as your service area. If you always go to them, keep it hidden.
 
