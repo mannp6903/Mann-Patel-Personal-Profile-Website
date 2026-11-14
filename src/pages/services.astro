@@ -13,7 +13,7 @@ import FreeCheck from '../components/home/FreeCheck.astro';
 import Finder from '../components/Finder.astro';
 import { groups, servicesInGroup, addOns, sprint } from '../data/services';
 import { packages, packageById, priceLabel } from '../data/packages';
-import { servicePages, servicePageForGroup, serviceHref } from '../data/service-pages';
+import { servicePages, moreServicePages, servicePageForGroup, serviceHref } from '../data/service-pages';
 import { overviewFaqs } from '../data/faqs';
 import { breadcrumbJsonLd, servicesJsonLd } from '../lib/seo';
 import { industryPages } from '../data/industry-pages';
@@ -82,6 +82,16 @@ for (const g of groups) {
           <>
             {i > 0 && ' · '}
             <a class="link" href={`/${ip.slug}/`}>{ip.linkLabel}</a>
+          </>
+        ))}
+      </p>
+      <!-- SEO audit Phase 4 (14 Nov 2026): two more services with pages of their own. -->
+      <p class="paths__more small">
+        <span class="subtle">Also:</span>{' '}
+        {moreServicePages.map((sp, i) => (
+          <>
+            {i > 0 && ' · '}
+            <a class="link" href={`/services/${sp.slug}/`}>{sp.name}</a>
           </>
         ))}
       </p>
@@ -215,6 +225,9 @@ for (const g of groups) {
   }
   .paths__trades {
     margin-top: var(--s-5);
+  }
+  .paths__more {
+    margin-top: var(--s-2);
   }
   .paths__pkg {
     padding-top: var(--s-3);

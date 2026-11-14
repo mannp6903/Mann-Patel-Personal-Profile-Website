@@ -26,7 +26,7 @@ Use the same details everywhere (name, phone and website must match character fo
   - [ ] https://mannpatel.me/pricing/
   - [ ] https://mannpatel.me/about/
 - [ ] Indexing → Pages: check how many pages are indexed and why any are not (indexation was the audit's only **Fail**). Note the date and count here: ______
-- [ ] After each phase is deployed, request indexing again for the pages that changed (and the new pages in Phase 3: `/websites-for-cleaning-companies/`, `/websites-for-salons-and-spas/`, then `/web-design-scarborough/`, `/guides/` and each guide as they are published).
+- [ ] After each phase is deployed, request indexing again for the pages that changed (and the new pages in Phase 3: `/websites-for-cleaning-companies/`, `/websites-for-salons-and-spas/`, then `/web-design-scarborough/`, `/guides/` and each guide as they are published; Phase 4: `/services/website-care/` and `/services/ai-search-optimization/`).
 
 ## 2. Bing Webmaster Tools
 

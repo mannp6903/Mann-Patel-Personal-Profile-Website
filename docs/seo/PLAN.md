@@ -8,7 +8,7 @@ Branch: `seo-audit-2026-11`, one commit per phase, pushed to `origin seo-audit-2
 verification (Mann's approval, 14 Nov 2026). No PR, no deploy. Stop after each phase and wait for Mann. (In practice each
 phase was merged by its own pull request at Mann's request; Phase 3 was built on `claude/zen-maxwell-tkspc1`.)
 
-Status: Phase 1 done and live (PR #33, merged 14 Nov 2026) · Phase 2 done (PR #34, merged 14 Nov 2026) · Phase 3 done and merged (14 Nov 2026; the Scarborough page and three outline guides wait on Mann, see below) · Phase 4 (ask before each item).
+Status: Phase 1 done and live (PR #33, merged 14 Nov 2026) · Phase 2 done (PR #34, merged 14 Nov 2026) · Phase 3 done and merged (14 Nov 2026; the Scarborough page and three outline guides wait on Mann, see below) · Phase 4: Mann chose the Website Care and AI search pages (14 Nov 2026, done on `claude/zen-maxwell-tkspc1`); speed and security headers not chosen.
 
 ### Verification log
 
@@ -37,6 +37,11 @@ Status: Phase 1 done and live (PR #33, merged 14 Nov 2026) · Phase 2 done (PR #
   passed on every page because of the footer link), tests that would fail when Mann publishes, the guide's
   eligibility list, the salon booking-tool answer, the /guides/ copy, drafts in an indexable preview build, the Article
   author and missing lastmod sources.
+
+- **Phase 4 (14 Nov 2026):** `npm run check:seo` 0 errors, 2 warnings (as before; /services/ 862 words), 21 sitemap URLs.
+  `npm run check` 0 errors; `npm test` 100/100; `npm run test:e2e` 152/152. Lighthouse 13.6 mobile, local
+  production-like build: / and /pricing/ 99/100/100/100; /services/website-care/, /services/ai-search-optimization/
+  and /services/local-visibility/ 100/100/100/100.
 
 ---
 
@@ -336,6 +341,18 @@ Decisions made while building (Phase 3):
 - Guide dates accept `published: 2026-11-28` with or without quotes (YAML reads the unquoted form as a date).
 
 ### PHASE 4: LATER (ask before each)
+
+Mann's choice (14 Nov 2026): the two pages below. Not chosen for now: the animation and inline-CSS speed work (lab
+scores are already 99–100 on mobile) and the security headers.
+
+| Page | Package | Notes |
+| --- | --- | --- |
+| `/services/website-care/` ("Small Business Website Maintenance in Toronto") | Website Care, $149 a month | Monthly cycle, a labelled sample care note, limits from the package and the `maintenance` service, 5 FAQs. The care package's "How it works" links now point here (`page` in `src/data/packages.ts`). |
+| `/services/ai-search-optimization/` ("AI Search Optimization (AEO & GEO) in Toronto") | Local Visibility Setup, $650 (no new price: the check is part of it) | Same questions to ChatGPT, Gemini and Perplexity on a dated sheet, then the public facts fixed; website fixes quoted separately, as on the local SEO page. A labelled sample sheet, 4 FAQs, Google sources. The local SEO page's #ai-search section links here. |
+
+Both are `moreServicePages` in `src/data/service-pages.ts`, rendered by the service page template: not in the three-service
+lists, the menu or the finder, no "Service by service" details (no repeated content), and they end with the free check.
+/services/ links them on an "Also:" line.
 
 - Grow #ai-search into its own page ("ai search optimization toronto").
 - Website Care page ($149/month; "website maintenance toronto small business").

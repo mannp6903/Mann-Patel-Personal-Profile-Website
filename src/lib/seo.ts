@@ -174,7 +174,7 @@ function serviceCatalog() {
           name: 'AI search visibility check (GEO and AEO)',
           serviceType: 'Generative engine optimization',
           areaServed: 'Toronto',
-          ...(url ? { url: `${url}services/local-visibility/#ai-search` } : {}),
+          ...(url ? { url: `${url}services/ai-search-optimization/` } : {}),
         },
       },
     ],

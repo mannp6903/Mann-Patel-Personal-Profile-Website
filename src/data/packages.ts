@@ -168,7 +168,8 @@ export const packages: Package[] = [
     timeline: 'Monthly, from the month you start. Stop any month.',
     thirdParty: ['Domain, hosting and tool subscriptions stay billed to you'],
     serviceIds: ['maintenance'],
-    page: '/services/web-design/',
+    // Its own page since SEO audit Phase 4 (14 Nov 2026).
+    page: '/services/website-care/',
     price: { amount: 149, unit: 'month' },
   },
 ];
