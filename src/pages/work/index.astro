@@ -44,6 +44,28 @@ const crumbs = breadcrumbJsonLd([
                     {w.data.kind} · {w.data.year}
                   </p>
                   <p class="muted">{w.data.summary}</p>
+                  {(w.data.industry || w.data.location || w.data.result) && (
+                    <dl class="row__facts small">
+                      {w.data.industry && (
+                        <div>
+                          <dt>Industry</dt>
+                          <dd>{w.data.industry}</dd>
+                        </div>
+                      )}
+                      {w.data.location && (
+                        <div>
+                          <dt>Location</dt>
+                          <dd>{w.data.location}</dd>
+                        </div>
+                      )}
+                      {w.data.result && (
+                        <div>
+                          <dt>Result</dt>
+                          <dd>{w.data.result}</dd>
+                        </div>
+                      )}
+                    </dl>
+                  )}
                   <span class="row__cta">
                     Read the case study <Icon name="arrow" />
                   </span>
@@ -106,6 +128,29 @@ const crumbs = breadcrumbJsonLd([
   .row__link:hover .row__title {
     letter-spacing: -0.025em;
     color: var(--signal);
+  }
+  /* Industry, location and result (SEO audit Phase 2, 14 Nov 2026). */
+  .row__facts {
+    display: grid;
+    gap: var(--s-2);
+    padding-top: var(--s-3);
+    border-top: 1px dashed var(--line);
+  }
+  .row__facts div {
+    display: grid;
+    grid-template-columns: 6.5rem minmax(0, 1fr);
+    gap: var(--s-3);
+  }
+  .row__facts dt {
+    font-family: var(--font-mono);
+    font-size: var(--fs-xs);
+    letter-spacing: var(--track-label);
+    text-transform: uppercase;
+    color: var(--text-3);
+    padding-top: 0.15em;
+  }
+  .row__facts dd {
+    color: var(--text-2);
   }
   .row__cta {
     display: inline-flex;

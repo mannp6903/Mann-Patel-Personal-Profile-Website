@@ -1,0 +1,270 @@
+---
+/**
+ * "Service by service" (SEO audit Phase 2, 14 Nov 2026): what each part of an area includes, what I need
+ * from you, what isn't included and what you get at handover, one closed accordion per service. Moved from
+ * the old long /services/ page to the service page of its area, so each detail lives in one place. The
+ * anchors are the service ids (e.g. /services/enquiry-follow-up/#booking), and an address with one opens it.
+ */
+import Button from './ui/Button.astro';
+import Icon from './ui/Icon.astro';
+import { servicesInGroup, type GroupId } from '../data/services';
+
+interface Props {
+  group: GroupId;
+  id?: string;
+}
+const { group, id = 'details' } = Astro.props;
+const list = servicesInGroup(group);
+---
+
+{
+  list.length > 0 && (
+    <section class="section section--rule sd" id={id} aria-labelledby={`${id}-title`}>
+      <div class="container sd__grid">
+        <div class="stack" style="--stack: var(--s-4)">
+          <p class="eyebrow">Service by service</p>
+          <h2 id={`${id}-title`} class="sd__h2">
+            What each part <span class="accent">includes.</span>
+          </h2>
+          <p class="muted">Open one to see what you get, what I need from you and what isn’t included. Your written scope confirms it.</p>
+        </div>
+        <div>
+          {list.map((s) => (
+            <details class="acc svc" id={s.id} data-svc>
+              <summary>
+                <span class="svc__sum">
+                  <span class="svc__name">{s.name}</span>
+                  <span class="svc__one">{s.summary}</span>
+                </span>
+                <span class="acc__plus" aria-hidden="true" />
+              </summary>
+              <div class="svc__body">
+                <p class="svc__lead">{s.summary}</p>
+                <p class="svc__problem">
+                  <span class="svc__k">Sounds familiar?</span> {s.problem}
+                </p>
+                <div class="svc__cols">
+                  <div>
+                    <h3 class="svc__h">What you get</h3>
+                    <ul class="svc__list svc__list--yes" role="list">
+                      {s.deliverables.map((d) => (
+                        <li>
+                          <Icon name="check" />
+                          <span>{d}</span>
+                        </li>
+                      ))}
+                    </ul>
+                  </div>
+                  <div>
+                    <h3 class="svc__h">What I need from you</h3>
+                    <ul class="svc__list" role="list">
+                      {s.inputs.map((d) => (
+                        <li>
+                          <Icon name="arrow" />
+                          <span>{d}</span>
+                        </li>
+                      ))}
+                    </ul>
+                    <h3 class="svc__h">Not included</h3>
+                    <ul class="svc__list svc__list--no" role="list">
+                      {s.exclusions.map((d) => (
+                        <li>
+                          <Icon name="close" />
+                          <span>{d}</span>
+                        </li>
+                      ))}
+                    </ul>
+                  </div>
+                </div>
+                <p class="svc__handover">
+                  <span class="svc__k">At handover</span> {s.handover}
+                </p>
+                {s.terms && (
+                  <dl class="svc__terms">
+                    {s.terms.map((t) => (
+                      <div>
+                        <dt>{t.term}</dt>
+                        <dd>{t.plain}</dd>
+                      </div>
+                    ))}
+                  </dl>
+                )}
+                <div class="svc__cta">
+                  <Button href={`/contact/?service=${s.id}#brief`} size="sm">
+                    Ask about this
+                  </Button>
+                  <span class="small subtle">{s.nextStep}</span>
+                </div>
+              </div>
+            </details>
+          ))}
+        </div>
+      </div>
+    </section>
+  )
+}
+
+<script>
+  // Open the service named in the address (e.g. #booking), now and on later hash changes.
+  const openFromHash = () => {
+    const id = decodeURIComponent(location.hash.slice(1));
+    if (!id) return;
+    const el = document.getElementById(id);
+    if (el instanceof HTMLDetailsElement && el.hasAttribute('data-svc')) {
+      el.open = true;
+      requestAnimationFrame(() => el.scrollIntoView({ block: 'start' }));
+    }
+  };
+  openFromHash();
+  addEventListener('hashchange', openFromHash);
+</script>
+
+<style>
+  .sd__grid {
+    display: grid;
+    gap: var(--s-6);
+  }
+  .sd__h2 {
+    font-size: var(--fs-h2);
+    max-width: 20ch;
+  }
+  @media (min-width: 64em) {
+    .sd__grid {
+      grid-template-columns: minmax(0, 0.8fr) minmax(0, 1.2fr);
+      gap: var(--s-9);
+    }
+  }
+  /* Accordion styles moved unchanged from the old /services/ page. */
+  .svc > summary {
+    align-items: flex-start;
+    padding-block: var(--s-5);
+  }
+  .svc__sum {
+    display: grid;
+    gap: var(--s-2);
+  }
+  .svc__name {
+    font-size: clamp(1.15rem, 1.05rem + 0.5vw, 1.45rem);
+    font-weight: 600;
+    letter-spacing: -0.02em;
+  }
+  .svc__one {
+    font-size: var(--fs-sm);
+    font-weight: 400;
+    color: var(--text-2);
+    line-height: 1.5;
+    letter-spacing: 0;
+    max-width: 60ch;
+  }
+  .svc > summary:hover .svc__one {
+    color: var(--text-2);
+  }
+  .svc__body {
+    display: grid;
+    gap: var(--s-5);
+    padding-bottom: var(--s-7);
+    color: var(--text-2);
+  }
+  .svc__k {
+    display: block;
+    margin-bottom: var(--s-1);
+    font-family: var(--font-mono);
+    font-size: var(--fs-xs);
+    letter-spacing: var(--track-label);
+    text-transform: uppercase;
+    color: var(--text-3);
+  }
+  .svc__problem {
+    padding: var(--s-4) var(--s-5);
+    border-left: 2px solid var(--signal);
+    background: var(--bg-2);
+    border-radius: 0 var(--r-md) var(--r-md) 0;
+    color: var(--text);
+  }
+  .svc__cols {
+    display: grid;
+    gap: var(--s-5);
+  }
+  .svc__h {
+    margin: var(--s-4) 0 var(--s-3);
+    font-family: var(--font-mono);
+    font-size: var(--fs-xs);
+    font-weight: 500;
+    letter-spacing: var(--track-label);
+    text-transform: uppercase;
+    color: var(--text-3);
+  }
+  .svc__cols > div > .svc__h:first-child {
+    margin-top: 0;
+  }
+  .svc__list {
+    display: grid;
+    gap: var(--s-2);
+    font-size: var(--fs-sm);
+  }
+  .svc__list li {
+    display: flex;
+    gap: var(--s-2);
+    align-items: flex-start;
+  }
+  .svc__list .icon {
+    margin-top: 0.12em;
+    width: 1.05rem;
+    height: 1.05rem;
+    color: var(--text-3);
+  }
+  .svc__list--yes li {
+    color: var(--text);
+  }
+  .svc__list--yes .icon {
+    color: var(--signal);
+  }
+  .svc__list--no .icon {
+    color: var(--error);
+  }
+  .svc__terms {
+    display: grid;
+    gap: var(--s-3);
+    padding: var(--s-4) var(--s-5);
+    border: 1px dashed var(--line);
+    border-radius: var(--r-md);
+    font-size: var(--fs-sm);
+  }
+  .svc__terms dt {
+    color: var(--text);
+    font-weight: 600;
+  }
+  .svc__cta {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    gap: var(--s-3) var(--s-5);
+  }
+  @media (min-width: 48em) {
+    .svc__cols {
+      grid-template-columns: 1fr 1fr;
+      gap: var(--s-7);
+    }
+  }
+  /* Phones: one line per service until opened. */
+  .svc__lead {
+    display: none;
+  }
+  @media (max-width: 47.99em) {
+    .svc > summary {
+      min-height: 3.75rem;
+      padding-block: var(--s-3);
+      align-items: center;
+    }
+    .svc__one {
+      display: none;
+    }
+    .svc__lead {
+      display: block;
+      color: var(--text);
+    }
+    .svc__name {
+      font-size: 1.0625rem;
+    }
+  }
+</style>

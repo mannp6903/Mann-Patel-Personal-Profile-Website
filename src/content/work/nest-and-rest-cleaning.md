@@ -44,6 +44,9 @@ limitations:
   - Booking, quote and gift-card forms are switched off until launch; their delivery is tested end to end at launch.
   - The checks above are automated browser tests on the live site, not a manual accessibility audit.
 outcomes: Not yet measured. The business takes its first clients in summer 2027.
+industry: Home cleaning (my own business)
+location: Scarborough and North York, Toronto
+result: No customer results yet. The website has been live since October 2026, and bookings open in summer 2027.
 nextStep: At launch, switch the forms on, send a real test booking end to end, and add measured results here.
 description: How Nest & Rest Cleaning shows prices, service areas and its owner so a new cleaning business can earn trust online, and why it says “Opening soon”.
 ---

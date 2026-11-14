@@ -7,6 +7,7 @@ import PricingTeaser from '../components/home/PricingTeaser.astro';
 import FreeCheck from '../components/home/FreeCheck.astro';
 import HowIWork from '../components/home/HowIWork.astro';
 import Faq from '../components/Faq.astro';
+import ReviewsStrip from '../components/ReviewsStrip.astro';
 import { packageById, priceLabel } from '../data/packages';
 import { businessJsonLd, personJsonLd, websiteJsonLd } from '../lib/seo';
 
@@ -23,6 +24,8 @@ const description = `Websites, local SEO and Google Business Profile setup for T
 >
   <Hero />
   <SelectedWork />
+  <!-- Real client reviews only (src/data/reviews.ts); renders nothing until there are some. -->
+  <ReviewsStrip />
   <ServiceSummary />
   <PricingTeaser />
   <FreeCheck />

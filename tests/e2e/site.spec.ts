@@ -609,16 +609,18 @@ test.describe('phones: short pages', () => {
     // 14 Nov 2026: Home swaps the walkthrough for the price list; Pricing gains a fifth offer
     // (Website Fix) and a worked salon example.
     '/': 13.5, // agent graph, every service named in the hero (round 2), real work, prices, and how I work (no second photo since 14 Nov 2026)
-    '/services/': 15.75,
-    '/work/': 4.5,
+    // 14 Nov 2026 (SEO audit Phase 2): /services/ is a short overview now; each service's details moved
+    // to its service page as closed "Service by service" accordions (plus the redesign section on web design).
+    '/services/': 9,
+    '/work/': 4.75, // plus industry, location and result under each project (SEO audit Phase 2)
     '/work/nest-and-rest-cleaning/': 7.25,
     '/work/samp-hair-spa/': 7.25,
     // 14 Nov 2026 (SEO audit): "Based in Scarborough…" stays visible in the phone footer (+1 line on every page).
     '/about/': 7.75,
     '/contact/': 3.75,
-    '/services/web-design/': 12.5, // plus the Website Fix package
-    '/services/local-visibility/': 10.75,
-    '/services/enquiry-follow-up/': 12.5,
+    '/services/web-design/': 15, // plus the Website Fix package, the redesign section and its services
+    '/services/local-visibility/': 12.25,
+    '/services/enquiry-follow-up/': 14,
     // 14 Nov 2026 (SEO audit): the intro names Toronto and the GTA, one more line on a phone.
     '/pricing/': 15,
   };
@@ -690,18 +692,18 @@ test.describe('phones: short pages', () => {
     await noHorizontalOverflow(page);
   });
 
-  test('the long question list folds after five, and one tap shows the rest', async ({ page }) => {
-    await page.setViewportSize({ width: 390, height: 844 });
-    await page.goto('/services/');
-    const items = page.locator('#faq details');
-    const total = await items.count();
-    expect(total).toBeGreaterThan(6);
-    await expect(items.nth(5)).toBeHidden();
-    const more = page.getByRole('button', { name: `Show all ${total} questions` });
-    await more.click();
-    await expect(items.nth(5)).toBeVisible();
-    await expect(more).toBeHidden();
-    await expect(items.nth(5).locator('summary')).toBeFocused();
+  // SEO audit Phase 2 (14 Nov 2026): the long question list on /services/ was split up, each question in one
+  // place. Every FAQPage in structured data lists exactly the questions the page shows.
+  test('FAQ structured data matches the questions each page shows', async ({ page }) => {
+    for (const path of ['/services/', '/pricing/', '/services/web-design/', '/services/local-visibility/', '/services/enquiry-follow-up/']) {
+      await page.goto(path);
+      const blocks = await page.$$eval('script[type="application/ld+json"]', (s) => s.map((x) => JSON.parse(x.textContent || '{}')));
+      const faq = blocks.find((b) => b['@type'] === 'FAQPage');
+      expect(faq, path).toBeTruthy();
+      const inSchema = faq.mainEntity.map((q: { name: string }) => q.name).sort();
+      const shown = (await page.locator('main details.acc:not(.svc) > summary > span:first-child').allInnerTexts()).map((t) => t.trim()).sort();
+      expect(shown, path).toEqual(inSchema);
+    }
   });
 
   test('a case study opens with its start, and "Read the full case study" shows the rest', async ({ page }) => {
@@ -736,8 +738,9 @@ test.describe('services', () => {
   });
 
   test('packages each ask for a quote with the package pre-selected', async ({ page }) => {
-    await page.goto('/services/');
-    const links = page.locator('#packages .pkg').getByRole('link', { name: /Request a quote for/ });
+    // Package detail lives on /pricing/ only (SEO audit Phase 2, 14 Nov 2026).
+    await page.goto('/pricing/');
+    const links = page.locator('.pr__grid .pkg').getByRole('link', { name: /Request a quote for/ });
     await expect(links).toHaveCount(5);
     await links.nth(1).click();
     await expect(page.locator('#f-package')).toHaveValue('website-launch');
@@ -750,20 +753,25 @@ test.describe('services', () => {
     }
   });
 
-  test('the five packages compare side by side, and every price line agrees (cards, table, pricing page)', async ({ page }) => {
-    await page.goto('/services/');
-    const table = page.getByRole('table', { name: 'Compare the packages' });
+  test('the five packages compare side by side, and every price line agrees (cards, table, services overview)', async ({ page }) => {
+    // Package detail lives on /pricing/ only (SEO audit Phase 2, 14 Nov 2026).
+    await page.goto('/pricing/');
+    const table = page.getByRole('table', { name: 'Side by side' });
     for (const name of ['Website Fix', 'Website Launch', 'Website + Enquiry System', 'Local Visibility Setup', 'Website Care'])
       await expect(table.getByRole('columnheader', { name, exact: true })).toBeVisible();
     for (const row of ['Best for', 'Boundary', 'Covers', 'Not included', 'You provide', 'Paid to others', 'Timeline', 'Price', 'Next step'])
       await expect(table.getByRole('rowheader', { name: row })).toBeVisible();
     await expect(table.getByRole('link', { name: /Request a quote for Website Launch/ })).toHaveAttribute('href', '/contact/?package=website-launch#brief');
-    const cardPrices = await page.locator('#packages .pkg [data-price]').allInnerTexts();
+    const cardPrices = await page.locator('.pr__grid .pkg [data-price]').allInnerTexts();
     const tablePrices = await table.locator('[data-price]').allInnerTexts();
     expect(cardPrices).toEqual(['$450–$850', '$1,950', '$3,350', '$650', '$149 a month']);
     expect(tablePrices).toEqual(cardPrices);
-    await page.goto('/pricing/');
-    expect(await page.locator('.pkg [data-price]').allInnerTexts()).toEqual(cardPrices);
+    // The services overview names the same prices in one line and sends you to /pricing/ for the detail.
+    await page.goto('/services/');
+    const line = page.locator('#packages');
+    for (const price of cardPrices) await expect(line).toContainText(price);
+    await expect(line.getByRole('link', { name: /What each package covers/ })).toHaveAttribute('href', '/pricing/');
+    await expect(line.locator('table, .pkg')).toHaveCount(0);
     // No popularity badges, discounts or scarcity.
     expect(await page.locator('main').innerText()).not.toMatch(/most popular|best value|% off|limited time|only \d+ (spots|places)/i);
   });
@@ -812,18 +820,41 @@ test.describe('services', () => {
     }
     const top = (id: string) => page.evaluate((i) => document.getElementById(i)!.getBoundingClientRect().top + scrollY, id);
     expect(await top('paths')).toBeLessThan(await top('packages'));
-    expect(await top('packages')).toBeLessThan(await top('found'));
-    await expect(page.locator('#packages table')).toBeVisible();
-    // Links shared before today keep landing somewhere.
-    for (const id of ['found', 'answered', 'booked', 'extras', 'packages', 'check', 'process', 'faq', 'websites', 'seo', 'enquiry-workflows', 'social-content', 'print-design', 'business-profile', 'listings', 'local-plan', 'maintenance', 'booking', 'missed-calls'])
+    // SEO audit Phase 2 (14 Nov 2026): a short overview; the package comparison is on /pricing/ only.
+    await expect(page.locator('#packages table')).toHaveCount(0);
+    // Links shared before today keep landing somewhere: these sections are still here…
+    for (const id of ['paths', 'packages', 'extras', 'print-design', 'social-content', 'brand-content', 'check', 'finder', 'faq'])
       await expect(page.locator(`#${id}`), id).toHaveCount(1);
+    // …and the rest forward to the page that now holds them.
+    const forwards: [string, string][] = [
+      ['booking', '/services/enquiry-follow-up/#booking'],
+      ['missed-calls', '/services/enquiry-follow-up/#missed-calls'],
+      ['enquiry-workflows', '/services/enquiry-follow-up/#enquiry-workflows'],
+      ['business-profile', '/services/local-visibility/#business-profile'],
+      ['listings', '/services/local-visibility/#listings'],
+      ['local-plan', '/services/local-visibility/#local-plan'],
+      ['websites', '/services/web-design/#websites'],
+      ['seo', '/services/web-design/#seo'],
+      ['maintenance', '/services/web-design/#maintenance'],
+      ['found', '/services/local-visibility/#details'],
+      ['answered', '/services/enquiry-follow-up/#details'],
+      ['booked', '/services/web-design/#details'],
+      ['process', '/#how-i-work'],
+    ];
+    for (const [from, to] of forwards) {
+      await page.goto(`/services/#${from}`);
+      await page.waitForURL((u) => u.pathname + u.hash === to);
+      await expect(page.locator(`#${to.split('#')[1]}`), from).toHaveCount(1);
+    }
+    await page.goto('/services/web-design/#seo');
+    await expect(page.locator('details#seo')).toHaveAttribute('open', '');
   });
 
   test('Brand & Content Sprint: a bounded add-on on the overview, with what is quoted separately', async ({ page }) => {
-    // It is the first add-on, and a link to it opens it like any other service.
+    // One of the add-ons, shown in full on the short overview (SEO audit Phase 2, 14 Nov 2026).
     await page.goto('/services/#brand-content');
     const sprint = page.locator('#brand-content');
-    await expect(sprint).toHaveAttribute('open', '');
+    await expect(sprint).toBeVisible();
     await expect(sprint).toContainText('Brand & Content Sprint');
     await expect(sprint).toContainText('Three captioned post designs');
     await expect(sprint).toContainText('Two Reel hooks');
@@ -1443,7 +1474,7 @@ test.describe('audit of 11 Nov 2026', () => {
     await expect(page.locator('#what-i-do')).toContainText('Website Launch · $1,950');
     await expect(page.locator('.hero__price')).toContainText('$650 Google and AI visibility setup');
     await page.goto('/services/');
-    await expect(page.locator('#packages')).toContainText('The free check is separate.');
+    await expect(page.locator('#packages')).toContainText('The free check is separate, with no obligation.');
     await page.goto('/pricing/');
     await expect(page.locator('main')).toContainText('$975 at kickoff and $975 once the site passes those checks');
   });

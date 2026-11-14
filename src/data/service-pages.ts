@@ -6,7 +6,7 @@
  * sample as a sample, and promise nothing Google or a customer decides. Prices come from
  * src/data/packages.ts (shown as "Written quote after a short brief" until Mann approves a figure).
  */
-import type { GroupId } from './services';
+import { serviceById, type GroupId } from './services';
 import type { PackageId } from './packages';
 
 export interface Faq {
@@ -125,6 +125,21 @@ export const servicePages: ServicePage[] = [
       },
     ],
     asides: [
+      // SEO audit Phase 2 (14 Nov 2026): "website redesign toronto". Built only on the Website Launch package.
+      {
+        id: 'redesign',
+        eyebrow: 'Website redesign',
+        title: 'Website redesign in Toronto',
+        body: 'A redesign makes sense when your site is dated, slow or hard to use on a phone, or doesn’t say what you do, where you work and how to book. It is the same Website Launch package as a new site, priced below. You work with me directly: I’m a freelance web designer in Toronto, so the person you brief is the person who builds and tests your site.',
+        items: [
+          'It starts with the free check of your current site, so you know what fails today',
+          'Up to five pages rebuilt for phones first, with click-to-call and one clear next step on every page',
+          'The new site goes live on the domain you already own, with page titles, descriptions, a sitemap and Search Console in your name',
+          'One enquiry path tested end to end before launch, with the results handed over',
+        ],
+        note: 'Writing all your copy from scratch, photography and online stores aren’t included. If most of your site works, a repair (below) costs less, and I’ll say so.',
+        cta: { label: 'Ask for a redesign quote', href: '/contact/?package=website-launch#brief' },
+      },
       {
         id: 'repair',
         eyebrow: 'Already have a website?',
@@ -175,6 +190,11 @@ export const servicePages: ServicePage[] = [
         q: 'How long does it take?',
         a: 'Mostly it depends on how quickly your text, photos and feedback arrive. Your written scope includes a dated plan.',
       },
+      // Moved from the old /services/ page (SEO audit Phase 2, 14 Nov 2026).
+      {
+        q: 'What do you need from me?',
+        a: 'Your business details, real photos of your work, access to accounts in your name, and short reviews of drafts. Each scope lists exactly what is needed, and when.',
+      },
     ],
   },
   {
@@ -190,7 +210,7 @@ export const servicePages: ServicePage[] = [
     eyebrow: 'Local SEO and Google Maps',
     h1: 'Local SEO and Google Business Profile setup in Toronto',
     lines: ['Local SEO and Google Business', 'Profile setup in Toronto'],
-    lead: 'For service businesses in Toronto that are hard to find on Google or Google Maps, or have few recent reviews: one eligible Google Business Profile set up and optimized, your other listings made consistent, and a simple routine for asking every customer for a genuine review. No ranking guarantees.',
+    lead: 'Local SEO for small businesses in Toronto that are hard to find on Google or Google Maps, or have few recent reviews: Google Business Profile setup for one eligible profile, your other listings made consistent, and a simple routine for asking every customer for a genuine review. No ranking guarantees.',
     packages: ['local-visibility'],
     forWho: [
       'You meet customers in person, at your address or at theirs, during the hours you post',
@@ -278,7 +298,12 @@ export const servicePages: ServicePage[] = [
       },
       {
         q: 'What happens after the set-up?',
-        a: 'You keep the profile, the listings and the routine. If you want ongoing help, the monthly “Stay found” plan on the services page covers posts, review reminders and a short report; it is quoted separately.',
+        a: 'You keep the profile, the listings and the routine. If you want ongoing help, the monthly “Stay found” plan (under “Service by service” on this page) covers posts, review reminders and a short report; it is quoted separately.',
+      },
+      // Moved from the old /services/ page (SEO audit Phase 2, 14 Nov 2026).
+      {
+        q: 'Can you get us more reviews?',
+        a: 'I set up a simple, honest routine for asking every customer, with a review link and QR cards. I never buy, write or swap reviews, and I don’t offer discounts for them: Google forbids any incentive, and Canada’s Competition Bureau treats fake reviews as misleading advertising.',
       },
     ],
     sources: [
@@ -299,12 +324,13 @@ export const servicePages: ServicePage[] = [
     eyebrow: 'Enquiry follow-up and booking',
     h1: 'Enquiry follow-up and online booking for Toronto businesses',
     lines: ['Enquiry follow-up and online booking', 'for Toronto businesses'],
-    lead: 'For owners who miss calls or messages while they work: missed-call text-back, form follow-up, alerts or an online booking path. One workflow, agreed in writing, set up in tools you own, tested with sample data, and written down so you can pause or change it.',
+    lead: 'For small businesses that miss calls or messages while they work: missed-call text-back, form follow-up, alerts or an online booking path. One workflow, agreed in writing, set up in tools you own, tested with sample data, and written down so you can pause or change it.',
     packages: ['website-enquiry'],
     forWho: [
       'Calls ring out while you are on a job, and some of those people call someone else',
       'Enquiries arrive by form, email, text and social messages, and some get answered late',
       'People can only book by phone, or forget appointments',
+      'You run a salon, spa or other appointment business and want online booking set up with the tool you already use',
     ],
     notFor: 'Custom CRMs, client portals or chatbots. A chatbot needs maintained answers, testing and a way to reach a person; reliable replies come first.',
     steps: [
@@ -397,9 +423,25 @@ export const servicePages: ServicePage[] = [
         q: 'Can I start with just the enquiry part on my current website?',
         a: 'Yes. Start with the free check of your enquiry path; adding a workflow to a website that already works is quoted on its own.',
       },
+      // Moved from the old /services/ page (SEO audit Phase 2, 14 Nov 2026).
+      {
+        q: 'Do you use AI tools?',
+        a: 'Yes, for some drafting, design exploration and coding. I review and test everything myself, and I do not paste your private customer information into AI tools without your agreement.',
+      },
     ],
   },
 ];
 
 export const servicePageBySlug = (slug: string) => servicePages.find((p) => p.slug === slug);
 export const servicePageForGroup = (group: GroupId) => servicePages.find((p) => p.group === group);
+
+/**
+ * Where a single service is described in full (SEO audit Phase 2, 14 Nov 2026): on its area's service page
+ * ("Service by service", e.g. /services/enquiry-follow-up/#booking), or on /services/ for the add-ons
+ * (#print-design, #social-content, #brand-content). Old /services/#id links forward here (services.astro).
+ */
+export function serviceHref(id: string): string {
+  const s = serviceById(id);
+  const page = s ? servicePageForGroup(s.group) : undefined;
+  return page ? `/services/${page.slug}/#${id}` : `/services/#${id}`;
+}

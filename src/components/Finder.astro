@@ -7,6 +7,7 @@
 import { questions } from '../lib/guide';
 import { packages, checkUp } from '../data/packages';
 import { services } from '../data/services';
+import { serviceHref } from '../data/service-pages';
 import Heading from './ui/Heading.astro';
 import Button from './ui/Button.astro';
 import Icon from './ui/Icon.astro';
@@ -17,6 +18,8 @@ interface Props {
 const { id = 'finder' } = Astro.props;
 const pkgNames = Object.fromEntries([...packages, checkUp].map((p) => [p.id, p.name]));
 const svcNames = Object.fromEntries(services.map((s) => [s.id, s.name]));
+// Where each service is described (its service page since SEO audit Phase 2, 14 Nov 2026).
+const svcHrefs = Object.fromEntries(services.map((s) => [s.id, serviceHref(s.id)]));
 ---
 
 <section class="finder section section--alt" id={id} aria-labelledby={`${id}-title`}>
@@ -30,7 +33,7 @@ const svcNames = Object.fromEntries(services.map((s) => [s.id, s.name]));
     </div>
 
     <div class="finder__grid">
-      <form class="finder__form" action="/contact/" method="get" data-finder data-pkg={JSON.stringify(pkgNames)} data-svc={JSON.stringify(svcNames)}>
+      <form class="finder__form" action="/contact/" method="get" data-finder data-pkg={JSON.stringify(pkgNames)} data-svc={JSON.stringify(svcNames)} data-svc-href={JSON.stringify(svcHrefs)}>
         {
           questions.map((q, qi) => (
             <fieldset class="finder__q" data-reveal style={`--d:${qi * 80}`}>
@@ -81,7 +84,7 @@ const svcNames = Object.fromEntries(services.map((s) => [s.id, s.name]));
               <ul class="fr__svc" role="list" data-r-svc></ul>
               <div class="fr__actions">
                 <Button href="/contact/#brief" data-r-cta>Start with this</Button>
-                <a class="link-arrow" href="/services/#packages">Compare packages <Icon name="arrow" /></a>
+                <a class="link-arrow" href="/pricing/">Compare packages <Icon name="arrow" /></a>
               </div>
             </div>
           </div>
@@ -99,6 +102,7 @@ const svcNames = Object.fromEntries(services.map((s) => [s.id, s.name]));
     const section = form.closest('section')!;
     const pkg = JSON.parse(form.dataset.pkg ?? '{}') as Record<string, string>;
     const svc = JSON.parse(form.dataset.svc ?? '{}') as Record<string, string>;
+    const svcHref = JSON.parse(form.dataset.svcHref ?? '{}') as Record<string, string>;
     const empty = section.querySelector<HTMLElement>('[data-r-empty]')!;
     const full = section.querySelector<HTMLElement>('[data-r-full]')!;
     const count = section.querySelector<HTMLElement>('[data-r-count]')!;
@@ -143,7 +147,7 @@ const svcNames = Object.fromEntries(services.map((s) => [s.id, s.name]));
         ...rec.serviceIds.map((id) => {
           const li = document.createElement('li');
           const a = document.createElement('a');
-          a.href = sitePath(`/services/#${id}`);
+          a.href = sitePath(svcHref[id] ?? `/services/#${id}`);
           a.textContent = svc[id] ?? id;
           li.append(a);
           return li;
