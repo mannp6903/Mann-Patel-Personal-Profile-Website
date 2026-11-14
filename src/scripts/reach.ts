@@ -3,7 +3,7 @@
  * clicks (contact links, calls to action, project opens) when analytics is allowed.
  * Without JavaScript the links point to the contact page.
  */
-import { channelHref, decodePhone, formatPhone, type Channel } from '../lib/phone';
+import { channelHref, decodePhone, type Channel } from '../lib/phone';
 import { track } from './analytics';
 
 document.querySelectorAll<HTMLAnchorElement>('a[data-reach][data-k]').forEach((a) => {
@@ -14,24 +14,7 @@ document.querySelectorAll<HTMLAnchorElement>('a[data-reach][data-k]').forEach((a
   }
 });
 
-// "Show number": reveals the full number on request (desktop visitors who can't tap to call).
-document.querySelectorAll<HTMLButtonElement>('[data-phone-show]').forEach((btn) => {
-  btn.hidden = false;
-  btn.addEventListener('click', () => {
-    const wrap = btn.parentElement!;
-    const text = wrap.querySelector<HTMLElement>('[data-phone-text]');
-    try {
-      const digits = decodePhone(btn.dataset.k!);
-      if (text) text.textContent = formatPhone(digits);
-      wrap.querySelector('[data-phone-note]')?.remove();
-      btn.remove();
-      text?.focus();
-      track('contact_click', { method: 'show_number' });
-    } catch {
-      /* keep the masked number */
-    }
-  });
-});
+// The "Show number" button is gone: since 14 Nov 2026 the full number is on the page (SEO audit).
 
 // Clicks, kept apart from leads (a click is not an enquiry): contact links, calls to action and
 // project opens. Only the kind of click and where it was; never anything typed into a form.

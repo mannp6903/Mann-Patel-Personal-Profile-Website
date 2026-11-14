@@ -9,8 +9,13 @@ import Icon from '../components/ui/Icon.astro';
 import Button from '../components/ui/Button.astro';
 import PackageCard from '../components/packages/PackageCard.astro';
 import PackageCompare from '../components/packages/PackageCompare.astro';
-import { packages, checkUp, pricesPublished } from '../data/packages';
+import { packages, checkUp, pricesPublished, packageById, priceLabel } from '../data/packages';
 import { breadcrumbJsonLd } from '../lib/seo';
+
+// SEO audit copy (14 Nov 2026, 146 characters). Every number comes from src/data/packages.ts.
+const price = (id: string) => priceLabel(packageById(id)!).text;
+const care = packageById('care')!;
+const description = `Published prices in CAD: 5-page website ${price('website-launch')}, website + booking ${price('website-enquiry')}, fixes ${price('website-fix')}, local SEO setup ${price('local-visibility')}, care $${care.price.amount}/month. Toronto and GTA.`;
 
 const costs = [...new Set(packages.flatMap((p) => p.thirdParty).filter((c) => !c.startsWith('Everything in')))];
 
@@ -64,15 +69,15 @@ const faqLd = {
 ---
 
 <BaseLayout
-  title="Pricing: web design, local SEO and follow-up in Toronto"
-  description="Published prices in CAD: a website of up to five pages for $1,950, website with booking and follow-up $3,350, one fix $450–$850, local search setup $650, care $149 a month. What each includes and what costs extra."
+  title="Web Design & Local SEO Pricing in Toronto"
+  description={description}
   noindex={!pricesPublished}
   jsonLd={[faqLd, ...(crumbs ? [crumbs] : [])]}
 >
   <PageHead
     eyebrow="Pricing"
     lines={['What it costs,', '<span class="accent accent--signal">and what it covers.</span>']}
-    lead="Five offers, each with a published price and a clear boundary, plus a free check if you’re not sure where to start. All prices in Canadian dollars, plus applicable tax."
+    lead="Five offers for small businesses in Toronto and the GTA, each with a published price and a clear boundary, plus a free check if you’re not sure where to start. All prices in Canadian dollars, plus applicable tax."
   />
 
   <section class="section section--rule" aria-labelledby="pr-packages">

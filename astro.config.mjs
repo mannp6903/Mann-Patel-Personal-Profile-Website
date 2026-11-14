@@ -4,6 +4,7 @@ import node from '@astrojs/node';
 import cloudflare from '@astrojs/cloudflare';
 import sitemap from '@astrojs/sitemap';
 import { pricesPublished } from './src/data/packages.ts';
+import { lastmodFor } from './scripts/sitemap-lastmod.mjs';
 import { randomBytes } from 'node:crypto';
 import { copyFile } from 'node:fs/promises';
 
@@ -38,6 +39,8 @@ export default defineConfig({
         sitemap({
           filter: (page) =>
             !page.includes('/api/') && !page.includes('/contact/received/') && (pricesPublished || !page.endsWith('/pricing/')),
+          // <lastmod> per URL from the last commit to that page's source files (scripts/sitemap-lastmod.mjs).
+          serialize: (item) => ({ ...item, lastmod: lastmodFor(new URL(item.url).pathname) }),
         }),
         // Also serve the index at the conventional /sitemap.xml (what Search Console and most guides expect).
         {

@@ -7,14 +7,19 @@ import PricingTeaser from '../components/home/PricingTeaser.astro';
 import FreeCheck from '../components/home/FreeCheck.astro';
 import HowIWork from '../components/home/HowIWork.astro';
 import Faq from '../components/Faq.astro';
-import { personWithServicesJsonLd, websiteJsonLd } from '../lib/seo';
+import { packageById, priceLabel } from '../data/packages';
+import { businessJsonLd, personJsonLd, websiteJsonLd } from '../lib/seo';
+
+// SEO audit copy (14 Nov 2026, 147 characters). The price comes from src/data/packages.ts.
+const launch = packageById('website-launch')!;
+const description = `Websites, local SEO and Google Business Profile setup for Toronto small businesses. Published prices: websites from ${priceLabel(launch).text} CAD. Free website check.`;
 ---
 
 <BaseLayout
   title="Home"
   fullTitle="Mann Patel | Local SEO, Websites & AI Automation in Toronto"
-  description="Local SEO, websites and AI automation for Toronto businesses: Google Business Profile, AI search optimization (GEO and AEO) and enquiry follow-up. Websites from $1,950 CAD."
-  jsonLd={[websiteJsonLd(), personWithServicesJsonLd()]}
+  description={description}
+  jsonLd={[websiteJsonLd(), businessJsonLd({ withServices: true }), { '@context': 'https://schema.org', ...personJsonLd() }]}
 >
   <Hero />
   <SelectedWork />

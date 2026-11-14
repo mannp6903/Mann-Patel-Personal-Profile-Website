@@ -29,7 +29,7 @@ const groups: { title: string; items: Item[] }[] = [
         : []),
       ...(phone
         ? [
-            { id: 'call', label: 'Call Mann', hint: phone.masked, icon: 'phone' as IconName, reach: 'call', keywords: 'phone telephone' },
+            { id: 'call', label: 'Call Mann', hint: phone.display, icon: 'phone' as IconName, reach: 'call', keywords: 'phone telephone' },
             { id: 'wa', label: 'Message on WhatsApp', hint: 'Opens WhatsApp', icon: 'whatsapp' as IconName, reach: 'whatsapp', keywords: 'chat message' },
             { id: 'sms', label: 'Send a text', hint: 'Opens Messages', icon: 'text' as IconName, reach: 'text', keywords: 'sms message' },
           ]

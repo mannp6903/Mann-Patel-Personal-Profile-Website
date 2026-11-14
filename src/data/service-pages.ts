@@ -183,7 +183,8 @@ export const servicePages: ServicePage[] = [
     short: 'Local SEO',
     name: 'Local SEO and Google Business Profile',
     card: 'One eligible Google Business Profile set up and optimized, your listings made consistent, and a routine for genuine reviews.',
-    title: 'Local SEO & Google Business Profile Setup in Toronto',
+    // SEO audit (14 Nov 2026): 56 characters with " | Mann Patel", so it isn't cut off in results.
+    title: 'Local SEO & Google Business Profile Toronto',
     description:
       'Improve your Google presence with eligible profile setup, listing updates and a review workflow. Ask about SEO foundations and an AI search check.',
     eyebrow: 'Local SEO and Google Maps',

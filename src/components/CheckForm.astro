@@ -91,15 +91,19 @@ const email = profile.contact.email;
     </p>
   </form>
 
-  <section class="chk__done" data-success hidden tabindex="-1" aria-labelledby="chk-done-title">
-    <p class="eyebrow">Accepted</p>
-    <h3 id="chk-done-title">Thanks, <span data-success-name></span>. Your check request is on its way.</h3>
-    <p class="muted">
-      The website accepted it and the email service took it for delivery to my inbox. I’ll reply to <span data-success-email></span>
-      with your list of fixes, usually within a few working days.
-    </p>
-    <p class="small subtle">Reference: <span class="num" data-success-id></span></p>
-  </section>
+  <!-- Not a heading, and not in the page until the server accepts the request (SEO audit, 14 Nov 2026). -->
+  <div class="chk__live" aria-live="polite" data-success-live></div>
+  <template data-success-tpl>
+    <section class="chk__done" data-success tabindex="-1" aria-labelledby="chk-done-title">
+      <p class="eyebrow">Accepted</p>
+      <p id="chk-done-title" class="chk__done-title">Thanks, <span data-success-name></span>. Your check request is on its way.</p>
+      <p class="muted">
+        The website accepted it and the email service took it for delivery to my inbox. I’ll reply to <span data-success-email></span>
+        with your list of fixes, usually within a few working days.
+      </p>
+      <p class="small subtle">Reference: <span class="num" data-success-id></span></p>
+    </section>
+  </template>
 </div>
 
 <script>
@@ -122,7 +126,8 @@ const email = profile.contact.email;
     const copyWrap = q('[data-copy-wrap]');
     const tokenInput = q<HTMLInputElement>('[data-token]');
     const idInput = q<HTMLInputElement>('[data-submission-id]');
-    const success = q('[data-success]');
+    const successLive = q('[data-success-live]');
+    const successTpl = q<HTMLTemplateElement>('[data-success-tpl]');
     const altEmail = root.dataset.email ?? '';
     const withEmail = (t: string) => (altEmail ? `${t} You can also email me at ${altEmail}.` : t);
     const newId = () => (crypto.randomUUID ? crypto.randomUUID() : `${Date.now()}-${Math.random().toString(36).slice(2, 10)}`);
@@ -246,11 +251,12 @@ const email = profile.contact.email;
       const outcome = await sendEnquiry(data);
       setSending(false);
       if (outcome.kind === 'accepted') {
+        successLive.replaceChildren(successTpl.content.cloneNode(true));
+        const success = q('[data-success]');
         q('[data-success-name]').textContent = String(data.name).split(' ')[0];
         q('[data-success-email]').textContent = String(data.email);
         q('[data-success-id]').textContent = outcome.body.id;
         form.hidden = true;
-        success.hidden = false;
         success.focus();
         trackOnce(outcome.body.id, 'generate_lead', { form_id: 'free_check', lead_source: 'website', starting_point: 'check-up' });
         idInput.value = newId();
@@ -366,8 +372,12 @@ const email = profile.contact.email;
     border-radius: var(--r-lg);
     background: var(--signal-wash);
   }
-  .chk__done h3 {
+  .chk__done-title {
     font-size: var(--fs-h3);
+    font-weight: 560;
+    letter-spacing: -0.025em;
+    line-height: var(--lh-snug);
+    text-wrap: balance;
   }
   .chk__done:focus {
     outline: none;

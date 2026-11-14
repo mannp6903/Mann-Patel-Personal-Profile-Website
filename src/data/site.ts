@@ -38,8 +38,11 @@ export const profile = {
   descriptor: 'Local SEO, Google Business Profile, AI search visibility (GEO and AEO), web design and enquiry automation for businesses in Toronto and the GTA',
   intro:
     'I’m Mann Patel, a Toronto web designer and AI automation builder. I help local businesses get found on Google, reply to enquiries faster, and turn website visits into booking requests.',
-  /** Public location: based in Toronto, serves the GTA (confirmed by Mann, 31 Oct 2026). */
-  location: 'Toronto',
+  /**
+   * Public location. 14 Nov 2026 (SEO audit): "Based in Scarborough, working across Toronto and the GTA".
+   * A district only: never a street address (service-area business).
+   */
+  location: 'Scarborough',
   serviceArea: 'Toronto and the GTA',
   /**
    * Real portrait only. Since 14 Nov 2026 this is the closer crop Mann supplied, used in the home hero
@@ -54,9 +57,10 @@ export const profile = {
     email: 'info@mannpatel.me' as null | string,
     /**
      * Mann's business number for Call / WhatsApp / Text (supplied by Mann, 9 Nov 2026), stored encoded
-     * (reversed digits, base64) so it isn't plain text in this public repository; pages show it masked
-     * and the buttons decode it in the browser. The build variable PUBLIC_CONTACT_PHONE overrides it.
-     * Set to null to hide the phone buttons. See src/lib/contact.ts.
+     * (reversed digits, base64). Since 14 Nov 2026 (SEO audit, Mann's decision) pages show it in full as a
+     * tap-to-call link and the business structured data lists it, so it matches Google Business Profile
+     * and directory listings. The build variable PUBLIC_CONTACT_PHONE overrides it.
+     * Set to null to hide the phone. See src/lib/contact.ts.
      */
     phoneKey: 'MzA5Njg3OTc0NjE=' as null | string,
   },
@@ -72,9 +76,20 @@ export const social: { id: 'github' | 'instagram' | 'facebook' | 'linkedin'; lab
   // Instagram: Mann will send the link; the button appears as soon as `url` is set.
   { id: 'instagram', label: 'Instagram', url: null },
   { id: 'github', label: 'GitHub', url: 'https://github.com/mannp6903' },
+  // TODO(Mann): Facebook Page URL. It then appears as a button and in the business structured data (sameAs).
   { id: 'facebook', label: 'Facebook', url: null },
 ];
-export const sameAs = social.flatMap((s) => (s.url ? [s.url] : []));
+/** Mann's own profiles (Person sameAs). The Facebook Page belongs to the business, below. */
+export const sameAs = social.flatMap((s) => (s.url && s.id !== 'facebook' ? [s.url] : []));
+
+/**
+ * Google Business Profile (live, supplied by Mann 14 Nov 2026). Service-area business: the home address
+ * is hidden on the profile and never published here.
+ */
+export const gbp = { url: 'https://maps.app.goo.gl/dYccTa9jQJczpeac6' } as const;
+
+/** The business's own profiles (business sameAs): Google Business Profile, plus the Facebook Page once set. */
+export const businessSameAs = [gbp.url, ...social.flatMap((s) => (s.id === 'facebook' && s.url ? [s.url] : []))];
 
 export const businesses: Business[] = [
   {
