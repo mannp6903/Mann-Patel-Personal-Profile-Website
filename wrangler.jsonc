@@ -10,7 +10,11 @@
   "name": "mann-patel-website",
   "compatibility_date": "2026-10-23",
   "compatibility_flags": ["nodejs_compat"],
-  // The Astro adapter fills in the Worker entry point and the static-assets folder.
+  // Our entry wraps the Astro adapter's: it sends www. and http:// to https://mannpatel.me first
+  // (src/worker/entry.ts). The adapter fills in the static-assets folder.
+  "main": "./src/worker/entry.ts",
+  // The Worker must see requests before static files are served, or the redirect never runs.
+  "assets": { "binding": "ASSETS", "run_worker_first": true },
   "observability": { "enabled": true },
 
   // Serve the site on mannpatel.me. Cloudflare creates the DNS records and HTTPS
