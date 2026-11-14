@@ -7,7 +7,7 @@ ends up **done in code**, **scheduled in a later phase**, or on the **off-site c
 Branch: `seo-audit-2026-11`, one commit per phase, pushed to `origin seo-audit-2026-11` after each phase passes
 verification (Mann's approval, 14 Nov 2026). No PR, no deploy. Stop after each phase and wait for Mann.
 
-Status: Phase 1 done and live (PR #33, merged 14 Nov 2026) · Phase 2 done (not yet live) · Phase 3 next · Phase 4 (ask before each item).
+Status: Phase 1 done and live (PR #33, merged 14 Nov 2026) · Phase 2 done and live (PR #34, merged 14 Nov 2026) · Phase 3 next · Phase 4 (ask before each item).
 
 ### Verification log
 
