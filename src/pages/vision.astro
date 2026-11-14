@@ -1,0 +1,275 @@
+---
+/**
+ * Vision (14 Nov 2026): what Mann is building, for professionals who may want to build with him. The idea
+ * that ties his work together, what has actually shipped (dated, linked), and what comes next.
+ *
+ * Every fact here is already confirmed elsewhere on the site (About, case studies, packages) or was
+ * approved by Mann in the 14 Nov 2026 thread (no investors for now; open to professionals who want to
+ * build together; no CHECKMATE; no "Founder" title).
+ */
+import BaseLayout from '../layouts/BaseLayout.astro';
+import PageHead from '../components/PageHead.astro';
+import Heading from '../components/ui/Heading.astro';
+import Button from '../components/ui/Button.astro';
+import Icon from '../components/ui/Icon.astro';
+import ContactActions from '../components/ContactActions.astro';
+import SocialLinks from '../components/SocialLinks.astro';
+import { profile, businesses } from '../data/site';
+import { packageById, priceLabel } from '../data/packages';
+import { personJsonLd } from '../lib/seo';
+
+const nest = businesses[0];
+const launch = packageById('website-launch')!;
+const local = packageById('local-visibility')!;
+
+const ventures = [
+  {
+    tag: 'A',
+    name: 'Digital services',
+    status: 'Taking clients',
+    text: `Local SEO, websites and AI enquiry follow-up for owner-run businesses in Toronto and the GTA. Prices are published: ${priceLabel(local).text} for Google and AI visibility, ${priceLabel(launch).text} for a website.`,
+    href: '/services/',
+    link: 'Services and prices',
+  },
+  {
+    tag: 'B',
+    name: nest.name,
+    status: 'Website live · bookings open summer 2027',
+    text: 'A home-cleaning business I’m getting ready to open in Scarborough and North York. People do the cleaning; the plan is for software and AI to handle the rest: marketing, scheduling, supply orders, payroll and customer feedback. It is where I test every system before I sell it.',
+    href: nest.caseStudy,
+    link: 'Read the case study',
+  },
+];
+
+const shipped = [
+  { date: 'Oct 2026', what: `${nest.name} website`, note: 'Designed and built from scratch. Instant prices, 12 neighbourhood pages, an “opening soon” mode.', href: nest.caseStudy },
+  { date: 'Oct 2026', what: 'Samp Hair & Spa website', note: 'A salon site for a Scarborough client, preview online.', href: '/work/samp-hair-spa/' },
+  { date: 'Nov 2026', what: 'mannpatel.me', note: 'This site: 13 pages, published prices, two enquiry forms, zero issues in automated accessibility tests.', href: '/' },
+];
+
+const next = [
+  { when: 'Now', what: 'First paying clients for websites, local SEO and enquiry follow-up, starting with the free check.' },
+  { when: 'Summer 2027', what: `${nest.name} opens for bookings and runs on the same follow-up and booking systems I sell.` },
+  { when: 'After that', what: 'Package what works into one repeatable “front desk” system for local service businesses: found on Google, answered in minutes, booked.' },
+];
+
+const jsonLd = { '@context': 'https://schema.org', '@type': 'ProfilePage', mainEntity: personJsonLd() };
+---
+
+<BaseLayout
+  title="Vision"
+  fullTitle="Vision | Mann Patel, Web Designer & AI Automation Builder in Toronto"
+  description="What Mann Patel is building: local businesses that do the work while software and AI handle the rest. His ventures, what has shipped, and what comes next."
+  jsonLd={jsonLd}
+>
+  <PageHead
+    eyebrow="Vision"
+    lines={['Local businesses do the work.', '<span class="accent accent--signal">Software should run the rest.</span>']}
+    lead="Most owner-run businesses lose customers between the search and the booking: details out of date on Google, missed calls, slow replies, paperwork at night. I build the systems that close that gap, and I test them on my own business first."
+  >
+    <div class="vi-head__actions" data-reveal="load" style="--d:300">
+      <Button href="#ventures">What I’m building</Button>
+      <Button href="/about/#story" variant="ghost">My story</Button>
+    </div>
+  </PageHead>
+
+  <section class="section section--rule" id="ventures" aria-labelledby="ventures-title">
+    <div class="container">
+      <div class="section-head">
+        <p class="eyebrow">01 / Ventures</p>
+        <Heading id="ventures-title" lines={['Two businesses,', '<span class="accent">one idea.</span>']} />
+      </div>
+      <ol class="vi-ventures" role="list">
+        {
+          ventures.map((v, i) => (
+            <li class="vi-venture" data-reveal style={`--d:${i * 80}`}>
+              <span class="vi-venture__tag num" aria-hidden="true">{v.tag}</span>
+              <h3>{v.name}</h3>
+              <p class="vi-venture__status num">{v.status}</p>
+              <p class="muted">{v.text}</p>
+              {v.href && (
+                <a class="link-arrow" href={v.href}>
+                  {v.link} <Icon name="arrow" />
+                </a>
+              )}
+            </li>
+          ))
+        }
+      </ol>
+    </div>
+  </section>
+
+  <section class="section section--alt section--rule" aria-labelledby="shipped-title">
+    <div class="container vi-split">
+      <div class="stack" style="--stack: var(--s-4)">
+        <p class="eyebrow">02 / Shipped</p>
+        <Heading id="shipped-title" lines={['Built,', '<span class="accent">not pitched.</span>']} />
+        <p class="muted">Everything here is live and dated. The case studies show the real tests, including what is still open.</p>
+      </div>
+      <ol class="vi-list" role="list">
+        {
+          shipped.map((s) => (
+            <li>
+              <time class="num">{s.date}</time>
+              <div>
+                <a class="vi-list__title" href={s.href}>{s.what}</a>
+                <p class="muted">{s.note}</p>
+              </div>
+            </li>
+          ))
+        }
+      </ol>
+    </div>
+  </section>
+
+  <section class="section section--rule" aria-labelledby="next-title">
+    <div class="container vi-split">
+      <div class="stack" style="--stack: var(--s-4)">
+        <p class="eyebrow">03 / Next</p>
+        <Heading id="next-title" lines={['Prove it small,', '<span class="accent">then repeat it.</span>']} />
+      </div>
+      <ol class="vi-list" role="list">
+        {
+          next.map((n) => (
+            <li>
+              <span class="num vi-list__when">{n.when}</span>
+              <p>{n.what}</p>
+            </li>
+          ))
+        }
+      </ol>
+    </div>
+  </section>
+
+  <section class="section section--alt" aria-labelledby="why-title">
+    <div class="container vi-split">
+      <div class="stack" style="--stack: var(--s-4)">
+        <p class="eyebrow">04 / Why me</p>
+        <Heading id="why-title" lines={['I start from zero,', '<span class="accent">and finish.</span>']} />
+      </div>
+      <div class="stack vi-why" style="--stack: var(--s-4)">
+        <p class="lead">
+          I grew up in a small village in Gujarat, studied computer programming at Seneca, and worked jobs from security to
+          overnight retail while I learned to build. Today I work overnight and build by day.
+        </p>
+        <p class="muted">
+          I design, code, test and sell everything myself, and I write down what works and what doesn’t. That is the habit I
+          want to scale.
+        </p>
+        <a class="link-arrow" href="/about/#story">The full story <Icon name="arrow" /></a>
+      </div>
+    </div>
+  </section>
+
+  <section class="section section--rule" aria-labelledby="talk-title">
+    <div class="container vi-split">
+      <div class="stack" style="--stack: var(--s-4)">
+        <p class="eyebrow">05 / Let’s talk</p>
+        <Heading id="talk-title" lines={['Want to build', '<span class="accent accent--signal">something together?</span>']} />
+      </div>
+      <div class="stack" style="--stack: var(--s-5)">
+        <p class="lead">If you’re a professional with an idea, a skill or a project, and you’d like to connect and build something together, I’m open to it. I answer every message myself.</p>
+        <ContactActions label={`Reach ${profile.name.split(' ')[0]}`} />
+        <SocialLinks label="Find me online" />
+      </div>
+    </div>
+  </section>
+</BaseLayout>
+
+<style>
+  .vi-head__actions {
+    display: flex;
+    flex-wrap: wrap;
+    gap: var(--s-3);
+  }
+  .vi-ventures {
+    display: grid;
+    gap: var(--s-4);
+    margin-top: var(--s-7);
+  }
+  .vi-venture {
+    display: grid;
+    align-content: start;
+    gap: var(--s-3);
+    padding: var(--s-6);
+    border: 1px solid var(--line);
+    border-radius: var(--r-lg);
+    background: var(--bg-2);
+    transition: border-color var(--t-base) var(--ease-out), transform var(--t-base) var(--ease-out);
+  }
+  .vi-venture:hover {
+    border-color: var(--control);
+    transform: translateY(-2px);
+  }
+  .vi-venture__tag {
+    display: grid;
+    place-items: center;
+    width: 2rem;
+    height: 2rem;
+    border: 1px solid var(--signal);
+    border-radius: 50%;
+    color: var(--signal);
+    font-size: var(--fs-xs);
+  }
+  .vi-venture h3 {
+    font-size: var(--fs-h3);
+  }
+  .vi-venture__status {
+    font-size: var(--fs-xs);
+    text-transform: uppercase;
+    letter-spacing: 0.08em;
+    color: var(--text-3);
+  }
+  .vi-venture .link-arrow {
+    margin-top: auto;
+    justify-self: start;
+  }
+  .vi-split {
+    display: grid;
+    gap: var(--s-6);
+  }
+  .vi-list {
+    display: grid;
+    border-top: 1px solid var(--line);
+  }
+  .vi-list li {
+    display: grid;
+    grid-template-columns: 7.5rem minmax(0, 1fr);
+    gap: var(--s-4);
+    padding-block: var(--s-5);
+    border-bottom: 1px solid var(--line);
+  }
+  .vi-list time,
+  .vi-list__when {
+    font-size: var(--fs-xs);
+    text-transform: uppercase;
+    letter-spacing: 0.08em;
+    color: var(--signal);
+    padding-top: 0.3em;
+  }
+  .vi-list__title {
+    font-weight: 600;
+    color: var(--text);
+  }
+  .vi-why {
+    max-width: 60ch;
+  }
+  @media (min-width: 48em) {
+    .vi-ventures {
+      grid-template-columns: repeat(2, minmax(0, 1fr));
+    }
+  }
+  @media (min-width: 64em) {
+    .vi-split {
+      grid-template-columns: minmax(0, 5fr) minmax(0, 7fr);
+      column-gap: var(--s-9);
+      align-items: start;
+    }
+  }
+  @media (max-width: 30em) {
+    .vi-list li {
+      grid-template-columns: 1fr;
+      gap: var(--s-1);
+    }
+  }
+</style>

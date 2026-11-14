@@ -14,6 +14,8 @@ const MAGNETIC = '.btn, .icon-btn, .qm-trigger, .menu-btn, [data-magnetic]';
 export function initPointer() {
   if (!matchMedia('(hover: hover) and (pointer: fine)').matches) return;
   if (matchMedia('(prefers-reduced-motion: reduce)').matches) return;
+  // Presenter mode: no magnetic pull or spotlight on a projector (src/scripts/present.ts).
+  if (document.documentElement.hasAttribute('data-present')) return;
 
   /* ── Magnetic ─────────────────────────────────────────── */
   let mag: HTMLElement | null = null;

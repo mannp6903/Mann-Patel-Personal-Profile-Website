@@ -471,8 +471,8 @@ const sheetLinks = [{ href: '/', label: 'Home' }, ...nav];
     padding-block: clamp(0.65rem, 1.65dvh, 1.05rem);
     text-decoration: none;
   }
-  /* Five links since Pricing joined the menu (14 Nov 2026): tighter rows on short phones. */
-  @media (max-height: 600px) {
+  /* Six links since Vision joined the menu (14 Nov 2026): tighter rows on short phones. */
+  @media (max-height: 700px) {
     .sheet__links a {
       padding-block: 0.2rem;
     }
@@ -493,7 +493,7 @@ const sheetLinks = [{ href: '/', label: 'Home' }, ...nav];
     transform: scale(1);
   }
   .sheet__label {
-    font-size: clamp(1.9rem, min(10.5vw, 7.1dvh), 3.25rem);
+    font-size: clamp(1.75rem, min(10.5vw, 6.4dvh), 3.25rem);
     font-weight: 600;
     letter-spacing: -0.045em;
     line-height: 1.05;
