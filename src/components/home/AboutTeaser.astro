@@ -7,7 +7,7 @@ import { profile, businesses } from '../../data/site';
 import { businessHref } from '../../lib/work';
 import { process } from '../../data/services';
 import Icon from '../ui/Icon.astro';
-import TuneIn from './TuneIn.astro';
+import { Image } from 'astro:assets';
 
 const nest = businesses[0];
 const rules = [
@@ -29,7 +29,26 @@ const rules = [
         language.
       </p>
       <a class="link-arrow" href="/about/">More about me <Icon name="arrow" /></a>
-      <TuneIn />
+      {
+        profile.portrait && (
+          <figure class="about__photo">
+            <Image
+              src={profile.portrait.src}
+              alt={profile.portrait.alt}
+              widths={[360, 560, 720, 960]}
+              sizes="(min-width: 64em) 30rem, min(28rem, 92vw)"
+              format="webp"
+              quality={80}
+              loading="lazy"
+              decoding="async"
+            />
+            <figcaption>
+              <b>Mann Patel</b>
+              <span>Founder of {nest.name} · Scarborough, Toronto</span>
+            </figcaption>
+          </figure>
+        )
+      }
     </div>
 
     <div class="about__side">
@@ -91,6 +110,40 @@ const rules = [
   }
   .about__lead {
     max-width: 40ch;
+  }
+  .about__photo {
+    position: relative;
+    width: 100%;
+    max-width: 30rem;
+    margin-top: var(--s-3);
+    border-radius: var(--r-lg);
+    overflow: hidden;
+    border: 1px solid var(--line);
+  }
+  .about__photo :global(img) {
+    display: block;
+    width: 100%;
+    height: auto;
+    aspect-ratio: 1;
+    object-fit: cover;
+  }
+  .about__photo figcaption {
+    position: absolute;
+    left: var(--s-3);
+    right: var(--s-3);
+    bottom: var(--s-3);
+    display: grid;
+    gap: 0.1rem;
+    padding: var(--s-3) var(--s-4);
+    border-radius: var(--r-md);
+    background: rgb(11 11 12 / 0.72);
+    backdrop-filter: blur(10px);
+    font-size: var(--fs-xs);
+    color: var(--text-2);
+  }
+  .about__photo figcaption b {
+    font-size: var(--fs-sm);
+    color: var(--text);
   }
   .about__side {
     display: grid;

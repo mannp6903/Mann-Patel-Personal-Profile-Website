@@ -119,7 +119,7 @@ test.describe('pages', () => {
 
   // The copy map from the growth report (10 Nov 2026): each page names its service and the place.
   const COPY: [string, string, string, string][] = [
-    ['/', 'Mann Patel | Web Design, Local SEO & Automation in Toronto', 'Web design, local SEO and automation for Toronto businesses.', 'Web design, local SEO and automation for Toronto businesses. Serving Toronto and the GTA, with a focus on Scarborough and North York.'],
+    ['/', 'Mann Patel | Web Design, Local SEO & AI Automation in Toronto', 'Web design, local SEO and AI automation for Toronto businesses.', 'Web design, local SEO and AI automation for Toronto businesses. Websites from $1,950 CAD for up to five pages. Serving Toronto and the GTA, with a focus on Scarborough and North York.'],
     ['/services/', 'Website, Local SEO & Booking Services | Mann Patel', 'Website, local SEO and enquiry services', 'Compare web design, local SEO, Google Business Profile setup and enquiry automation for Toronto service businesses. See packages and request a quote.'],
     ['/services/web-design/', 'Toronto Small Business Web Design | Mann Patel', 'Web design for Toronto small businesses', 'Get a mobile-friendly website or redesign with clear service pages, a tested enquiry path and a written handover. See projects and ask for a quote.'],
     ['/services/local-visibility/', 'Local SEO & Google Business Profile Setup in Toronto | Mann Patel', 'Local SEO and Google Business Profile setup in Toronto', 'Improve your Google presence with eligible profile setup, listing updates and a review workflow. Ask about SEO foundations and an AI search check.'],
@@ -244,19 +244,25 @@ test.describe('layout', () => {
       await page.goto('/');
       // The H1 names the service and the place (growth report, 10 Nov 2026); the slogan moved to the process strip.
       const h1 = page.locator('h1');
-      expect((await h1.innerText()).replace(/\s+/g, ' ').trim()).toBe('Web design, local SEO and automation for Toronto businesses.');
+      expect((await h1.innerText()).replace(/\s+/g, ' ').trim()).toBe('Web design, local SEO and AI automation for Toronto businesses.');
       await expect(h1).toBeInViewport();
       const hero = page.locator('.hero');
-      await expect(hero.locator('.hero__where')).toHaveText('Mann Patel · Independent website designer');
+      // 14 Nov 2026: who you're dealing with comes first, with his photo.
+      await expect(hero.locator('.hero__hi')).toHaveText('Hi, I’m Mann Patel.');
+      await expect(hero.locator('.hero__face')).toBeInViewport();
       const cta = hero.getByRole('link', { name: 'Get a free website and Google check' });
       await expect(cta).toBeInViewport();
       await expect(cta).toHaveAttribute('href', '/contact/?package=check-up#check');
-      await expect(hero.getByRole('link', { name: 'See the work' })).toHaveAttribute('href', '/work/');
-      await expect(hero).toContainText('Serving Toronto and the GTA, with a focus on Scarborough and North York. Your domain and accounts stay in your name.');
+      await expect(hero.getByRole('link', { name: 'See prices' })).toHaveAttribute('href', '/pricing/');
+      await expect(hero.locator('.hero__price')).toContainText('$1,950 for a website of up to five pages.');
+      await expect(hero.locator('.hero__price')).toBeInViewport();
+      // Dated examples of real work sit next to the buttons (Quickstart, 13 Nov 2026).
+      await expect(hero.locator('.hero__recent a[href="/work/samp-hair-spa/"]')).toContainText('Oct 2026');
+      await expect(hero.locator('.hero__recent a[href="/work/nest-and-rest-cleaning/"]')).toContainText('Oct 2026');
       // Both actions come before anything else focusable in the hero.
       const firstTwo = await hero.locator('a, button').evaluateAll((els) => els.slice(0, 2).map((e) => e.textContent!.replace(/\s+/g, ' ').trim()));
       expect(firstTwo[0]).toContain('Get a free website and Google check');
-      expect(firstTwo[1]).toContain('See the work');
+      expect(firstTwo[1]).toContain('See prices');
     });
   }
 
@@ -266,8 +272,10 @@ test.describe('layout', () => {
   // 10 Nov 2026 (growth report): the hero gained the explained Found / Answered / Booked strip
   // and a "See the work" button, so the targets moved down by the strip's height.
   for (const [w, h, maxHeading, maxCard] of [
+    // 14 Nov 2026: the hero carries the photo graph and prices instead; same budgets on desktop,
+    // and on phones the large photo graph replaces the sculpture and the process strip.
     [1440, 1000, 1150, 1500],
-    [390, 844, 1680, 1780],
+    [390, 844, 1800, 1900],
   ]) {
     test(`selected work starts by y=${maxHeading} at ${w}x${h}`, async ({ page }) => {
       await page.setViewportSize({ width: w, height: h });
@@ -292,7 +300,8 @@ test.describe('navigation', () => {
     const sheet = page.locator('#site-menu');
     await expect(sheet).toBeVisible();
     await expect(btn).toHaveAttribute('aria-expanded', 'true');
-    await expect(sheet.getByRole('navigation', { name: 'Menu' }).getByRole('link')).toHaveCount(4);
+    await expect(sheet.getByRole('navigation', { name: 'Menu' }).getByRole('link')).toHaveCount(5);
+    await expect(sheet.getByRole('link', { name: 'Pricing', exact: true })).toHaveAttribute('href', '/pricing/');
     await expect(sheet.locator('a[href="/contact/"]')).toHaveCount(1);
     await expect(sheet.getByRole('link', { name: /Email Mann/ })).toHaveAttribute('href', /^mailto:info@mannpatel\.me\?/);
     await expect(sheet.getByRole('link', { name: 'Services' })).toBeVisible();
@@ -364,95 +373,52 @@ test.describe('navigation', () => {
 });
 
 test.describe('home interactions', () => {
-  test('the portrait starts clear; the radio dial is optional and locks back onto Mann at 104.3', async ({ page }) => {
-    await page.setViewportSize({ width: 1440, height: 900 });
-    await page.goto('/');
-    const tune = page.locator('[data-tune]');
-    await expect(tune).toHaveClass(/is-live/);
-    // Recognisable at once: tuned in from the start, no static, no flash on load (audit 8 Nov 2026).
-    await expect(tune).toHaveClass(/is-locked/);
-    await expect(tune.locator('img')).toHaveAttribute('alt', /Mann Patel smiling/);
-    const detune = () => page.locator('[data-tune-screen]').evaluate((e) => Number(getComputedStyle(e).getPropertyValue('--d')));
-    expect(await detune()).toBe(0);
-    await expect(page.locator('.hero')).not.toHaveClass(/is-locked|is-tuning/);
-    await expect(page.locator('[data-tune-status]')).toHaveText('On air: Mann Patel, Toronto. Try the dial.');
-    const dial = page.getByRole('slider', { name: 'Try the dial' });
-    await expect(dial).toHaveAttribute('aria-valuetext', '104.3 FM, signal locked');
-    // Keyboard: away to the end of the band, the signal is lost and the page says how to get it back.
-    await dial.focus();
-    await page.keyboard.press('End');
-    await expect(page.locator('[data-tune-freq]')).toHaveText('107.9');
-    await expect(tune).not.toHaveClass(/is-locked/);
-    await expect(page.locator('[data-tune-status]')).toHaveText('Signal lost. Tune back to 104.3.');
-    expect(await detune()).toBeGreaterThan(0.3);
-    // Page Down twice and one step up lands within the station's detent.
-    await page.keyboard.press('PageDown');
-    await page.keyboard.press('PageDown');
-    await expect(tune).not.toHaveClass(/is-locked/);
-    await page.keyboard.press('ArrowRight');
-    await expect(tune).toHaveClass(/is-locked/);
-    await expect(dial).toHaveAttribute('aria-valuetext', '104.3 FM, signal locked');
-    await expect(page.locator('[data-tune-status]')).toHaveText('Signal locked: Mann Patel, Toronto.');
-    await expect.poll(detune).toBe(0);
-    await expect.poll(() => tune.locator('.tune__tx').evaluate((e) => getComputedStyle(e).opacity)).toBe('1');
+  test('the hero photo is the core of the agent graph: real, sized for the screen, and loaded first', async ({ page }) => {
+    for (const [w, h, min] of [[390, 844, 170], [1440, 900, 190]]) {
+      await page.setViewportSize({ width: w, height: h });
+      await page.goto('/');
+      const photo = page.locator('.hero [data-agent-graph] .ag__photo');
+      await expect(photo).toBeVisible();
+      await expect(photo).toHaveAttribute('alt', /Mann Patel smiling/);
+      await expect(photo).toHaveAttribute('fetchpriority', 'high');
+      await page.waitForFunction(() => (document.querySelector('.ag__photo') as HTMLImageElement).naturalWidth > 0);
+      const box = (await photo.boundingBox())!;
+      expect(box.width).toBeGreaterThanOrEqual(min);
+      // Only the layout for this screen is shown: left-to-right on desktop, top-to-bottom on phones.
+      await expect(page.locator(w >= 1024 ? '.ag__svg--wide' : '.ag__svg--tall')).toBeVisible();
+      await expect(page.locator(w >= 1024 ? '.ag__svg--tall' : '.ag__svg--wide')).toBeHidden();
+    }
+    // The radio photo and the signal ribbon are gone.
+    await expect(page.locator('[data-tune], [data-signal-sculpture]')).toHaveCount(0);
   });
 
-  test('dragging across the photo tunes it, and nothing detunes on its own', async ({ page }) => {
+  test('the graph labels name where customers come from and what should happen, and the pause button stops the pulses', async ({ page }) => {
     await page.setViewportSize({ width: 1440, height: 900 });
     await page.goto('/');
-    const freq = page.locator('[data-tune-freq]');
-    await page.waitForTimeout(3000);
-    await expect(freq).toHaveText('104.3');
-    await expect(page.locator('[data-tune]')).toHaveClass(/is-locked/);
-    const screen = page.locator('[data-tune-screen]');
-    await screen.scrollIntoViewIfNeeded();
-    const b = (await screen.boundingBox())!;
-    await page.mouse.move(b.x + b.width * 0.6, b.y + b.height / 2);
-    await page.mouse.down();
-    await page.mouse.move(b.x + b.width * 0.3, b.y + b.height / 2, { steps: 5 });
-    await page.mouse.up();
-    // A third of the photo's width is about a third of the FM band (19.8 MHz).
-    expect(104.3 - Number(await freq.textContent())).toBeGreaterThan(4);
-    await expect(page.locator('[data-tune]')).not.toHaveClass(/is-locked/);
+    const svg = page.locator('.ag__svg--wide');
+    for (const label of ['Google', 'Maps', 'AI answers', 'Enquiry', 'Reply', 'Booking']) await expect(svg).toContainText(label);
+    const pulse = page.locator('.ag__svg--wide .ag__pulse').first();
+    expect(await pulse.evaluate((e) => getComputedStyle(e).animationName)).toBe('ag-in');
+    const toggle = page.locator('[data-ag-toggle]');
+    await expect(toggle).toHaveAccessibleName('Pause animation');
+    await toggle.click();
+    await expect(toggle).toHaveAttribute('aria-pressed', 'true');
+    await expect(page.locator('[data-agent-graph]')).toHaveClass(/is-paused/);
+    expect(await pulse.evaluate((e) => getComputedStyle(e).animationPlayState)).toBe('paused');
+    await toggle.click();
+    await expect(toggle).toHaveAttribute('aria-pressed', 'false');
+    expect(await pulse.evaluate((e) => getComputedStyle(e).animationPlayState)).toBe('running');
   });
 
-  test('the process strip explains Found, Answered, Booked; the words act themselves out and replay on hover', async ({ page }) => {
-    await page.setViewportSize({ width: 1440, height: 900 });
-    await page.goto('/');
-    await expect(page.locator('h1')).not.toContainText('Found.');
-    const strip = page.locator('.hero__steps');
-    const steps = strip.locator('li');
-    await expect(steps).toHaveCount(3);
-    // Each word comes with what it means in plain words; "Booked" keeps a request apart from a confirmation.
-    await expect(steps.nth(0)).toContainText('Found.');
-    await expect(steps.nth(0)).toContainText('local search');
-    await expect(steps.nth(1)).toContainText('Answered.');
-    await expect(steps.nth(1)).toContainText('follow-up');
-    await expect(steps.nth(2)).toContainText('Booked.');
-    await expect(steps.nth(2)).toContainText('request');
-    await expect(steps.nth(2)).toContainText('confirm');
-    // The pin, bubble, ticks and circle are decoration: hidden from screen readers, no text.
-    const deco = strip.locator('.hw [aria-hidden="true"]');
-    expect(await deco.count()).toBeGreaterThanOrEqual(5);
-    expect((await deco.allTextContents()).join('').trim()).toBe('');
-    // Finished: pin on the full stop, read ticks drawn, "Booked." circled.
-    await expect.poll(() => page.locator('.hw__pin').evaluate((e) => getComputedStyle(e).opacity), { timeout: 8000 }).toBe('1');
-    const offset = (sel: string) => page.locator(sel).first().evaluate((e) => getComputedStyle(e).strokeDashoffset);
-    await expect.poll(() => offset('.hw__circle path'), { timeout: 8000 }).toMatch(/^0(px)?$/);
-    await expect.poll(() => offset('.hw__ticks path')).toMatch(/^0(px)?$/);
-    // Hovering a word plays its scene again.
-    await page.waitForTimeout(600);
-    await page.locator('.hw--found .hw__w').hover();
-    expect(await page.locator('.hw--found .hw__w').evaluate((e) => e.getAnimations({ subtree: true }).some((a) => a.playState === 'running'))).toBe(true);
-  });
 
-  test('reduced motion: the headline shows its finished state at once', async ({ browser }) => {
+  test('reduced motion: the graph is a still diagram with two lit routes and no pause button', async ({ browser }) => {
     const ctx = await browser.newContext({ reducedMotion: 'reduce', viewport: { width: 390, height: 844 } });
     const page = await ctx.newPage();
     await page.goto('/');
-    expect(await page.locator('.hw__pin').evaluate((e) => getComputedStyle(e).opacity)).toBe('1');
-    expect(await page.locator('.hw__circle path').evaluate((e) => getComputedStyle(e).strokeDashoffset)).toMatch(/^0(px)?$/);
-    expect(await page.locator('.hw__w').first().evaluate((e) => e.getAnimations({ subtree: true }).length)).toBe(0);
+    expect(await page.locator('.ag__svg--tall .ag__pulse').first().evaluate((e) => getComputedStyle(e).animationName)).toBe('none');
+    expect(await page.locator('.ag__orbit').first().evaluate((e) => getComputedStyle(e).animationName)).toBe('none');
+    await expect(page.locator('.ag__svg--tall .ag__pulse:visible')).toHaveCount(4);
+    await expect(page.locator('[data-ag-toggle]')).toBeHidden();
     await ctx.close();
   });
 
@@ -473,21 +439,16 @@ test.describe('home interactions', () => {
     await expect(page.locator('main a[href="/services/web-design/"]').first()).toContainText('Web design service');
   });
 
-  test('the home page shows a labelled walkthrough with fictional data, keyboard-operable', async ({ page }) => {
-    await page.setViewportSize({ width: 1440, height: 900 });
+  test('the home page lists every price, each with what it covers, and links to the full pricing page', async ({ page }) => {
     await page.goto('/');
-    const demo = page.locator('#home-demo');
-    await expect(demo).toContainText('Demonstration · fictional data');
-    const steps = demo.getByRole('button');
-    await expect(steps).toHaveCount(5);
-    await steps.nth(2).focus();
-    await page.keyboard.press('Enter');
-    await expect(steps.nth(2)).toHaveAttribute('aria-pressed', 'true');
-    await expect(demo.locator('[data-state="2"]')).toBeVisible();
-    await expect(demo.locator('[data-state="2"]')).toContainText('Reminder');
-    // It comes straight after the real work.
-    const order = await page.evaluate(() => [...document.querySelectorAll('main > section')].map((s) => s.id).filter(Boolean));
-    expect(order.indexOf('walkthrough')).toBe(order.indexOf('work') + 1);
+    const prices = page.locator('#prices');
+    for (const [name, price] of [['Website Fix', '$450–$850'], ['Website Launch', '$1,950'], ['Website + Enquiry System', '$3,350'], ['Local Visibility Setup', '$650'], ['Website Care', '$149 a month']]) {
+      const row = prices.locator('.pt__row').filter({ has: page.locator('.pt__name', { hasText: new RegExp(`^${name.replace(/[+]/g, '\\+')}$`) }) });
+      await expect(row.locator('[data-price]')).toHaveText(price);
+      await expect(row.locator('.pt__boundary')).not.toBeEmpty();
+    }
+    await expect(prices).toContainText('plus applicable tax');
+    await expect(prices.getByRole('link', { name: 'Full pricing and what’s included' })).toHaveAttribute('href', '/pricing/');
   });
 
   test('finder recommends a starting point live and pre-fills the brief', async ({ page }) => {
@@ -522,16 +483,12 @@ test.describe('home interactions', () => {
     await ctx.close();
   });
 
-  test('reduced motion: headings and reveals are visible immediately and the hero words do not animate', async ({ browser }) => {
+  test('reduced motion: headings and reveals are visible immediately and the hero does not animate', async ({ browser }) => {
     const ctx = await browser.newContext({ reducedMotion: 'reduce' });
     const page = await ctx.newPage();
     await page.goto('/');
-    expect(await page.locator('.hw').first().evaluate((e) => getComputedStyle(e).animationName)).toBe('none');
+    expect(await page.locator('.hero__title').evaluate((e) => getComputedStyle(e).animationName)).toBe('none');
     expect(await page.evaluate(() => document.documentElement.classList.contains('js-motion'))).toBe(false);
-    // The tuner starts locked: the clear photo, no static, nothing moving.
-    await expect(page.locator('[data-tune]')).toHaveClass(/is-locked/);
-    await expect(page.locator('[data-tune-freq]')).toHaveText('104.3');
-    expect(await page.locator('.tune__line').first().evaluate((e) => getComputedStyle(e).animationName)).toBe('none');
     const op = await page.locator('[data-reveal]:not([data-reveal^="load"])').first().evaluate((e) => getComputedStyle(e).opacity);
     expect(op).toBe('1');
     await ctx.close();
@@ -547,23 +504,21 @@ test.describe('home interactions', () => {
       await page.waitForTimeout(700);
       const fit = await sheet.evaluate((d) => d.scrollHeight - d.clientHeight);
       expect(fit).toBeLessThanOrEqual(1);
-      for (const name of ['Home', 'Services', 'Work', 'About', 'Start a project', 'Privacy', 'Terms'])
-        await expect(sheet.getByRole('link', { name, exact: name !== 'Start a project' })).toBeInViewport();
+      for (const name of ['Home', 'Work', 'Services', 'Pricing', 'About', 'Contact', 'Privacy', 'Terms'])
+        await expect(sheet.getByRole('link', { name, exact: true }).first()).toBeInViewport();
       await expect(sheet.getByRole('link', { name: /Email Mann/ })).toBeInViewport();
     });
   }
 
-  test('phones: Contact stays one tap away, and the sculpture follows the buttons', async ({ page }) => {
+  test('phones: Contact stays one tap away, and the photo graph follows the buttons', async ({ page }) => {
     await page.setViewportSize({ width: 360, height: 800 });
     await page.goto('/');
     const cta = page.locator('[data-header]').getByRole('link', { name: 'Contact', exact: true });
     await expect(cta).toBeVisible();
     await expect(cta).toHaveAttribute('href', '/contact/');
     await expect(page.locator('[data-menu-open]')).toBeVisible();
-    const art = page.locator('[data-signal-sculpture]');
-    await expect(art).toBeVisible();
     const gap = await page.evaluate(
-      () => document.querySelector('[data-signal-sculpture]')!.getBoundingClientRect().top - document.querySelector('.hero__actions')!.getBoundingClientRect().bottom,
+      () => document.querySelector('[data-agent-graph]')!.getBoundingClientRect().top - document.querySelector('.hero__actions')!.getBoundingClientRect().bottom,
     );
     expect(gap).toBeGreaterThanOrEqual(0);
     expect(gap).toBeLessThan(60);
@@ -573,14 +528,13 @@ test.describe('home interactions', () => {
     for (const [w, h] of [[390, 844], [820, 1180], [1440, 900]]) {
       await page.setViewportSize({ width: w, height: h });
       await page.goto('/');
-      const photo = page.locator('#how-i-work [data-tune] img');
+      const photo = page.locator('#how-i-work .about__photo img');
       await photo.scrollIntoViewIfNeeded();
       await expect(photo).toBeVisible();
       await expect(photo).toHaveAttribute('alt', /Mann Patel smiling/);
-      await page.waitForFunction(() => (document.querySelector('[data-tune] img') as HTMLImageElement).naturalWidth > 0);
-      await expect(page.locator('[data-tune]').getByRole('link', { name: 'Who is this guy?' })).toHaveAttribute('href', '/about/');
+      await page.waitForFunction(() => (document.querySelector('.about__photo img') as HTMLImageElement).naturalWidth > 0);
+      await expect(page.locator('#how-i-work').getByRole('link', { name: 'More about me' })).toHaveAttribute('href', '/about/');
     }
-    await expect(page.locator('.hero [data-tune]')).toHaveCount(0);
   });
 
   test('without JavaScript, the header links show and content is visible', async ({ browser }) => {
@@ -589,14 +543,11 @@ test.describe('home interactions', () => {
     await page.goto('/');
     await expect(page.locator('.hdr__nav').getByRole('link', { name: 'Services' })).toBeVisible();
     await expect(page.locator('[data-menu-open]')).toBeHidden();
-    await expect(page.locator('.signal-sculpture__poster')).toBeVisible();
-    await expect(page.locator('[data-signal-toggle]')).toBeHidden();
-    // The tuner without JavaScript: just the clear photo and its three lines.
-    await expect(page.locator('[data-tune] img')).toBeVisible();
-    expect(await page.locator('[data-tune] img').evaluate((e) => getComputedStyle(e).getPropertyValue('--d').trim())).toBe('0');
-    await expect(page.locator('.tune__dial')).toBeHidden();
-    await expect(page.locator('.tune__hud')).toBeHidden();
-    await expect(page.locator('.tune__line').first()).toBeVisible();
+    // The graph is drawn without JavaScript; only its pause button needs a script.
+    await expect(page.locator('.ag__svg--tall')).toBeVisible();
+    await expect(page.locator('.ag__photo')).toBeVisible();
+    await expect(page.locator('[data-ag-toggle]')).toBeHidden();
+    await expect(page.locator('.about__photo img')).toHaveCount(1);
     await ctx.close();
   });
 });
@@ -610,17 +561,19 @@ test.describe('phones: short pages', () => {
     // 10 Nov 2026 (growth report): the explained process strip on Home, the three named services
     // at the top of Services, the repair option, the AI search check, the scoped follow-up options
     // with a sample test log, and "Offered as" links on case studies each add part of a screen.
-    '/': 12.75, // sculpture, real work, the labelled walkthrough, and the founder’s portrait
-    '/services/': 14.75,
+    // 14 Nov 2026: Home swaps the walkthrough for the price list; Pricing gains a fifth offer
+    // (Website Fix) and a worked salon example.
+    '/': 13.25, // photo graph, real work, prices, and the founder’s portrait
+    '/services/': 15.75,
     '/work/': 4.5,
     '/work/nest-and-rest-cleaning/': 7.25,
     '/work/samp-hair-spa/': 7.25,
     '/about/': 7.5,
     '/contact/': 3.5,
-    '/services/web-design/': 11.5,
+    '/services/web-design/': 12.5, // plus the Website Fix package
     '/services/local-visibility/': 10.75,
     '/services/enquiry-follow-up/': 12.5,
-    '/pricing/': 11.5,
+    '/pricing/': 14.75,
   };
   for (const [path, max] of Object.entries(BUDGET)) {
     test(`${path} stays under ${max} phone screens`, async ({ page }) => {
@@ -738,8 +691,8 @@ test.describe('services', () => {
   test('packages each ask for a quote with the package pre-selected', async ({ page }) => {
     await page.goto('/services/');
     const links = page.locator('#packages .pkg').getByRole('link', { name: /Request a quote for/ });
-    await expect(links).toHaveCount(4);
-    await links.first().click();
+    await expect(links).toHaveCount(5);
+    await links.nth(1).click();
     await expect(page.locator('#f-package')).toHaveValue('website-launch');
   });
 
@@ -750,17 +703,17 @@ test.describe('services', () => {
     }
   });
 
-  test('the four packages compare side by side, and every price line agrees (cards, table, pricing page)', async ({ page }) => {
+  test('the five packages compare side by side, and every price line agrees (cards, table, pricing page)', async ({ page }) => {
     await page.goto('/services/');
     const table = page.getByRole('table', { name: 'Compare the packages' });
-    for (const name of ['Website Launch', 'Website + Enquiry System', 'Local Visibility Setup', 'Website Care'])
-      await expect(table.getByRole('columnheader', { name })).toBeVisible();
+    for (const name of ['Website Fix', 'Website Launch', 'Website + Enquiry System', 'Local Visibility Setup', 'Website Care'])
+      await expect(table.getByRole('columnheader', { name, exact: true })).toBeVisible();
     for (const row of ['Best for', 'Boundary', 'Covers', 'Not included', 'You provide', 'Paid to others', 'Timeline', 'Price', 'Next step'])
       await expect(table.getByRole('rowheader', { name: row })).toBeVisible();
     await expect(table.getByRole('link', { name: /Request a quote for Website Launch/ })).toHaveAttribute('href', '/contact/?package=website-launch#brief');
     const cardPrices = await page.locator('#packages .pkg [data-price]').allInnerTexts();
     const tablePrices = await table.locator('[data-price]').allInnerTexts();
-    expect(cardPrices).toHaveLength(4);
+    expect(cardPrices).toEqual(['$450–$850', '$1,950', '$3,350', '$650', '$149 a month']);
     expect(tablePrices).toEqual(cardPrices);
     await page.goto('/pricing/');
     expect(await page.locator('.pkg [data-price]').allInnerTexts()).toEqual(cardPrices);
@@ -1166,54 +1119,42 @@ test.describe('enquiry form', () => {
 });
 
 test.describe('motion (restrained in round 7)', () => {
-  test('signal field: static dots without a GPU, and the WebGL shader compiles and draws when one is available', async ({ page }) => {
+  test('signal field: static dots without a GPU on the 404 page, and nowhere else', async ({ page }) => {
     await page.setViewportSize({ width: 1440, height: 900 });
-    await page.goto('/');
-    const field = page.locator('.hero .fx-field');
+    await page.goto('/no-such-page/');
+    const field = page.locator('.fx-field');
     await expect(field).toHaveAttribute('aria-hidden', 'true');
-    await page.waitForTimeout(1500);
-    await expect(field.locator('canvas')).toHaveCount(0);
-    expect(await field.evaluate((e) => getComputedStyle(e, '::before').backgroundImage)).toContain('radial-gradient');
-    // Forcing the software renderer proves the shader compiles, links and draws.
-    await page.goto('/?fx=gl');
-    await expect(field).toHaveClass(/is-gl/, { timeout: 10_000 });
-    // Only the hero and the 404 page carry it; inner page titles stay plain.
-    for (const path of ['/services/', '/work/', '/about/', '/contact/']) {
+    // 14 Nov 2026: the home hero is the agent graph, drawn in SVG, so it needs no WebGL.
+    for (const path of ['/', '/services/', '/work/', '/about/', '/contact/']) {
       await page.goto(path);
       await expect(page.locator('.fx-field')).toHaveCount(0);
+      await expect(page.locator('canvas')).toHaveCount(0);
     }
   });
 
-  test('reduced motion: no WebGL and no decoding', async ({ browser }) => {
+  test('reduced motion: no canvas and no decoding', async ({ browser }) => {
     const ctx = await browser.newContext({ reducedMotion: 'reduce', viewport: { width: 1440, height: 900 } });
     const page = await ctx.newPage();
     await page.goto('/?fx=gl');
     await page.mouse.move(400, 400);
     await page.waitForTimeout(1200);
-    await expect(page.locator('.fx-field canvas')).toHaveCount(0);
-    await expect(page.locator('.signal-sculpture__poster')).toBeVisible();
-    await expect(page.locator('[data-signal-canvas]')).toBeHidden();
-    await expect(page.locator('[data-signal-toggle]')).toBeHidden();
+    await expect(page.locator('canvas')).toHaveCount(0);
+    await expect(page.locator('.ag__photo')).toBeVisible();
+    await expect(page.locator('[data-ag-toggle]')).toBeHidden();
     await expect(page.locator('[data-scramble] [aria-hidden="true"]')).toHaveCount(0);
     await ctx.close();
   });
 
-  test('the signal sculpture renders and its keyboard control pauses and resumes the animation', async ({ page }) => {
+  test('the agent graph pause button works from the keyboard', async ({ page }) => {
     await page.setViewportSize({ width: 1440, height: 900 });
     await page.goto('/');
-    const canvas = page.locator('[data-signal-canvas]');
-    const snapshot = () => canvas.evaluate((node) => (node as HTMLCanvasElement).toDataURL());
-    await expect(canvas).toBeVisible();
-    const toggle = page.getByRole('button', { name: 'Pause signal animation' });
+    const toggle = page.locator('[data-ag-toggle]');
     await toggle.focus();
     await page.keyboard.press('Space');
     await expect(toggle).toHaveAttribute('aria-pressed', 'true');
-    const still = await snapshot();
-    await page.waitForTimeout(150);
-    expect(await snapshot()).toBe(still);
+    await expect(page.getByRole('button', { name: 'Play animation' })).toBeVisible();
     await page.keyboard.press('Space');
     await expect(toggle).toHaveAttribute('aria-pressed', 'false');
-    await expect.poll(snapshot).not.toBe(still);
   });
 
   test('removed effects stay removed: no marquee, cursor follower, tilt or scroll-lit text', async ({ page }) => {
@@ -1241,7 +1182,7 @@ test.describe('motion (restrained in round 7)', () => {
     await page.setViewportSize({ width: 1440, height: 900 });
     await page.goto('/');
     await expect(page.locator('.hero [data-scramble]')).toHaveCount(0);
-    expect(await page.locator('.hero .eyebrow').first().evaluate((e) => e.children.length)).toBe(0);
+    expect(await page.locator('.hero__hi').evaluate((e) => e.children.length)).toBe(0);
   });
 
   test('project cards light up under the pointer', async ({ page }) => {
@@ -1426,40 +1367,36 @@ test.describe('audit of 11 Nov 2026', () => {
     await expect(page.locator('#check .fc__lead')).toContainText('Send your website or business name');
   });
 
-  test('a quote follows a short brief: price lines say so and the check stays optional', async ({ page }) => {
+  test('published prices agree everywhere, and the check stays optional', async ({ page }) => {
     await page.goto('/');
-    await expect(page.locator('#what-i-do')).toContainText('Website Launch · Written quote after a short brief');
+    await expect(page.locator('#what-i-do')).toContainText('Website Launch · $1,950');
+    await expect(page.locator('.hero__price')).toContainText('$450–$850');
     await page.goto('/services/');
-    await expect(page.locator('#packages')).toContainText('The free check is optional and separate.');
+    await expect(page.locator('#packages')).toContainText('The free check is separate.');
+    await page.goto('/pricing/');
+    await expect(page.locator('main')).toContainText('$975 at kickoff and $975 once the site passes those checks');
   });
 
-  test('the headline keeps its words; the emphasis is on the first line', async ({ page }) => {
+  test('the headline keeps its service and place words', async ({ page }) => {
     await page.goto('/');
     const lines = page.locator('#hero-title .hero__line');
-    await expect(lines.nth(0)).toHaveClass(/hero__line--signal/);
-    await expect(lines.nth(0)).toHaveText('Web design,');
-    await expect(lines.nth(2)).not.toHaveClass(/hero__line--signal/);
+    await expect(lines.nth(0)).toHaveText('Web design, local SEO');
+    await expect(lines.nth(1)).toHaveText('and AI automation');
+    await expect(page.locator('#hero-title .hero__place')).toHaveText('for Toronto businesses.');
   });
 
-  test('phones: the sculpture is compact, its still is sized for the screen, and the hint is hidden on touch', async ({ browser }) => {
+  test('phones: the hero photo is sized for the screen, and the pause button is reachable on touch', async ({ browser }) => {
     const context = await browser.newContext({ viewport: { width: 390, height: 844 }, hasTouch: true, isMobile: true });
     const page = await context.newPage();
     await page.goto('/');
-    const stage = await page.locator('.signal-sculpture__stage').boundingBox();
-    expect(stage!.height).toBeLessThanOrEqual(245);
-    const still = page.locator('.signal-sculpture__poster');
-    await expect(still).toHaveAttribute('fetchpriority', 'high');
-    expect(await still.getAttribute('srcset')).toMatch(/480w.*640w.*960w/);
-    // The full-size still is the last candidate; a phone should fetch a smaller one.
-    const { loaded, largest } = await still.evaluate((img: HTMLImageElement) => ({
-      loaded: new URL(img.currentSrc).pathname,
-      largest: img.srcset.split(',').pop()!.trim().split(' ')[0],
-    }));
-    expect(loaded).not.toBe(largest);
-    // Once the live sculpture is drawing, a touch screen still shows no “Move to rotate”.
-    await page.waitForSelector('[data-signal-frame]');
-    await expect(page.locator('.signal-sculpture__hint')).toBeHidden();
-    await expect(page.locator('[data-signal-toggle]')).toBeVisible();
+    const photo = page.locator('.ag__photo');
+    expect(await photo.getAttribute('srcset')).toMatch(/240w.*360w.*480w.*640w/);
+    await page.waitForFunction(() => (document.querySelector('.ag__photo') as HTMLImageElement).complete);
+    const loaded = await photo.evaluate((img: HTMLImageElement) => new URL(img.currentSrc).pathname);
+    expect(loaded).not.toMatch(/240w/);
+    await expect(page.locator('[data-ag-toggle]')).toBeVisible();
+    const box = (await page.locator('[data-ag-toggle]').boundingBox())!;
+    expect(box.width).toBeGreaterThanOrEqual(44);
     await context.close();
   });
 

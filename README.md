@@ -4,7 +4,7 @@ Personal profile and digital-services site for Mann Patel (production domain: **
 
 Built with **Astro 7** (static pages + one server endpoint for the project-brief form), vanilla TypeScript islands, and self-hosted OFL fonts. No CMS, no client framework, no tracking unless configured.
 
-**Design: "Signal", as a compact editorial portfolio (round 7, 8 Nov 2026), with the MΛNN PΛTEL logo (10 Nov 2026).** Dark, with one lime accent and Mann's portrait drawn as a live signal. Real work comes straight after a compact hero (both projects, honestly labelled), then three service summaries, the free check, how I work and questions. Enquiries: a 3-step project brief and a 1-minute free check, with honest sending states and an email/copy fallback while direct delivery is off. Case studies lead with a summary and show dated, real test evidence. The system is in [`DESIGN.md`](DESIGN.md); round 7 (audit response, verification, remaining blocker, deploy and rollback) is in [`docs/14-round-7-editorial.md`](docs/14-round-7-editorial.md).
+**Round 11 (14 Nov 2026): an AI "agent graph" hero with Mann's photo at its core, published prices, and a Work / Services / Pricing / About / Contact menu** ([`docs/24-final-upgrade.md`](docs/24-final-upgrade.md)). **Design: "Signal", as a compact editorial portfolio (round 7, 8 Nov 2026), with the MΛNN PΛTEL logo (10 Nov 2026).** Dark, with one lime accent and Mann's portrait drawn as a live signal. Real work comes straight after a compact hero (both projects, honestly labelled), then three service summaries, the free check, how I work and questions. Enquiries: a 3-step project brief and a 1-minute free check, with honest sending states and an email/copy fallback while direct delivery is off. Case studies lead with a summary and show dated, real test evidence. The system is in [`DESIGN.md`](DESIGN.md); round 7 (audit response, verification, remaining blocker, deploy and rollback) is in [`docs/14-round-7-editorial.md`](docs/14-round-7-editorial.md).
 
 > **Status: content confirmed (31 Oct 2026).** All "To confirm" items are answered. Production deploys still run the pre-launch check, and the form's inbox address (`ENQUIRY_TO_EMAIL`) and phone number (`PUBLIC_CONTACT_PHONE`) are added in Cloudflare. See [`docs/OWNER-INPUTS.md`](docs/OWNER-INPUTS.md).
 
@@ -41,6 +41,7 @@ npm run preview             # node ./dist/server/entry.mjs → http://localhost:
 | `npm run images` | Regenerate favicon.ico and the PNG icons, the default sharing image and one sharing card per case study (from its real capture and status) |
 | `python3 scripts/subset-fonts.py` | Re-cut the web fonts to the characters the copy uses (`pip install fonttools brotli` first) |
 | `npm run preview:static` | Export a server-less copy with relative links to `preview-static/` (for private previews; the form shows "not connected") |
+| `npm run check:redirects` | Trace www, http and slashless addresses: one permanent hop to https://mannpatel.me with path and ?utm_ kept, and a self-canonical page (needs internet) |
 | `npm run prelaunch` | Production gate: env, preview markers, canonicals, robots/sitemap, internal links |
 
 ## Editing content

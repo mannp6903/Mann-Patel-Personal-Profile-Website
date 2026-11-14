@@ -4,7 +4,8 @@
  * Phones: a "Menu" button opens a focused side panel (native <dialog>: focus is contained,
  * Esc closes, focus returns). Without JavaScript the links show as a plain row instead.
  */
-import { nav, primaryCta, profile } from '../data/site';
+import { nav as allNav, primaryCta, profile } from '../data/site';
+import { pricesPublished } from '../data/packages';
 import { emailHref } from '../lib/contact';
 import Button from './ui/Button.astro';
 import Icon from './ui/Icon.astro';
@@ -12,6 +13,8 @@ import Wordmark from './ui/Wordmark.astro';
 
 const path = Astro.url.pathname;
 const isCurrent = (href: string) => (href === '/' ? path === '/' : path.startsWith(href));
+// Pricing is in the menu only while at least one price is published.
+const nav = allNav.filter((item) => item.href !== '/pricing/' || pricesPublished);
 const sheetLinks = [{ href: '/', label: 'Home' }, ...nav];
 ---
 
@@ -482,6 +485,12 @@ const sheetLinks = [{ href: '/', label: 'Home' }, ...nav];
     min-height: var(--tap);
     padding-block: clamp(0.65rem, 1.65dvh, 1.05rem);
     text-decoration: none;
+  }
+  /* Five links since Pricing joined the menu (14 Nov 2026): tighter rows on short phones. */
+  @media (max-height: 600px) {
+    .sheet__links a {
+      padding-block: 0.2rem;
+    }
   }
   .sheet__indicator {
     width: 0.5rem;

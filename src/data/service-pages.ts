@@ -95,7 +95,7 @@ export const servicePages: ServicePage[] = [
     h1: 'Web design for Toronto small businesses',
     lines: ['Web design', 'for Toronto small businesses'],
     lead: 'A new website, or a website redesign when yours is dated or hard to use on a phone, for owner-run service businesses in Toronto, especially North York and Scarborough: up to five pages that answer what people ask before they call, one tested enquiry path, and every account in your name.',
-    packages: ['website-launch', 'care'],
+    packages: ['website-launch', 'website-fix', 'care'],
     forWho: [
       'You run a cleaning, salon, maintenance, trades or other service business that meets customers in person',
       'You have no website, or one that is dated, slow on a phone or hard to update',

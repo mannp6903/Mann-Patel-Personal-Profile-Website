@@ -1,5 +1,16 @@
 # DESIGN.md · "Signal" (round 5, Nov 2026), compact editorial portfolio (round 7)
 
+> **Round 11 (14 Nov 2026): agent graph hero, published prices, new menu.** This note overrides the
+> sections below on the hero, "Tune in" and the signal sculpture, which were removed. The hero opens with
+> Mann's face and name, keeps the service-and-place H1 (now "and AI automation"), shows the website price
+> by the buttons and two dated projects. Its visual is the **agent graph** (`components/home/AgentGraph.astro`):
+> an inline-SVG neural network with Google, Maps and AI answers on one side, Enquiry, Reply and Booking on
+> the other, and Mann's real photo as the core node. Lime pulses travel the edges (CSS only, no canvas or
+> WebGL), with a pause button, an off-screen pause and a still diagram under reduced motion. Left-to-right
+> from 64em, top-to-bottom on phones. The founder section shows the plain portrait. The menu is Work,
+> Services, Pricing, About and Contact; Home gains a price list (`PricingTeaser.astro`).
+> Details: [`docs/24-final-upgrade.md`](docs/24-final-upgrade.md).
+>
 > **Logo update (10 Nov 2026): MΛNN PΛTEL.** The header logo is the outlined MΛNN PΛTEL wordmark
 > (`components/ui/Wordmark.astro`, files in `public/brand/`). The favicon (13 Nov 2026) is the stacked
 > MΛNN / PΛTEL icon: black tile, off-white letters, lime Λ's, bold Geist outlines sized to survive Google's

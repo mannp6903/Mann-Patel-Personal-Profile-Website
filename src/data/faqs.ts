@@ -10,8 +10,16 @@ export interface Faq {
 
 export const faqs: Faq[] = [
   {
-    q: 'How much does it cost?',
-    a: 'Every project gets a written quote after a short brief, so you only pay for what your business needs. The website and Google check is free, and you don’t need it to get a quote. Third-party costs such as your domain, email subscription, hosting or booking tools are billed to you directly by the provider, at their prices.',
+    q: 'How much does a website cost?',
+    a: 'A new or redesigned website of up to five pages is $1,950. A website with a booking integration and one follow-up workflow is $3,350. One fix on your current site is $450 to $850, local search setup is $650, and care after launch is $149 a month. All prices are in Canadian dollars, plus applicable tax. Domain, hosting and tool subscriptions are billed to you directly by each provider.',
+  },
+  {
+    q: 'What exactly is included for $1,950?',
+    a: 'Up to five pages using your text and photos (I edit them for clarity), two rounds of revisions, one tested enquiry path such as a quote form or your booking link, basic search setup and a handover. Writing all your copy from scratch, extra pages and booking integrations are quoted separately, in writing, before any work starts.',
+  },
+  {
+    q: 'How do payments work?',
+    a: 'For a website, half is paid at kickoff and half once the site passes the launch checks we agreed in the written scope. Website Care is billed monthly and you can stop any month.',
   },
   {
     q: 'What is the free website and Google check?',
@@ -19,7 +27,7 @@ export const faqs: Faq[] = [
   },
   {
     q: 'Do I own the website and accounts?',
-    a: 'Yes. Your domain, email, Google accounts, analytics and files are created in your name. I work as an invited user and hand everything over at the end, with a list of every login.',
+    a: 'Yes. Your domain, email, Google accounts, analytics and files are created in your name. I work as an invited user and hand everything over at the end: the site, a short editing guide, a list of every login and renewal, and the test results.',
   },
   {
     q: 'Can you get me to the top of Google?',

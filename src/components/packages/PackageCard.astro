@@ -5,7 +5,7 @@
  */
 import Button from '../ui/Button.astro';
 import Icon from '../ui/Icon.astro';
-import { priceLabel, type Package } from '../../data/packages';
+import { priceLabel, priceTerms, type Package } from '../../data/packages';
 
 interface Props {
   pkg: Package;
@@ -21,11 +21,11 @@ const here = Astro.url.pathname === p.page;
 ---
 
 <li class="pkg" id={`pkg-${p.id}`} data-reveal style={`--d:${index * 80}`} data-spotlight>
-  <div class="pkg__top">
-    <span class="num subtle">{String(index + 1).padStart(2, '0')}</span>
-    <span class:list={['pkg__price', { 'pkg__price--tbc': !price.approved }]} data-price>{price.text}</span>
-  </div>
   <H class="pkg__name">{p.name}</H>
+  <p class="pkg__cost">
+    <span class:list={['pkg__price', { 'pkg__price--tbc': !price.approved }]} data-price>{price.text}</span>
+    <span class="pkg__terms">{priceTerms(p)}</span>
+  </p>
   <p class="pkg__boundary">{p.boundary}</p>
   <p class="pkg__for muted">{p.forWho}</p>
   <ul class="pkg__list" role="list">
@@ -68,15 +68,26 @@ const here = Astro.url.pathname === p.page;
     gap: var(--s-3);
     font-size: var(--fs-xs);
   }
+  .pkg__cost {
+    display: grid;
+    gap: 0.15rem;
+  }
   .pkg__price {
-    font-family: var(--font-mono);
-    font-size: var(--fs-xs);
-    letter-spacing: 0.02em;
+    font-size: clamp(2rem, 1.6rem + 1.4vw, 2.75rem);
+    font-weight: 650;
+    letter-spacing: -0.05em;
+    line-height: 1;
+    font-variant-numeric: tabular-nums;
     color: var(--signal);
-    text-align: right;
   }
   .pkg__price--tbc {
+    font-size: var(--fs-sm);
+    letter-spacing: 0;
     color: var(--text-2);
+  }
+  .pkg__terms {
+    font-size: var(--fs-xs);
+    color: var(--text-3);
   }
   .pkg__name {
     font-size: clamp(1.5rem, 1.3rem + 0.8vw, 2rem);

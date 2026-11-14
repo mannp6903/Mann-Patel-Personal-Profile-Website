@@ -21,6 +21,18 @@ describe('packages: one source of truth (round 10)', () => {
     }
   });
 
+  it('published prices (14 Nov 2026) match the First Client Quickstart, in CAD before tax', () => {
+    const text = Object.fromEntries(packages.map((p) => [p.id, priceLabel(p).text]));
+    expect(text).toEqual({
+      'website-fix': '$450–$850',
+      'website-launch': '$1,950',
+      'website-enquiry': '$3,350',
+      'local-visibility': '$650',
+      care: '$149 a month',
+    });
+    expect(pricesPublished).toBe(true);
+  });
+
   it('makes no promises it cannot keep: no guarantees offered, no discounts, no popularity badges', () => {
     const text = JSON.stringify(all.map(({ includes, boundary, forWho }) => ({ includes, boundary, forWho })));
     expect(text).not.toMatch(/guarantee|% off|discount|limited time|most popular|best seller/i);
@@ -39,8 +51,9 @@ describe('packages: one source of truth (round 10)', () => {
   it('prices: unapproved prices read “Written quote after a short brief”; approved ones are formatted in CAD', () => {
     const unpriced: Package = { ...packages[0], price: { amount: null, unit: 'one-time' } };
     expect(priceLabel(unpriced)).toEqual({ text: 'Written quote after a short brief', approved: false });
-    expect(priceLabel({ ...packages[0], price: { amount: 2500, unit: 'one-time' } }).text).toBe('From $2,500, one-time');
-    expect(priceLabel({ ...packages[3], price: { amount: 150, unit: 'month' } }).text).toBe('From $150 a month');
+    expect(priceLabel({ ...packages[0], price: { amount: 2500, unit: 'one-time' } }).text).toBe('$2,500');
+    expect(priceLabel({ ...packages[0], price: { amount: 450, max: 850, unit: 'one-time' } }).text).toBe('$450–$850');
+    expect(priceLabel({ ...packages[3], price: { amount: 150, unit: 'month' } }).text).toBe('$150 a month');
     expect(priceLabel(checkUp).text).toBe('Free');
     // The pricing page is published only once at least one paid package has an approved price.
     expect(pricesPublished).toBe(packages.some((p) => p.price.amount !== null));

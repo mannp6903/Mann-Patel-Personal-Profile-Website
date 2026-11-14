@@ -28,6 +28,7 @@ export const SERVICE_OPTIONS = [
 
 /** Must match src/data/packages.ts (a unit test checks). Old ids are mapped in packages.ts. */
 export const PACKAGE_OPTIONS = [
+  { id: 'website-fix', label: 'Website Fix' },
   { id: 'website-launch', label: 'Website Launch' },
   { id: 'website-enquiry', label: 'Website + Enquiry System' },
   { id: 'local-visibility', label: 'Local Visibility Setup' },
