@@ -6,6 +6,7 @@ import Button from '../components/ui/Button.astro';
 import Icon from '../components/ui/Icon.astro';
 import ContactActions from '../components/ContactActions.astro';
 import SocialLinks from '../components/SocialLinks.astro';
+import Process from '../components/Process.astro';
 import { profile, businesses } from '../data/site';
 import { businessHref } from '../lib/work';
 import { personJsonLd } from '../lib/seo';
@@ -162,6 +163,9 @@ const jsonLd = { '@context': 'https://schema.org', '@type': 'ProfilePage', mainE
       </dl>
     </div>
   </section>
+
+  <!-- SEO audit Phase 2 (14 Nov 2026): the five steps with what you do and what I do, moved from the old /services/. -->
+  <Process />
 
   <section class="section section--alt section--rule" aria-labelledby="principles-title">
     <div class="container">

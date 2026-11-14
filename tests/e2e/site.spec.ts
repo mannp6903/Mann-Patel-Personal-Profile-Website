@@ -616,7 +616,8 @@ test.describe('phones: short pages', () => {
     '/work/nest-and-rest-cleaning/': 7.25,
     '/work/samp-hair-spa/': 7.25,
     // 14 Nov 2026 (SEO audit): "Based in Scarborough…" stays visible in the phone footer (+1 line on every page).
-    '/about/': 7.75,
+    // + the five-step process with your part and mine, moved from the old /services/ (SEO audit Phase 2).
+    '/about/': 8.75,
     '/contact/': 3.75,
     '/services/web-design/': 15, // plus the Website Fix package, the redesign section and its services
     '/services/local-visibility/': 12.25,
@@ -695,7 +696,7 @@ test.describe('phones: short pages', () => {
   // SEO audit Phase 2 (14 Nov 2026): the long question list on /services/ was split up, each question in one
   // place. Every FAQPage in structured data lists exactly the questions the page shows.
   test('FAQ structured data matches the questions each page shows', async ({ page }) => {
-    for (const path of ['/services/', '/pricing/', '/services/web-design/', '/services/local-visibility/', '/services/enquiry-follow-up/']) {
+    for (const path of ['/', '/services/', '/pricing/', '/services/web-design/', '/services/local-visibility/', '/services/enquiry-follow-up/']) {
       await page.goto(path);
       const blocks = await page.$$eval('script[type="application/ld+json"]', (s) => s.map((x) => JSON.parse(x.textContent || '{}')));
       const faq = blocks.find((b) => b['@type'] === 'FAQPage');
@@ -839,7 +840,9 @@ test.describe('services', () => {
       ['found', '/services/local-visibility/#details'],
       ['answered', '/services/enquiry-follow-up/#details'],
       ['booked', '/services/web-design/#details'],
-      ['process', '/#how-i-work'],
+      ['process', '/about/#process'],
+      ['reviews', '/services/local-visibility/#reviews'],
+      ['integrations', '/services/enquiry-follow-up/#integrations'],
     ];
     for (const [from, to] of forwards) {
       await page.goto(`/services/#${from}`);
@@ -848,6 +851,21 @@ test.describe('services', () => {
     }
     await page.goto('/services/web-design/#seo');
     await expect(page.locator('details#seo')).toHaveAttribute('open', '');
+    // Built-in object names and malformed addresses are ignored (no redirect, no error).
+    const errors: string[] = [];
+    page.on('pageerror', (e) => errors.push(e.message));
+    for (const hash of ['constructor', '__proto__', 'toString', '%E0%A4%A']) {
+      await page.goto(`/services/#${hash}`);
+      await page.waitForTimeout(150);
+      expect(new URL(page.url()).pathname, hash).toBe('/services/');
+    }
+    expect(errors).toEqual([]);
+    // The add-ons state what they don't include, and the full project process (with your part) is on About.
+    await page.goto('/services/');
+    await expect(page.locator('#print-design')).toContainText('Printing costs, which are paid to the printer');
+    await expect(page.locator('#social-content')).toContainText('Posting on your behalf and replying to comments');
+    await page.goto('/about/');
+    await expect(page.locator('#process')).toContainText('Two rounds of changes are included per deliverable');
   });
 
   test('Brand & Content Sprint: a bounded add-on on the overview, with what is quoted separately', async ({ page }) => {

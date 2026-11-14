@@ -41,11 +41,12 @@ const FORM_STATES = ['Please check these fields', 'Your brief is on its way', 'Y
 const STATE_EXEMPT = new Set(['/contact/received/']);
 const HEAD_TERMS = ['web design toronto', 'seo company toronto'];
 /**
- * The services overview stays a short routing page (SEO audit Phase 2): about 600 words (warn above 800), and
+ * The services overview stays a short routing page (SEO audit Phase 2): about 600 words (warn above 650, fail
+ * above 1,000 or if it has no main content), and
  * no more than 20% of another page's text repeated on it (the audit measured 72% of /pricing/ and 43% of
  * /services/web-design/, as 8-word shingles of the main content).
  */
-const OVERVIEW = { path: '/services/', maxWords: 800, maxRepeat: 0.2, sources: ['/pricing/', '/services/web-design/', '/services/local-visibility/', '/services/enquiry-follow-up/'] };
+const OVERVIEW = { path: '/services/', aimWords: 600, warnWords: 650, maxWords: 1000, maxRepeat: 0.2, sources: ['/pricing/', '/services/web-design/', '/services/local-visibility/', '/services/enquiry-follow-up/'] };
 const LIMITS = { title: 60, description: 155 };
 
 // ── Helpers
@@ -249,18 +250,23 @@ const overview = pages.get(OVERVIEW.path);
 if (!overview) err('services overview', `${OVERVIEW.path} was not built`);
 else {
   const words = mainWords(overview.html);
-  if (words.length > OVERVIEW.maxWords) warn('services overview', `${OVERVIEW.path} has ${words.length} words (aim for about 600)`);
+  if (words.length < 100) err('services overview', `${OVERVIEW.path} has ${words.length} words of main content (no <main>?)`);
+  else if (words.length > OVERVIEW.maxWords) err('services overview', `${OVERVIEW.path} has ${words.length} words (limit ${OVERVIEW.maxWords})`);
+  else if (words.length > OVERVIEW.warnWords) warn('services overview', `${OVERVIEW.path} has ${words.length} words (aim for about ${OVERVIEW.aimWords})`);
   const mine = shingles(words);
   for (const src of OVERVIEW.sources) {
     const other = pages.get(src);
-    if (!other) continue;
+    if (!other) {
+      err('services overview', `${src} was not built, so the repeat check can't run`);
+      continue;
+    }
     const theirs = shingles(mainWords(other.html));
     let shared = 0;
     for (const sh of theirs) if (mine.has(sh)) shared++;
     const share = theirs.size ? shared / theirs.size : 0;
     if (share > OVERVIEW.maxRepeat) err('services overview', `${Math.round(share * 100)}% of ${src} is repeated on ${OVERVIEW.path}`);
   }
-  if (!errors.some((e) => e.startsWith('services overview:'))) passes.push(`services overview: ${words.length} words, no page repeated on it`);
+  if (!errors.some((e) => e.startsWith('services overview:'))) passes.push(`services overview: no page more than ${OVERVIEW.maxRepeat * 100}% repeated on it`);
 }
 
 // ── Links: no orphans, new-page rules, drafts

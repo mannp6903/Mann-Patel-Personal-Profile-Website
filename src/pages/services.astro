@@ -31,7 +31,7 @@ const addOnsNote = 'They work best alongside your Google profile or website, so 
 
 // Old anchors from the long page → where that content lives now (the add-ons, prices, free check, finder
 // and questions are still on this page). Group anchors go to the service page's "Service by service" list.
-const forward: Record<string, string> = { process: '/#how-i-work' };
+const forward: Record<string, string> = { process: '/about/#process' };
 for (const g of groups) {
   const page = servicePageForGroup(g.id);
   if (!page) continue;
@@ -113,6 +113,7 @@ for (const g of groups) {
             <li id={a.id}>
               <h3 class="ov__name">{a.name}</h3>
               <p class="muted small">{a.summary}</p>
+              <p class="small subtle"><b>Not included:</b> {a.exclusions.join('; ')}.</p>
               <a class="link-arrow small" href={`/contact/?service=${a.id}#brief`}>
                 Ask about this<span class="visually-hidden">: {a.name}</span> <Icon name="arrow" />
               </a>
@@ -158,20 +159,26 @@ for (const g of groups) {
       </div>
     </div>
   </section>
+  <script is:inline define:vars={{ forward }}>
+    // Old links to a section that moved (e.g. /services/#booking) go to its new home, on arrival or when only
+    // the #part of the address changes. Own keys only, and a malformed #part is ignored.
+    (function () {
+      var go = function () {
+        var id;
+        try {
+          id = decodeURIComponent(location.hash.slice(1));
+        } catch (e) {
+          return;
+        }
+        if (id && Object.prototype.hasOwnProperty.call(forward, id)) location.replace(forward[id]);
+      };
+      go();
+      addEventListener('hashchange', go);
+    })();
+  </script>
 </BaseLayout>
 
-<script is:inline define:vars={{ forward }}>
-  // Old links to a section that moved (e.g. /services/#booking) go to its new home, on arrival or when only
-  // the #part of the address changes.
-  (function () {
-    var go = function () {
-      var to = forward[decodeURIComponent(location.hash.slice(1))];
-      if (to) location.replace(to);
-    };
-    go();
-    addEventListener('hashchange', go);
-  })();
-</script>
+
 
 <style>
   /* ── Three services, first ── */
