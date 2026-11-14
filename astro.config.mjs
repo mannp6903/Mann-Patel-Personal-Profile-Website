@@ -5,8 +5,30 @@ import cloudflare from '@astrojs/cloudflare';
 import sitemap from '@astrojs/sitemap';
 import { pricesPublished } from './src/data/packages.ts';
 import { lastmodFor } from './scripts/sitemap-lastmod.mjs';
+import { buildHeadersFile } from './src/lib/security-headers.ts';
 import { randomBytes } from 'node:crypto';
-import { copyFile } from 'node:fs/promises';
+import { copyFile, readdir, readFile, writeFile } from 'node:fs/promises';
+import { fileURLToPath } from 'node:url';
+import { join } from 'node:path';
+
+/**
+ * Security headers (SEO audit Phase 4): after every build, write the headers from src/lib/security-headers.ts into
+ * the built _headers file, with a Content Security Policy that allows each inline script by its hash. Cloudflare
+ * serves the static pages with them; the Node preview server ignores _headers (the e2e suite enforces the CSP).
+ */
+/** @type {import('astro').AstroIntegration} */
+const securityHeaders = {
+  name: 'security-headers',
+  hooks: {
+    'astro:build:done': async ({ dir }) => {
+      const root = fileURLToPath(dir);
+      const files = (await readdir(root, { recursive: true })).filter((f) => f.endsWith('.html'));
+      const pages = await Promise.all(files.map((f) => readFile(join(root, f), 'utf8')));
+      const target = join(root, '_headers');
+      await writeFile(target, buildHeadersFile(await readFile(target, 'utf8'), pages));
+    },
+  },
+};
 
 /**
  * Domain-dependent values come from the environment (see .env.example).
@@ -36,6 +58,7 @@ export default defineConfig({
   // /pricing/ joins the sitemap only once a price is approved (src/data/packages.ts).
   integrations: INDEXING
     ? [
+        securityHeaders,
         sitemap({
           filter: (page) =>
             !page.includes('/api/') && !page.includes('/contact/received/') && (pricesPublished || !page.endsWith('/pricing/')),
@@ -52,7 +75,7 @@ export default defineConfig({
           },
         },
       ]
-    : [],
+    : [securityHeaders],
   prefetch: false,
   devToolbar: { enabled: false },
   // Inline all CSS: no render-blocking stylesheet requests (the whole site's CSS is small).

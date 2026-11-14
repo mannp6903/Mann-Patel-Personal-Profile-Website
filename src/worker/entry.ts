@@ -10,6 +10,7 @@
  */
 import astro from '@astrojs/cloudflare/entrypoints/server';
 import { canonicalUrl } from '../lib/canonical-url';
+import { withSecurityHeaders } from '../lib/security-headers';
 
 interface Env {
   ASSETS: { fetch: (request: Request) => Promise<Response> };
@@ -25,6 +26,8 @@ export default {
       const asset = await env.ASSETS.fetch(request);
       if (asset.status !== 404) return asset;
     }
-    return (astro as unknown as Handler).fetch(request, env, ctx);
+    // The 404 page and /api/ responses don't come from the static files, so they get the security headers here
+    // (the static files get them from _headers).
+    return withSecurityHeaders(await (astro as unknown as Handler).fetch(request, env, ctx));
   },
 };

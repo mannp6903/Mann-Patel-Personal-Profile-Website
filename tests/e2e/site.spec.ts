@@ -943,6 +943,38 @@ test.describe('more service pages (SEO audit Phase 4)', () => {
   });
 });
 
+// Security headers (SEO audit Phase 4, 14 Nov 2026). The CSP ships report-only first; this applies the exact
+// policy the build wrote to dist/client/_headers as an *enforced* policy, on every page, and expects no violations,
+// so it can be switched to enforcing without breaking anything this suite covers.
+test.describe('content security policy', () => {
+  test('the built CSP, enforced, blocks nothing on any page', async ({ page }) => {
+    const headers = readFileSync('dist/client/_headers', 'utf8');
+    const csp = (headers.match(/^\s+Content-Security-Policy-Report-Only:\s*(.+)$/m) || [])[1];
+    expect(csp, 'dist/client/_headers has no Content-Security-Policy-Report-Only line').toBeTruthy();
+    await page.route('**/*', async (route) => {
+      if (route.request().resourceType() !== 'document') return route.continue();
+      const res = await route.fetch();
+      await route.fulfill({ response: res, headers: { ...res.headers(), 'content-security-policy': csp! } });
+    });
+    await page.addInitScript(() => {
+      (window as unknown as { __csp: string[] }).__csp = [];
+      document.addEventListener('securitypolicyviolation', (e) =>
+        (window as unknown as { __csp: string[] }).__csp.push(`${e.violatedDirective} ${e.blockedURI} ${e.sourceFile}:${e.lineNumber}`),
+      );
+    });
+    const problems: string[] = [];
+    page.on('console', (m) => /Content Security Policy/i.test(m.text()) && problems.push(m.text()));
+    for (const path of PAGES) {
+      await page.goto(path);
+      await revealAll(page);
+      await page.waitForTimeout(300);
+      const violations = await page.evaluate(() => (window as unknown as { __csp: string[] }).__csp);
+      expect(violations, path).toEqual([]);
+    }
+    expect(problems).toEqual([]);
+  });
+});
+
 test.describe('services', () => {
   test('a link to a service opens it', async ({ page }) => {
     await page.goto('/services/#booking');

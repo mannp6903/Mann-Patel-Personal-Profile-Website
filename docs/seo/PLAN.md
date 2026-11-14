@@ -349,8 +349,20 @@ Decisions made while building (Phase 3):
 
 ### PHASE 4: LATER (ask before each)
 
-Mann's choice (14 Nov 2026): the two pages below. Not chosen for now: the animation and inline-CSS speed work (lab
-scores are already 99–100 on mobile) and the security headers.
+Mann's choice (14 Nov 2026): the two pages below, then the security headers. Not chosen for now: the animation and
+inline-CSS speed work (lab scores are already 99–100 on mobile).
+
+**Security headers (14 Nov 2026).** One source, `src/lib/security-headers.ts`: the build writes the headers into
+`dist/client/_headers` in place of a marker line in `public/_headers` (astro.config.mjs → `security-headers`), and the
+Worker adds the same headers to the responses it builds itself (404 page, /api/). Added: HSTS `max-age=15552000`
+(six months, this host only, no preload) and `Cross-Origin-Opener-Policy: same-origin`, alongside the existing
+nosniff, Referrer-Policy, Permissions-Policy and X-Frame-Options. A Content Security Policy ships as
+**Content-Security-Policy-Report-Only**: inline scripts allowed only by their sha256 hashes (computed from the built
+pages; no `'unsafe-inline'` or `'unsafe-eval'` for scripts), styles `'unsafe-inline'` (hundreds of `style` attributes),
+outside hosts only for Turnstile, GA4 (after consent) and Cloudflare Web Analytics, `object-src 'none'`,
+`base-uri 'self'`, `form-action 'self'`, `frame-ancestors 'none'`. The e2e suite enforces the built policy on every page
+and finds no violations; switch to enforcing once the live console shows no reports for a week. The pre-launch check
+fails a production build without these headers.
 
 | Page | Package | Notes |
 | --- | --- | --- |
