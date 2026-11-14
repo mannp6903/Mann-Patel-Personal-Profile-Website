@@ -47,6 +47,9 @@ const PAGES = [
   '/web-design-scarborough/',
   '/guides/',
   ...GUIDES.map((g) => `/guides/${g}/`),
+  // SEO audit Phase 4 (14 Nov 2026).
+  '/services/website-care/',
+  '/services/ai-search-optimization/',
 ];
 
 async function noHorizontalOverflow(page: Page) {
@@ -155,6 +158,9 @@ test.describe('pages', () => {
     // SEO audit Phase 3 (14 Nov 2026): one page per search we can win (plan C1, C3, C4).
     ['/websites-for-cleaning-companies/', 'Cleaning Company Website Design in Toronto | Mann Patel', 'Cleaning company website design in Toronto', 'Websites for Toronto cleaning companies: prices up front, the areas you serve and a booking request. See the Nest & Rest case study. From $1,950 CAD.'],
     ['/websites-for-salons-and-spas/', 'Salon & Spa Website Design in Toronto | Mann Patel', 'Salon and spa website design in Toronto', 'Salon and spa websites in Toronto: a menu clients can scan, your real hours and online booking. See the Samp Hair & Spa preview. From $1,950 CAD.'],
+    // SEO audit Phase 4 (14 Nov 2026): plan C15, C16.
+    ['/services/website-care/', 'Small Business Website Maintenance in Toronto | Mann Patel', 'Website maintenance for Toronto small businesses', 'Website Care, $149 a month: a monthly test enquiry through your form, your booking link checked, up to 30 minutes of edits and a note. Stop any month.'],
+    ['/services/ai-search-optimization/', 'AI Search Optimization (AEO & GEO) in Toronto | Mann Patel', 'AI search optimization for Toronto businesses', 'See what ChatGPT, Gemini and Perplexity say about your business, then fix the public facts they draw on. Part of Local Visibility Setup, $650 CAD.'],
     ['/web-design-scarborough/', 'Web Design in Scarborough, Ontario | Mann Patel', 'Web design in Scarborough, Ontario', 'Web designer based in Scarborough, Ontario: websites, Google Business Profile setup and online booking for local small businesses, with published prices.'],
   ];
   test('search copy: titles, H1s and descriptions name the service and the place', async ({ page }) => {
@@ -723,7 +729,7 @@ test.describe('phones: short pages', () => {
   // SEO audit Phase 2 (14 Nov 2026): the long question list on /services/ was split up, each question in one
   // place. Every FAQPage in structured data lists exactly the questions the page shows.
   test('FAQ structured data matches the questions each page shows', async ({ page }) => {
-    for (const path of ['/', '/services/', '/pricing/', '/services/web-design/', '/services/local-visibility/', '/services/enquiry-follow-up/', '/websites-for-cleaning-companies/', '/websites-for-salons-and-spas/', '/web-design-scarborough/']) {
+    for (const path of ['/', '/services/', '/pricing/', '/services/web-design/', '/services/local-visibility/', '/services/enquiry-follow-up/', '/websites-for-cleaning-companies/', '/websites-for-salons-and-spas/', '/web-design-scarborough/', '/services/website-care/', '/services/ai-search-optimization/']) {
       await page.goto(path);
       const blocks = await page.$$eval('script[type="application/ld+json"]', (s) => s.map((x) => JSON.parse(x.textContent || '{}')));
       const faq = blocks.find((b) => b['@type'] === 'FAQPage');
@@ -878,6 +884,56 @@ test.describe('new pages (SEO audit Phase 3)', () => {
     await expect(page.locator('footer a[href="/guides/"]')).toBeAttached();
     await page.goto('/pricing/');
     await expect(page.locator(`main a[href="/guides/${GUIDES[0]}/"]`)).toBeAttached();
+  });
+});
+
+// SEO audit Phase 4 (14 Nov 2026, Mann chose these two): Website Care and AI search optimization, each on a page
+// of its own, built by the service page template. They sell existing packages only.
+test.describe('more service pages (SEO audit Phase 4)', () => {
+  const PAGES4: [string, string, string][] = [
+    ['/services/website-care/', 'Website Care', '$149 a month'],
+    ['/services/ai-search-optimization/', 'Local Visibility Setup', '$650'],
+  ];
+  for (const [path, pkg, price] of PAGES4) {
+    test(`${path}: its package and published price, no copy of another page's details, ends with the free check`, async ({ page }) => {
+      await page.goto(path);
+      const cards = page.locator('.sp__pkgs .pkg');
+      await expect(cards).toHaveCount(1);
+      await expect(cards.first().locator('.pkg__name')).toHaveText(pkg);
+      await expect(cards.first().locator('[data-price]')).toHaveText(price);
+      // The "Service by service" details belong to the three main service pages only.
+      await expect(page.locator('#details')).toHaveCount(0);
+      expect(await page.evaluate(() => document.querySelector('main')?.lastElementChild?.id)).toBe('check');
+      // Every sample is labelled.
+      for (const badge of await page.locator('.sp__badge').allInnerTexts()) expect(badge).toMatch(/Sample/);
+      const svc = (await page.$$eval('script[type="application/ld+json"]', (s) => s.map((x) => JSON.parse(x.textContent || '{}')))).find(
+        (b) => b['@type'] === 'Service',
+      );
+      expect(svc.provider['@id']).toMatch(/#business$/);
+      expect(svc.offers.map((o: { name: string }) => o.name)).toEqual([pkg]);
+    });
+  }
+
+  test('the AI search page says what it is part of and promises nothing', async ({ page }) => {
+    await page.goto('/services/ai-search-optimization/');
+    await expect(page.locator('main')).toContainText('part of Local Visibility Setup');
+    await expect(page.locator('main')).toContainText('No one can promise what an AI assistant says');
+  });
+
+  test('both pages are linked in', async ({ page }) => {
+    const LINKS: [string, string][] = [
+      ['/services/local-visibility/', '/services/ai-search-optimization/'],
+      ['/services/web-design/', '/services/website-care/'],
+      ['/pricing/', '/services/website-care/'],
+      ['/services/', '/services/website-care/'],
+      ['/services/', '/services/ai-search-optimization/'],
+      ['/services/website-care/', '/services/web-design/'],
+      ['/services/ai-search-optimization/', '/services/local-visibility/'],
+    ];
+    for (const [from, to] of LINKS) {
+      await page.goto(from);
+      await expect(page.locator(`main a[href="${to}"]`).first(), `${from} → ${to}`).toBeAttached();
+    }
   });
 });
 

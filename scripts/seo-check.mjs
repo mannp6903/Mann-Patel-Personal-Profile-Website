@@ -31,7 +31,13 @@ const EXACT = {
  * Pages added by this SEO work (Phase 3): each needs a BreadcrumbList, a link to the free check and a sitemap
  * entry. Published guides, the /guides/ index and published area pages are added below, from their sources.
  */
-const NEW_PAGES = ['/websites-for-cleaning-companies/', '/websites-for-salons-and-spas/'];
+const NEW_PAGES = [
+  '/websites-for-cleaning-companies/',
+  '/websites-for-salons-and-spas/',
+  // Phase 4 (Mann chose these two, 14 Nov 2026).
+  '/services/website-care/',
+  '/services/ai-search-optimization/',
+];
 /** Pages that must NOT be built, listed or linked while they are drafts (detected below: guides and area pages). */
 const DRAFT_PATHS = [];
 /** The search each new page is built for: every word must be in its title and in its H1 (plan C1, C3, C4). */
@@ -39,6 +45,8 @@ const KEYWORDS = {
   '/websites-for-cleaning-companies/': 'cleaning company website design toronto',
   '/websites-for-salons-and-spas/': 'salon website design toronto',
   '/web-design-scarborough/': 'web design scarborough',
+  '/services/website-care/': 'website maintenance toronto',
+  '/services/ai-search-optimization/': 'ai search optimization toronto',
 };
 /** Where the business node must appear in full. */
 const BUSINESS_PAGES = ['/', '/contact/'];

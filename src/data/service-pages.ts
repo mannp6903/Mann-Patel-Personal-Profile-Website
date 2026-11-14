@@ -39,7 +39,7 @@ export interface Sample {
 }
 
 export interface ServicePage {
-  slug: 'web-design' | 'local-visibility' | 'enquiry-follow-up';
+  slug: 'web-design' | 'local-visibility' | 'enquiry-follow-up' | 'website-care' | 'ai-search-optimization';
   /** The matching area on /services/ (its anchor keeps working). */
   group: GroupId;
   /** Short name used in navigation and breadcrumbs. */
@@ -258,6 +258,8 @@ export const servicePages: ServicePage[] = [
           'The fixes are the ordinary local SEO ones: accurate public details, clear pages and consistent listings',
         ],
         note: 'No one can guarantee what an AI assistant says, or that it mentions you. Answers differ between tools and from one day to the next, so this is a dated check, not a ranking.',
+        // SEO audit Phase 4 (14 Nov 2026): the check in full, on its own page.
+        cta: { label: 'AI search optimization, in full', href: '/services/ai-search-optimization/' },
       },
     ],
     work: [],
@@ -428,6 +430,188 @@ export const servicePages: ServicePage[] = [
         q: 'Do you use AI tools?',
         a: 'Yes, for some drafting, design exploration and coding. I review and test everything myself, and I do not paste your private customer information into AI tools without your agreement.',
       },
+    ],
+  },
+];
+
+/**
+ * More service pages (SEO audit Phase 4, 14 Nov 2026; Mann chose these two): Website Care and AI search
+ * optimization, each a search people make ("website maintenance toronto small business", "ai search optimization
+ * toronto"). Same template as the three above, but not one of the three main services: they don't appear in the
+ * service lists, the menu or the finder, carry no "Service by service" details, and end with the free check.
+ * They sell existing packages only (Website Care; the AI search check is part of Local Visibility Setup).
+ */
+export const moreServicePages: ServicePage[] = [
+  {
+    slug: 'website-care',
+    group: 'booked',
+    short: 'Website care',
+    name: 'Website care and maintenance',
+    card: 'A monthly test of your enquiry form and booking link, up to 30 minutes of small edits, and a note of what changed.',
+    title: 'Small Business Website Maintenance in Toronto',
+    description:
+      'Website Care, $149 a month: a monthly test enquiry through your form, your booking link checked, up to 30 minutes of edits and a note. Stop any month.',
+    eyebrow: 'Website maintenance',
+    h1: 'Website maintenance for Toronto small businesses',
+    lines: ['Website maintenance', 'for Toronto small businesses'],
+    lead: 'For small businesses in Toronto and the GTA that want their website and enquiry form kept working without having to think about it. Every month: a test enquiry through your form, your booking link checked end to end, up to 30 minutes of small edits and a short note. Stop any month.',
+    packages: ['care'],
+    forWho: [
+      'Your website works on launch day, and you want to know it still works next month',
+      'A form that quietly stops sending, or a missed renewal, would cost you customers',
+      'You’d rather send an email than log in to change your hours, prices or photos',
+    ],
+    notFor: 'New pages, new features or a redesign: those are quoted as projects before any work starts.',
+    steps: [
+      {
+        title: 'A test enquiry, every month',
+        body: 'I send a test through your enquiry form and check it reaches you, with the reply the customer sees. Text-back too, if you have it.',
+      },
+      {
+        title: 'Your booking link, end to end',
+        body: 'Opened and followed the way a customer would, to check it still leads somewhere that takes the booking.',
+      },
+      {
+        title: 'Small edits, on request',
+        body: 'Up to 30 minutes a month of text, photo, hours and price changes. You email what you need.',
+      },
+      {
+        title: 'Updates and renewals',
+        body: 'Updates where your site needs them, and reminders before a renewal date. If something breaks, I tell you what happened and fix it, or quote the fix first.',
+      },
+      {
+        title: 'A short note',
+        body: 'What was checked, what changed, and anything that needs your decision, added to a change log you can read.',
+      },
+    ],
+    work: [],
+    sample: {
+      title: 'Sample: a monthly care note',
+      cols: ['Check', 'What was done', 'Result'],
+      intro: 'A sample with a fictional business, so you can see the format. Your note covers your real site, dated, every month.',
+      rows: [
+        { check: 'Test enquiry', before: 'Sent through the quote form', after: 'Reached the inbox; the customer’s confirmation arrived' },
+        { check: 'Booking link', before: 'Opened from the website and the Google profile', after: 'Both lead to the booking page' },
+        { check: 'Edits', before: 'Holiday hours added, one price changed', after: 'Done, about 15 minutes' },
+        { check: 'Updates', before: 'Checked the site for needed updates', after: 'None needed this month' },
+        { check: 'Your decision', before: 'The domain renews next month', after: 'Reminder sent; your registrar bills you' },
+      ],
+    },
+    limits: [
+      'Up to 30 minutes of small edits a month. New pages or larger changes are quoted before any work starts.',
+      'No emergency or after-hours support unless agreed in writing.',
+      'I check and fix what I have access to. The access stays in your name: I use a user login, not ownership.',
+    ],
+    costs: 'Domain, hosting and tool subscriptions stay billed to you directly by each provider.',
+    handover:
+      'Stop any month: you keep the site, the change log and every login, and my access is removed.',
+    faqs: [
+      {
+        q: 'Do I need Website Care after a new website?',
+        a: 'No. Every website I build is handed over with every login in your name and a short editing guide, so you can look after it yourself. Website Care is for owners who would rather not.',
+      },
+      {
+        q: 'What counts as a small edit?',
+        a: 'Text, photos, opening hours and prices, up to 30 minutes a month. New pages, new features or a redesign are quoted before any work starts.',
+      },
+      {
+        q: 'What happens if something breaks?',
+        a: 'I tell you what happened and fix it, or quote the fix first if it is more than a small repair. The monthly test is there so you hear about a broken form from me, not from a lost customer.',
+      },
+      {
+        q: 'Can I stop?',
+        a: 'Any month. You keep the site, the change log and every login, and my access is removed.',
+      },
+      {
+        q: 'How much does website maintenance cost?',
+        a: 'Website Care is $149 a month, in Canadian dollars plus tax. Your domain, hosting and any tool subscriptions stay billed to you directly by each provider.',
+      },
+    ],
+  },
+  {
+    slug: 'ai-search-optimization',
+    group: 'found',
+    short: 'AI search',
+    name: 'AI search optimization (AEO and GEO)',
+    card: 'What ChatGPT, Gemini and Perplexity say about your business, checked on a dated sheet, and the public facts they draw on fixed.',
+    title: 'AI Search Optimization (AEO & GEO) in Toronto',
+    description:
+      'See what ChatGPT, Gemini and Perplexity say about your business, then fix the public facts they draw on. Part of Local Visibility Setup, $650 CAD.',
+    eyebrow: 'AI search visibility',
+    h1: 'AI search optimization for Toronto businesses',
+    lines: ['AI search optimization', 'for Toronto businesses'],
+    lead: 'People now ask ChatGPT, Gemini and Perplexity to recommend a local business. I check what each one says about yours, record it on a dated sheet, and fix the public facts they draw on: your Google Business Profile, your listings and your website. It is part of Local Visibility Setup, because the fixes are ordinary local SEO done carefully.',
+    packages: ['local-visibility'],
+    forWho: [
+      'People ask an AI assistant for a business like yours, and you don’t know what it says',
+      'An assistant has your hours, prices, area or phone number wrong',
+      'You want accurate, matching facts about your business everywhere they are published',
+    ],
+    notFor:
+      'Anyone looking for a promised mention or position in AI answers. No one can promise what an AI assistant says, so I show the evidence instead.',
+    steps: [
+      {
+        title: 'The same questions, every time',
+        body: 'A short list of questions a customer might ask, put to ChatGPT, Gemini and Perplexity, so a later check can be compared with this one.',
+      },
+      {
+        title: 'A dated record',
+        body: 'What each assistant said, whether it linked your website, and which facts it used, on a dated sheet you keep.',
+      },
+      {
+        title: 'Fix the public facts',
+        body: 'Your Google Business Profile, Apple Maps, Bing and Facebook made consistent: the same name, number, hours and website.',
+      },
+      {
+        title: 'Website fixes, in priority order',
+        body: 'The questions customers really ask, answered in plain words on your website, with your details and FAQs marked up so machines can read them. Doing them is quoted on its own or as part of a website package.',
+      },
+      {
+        title: 'Check again',
+        body: 'The same questions asked again later, so you can see what changed, and what didn’t.',
+      },
+    ],
+    work: [],
+    sample: {
+      title: 'Sample: an AI answers check',
+      badge: 'Sample · fictional business',
+      cols: ['Question', 'Assistant', 'What it said'],
+      intro: 'A sample with a fictional cleaning business, so you can see the format. Your sheet uses your business and the questions your customers ask, dated.',
+      rows: [
+        { check: 'Who cleans condos in North York and shows prices?', before: 'ChatGPT', after: 'Named two other businesses; the sample business wasn’t mentioned' },
+        { check: 'Is the sample business open on Sundays?', before: 'Gemini', after: 'Said yes; its posted hours say closed. A fact to fix at the source' },
+        { check: 'House cleaner in Scarborough with good reviews?', before: 'Perplexity', after: 'Mentioned the sample business and linked its website' },
+      ],
+    },
+    limits: [
+      'No one can guarantee what an AI assistant says, or that it mentions you. Answers differ between tools and from one day to the next.',
+      'Google says its AI features need no special markup: the fixes are accurate public details, clear pages and consistent listings.',
+      'The sheet is a record of what each assistant said on the day, not a ranking.',
+    ],
+    costs: 'Nothing is required beyond what Local Visibility Setup lists. If you want printed review cards, the printer bills you directly.',
+    handover:
+      'You keep the dated sheet (the questions, each answer, whether it linked your website and which facts it used) and the list of fixes made, so you can repeat the check yourself.',
+    faqs: [
+      {
+        q: 'What are AEO and GEO?',
+        a: 'Answer engine optimization and generative engine optimization: making your business easy for AI tools such as ChatGPT, Gemini, Perplexity and Google AI Overviews to find, understand and describe accurately. In practice it is careful local SEO: accurate public details, clear pages and consistent listings.',
+      },
+      {
+        q: 'Can you get my business recommended by ChatGPT?',
+        a: 'No one can promise that. What I can do is check what it says now, fix the public facts it draws on, and check again with the same questions, so you can see the difference on a dated sheet.',
+      },
+      {
+        q: 'Is this a separate package?',
+        a: 'No. The check is part of Local Visibility Setup ($650), because the fixes are the same local SEO work: your Google Business Profile, your listings and your website.',
+      },
+      {
+        q: 'How often should the check be repeated?',
+        a: 'Answers change between tools and from day to day, so one answer means little. Repeating the same questions every month or two, and comparing the dated sheets, shows the trend.',
+      },
+    ],
+    sources: [
+      { label: 'Google: AI features and your website', url: 'https://developers.google.com/search/docs/appearance/ai-features' },
+      { label: 'Google: how local results are ranked', url: 'https://support.google.com/business/answer/7091?hl=en' },
     ],
   },
 ];

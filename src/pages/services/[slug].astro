@@ -15,7 +15,8 @@ import EnquiryDemo from '../../components/EnquiryDemo.astro';
 import ServiceDetails from '../../components/ServiceDetails.astro';
 import ReviewsStrip from '../../components/ReviewsStrip.astro';
 import { profile } from '../../data/site';
-import { servicePages, type ServicePage } from '../../data/service-pages';
+import { servicePages, moreServicePages, type ServicePage } from '../../data/service-pages';
+import FreeCheck from '../../components/home/FreeCheck.astro';
 import { packageById, priceLabel, type Package } from '../../data/packages';
 import { absoluteUrl } from '../../lib/mode';
 import { breadcrumbJsonLd, businessRef } from '../../lib/seo';
@@ -24,7 +25,8 @@ import { industryPages } from '../../data/industry-pages';
 import { areaHref, visibleGuides } from '../../lib/published';
 
 export function getStaticPaths() {
-  return servicePages.map((page) => ({ params: { slug: page.slug }, props: { page } }));
+  // The three main services, plus Website Care and AI search optimization (SEO audit Phase 4, 14 Nov 2026).
+  return [...servicePages, ...moreServicePages].map((page) => ({ params: { slug: page.slug }, props: { page } }));
 }
 
 interface Props {
@@ -35,10 +37,13 @@ const pkgs = page.packages.map((id) => packageById(id)).filter(Boolean) as Packa
 const main = pkgs[0];
 const work = (await getCollection('work')).filter((w) => page.work.includes(w.id)).sort((a, b) => a.data.order - b.data.order);
 const others = servicePages.filter((p) => p.slug !== page.slug);
+// Phase 4 pages carry no "Service by service" details (those live on the main page for their area, so they are
+// never repeated) and, as new pages, end with the free check.
+const isMain = servicePages.some((p) => p.slug === page.slug);
 const samples = [page.sample, page.testLog].filter((x) => x !== undefined);
 // SEO audit Phase 3 (14 Nov 2026): the industry pages that need this service, its guides (once published) and
 // the Scarborough page (once published) are linked from here.
-const industries = industryPages.filter((ip) => ip.services.includes(page.slug));
+const industries = industryPages.filter((ip) => (ip.services as readonly string[]).includes(page.slug));
 const guides = (await visibleGuides()).filter((g) => g.data.service === `/services/${page.slug}/`);
 const scarborough = areaHref('scarborough');
 const path = `/services/${page.slug}/`;
@@ -321,7 +326,7 @@ const fmtDate = (iso: string) =>
     </div>
   </section>
 
-  <ServiceDetails group={page.group} />
+  {isMain && <ServiceDetails group={page.group} />}
 
   <section class="section" aria-labelledby="sp-faq-title">
     <div class="container sp__split">
@@ -406,6 +411,8 @@ const fmtDate = (iso: string) =>
       </ul>
     </div>
   </nav>
+
+  {!isMain && <FreeCheck id="check" />}
 </BaseLayout>
 
 <style>
