@@ -3,7 +3,7 @@ import BaseLayout from '../layouts/BaseLayout.astro';
 import Hero from '../components/home/Hero.astro';
 import SelectedWork from '../components/home/SelectedWork.astro';
 import ServiceSummary from '../components/home/ServiceSummary.astro';
-import Walkthrough from '../components/home/Walkthrough.astro';
+import PricingTeaser from '../components/home/PricingTeaser.astro';
 import FreeCheck from '../components/home/FreeCheck.astro';
 import AboutTeaser from '../components/home/AboutTeaser.astro';
 import Faq from '../components/Faq.astro';
@@ -12,15 +12,15 @@ import { personWithServicesJsonLd, websiteJsonLd } from '../lib/seo';
 
 <BaseLayout
   title="Home"
-  fullTitle="Mann Patel | Web Design, Local SEO & Automation in Toronto"
-  description="Web design, local SEO and automation for Toronto businesses. Serving Toronto and the GTA, with a focus on Scarborough and North York."
+  fullTitle="Mann Patel | Web Design, Local SEO & AI Automation in Toronto"
+  description="Web design, local SEO and AI automation for Toronto businesses. Websites from $1,950 CAD for up to five pages. Serving Toronto and the GTA, with a focus on Scarborough and North York."
   jsonLd={[websiteJsonLd(), personWithServicesJsonLd()]}
 >
   <Hero />
   <SelectedWork />
-  <Walkthrough />
   <ServiceSummary />
+  <PricingTeaser />
   <FreeCheck />
   <AboutTeaser />
-  <Faq limit={4} more />
+  <Faq limit={5} more />
 </BaseLayout>

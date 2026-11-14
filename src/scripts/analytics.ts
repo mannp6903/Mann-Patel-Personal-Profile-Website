@@ -62,10 +62,32 @@ export function loadGa() {
   document.head.appendChild(s);
 }
 
+/**
+ * Test mode for controlled form tests (Quickstart, 13 Nov 2026): open any page once with
+ * `?ga_debug=1` and, for the rest of that browser tab, events are sent with `debug_mode` so they show
+ * in GA4 DebugView, and each one is logged to the console. `?ga_debug=0` turns it off.
+ */
+const DEBUG_KEY = 'mp-ga-debug';
+export function debugMode(): boolean {
+  try {
+    const flag = typeof location === 'undefined' ? null : new URLSearchParams(location.search).get('ga_debug');
+    if (flag === '1') sessionStorage.setItem(DEBUG_KEY, '1');
+    if (flag === '0') sessionStorage.removeItem(DEBUG_KEY);
+    return sessionStorage.getItem(DEBUG_KEY) === '1';
+  } catch {
+    return false;
+  }
+}
+
 export function track(name: string, params: Params = {}) {
-  if (import.meta.env.DEV) console.info('[analytics]', name, params);
+  const debug = debugMode();
+  if (import.meta.env.DEV || debug) console.info('[analytics]', name, params);
+  // Every successful lead also fires a DOM event, so a browser test can count leads without GA4.
+  if (name === 'generate_lead' && typeof document.dispatchEvent === 'function' && typeof CustomEvent === 'function') {
+    document.dispatchEvent(new CustomEvent('mp:lead', { detail: { ...params } }));
+  }
   if (!PUBLIC_GA4_ID || getConsent() !== 'granted') return;
-  window.gtag?.('event', name, params);
+  window.gtag?.('event', name, debug ? { ...params, debug_mode: true } : params);
 }
 
 /** Fire an event at most once per key in this browser session (prevents duplicate leads). */

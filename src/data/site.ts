@@ -93,10 +93,12 @@ export const businesses: Business[] = [
   },
 ];
 
+/** Main menu (14 Nov 2026): the order a new client reads in: proof, what I do, what it costs, who I am. */
 export const nav = [
-  { href: '/services/', label: 'Services' },
   { href: '/work/', label: 'Work' },
+  { href: '/services/', label: 'Services' },
+  { href: '/pricing/', label: 'Pricing' },
   { href: '/about/', label: 'About' },
 ] as const;
 
-export const primaryCta = { href: '/contact/', label: 'Start a project' } as const;
+export const primaryCta = { href: '/contact/', label: 'Contact' } as const;

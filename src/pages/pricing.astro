@@ -1,16 +1,12 @@
 ---
 /**
- * Pricing (round 10). Every number and boundary comes from src/data/packages.ts.
- *
- * Until Mann approves at least one price (`pricesPublished`), this page is built but kept out of
- * search (noindex, left out of the sitemap) and isn't linked from the site: a pricing page with no
- * prices would only repeat the Services comparison. It is still reachable at /pricing/ for review.
+ * Pricing (published 14 Nov 2026). Every number and boundary comes from src/data/packages.ts.
+ * If every price is set back to null (`pricesPublished` false), this page leaves search and the menus.
  */
 import BaseLayout from '../layouts/BaseLayout.astro';
 import PageHead from '../components/PageHead.astro';
 import Icon from '../components/ui/Icon.astro';
 import Button from '../components/ui/Button.astro';
-import PreviewNote from '../components/PreviewNote.astro';
 import PackageCard from '../components/packages/PackageCard.astro';
 import PackageCompare from '../components/packages/PackageCompare.astro';
 import { packages, checkUp, pricesPublished } from '../data/packages';
@@ -19,7 +15,7 @@ import { breadcrumbJsonLd } from '../lib/seo';
 const costs = [...new Set(packages.flatMap((p) => p.thirdParty).filter((c) => !c.startsWith('Everything in')))];
 
 const affects = [
-  { t: 'Pages beyond the boundary', d: 'Website Launch covers up to five pages. More pages, or pages that need new writing, are quoted on top.' },
+  { t: 'Pages beyond the boundary', d: 'Website Launch covers up to five pages. More pages, or pages that need new writing, are quoted in writing on top.' },
   { t: 'What you supply', d: 'Ready text and real photos keep the price at the boundary. Writing from scratch or arranging photos adds time.' },
   { t: 'Your tools', d: 'A booking tool or phone set-up that connects easily is quicker than one that needs a workaround, or can’t connect at all.' },
   { t: 'The state of what exists', d: 'An old profile with duplicates, or a site with broken forms, can need clean-up before the new work starts.' },
@@ -31,8 +27,16 @@ const questions = [
     a: 'Yes, with no obligation. You get a written list of fixes, most important first. If you want them done, I quote them separately.',
   },
   {
-    q: 'When do I know the final price?',
-    a: 'Before any work starts. Your written scope lists the deliverables, exclusions, price and timing, and that is what we agree.',
+    q: 'Are these the final prices?',
+    a: 'Yes, for the scope written on each package. Your written scope lists the deliverables, exclusions, price and timing before any work starts, and that is what we agree. Prices are in Canadian dollars, plus applicable tax.',
+  },
+  {
+    q: 'How do payments work?',
+    a: 'For a website, half at kickoff and half once the site passes the launch checks agreed in your scope. A Website Fix is paid once the agreed test passes. Website Care is billed monthly.',
+  },
+  {
+    q: 'Do I own the website?',
+    a: 'Yes. The domain, hosting, Google accounts and files are in your name from the start. At handover you get the site, a short editing guide, every login and renewal date, and the test results.',
   },
   {
     q: 'What if I want something outside the scope?',
@@ -60,22 +64,16 @@ const faqLd = {
 ---
 
 <BaseLayout
-  title="Pricing: web design, local SEO and enquiry follow-up"
-  description="Four packages with clear boundaries: Website Launch, Website + Enquiry System, Local Visibility Setup and Website Care. What each includes, what costs extra and how the price is set."
+  title="Pricing: web design, local SEO and follow-up in Toronto"
+  description="Published prices in CAD: a website of up to five pages for $1,950, website with booking and follow-up $3,350, one fix $450–$850, local search setup $650, care $149 a month. What each includes and what costs extra."
   noindex={!pricesPublished}
   jsonLd={[faqLd, ...(crumbs ? [crumbs] : [])]}
 >
   <PageHead
     eyebrow="Pricing"
     lines={['What it costs,', '<span class="accent accent--signal">and what it covers.</span>']}
-    lead="Four packages, each with a clear boundary, and a free check if you’re not sure where to start. Your written scope confirms the price before any work starts."
-  >
-    {
-      !pricesPublished && (
-        <PreviewNote note="Prices aren't set yet: every card reads “Written quote after a short brief”. This page stays out of search and the menus until Mann adds approved prices in src/data/packages.ts." />
-      )
-    }
-  </PageHead>
+    lead="Five offers, each with a published price and a clear boundary, plus a free check if you’re not sure where to start. All prices in Canadian dollars, plus applicable tax."
+  />
 
   <section class="section section--rule" aria-labelledby="pr-packages">
     <div class="container stack" style="--stack: var(--s-6)">
@@ -95,7 +93,25 @@ const faqLd = {
     </div>
   </section>
 
-  <section class="section section--alt" aria-labelledby="pr-affects">
+
+  <section class="section section--alt" aria-labelledby="pr-example">
+    <div class="container pr__split">
+      <div class="stack" style="--stack: var(--s-4)">
+        <p class="eyebrow">Example</p>
+        <h2 id="pr-example" class="pr__h2">A salon website <span class="accent">for $1,950.</span></h2>
+        <p class="muted">What Website Launch looks like for a neighbourhood salon, similar to the <a class="link" href="/work/samp-hair-spa/">Samp Hair &amp; Spa preview</a>.</p>
+      </div>
+      <dl class="pr__affects">
+        <div><dt>Pages</dt><dd>Home, Services and Pricing, About, Gallery and Contact.</dd></div>
+        <div><dt>You provide</dt><dd>Your current service menu, approved photos, opening hours and account access.</dd></div>
+        <div><dt>The booking step</dt><dd>The site sends one enquiry to your inbox, or takes visitors to your existing booking link. A connected booking workflow is the $3,350 package.</dd></div>
+        <div><dt>Signed off when</dt><dd>The service menu reads well on a phone, the booking destination or a test enquiry works, and you have had a short walkthrough of how to edit it.</dd></div>
+        <div><dt>Payment</dt><dd>$975 at kickoff and $975 once the site passes those checks, plus applicable tax.</dd></div>
+      </dl>
+    </div>
+  </section>
+
+  <section class="section section--rule" aria-labelledby="pr-affects">
     <div class="container pr__split">
       <div class="stack" style="--stack: var(--s-4)">
         <p class="eyebrow">How the price is set</p>
@@ -169,9 +185,16 @@ const faqLd = {
       grid-template-columns: repeat(2, minmax(0, 1fr));
     }
   }
-  @media (min-width: 80em) {
+  @media (min-width: 72em) {
     .pr__grid {
-      grid-template-columns: repeat(4, minmax(0, 1fr));
+      grid-template-columns: repeat(6, minmax(0, 1fr));
+    }
+    .pr__grid > :global(li) {
+      grid-column: span 2;
+    }
+    /* Five offers: three on the first row, the last two share the second. */
+    .pr__grid > :global(li:nth-child(n + 4)) {
+      grid-column: span 3;
     }
   }
   .pr__free {

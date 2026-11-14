@@ -14,7 +14,7 @@ export interface GuideAnswers {
 }
 
 export interface Recommendation {
-  packageId: 'website-launch' | 'website-enquiry' | 'local-visibility' | 'care' | 'check-up';
+  packageId: 'website-fix' | 'website-launch' | 'website-enquiry' | 'local-visibility' | 'care' | 'check-up';
   serviceIds: string[];
   headline: string;
   reasons: string[];

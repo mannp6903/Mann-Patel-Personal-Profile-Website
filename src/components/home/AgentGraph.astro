@@ -1,0 +1,583 @@
+---
+/**
+ * The hero visual (14 Nov 2026): "the agent graph". A small neural network drawn as a diagram of
+ * the work: where customers come from (Google, Maps, AI answers) on one side, what they need to
+ * happen (an enquiry, a reply, a booking) on the other, and Mann's real photo as the core node in
+ * the middle. Light pulses travel the connections, so the network looks like it is thinking.
+ *
+ * Built as one inline SVG with CSS animation: no canvas, no WebGL, no script needed to draw it.
+ * Two layouts are generated from the same description: left-to-right on wide screens and
+ * top-to-bottom on phones (so the photo can be large on a 390 px screen). Reduced motion shows the
+ * finished, still diagram. A pause button stops the pulses (WCAG 2.2.2); the small script also
+ * pauses them while the graph is off screen.
+ */
+import { Image } from 'astro:assets';
+import { profile } from '../../data/site';
+
+interface Props {
+  class?: string;
+}
+const { class: cls } = Astro.props;
+const portrait = profile.portrait;
+
+type Pt = { x: number; y: number };
+interface Layout {
+  w: number;
+  h: number;
+  core: Pt & { r: number };
+  inputs: Pt[];
+  outputs: Pt[];
+  hiddenIn: Pt[];
+  hiddenOut: Pt[];
+  dir: 'x' | 'y';
+}
+
+const inLabels = ['Google', 'Maps', 'AI answers'];
+const outLabels = ['Enquiry', 'Reply', 'Booking'];
+
+const wide: Layout = {
+  w: 640,
+  h: 540,
+  dir: 'x',
+  core: { x: 320, y: 270, r: 122 },
+  inputs: [{ x: 64, y: 118 }, { x: 64, y: 270 }, { x: 64, y: 422 }],
+  outputs: [{ x: 578, y: 118 }, { x: 578, y: 270 }, { x: 578, y: 422 }],
+  hiddenIn: [70, 170, 270, 370, 470].map((y) => ({ x: 158, y })),
+  hiddenOut: [70, 170, 270, 370, 470].map((y) => ({ x: 482, y })),
+};
+const tall: Layout = {
+  w: 360,
+  h: 520,
+  dir: 'y',
+  core: { x: 180, y: 260, r: 100 },
+  inputs: [{ x: 62, y: 24 }, { x: 180, y: 24 }, { x: 298, y: 24 }],
+  outputs: [{ x: 62, y: 496 }, { x: 180, y: 496 }, { x: 298, y: 496 }],
+  hiddenIn: [30, 105, 180, 255, 330].map((x) => ({ x, y: 104 })),
+  hiddenOut: [30, 105, 180, 255, 330].map((x) => ({ x, y: 416 })),
+};
+
+/** A soft S-curve between two points, bending along the flow direction. */
+const curve = (a: Pt, b: Pt, dir: 'x' | 'y') => {
+  if (dir === 'x') {
+    const m = (a.x + b.x) / 2;
+    return `M${a.x} ${a.y}C${m} ${a.y} ${m} ${b.y} ${b.x} ${b.y}`;
+  }
+  const m = (a.y + b.y) / 2;
+  return `M${a.x} ${a.y}C${a.x} ${m} ${b.x} ${m} ${b.x} ${b.y}`;
+};
+/** The same curve, continued from the end of a previous one (for single-path pulse routes). */
+const cont = (a: Pt, b: Pt, dir: 'x' | 'y') => curve(a, b, dir).replace(/^M[^C]+/, '');
+
+/** Where an edge meets the edge of the core circle, aimed at its centre. */
+const rim = (p: Pt, c: Pt & { r: number }) => {
+  const dx = p.x - c.x;
+  const dy = p.y - c.y;
+  const d = Math.hypot(dx, dy);
+  return { x: +(c.x + (dx / d) * (c.r + 10)).toFixed(1), y: +(c.y + (dy / d) * (c.r + 10)).toFixed(1) };
+};
+
+function build(L: Layout) {
+  const mesh: string[] = [];
+  L.inputs.forEach((p) => L.hiddenIn.forEach((h) => mesh.push(curve(p, h, L.dir))));
+  L.hiddenOut.forEach((h) => L.outputs.forEach((p) => mesh.push(curve(h, p, L.dir))));
+  const spokes = [...L.hiddenIn.map((h) => curve(h, rim(h, L.core), L.dir)), ...L.hiddenOut.map((h) => curve(rim(h, L.core), h, L.dir))];
+  // Pulse routes: input -> hidden node -> core, then core -> hidden node -> output. Six pairs.
+  const pick = [
+    [0, 1, 0, 0],
+    [1, 2, 1, 2],
+    [2, 3, 3, 2],
+    [0, 0, 2, 1],
+    [1, 4, 4, 1],
+    [2, 3, 1, 0],
+  ];
+  const routes = pick.map(([i, hi, ho, o], k) => {
+    const a = L.inputs[i];
+    const b = L.hiddenIn[hi];
+    const rb = rim(b, L.core);
+    const c = L.hiddenOut[ho];
+    const rc = rim(c, L.core);
+    const d = L.outputs[o];
+    return {
+      k,
+      in: curve(a, b, L.dir) + cont(b, rb, L.dir),
+      out: curve(rc, c, L.dir) + cont(c, d, L.dir),
+    };
+  });
+  return { mesh, spokes, routes };
+}
+
+/** Pill width for a label at the layout's text size (Geist, about 0.56em per character). */
+const pillW = (t: string, fs: number) => Math.round(t.length * fs * 0.56 + fs * 2.2);
+// Larger type on the wide layout: it is drawn smaller per unit on laptop-width screens.
+const layouts = [
+  { id: 'wide', L: wide, g: build(wide), fs: 16 },
+  { id: 'tall', L: tall, g: build(tall), fs: 13.5 },
+];
+const pct = (L: Layout) => ({
+  x: (L.core.x / L.w) * 100,
+  y: (L.core.y / L.h) * 100,
+  d: ((L.core.r * 2) / L.w) * 100,
+});
+const pw = pct(wide);
+const pt = pct(tall);
+---
+
+<figure
+  class:list={['ag', cls]}
+  data-agent-graph
+  style={`--cx-w:${pw.x}%;--cy-w:${pw.y}%;--cd-w:${pw.d}%;--cx-t:${pt.x}%;--cy-t:${pt.y}%;--cd-t:${pt.d}%`}
+>
+  <div class="ag__stage">
+    {
+      layouts.map(({ id, L, g, fs }) => (
+        <svg class={`ag__svg ag__svg--${id}`} viewBox={`0 0 ${L.w} ${L.h}`} aria-hidden="true" focusable="false">
+          <g class="ag__orbit" style={`transform-origin:${L.core.x}px ${L.core.y}px`}>
+            <circle cx={L.core.x} cy={L.core.y} r={L.core.r + 34} class="ag__ring ag__ring--dots" />
+            <circle cx={L.core.x} cy={L.core.y} r={L.core.r + 18} class="ag__ring ag__ring--scan" pathLength="100" />
+          </g>
+          <circle cx={L.core.x} cy={L.core.y} r={L.core.r + 6} class="ag__ping" style={`transform-origin:${L.core.x}px ${L.core.y}px`} />
+          <g class="ag__mesh">
+            {g.mesh.map((d, i) => (
+              <path d={d} pathLength="1" style={`--i:${i % 15}`} />
+            ))}
+          </g>
+          <g class="ag__spokes">
+            {g.spokes.map((d, i) => (
+              <path d={d} pathLength="1" style={`--i:${i}`} />
+            ))}
+          </g>
+          <g class="ag__pulses">
+            {g.routes.map((r) => (
+              <>
+                <path class="ag__pulse ag__pulse--in" d={r.in} pathLength="1" style={`--k:${r.k}`} />
+                <path class="ag__pulse ag__pulse--out" d={r.out} pathLength="1" style={`--k:${r.k}`} />
+              </>
+            ))}
+          </g>
+          <g class="ag__nodes">
+            {[...L.hiddenIn, ...L.hiddenOut].map((n, i) => (
+              <circle cx={n.x} cy={n.y} r="4.5" style={`--i:${i}`} />
+            ))}
+          </g>
+          <g class="ag__pills">
+            {L.inputs.map((p, i) => {
+              const w = pillW(inLabels[i], fs);
+              return (
+                <g class="ag__pill" style={`--i:${i}`}>
+                  <rect x={p.x - w / 2} y={p.y - fs * 1.3} width={w} height={fs * 2.6} rx={fs * 1.3} />
+                  <text x={p.x} y={p.y + fs * 0.34} font-size={fs}>{inLabels[i]}</text>
+                </g>
+              );
+            })}
+            {L.outputs.map((p, i) => {
+              const w = pillW(outLabels[i], fs);
+              return (
+                <g class:list={['ag__pill', { 'ag__pill--goal': i === 2 }]} style={`--i:${i + 3}`}>
+                  <rect x={p.x - w / 2} y={p.y - fs * 1.3} width={w} height={fs * 2.6} rx={fs * 1.3} />
+                  <text x={p.x} y={p.y + fs * 0.34} font-size={fs}>{outLabels[i]}</text>
+                </g>
+              );
+            })}
+          </g>
+        </svg>
+      ))
+    }
+
+    {
+      portrait && (
+        <div class="ag__core">
+          <Image
+            src={portrait.src}
+            alt={portrait.alt}
+            widths={[240, 360, 480, 640]}
+            sizes="(min-width: 64em) 15rem, (min-width: 40em) 14rem, 52vw"
+            format="webp"
+            quality={80}
+            loading="eager"
+            fetchpriority="high"
+            decoding="async"
+            class="ag__photo"
+          />
+        </div>
+      )
+    }
+  </div>
+
+  <figcaption class="ag__caption">
+    <span class="ag__who"><b>Mann Patel</b> builds the part in the middle: the website, search setup and follow-up that turn a search into a booking.</span>
+    <button type="button" class="ag__toggle" data-ag-toggle aria-pressed="false" hidden>
+      <svg viewBox="0 0 16 16" width="14" height="14" aria-hidden="true" focusable="false">
+        <path class="ag__i-pause" d="M5.5 3.5v9m5-9v9" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" fill="none" />
+        <path class="ag__i-play" d="m5.5 3.5 7 4.5-7 4.5z" fill="currentColor" />
+      </svg>
+      <span data-ag-label>Pause animation</span>
+    </button>
+  </figcaption>
+</figure>
+
+<script>
+  document.querySelectorAll<HTMLElement>('[data-agent-graph]').forEach((root) => {
+    const btn = root.querySelector<HTMLButtonElement>('[data-ag-toggle]');
+    const label = root.querySelector<HTMLElement>('[data-ag-label]');
+    const still = window.matchMedia('(prefers-reduced-motion: reduce)');
+    let userPaused = false;
+    let offscreen = false;
+    const apply = () => root.classList.toggle('is-paused', userPaused || offscreen);
+    if (btn && !still.matches) {
+      btn.hidden = false;
+      btn.addEventListener('click', () => {
+        userPaused = !userPaused;
+        btn.setAttribute('aria-pressed', String(userPaused));
+        if (label) label.textContent = userPaused ? 'Play animation' : 'Pause animation';
+        apply();
+      });
+    }
+    if ('IntersectionObserver' in window) {
+      new IntersectionObserver(([e]) => {
+        offscreen = !e.isIntersecting;
+        apply();
+      }).observe(root);
+    }
+  });
+</script>
+
+<style>
+  .ag {
+    position: relative;
+    min-width: 0;
+    width: 100%;
+    display: grid;
+    gap: var(--s-3);
+  }
+  .ag__stage {
+    position: relative;
+    isolation: isolate;
+    --cx: var(--cx-t);
+    --cy: var(--cy-t);
+    --cd: var(--cd-t);
+  }
+  .ag__stage::before {
+    /* The glow that the core gives off. */
+    content: '';
+    position: absolute;
+    z-index: -1;
+    left: var(--cx);
+    top: var(--cy);
+    width: calc(var(--cd) * 2.2);
+    aspect-ratio: 1;
+    transform: translate(-50%, -50%);
+    border-radius: 50%;
+    background: radial-gradient(circle, rgb(212 248 74 / 0.16), rgb(212 248 74 / 0.04) 45%, transparent 70%);
+  }
+  .ag__svg {
+    display: block;
+    width: 100%;
+    height: auto;
+    overflow: visible;
+  }
+  .ag__svg--wide {
+    display: none;
+  }
+  @media (min-width: 64em) {
+    .ag__stage {
+      --cx: var(--cx-w);
+      --cy: var(--cy-w);
+      --cd: var(--cd-w);
+    }
+    .ag__svg--wide {
+      display: block;
+    }
+    .ag__svg--tall {
+      display: none;
+    }
+  }
+
+  /* Static drawing (also the reduced-motion and finished state). */
+  .ag__mesh path {
+    fill: none;
+    stroke: #3a3e2c;
+    stroke-width: 1;
+  }
+  .ag__spokes path {
+    fill: none;
+    stroke: #5b6236;
+    stroke-width: 1.25;
+  }
+  .ag__ring {
+    fill: none;
+  }
+  .ag__ring--dots {
+    stroke: #4a4f37;
+    stroke-width: 1;
+    stroke-dasharray: 1.5 7;
+  }
+  .ag__ring--scan {
+    stroke: var(--signal);
+    stroke-width: 2;
+    stroke-linecap: round;
+    stroke-dasharray: 18 8 3 8 30 33;
+    opacity: 0.9;
+  }
+  .ag__ping {
+    fill: none;
+    stroke: var(--signal);
+    stroke-width: 1.5;
+    opacity: 0;
+  }
+  .ag__pulse {
+    fill: none;
+    stroke: var(--signal);
+    stroke-width: 3;
+    stroke-linecap: round;
+    stroke-dasharray: 0.09 2;
+    stroke-dashoffset: 0.09;
+    filter: drop-shadow(0 0 4px rgb(212 248 74 / 0.8));
+  }
+  .ag__nodes circle {
+    fill: var(--bg);
+    stroke: #8d9a4a;
+    stroke-width: 1.5;
+  }
+  .ag__pill rect {
+    fill: var(--surface);
+    stroke: #3d3f33;
+    stroke-width: 1;
+  }
+  .ag__pill text {
+    fill: var(--text);
+    font-family: var(--font-sans);
+    font-weight: 560;
+    letter-spacing: -0.01em;
+    text-anchor: middle;
+  }
+  .ag__pill--goal rect {
+    fill: var(--signal);
+    stroke: var(--signal);
+  }
+  .ag__pill--goal text {
+    fill: var(--on-signal);
+    font-weight: 650;
+  }
+
+  /* The portrait: a real photo as the core node. */
+  .ag__core {
+    position: absolute;
+    left: var(--cx);
+    top: var(--cy);
+    width: var(--cd);
+    aspect-ratio: 1;
+    transform: translate(-50%, -50%);
+    border-radius: 50%;
+    padding: 5px;
+    background: conic-gradient(from 210deg, var(--signal), rgb(212 248 74 / 0.15) 40%, var(--signal) 70%, rgb(212 248 74 / 0.3));
+    box-shadow: 0 0 0 1px rgb(212 248 74 / 0.25), 0 24px 60px -18px rgb(0 0 0 / 0.9);
+  }
+  .ag__photo {
+    display: block;
+    width: 100%;
+    height: 100%;
+    border-radius: 50%;
+    object-fit: cover;
+    object-position: 50% 18%;
+    background: var(--surface);
+  }
+
+  .ag__caption {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: var(--s-3);
+    padding-top: var(--s-3);
+    border-top: 1px solid var(--line);
+    font-size: var(--fs-xs);
+    color: var(--text-3);
+    line-height: 1.45;
+  }
+  .ag__who b {
+    color: var(--text);
+    font-weight: 600;
+  }
+  .ag__toggle {
+    flex: none;
+    display: inline-flex;
+    align-items: center;
+    gap: var(--s-2);
+    min-height: var(--tap);
+    padding-inline: var(--s-3);
+    border: 1px solid var(--line);
+    border-radius: var(--r-pill);
+    background: transparent;
+    color: var(--text-2);
+    font: inherit;
+    cursor: pointer;
+  }
+  .ag__toggle:hover {
+    color: var(--text);
+    border-color: var(--control);
+  }
+  .ag__i-play,
+  .ag__toggle[aria-pressed='true'] .ag__i-pause {
+    display: none;
+  }
+  .ag__toggle[aria-pressed='true'] .ag__i-play {
+    display: inline;
+  }
+  @media (max-width: 39.99em) {
+    .ag__toggle [data-ag-label] {
+      position: absolute;
+      width: 1px;
+      height: 1px;
+      overflow: hidden;
+      clip: rect(0 0 0 0);
+      white-space: nowrap;
+    }
+    .ag__toggle {
+      width: var(--tap);
+      justify-content: center;
+      padding: 0;
+    }
+  }
+
+  /* ── Motion: one load sequence (the network wires itself up), then the pulses loop. ── */
+  @media (prefers-reduced-motion: no-preference) {
+    .ag__mesh path,
+    .ag__spokes path {
+      stroke-dasharray: 1;
+      animation: ag-draw 1.1s var(--ease-out) both;
+      animation-delay: calc(var(--i) * 35ms);
+    }
+    .ag__spokes path {
+      animation-delay: calc(500ms + var(--i) * 45ms);
+    }
+    .ag__nodes circle {
+      animation:
+        ag-pop 600ms var(--ease-spring) both,
+        ag-twinkle 3.2s ease-in-out infinite;
+      animation-delay: calc(350ms + var(--i) * 40ms), calc(1.6s + var(--i) * 310ms);
+      transform-box: fill-box;
+      transform-origin: center;
+    }
+    .ag__pill {
+      animation: ag-fade 700ms var(--ease-out) both;
+      animation-delay: calc(150ms + var(--i) * 90ms);
+    }
+    .ag__core {
+      animation: ag-core 900ms var(--ease-out) both;
+    }
+    .ag__orbit {
+      animation: ag-spin 28s linear infinite;
+    }
+    .ag__ping {
+      animation: ag-ping 2.6s var(--ease-out) infinite 1.6s;
+    }
+    .ag__pulse--in {
+      animation: ag-in 4.2s linear infinite;
+      animation-delay: calc(1.4s + var(--k) * 0.7s);
+    }
+    .ag__pulse--out {
+      animation: ag-out 4.2s linear infinite;
+      animation-delay: calc(1.4s + var(--k) * 0.7s);
+    }
+    .ag__pill--goal rect {
+      animation: ag-goal 4.2s ease-out infinite 2.9s;
+    }
+    .ag.is-paused *,
+    .ag.is-paused::before {
+      animation-play-state: paused !important;
+    }
+  }
+  @media (prefers-reduced-motion: reduce) {
+    /* Still: two routes lit, so the diagram still reads as a flow. */
+    .ag__pulse {
+      stroke-dasharray: none;
+      stroke-dashoffset: 0;
+      opacity: 0.55;
+      filter: none;
+    }
+    .ag__pulse:not([style*='--k:0']):not([style*='--k:4']) {
+      display: none;
+    }
+  }
+  @keyframes ag-draw {
+    from {
+      stroke-dashoffset: 1;
+    }
+    to {
+      stroke-dashoffset: 0;
+    }
+  }
+  @keyframes ag-pop {
+    from {
+      transform: scale(0);
+    }
+  }
+  @keyframes ag-twinkle {
+    0%,
+    80%,
+    100% {
+      stroke: #8d9a4a;
+      fill: var(--bg);
+    }
+    88% {
+      stroke: var(--signal);
+      fill: var(--signal);
+    }
+  }
+  @keyframes ag-fade {
+    from {
+      opacity: 0;
+      transform: translateY(6px);
+    }
+  }
+  @keyframes ag-core {
+    from {
+      opacity: 0;
+      transform: translate(-50%, -50%) scale(0.86);
+    }
+  }
+  @keyframes ag-spin {
+    to {
+      transform: rotate(360deg);
+    }
+  }
+  @keyframes ag-ping {
+    0% {
+      opacity: 0.7;
+      transform: scale(1);
+    }
+    100% {
+      opacity: 0;
+      transform: scale(1.22);
+    }
+  }
+  /* In: travels from the source to the core in the first 40% of the loop. */
+  @keyframes ag-in {
+    0% {
+      stroke-dashoffset: 0.09;
+    }
+    40%,
+    100% {
+      stroke-dashoffset: -1;
+    }
+  }
+  /* Out: leaves the core just after the signal arrives, and reaches the outcome. */
+  @keyframes ag-out {
+    0%,
+    46% {
+      stroke-dashoffset: 0.09;
+    }
+    86%,
+    100% {
+      stroke-dashoffset: -1;
+    }
+  }
+  @keyframes ag-goal {
+    0%,
+    100% {
+      filter: none;
+    }
+    10% {
+      filter: drop-shadow(0 0 10px rgb(212 248 74 / 0.9));
+    }
+  }
+</style>

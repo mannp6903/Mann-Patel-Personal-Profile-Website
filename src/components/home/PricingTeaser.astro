@@ -1,0 +1,152 @@
+---
+/**
+ * Home: every price on one screen (14 Nov 2026). A price list, not a card grid: what each offer
+ * costs and the one-line boundary of what that price covers. Full detail lives on /pricing/.
+ * Everything reads from src/data/packages.ts.
+ */
+import { packages, priceLabel, priceTerms } from '../../data/packages';
+import Button from '../ui/Button.astro';
+import Icon from '../ui/Icon.astro';
+---
+
+<section class="pt section section--rule" id="prices" aria-labelledby="pt-title">
+  <div class="container pt__grid">
+    <div class="pt__head">
+      <p class="eyebrow">03 / Pricing</p>
+      <h2 id="pt-title" class="pt__title">Prices you can see <span class="accent">before you call.</span></h2>
+      <p class="muted pt__lead">
+        Each price covers the scope written under it. Anything outside that is quoted in writing before any work starts, and
+        your domain, hosting and tools are billed to you directly, in your name.
+      </p>
+      <p class="small subtle">All prices in Canadian dollars, plus applicable tax. Websites: half at kickoff, half once the agreed launch checks pass.</p>
+      <div class="btn-row">
+        <Button href="/pricing/" variant="ghost">Full pricing and what’s included</Button>
+      </div>
+    </div>
+
+    <ul class="pt__list" role="list">
+      {
+        packages.map((p) => {
+          const price = priceLabel(p);
+          return (
+            <li class:list={['pt__row', { 'pt__row--lead': p.id === 'website-launch' }]}>
+              <a href={`/pricing/#pkg-${p.id}`}>
+                <span class="pt__name">{p.name}</span>
+                <span class="pt__price">
+                  <b data-price>{price.text}</b>
+                  <span>{priceTerms(p)}</span>
+                </span>
+                <span class="pt__boundary">{p.boundary}</span>
+                <Icon name="arrow" />
+              </a>
+            </li>
+          );
+        })
+      }
+    </ul>
+  </div>
+</section>
+
+<style>
+  @media (max-width: 39.99em) {
+    .pt { padding-block: 2.5rem; }
+  }
+  .pt__grid {
+    display: grid;
+    gap: var(--s-7);
+  }
+  .pt__head {
+    display: grid;
+    gap: var(--s-4);
+    align-content: start;
+    justify-items: start;
+  }
+  .pt__title {
+    font-size: clamp(2.5rem, 4.6vw, 5rem);
+    letter-spacing: -0.07em;
+    line-height: 0.96;
+    max-width: 12ch;
+  }
+  .pt__lead {
+    max-width: 44ch;
+  }
+  .pt__list {
+    display: grid;
+    border-top: 1px solid var(--line);
+  }
+  .pt__row a {
+    position: relative;
+    display: grid;
+    grid-template-columns: minmax(0, 1fr) auto;
+    gap: var(--s-2) var(--s-4);
+    padding: var(--s-5) var(--s-2) var(--s-5) 0;
+    border-bottom: 1px solid var(--line);
+    color: inherit;
+    text-decoration: none;
+    transition: background-color var(--t-fast), padding var(--t-base) var(--ease-out);
+  }
+  .pt__row a:hover {
+    background: linear-gradient(90deg, transparent, var(--surface));
+  }
+  .pt__name {
+    font-size: clamp(1.3rem, 1.1rem + 0.8vw, 1.9rem);
+    font-weight: 600;
+    letter-spacing: -0.035em;
+    line-height: 1.1;
+  }
+  .pt__price {
+    display: grid;
+    justify-items: end;
+    text-align: right;
+    gap: 0.1rem;
+  }
+  .pt__price b {
+    font-size: clamp(1.3rem, 1.1rem + 0.8vw, 1.9rem);
+    font-weight: 650;
+    letter-spacing: -0.03em;
+    font-variant-numeric: tabular-nums;
+    color: var(--text);
+    white-space: nowrap;
+  }
+  .pt__price span {
+    font-size: var(--fs-xs);
+    color: var(--text-3);
+  }
+  .pt__row--lead .pt__price b {
+    color: var(--signal);
+  }
+  .pt__boundary {
+    grid-column: 1 / -1;
+    max-width: 60ch;
+    font-size: var(--fs-sm);
+    color: var(--text-2);
+  }
+  .pt__row a :global(.icon) {
+    display: none;
+  }
+  @media (min-width: 48em) {
+    .pt__row a {
+      grid-template-columns: minmax(0, 1fr) minmax(0, 1.3fr) auto 1.25rem;
+      align-items: baseline;
+    }
+    .pt__name { grid-column: 1; grid-row: 1; }
+    .pt__boundary { grid-column: 2; grid-row: 1; }
+    .pt__price { grid-column: 3; grid-row: 1; }
+    .pt__row a :global(.icon) {
+      display: block;
+      grid-column: 4;
+      align-self: center;
+      color: var(--signal);
+      transition: transform var(--t-base) var(--ease-out);
+    }
+    .pt__row a:hover :global(.icon) {
+      transform: translateX(4px);
+    }
+  }
+  @media (min-width: 64em) {
+    .pt__grid {
+      grid-template-columns: minmax(0, 0.7fr) minmax(0, 1.3fr);
+      gap: var(--s-8);
+    }
+  }
+</style>

@@ -5,16 +5,19 @@
  * (docs/17-round-10-offers.md). Every card, the comparison table, the pricing page, the focused
  * service pages, the finder and the contact form's "starting point" read from this file.
  *
- * Prices: `price.amount` stays `null` until Mann has costed and approved a figure. This repository
- * is public, so unapproved or proposed prices are never written here. While a price is null the
- * site says "Written quote after a short brief" and /pricing/ is not linked or indexed.
+ * Prices (published 14 Nov 2026, from Mann's First Client Quickstart of 13 Nov 2026): CAD, before
+ * applicable tax, for the boundary written on each package. Anything outside the boundary is quoted
+ * in writing before work starts. Set `price.amount` back to `null` to show "Written quote after a
+ * short brief" instead; /pricing/ is linked and indexed while at least one price is set.
  */
 
-export type PackageId = 'website-launch' | 'website-enquiry' | 'local-visibility' | 'care' | 'check-up';
+export type PackageId = 'website-fix' | 'website-launch' | 'website-enquiry' | 'local-visibility' | 'care' | 'check-up';
 
 export interface Price {
   /** CAD, before tax. `null` = not approved yet (shown as "Written quote after a short brief"). */
   amount: number | null;
+  /** Upper end of a range (e.g. a repair priced $450–$850 by size). */
+  max?: number;
   unit: 'one-time' | 'month';
 }
 
@@ -42,6 +45,25 @@ export interface Package {
 
 export const packages: Package[] = [
   {
+    id: 'website-fix',
+    name: 'Website Fix',
+    boundary: 'One defined problem on your current site, fixed and checked against an agreed test.',
+    forWho: 'Owners whose site mostly works, but one thing costs them customers: a hidden booking button, a broken form, an outdated menu or a slow page.',
+    includes: [
+      'One defined repair, agreed in writing first, for example a booking button customers can find on a phone, or a contact form that reaches your inbox',
+      'An acceptance test we agree before I start, so you can see the fix works',
+      'Checked on a phone and a desktop before and after',
+      'A short note of what changed and how to check it yourself',
+    ],
+    notIncluded: ['A redesign or new pages (see Website Launch)', 'Problems found along the way, which I list and quote separately', 'Guaranteed rankings or traffic'],
+    youProvide: ['Access to your website or builder account', 'A description of what goes wrong, or a screenshot'],
+    timeline: 'Usually days, not weeks, once I have access. The written scope gives the date.',
+    thirdParty: ['Any paid plugin or plan your platform needs for the fix'],
+    serviceIds: ['websites'],
+    page: '/services/web-design/',
+    price: { amount: 450, max: 850, unit: 'one-time' },
+  },
+  {
     id: 'website-launch',
     name: 'Website Launch',
     boundary: 'Up to five pages, one enquiry path, your own text and photos, two rounds of revisions.',
@@ -67,7 +89,7 @@ export const packages: Package[] = [
     thirdParty: ['Domain name (yearly, from your registrar)', 'Hosting, if your chosen host charges for it', 'Email at your domain, if you want it'],
     serviceIds: ['websites', 'seo'],
     page: '/services/web-design/',
-    price: { amount: null, unit: 'one-time' },
+    price: { amount: 1950, unit: 'one-time' },
   },
   {
     id: 'website-enquiry',
@@ -101,7 +123,7 @@ export const packages: Package[] = [
     ],
     serviceIds: ['websites', 'seo', 'booking', 'enquiry-workflows', 'missed-calls'],
     page: '/services/enquiry-follow-up/',
-    price: { amount: null, unit: 'one-time' },
+    price: { amount: 3350, unit: 'one-time' },
   },
   {
     id: 'local-visibility',
@@ -127,7 +149,7 @@ export const packages: Package[] = [
     thirdParty: ['Printing the review cards, if you want printed ones'],
     serviceIds: ['business-profile', 'reviews', 'listings'],
     page: '/services/local-visibility/',
-    price: { amount: null, unit: 'one-time' },
+    price: { amount: 650, unit: 'one-time' },
   },
   {
     id: 'care',
@@ -147,7 +169,7 @@ export const packages: Package[] = [
     thirdParty: ['Domain, hosting and tool subscriptions stay billed to you'],
     serviceIds: ['maintenance'],
     page: '/services/web-design/',
-    price: { amount: null, unit: 'month' },
+    price: { amount: 149, unit: 'month' },
   },
 ];
 
@@ -193,6 +215,15 @@ export const packageById = (id: string) => {
   return current ? [...packages, checkUp].find((p) => p.id === current) : undefined;
 };
 
+/** The short line under a price: what the number covers. */
+export function priceTerms(p: Package): string {
+  if (p.free) return 'No obligation';
+  if (p.price.amount === null) return 'Quoted after a short brief';
+  if (p.price.unit === 'month') return 'CAD + tax · stop any month';
+  if (p.price.max) return 'CAD + tax · by size of the fix';
+  return 'CAD + tax · fixed for this scope';
+}
+
 /** True once at least one paid package has an approved price: /pricing/ is then linked and indexed. */
 export const pricesPublished = packages.some((p) => p.price.amount !== null);
 
@@ -203,5 +234,6 @@ export function priceLabel(p: Package): { text: string; approved: boolean } {
   if (p.free) return { text: 'Free', approved: true };
   if (p.price.amount === null) return { text: 'Written quote after a short brief', approved: false };
   const amount = cad.format(p.price.amount);
-  return { text: p.price.unit === 'month' ? `From ${amount} a month` : `From ${amount}, one-time`, approved: true };
+  if (p.price.max) return { text: `${amount}–${cad.format(p.price.max)}`, approved: true };
+  return { text: p.price.unit === 'month' ? `${amount} a month` : amount, approved: true };
 }
