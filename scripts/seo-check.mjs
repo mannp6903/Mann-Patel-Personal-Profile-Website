@@ -27,10 +27,19 @@ const EXACT = {
   '/services/local-visibility/': { title: 'Local SEO & Google Business Profile Toronto | Mann Patel' },
   '/vision/': { title: 'Vision | Mann Patel, Web Designer in Toronto' },
 };
-/** Pages added by this SEO work: BreadcrumbList and the free-check link are required (Phase 3 adds them). */
-const NEW_PAGES = [];
-/** Pages that must NOT be built or listed while they are drafts (Phase 3 adds them; guides are detected). */
+/**
+ * Pages added by this SEO work (Phase 3): each needs a BreadcrumbList, a link to the free check and a sitemap
+ * entry. Published guides, the /guides/ index and published area pages are added below, from their sources.
+ */
+const NEW_PAGES = ['/websites-for-cleaning-companies/', '/websites-for-salons-and-spas/'];
+/** Pages that must NOT be built, listed or linked while they are drafts (detected below: guides and area pages). */
 const DRAFT_PATHS = [];
+/** The search each new page is built for: every word must be in its title and in its H1 (plan C1, C3, C4). */
+const KEYWORDS = {
+  '/websites-for-cleaning-companies/': 'cleaning company website design toronto',
+  '/websites-for-salons-and-spas/': 'salon website design toronto',
+  '/web-design-scarborough/': 'web design scarborough',
+};
 /** Where the business node must appear in full. */
 const BUSINESS_PAGES = ['/', '/contact/'];
 const BUSINESS = { name: 'Mann Patel', telephone: '+1-647-978-6903', email: 'info@mannpatel.me' };
@@ -215,7 +224,8 @@ for (const [path, want] of Object.entries(EXACT)) {
 }
 
 // ── The business entity
-for (const path of BUSINESS_PAGES) {
+// The Scarborough page carries the full node too, once it is published (plan B2; a draft isn't built).
+for (const path of [...BUSINESS_PAGES, ...(pages.has('/web-design-scarborough/') ? ['/web-design-scarborough/'] : [])]) {
   const p = pages.get(path);
   const biz = p && nodes(p.ld).find((n) => types(n).includes('ProfessionalService') && n.telephone);
   if (!biz) {
@@ -286,7 +296,31 @@ for (const [from, p] of pages) {
   }
 }
 for (const path of published) if (path !== '/' && !linkedFrom.get(path)?.size) err('no orphans', `${path} is not linked from any other page`);
-for (const path of NEW_PAGES) {
+// Drafts and their published counterparts, read from the sources (the same switches the build uses).
+const drafts = [...DRAFT_PATHS];
+const newPages = [...NEW_PAGES];
+// Guides: `draft: true` in the front matter. The /guides/ index exists only once a guide is published.
+const guideDir = 'src/content/guides';
+if (existsSync(guideDir)) {
+  let live = 0;
+  for (const f of readdirSync(guideDir).filter((n) => n.endsWith('.md'))) {
+    const fm = (readFileSync(join(guideDir, f), 'utf8').match(/^---\n([\s\S]*?)\n---/) || [])[1] ?? '';
+    const path = `/guides/${f.replace(/\.md$/, '')}/`;
+    if (/^draft:\s*false\s*$/m.test(fm)) {
+      newPages.push(path);
+      live++;
+    } else drafts.push(path);
+  }
+  (live ? newPages : drafts).push('/guides/');
+}
+// Area pages (src/data/areas.ts → /web-design-<slug>/): a draft while `neighbourhoods` is null or empty.
+const areaFile = 'src/data/areas.ts';
+if (existsSync(areaFile)) {
+  const found = [...readFileSync(areaFile, 'utf8').matchAll(/\bslug:\s*'([a-z-]+)'[\s\S]*?\bneighbourhoods:\s*(null|\[\s*\]|\[)/g)];
+  if (!found.length) err('drafts', `${areaFile}: no area with a slug and neighbourhoods found, so its draft state can't be checked`);
+  for (const [, slug, list] of found) (list === '[' ? newPages : drafts).push(`/web-design-${slug}/`);
+}
+for (const path of newPages) {
   const p = pages.get(path);
   if (!p) {
     err('new pages', `${path} was not built`);
@@ -296,17 +330,20 @@ for (const path of NEW_PAGES) {
   if (!p.hrefs.some((h) => h.replace(SITE, '') === FREE_CHECK)) err('new pages', `${path} has no link to the free check (${FREE_CHECK})`);
   if (!published.includes(path)) err('new pages', `${path} is not in the sitemap`);
 }
-const guideDir = 'src/content/guides';
-const drafts = [...DRAFT_PATHS];
-if (existsSync(guideDir)) {
-  for (const f of readdirSync(guideDir).filter((n) => n.endsWith('.md'))) {
-    const fm = (readFileSync(join(guideDir, f), 'utf8').match(/^---\n([\s\S]*?)\n---/) || [])[1] ?? '';
-    if (/^draft:\s*true\s*$/m.test(fm)) drafts.push(`/guides/${f.replace(/\.md$/, '')}/`);
-  }
-}
 for (const path of drafts) {
   if (pages.has(path)) err('drafts', `${path} is a draft but was built`);
   if (published.includes(path)) err('drafts', `${path} is a draft but is in the sitemap`);
+  const from = linkedFrom.get(path);
+  if (from?.size) err('drafts', `${path} is a draft but is linked from ${[...from].join(', ')}`);
+}
+// The search each new page targets.
+for (const [path, keyword] of Object.entries(KEYWORDS)) {
+  const p = pages.get(path);
+  if (!p) continue; // not built: reported above if it should be
+  const words = (s) => s.toLowerCase().replace(/[^a-z0-9\s]/g, ' ').split(/\s+/).filter(Boolean);
+  const has = (s) => words(keyword).every((w) => words(s).includes(w));
+  if (!has(p.title)) err('keywords', `${path} title "${p.title}" doesn't contain every word of "${keyword}"`);
+  if (!has(p.h1s[0] ?? '')) err('keywords', `${path} H1 "${p.h1s[0]}" doesn't contain every word of "${keyword}"`);
 }
 
 // ── Report
@@ -326,6 +363,7 @@ const checks = [
   'no orphans',
   'new pages',
   'drafts',
+  'keywords',
   'lang',
   'canonical',
 ];

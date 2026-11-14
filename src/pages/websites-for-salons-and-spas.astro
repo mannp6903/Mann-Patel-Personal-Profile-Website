@@ -1,0 +1,7 @@
+---
+/** Industry page (SEO audit Phase 3, 14 Nov 2026). Template: src/components/IndustryPage.astro; content: src/data/industry-pages.ts. */
+import IndustryPage from '../components/IndustryPage.astro';
+import { industryPageBySlug } from '../data/industry-pages';
+---
+
+<IndustryPage page={industryPageBySlug('websites-for-salons-and-spas')!} />

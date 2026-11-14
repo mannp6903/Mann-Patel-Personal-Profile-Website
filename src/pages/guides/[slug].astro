@@ -1,0 +1,22 @@
+---
+/** Guides (SEO audit Phase 3, 14 Nov 2026): one page per visible guide. Layout: src/layouts/GuideLayout.astro. */
+import { render } from 'astro:content';
+import GuideLayout from '../../layouts/GuideLayout.astro';
+import { visibleGuides } from '../../lib/published';
+
+export async function getStaticPaths() {
+  const guides = await visibleGuides();
+  return guides.map((guide) => ({
+    params: { slug: guide.id },
+    // Related guides only once they are visible too, so a published guide never links to a draft.
+    props: { guide, related: guide.data.related.map((id) => guides.find((x) => x.id === id)).filter((x) => x !== undefined) },
+  }));
+}
+
+const { guide, related } = Astro.props;
+const { Content } = await render(guide);
+---
+
+<GuideLayout guide={guide} related={related}>
+  <Content />
+</GuideLayout>

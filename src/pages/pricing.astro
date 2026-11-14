@@ -11,11 +11,15 @@ import PackageCard from '../components/packages/PackageCard.astro';
 import PackageCompare from '../components/packages/PackageCompare.astro';
 import { packages, checkUp, pricesPublished, packageById, priceLabel } from '../data/packages';
 import { breadcrumbJsonLd } from '../lib/seo';
+import { visibleGuides } from '../lib/published';
 
 // SEO audit copy (14 Nov 2026, 146 characters). Every number comes from src/data/packages.ts.
 const price = (id: string) => priceLabel(packageById(id)!).text;
 const care = packageById('care')!;
 const description = `Published prices in CAD: 5-page website ${price('website-launch')}, website + booking ${price('website-enquiry')}, fixes ${price('website-fix')}, local SEO setup ${price('local-visibility')}, care $${care.price.amount}/month. Toronto and GTA.`;
+
+// SEO audit Phase 3 (14 Nov 2026): the cost guide links here; this page links back once it is published.
+const costGuide = (await visibleGuides()).find((g) => g.id === 'how-much-does-a-website-cost-in-toronto');
 
 const costs = [...new Set(packages.flatMap((p) => p.thirdParty).filter((c) => !c.startsWith('Everything in')))];
 
@@ -177,6 +181,13 @@ const faqLd = {
       <div class="stack" style="--stack: var(--s-4)">
         <p class="eyebrow">Buying questions</p>
         <h2 id="pr-faq" class="pr__h2">Before you <span class="accent">decide.</span></h2>
+        {
+          costGuide && (
+            <a class="link-arrow" href={`/guides/${costGuide.id}/`}>
+              Guide: {costGuide.data.title} <Icon name="arrow" />
+            </a>
+          )
+        }
       </div>
       <div>
         {

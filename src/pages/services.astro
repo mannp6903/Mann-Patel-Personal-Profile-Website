@@ -16,6 +16,7 @@ import { packages, packageById, priceLabel } from '../data/packages';
 import { servicePages, servicePageForGroup, serviceHref } from '../data/service-pages';
 import { overviewFaqs } from '../data/faqs';
 import { breadcrumbJsonLd, servicesJsonLd } from '../lib/seo';
+import { industryPages } from '../data/industry-pages';
 
 const faqLd = {
   '@context': 'https://schema.org',
@@ -74,6 +75,16 @@ for (const g of groups) {
           ))
         }
       </ol>
+      <!-- SEO audit Phase 3 (14 Nov 2026): the same services, for two trades, each led by a real case study. -->
+      <p class="paths__trades small">
+        <span class="subtle">By trade:</span>{' '}
+        {industryPages.map((ip, i) => (
+          <>
+            {i > 0 && ' · '}
+            <a class="link" href={`/${ip.slug}/`}>{ip.linkLabel}</a>
+          </>
+        ))}
+      </p>
     </div>
   </section>
 
@@ -201,6 +212,9 @@ for (const g of groups) {
   }
   .paths__name a:hover {
     color: var(--signal);
+  }
+  .paths__trades {
+    margin-top: var(--s-5);
   }
   .paths__pkg {
     padding-top: var(--s-3);

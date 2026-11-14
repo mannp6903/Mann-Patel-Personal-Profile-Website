@@ -1,0 +1,186 @@
+---
+/**
+ * One guide (SEO audit Phase 3, 14 Nov 2026; plan B4): Article structured data with Mann as the author, the
+ * dates, a breadcrumb, the guide's service page and /pricing/, related guides once they are published, and
+ * the free check at the end. Drafts carry a note and are never built in production (src/lib/published.ts).
+ */
+import type { CollectionEntry } from 'astro:content';
+import BaseLayout from './BaseLayout.astro';
+import Crumbs from '../components/Crumbs.astro';
+import DraftNote from '../components/DraftNote.astro';
+import Icon from '../components/ui/Icon.astro';
+import FreeCheck from '../components/home/FreeCheck.astro';
+import { profile } from '../data/site';
+import { servicePages } from '../data/service-pages';
+import { absoluteUrl } from '../lib/mode';
+import { breadcrumbJsonLd, personRef } from '../lib/seo';
+
+interface Props {
+  guide: CollectionEntry<'guides'>;
+  /** Related guides that are visible in this build. */
+  related: CollectionEntry<'guides'>[];
+}
+const { guide, related } = Astro.props;
+const g = guide.data;
+const path = `/guides/${guide.id}/`;
+const url = absoluteUrl(path);
+const service = servicePages.find((s) => `/services/${s.slug}/` === g.service);
+const fmt = (iso: string) =>
+  new Intl.DateTimeFormat('en-CA', { day: 'numeric', month: 'long', year: 'numeric', timeZone: 'UTC' }).format(new Date(`${iso}T12:00:00Z`));
+
+const articleLd = {
+  '@context': 'https://schema.org',
+  '@type': 'Article',
+  headline: g.title,
+  description: g.description,
+  inLanguage: 'en-CA',
+  author: { ...personRef(), ...(absoluteUrl('/about/') ? { url: absoluteUrl('/about/') } : {}) },
+  publisher: personRef(),
+  ...(g.published ? { datePublished: g.published, dateModified: g.updated ?? g.published } : {}),
+  ...(url ? { url, mainEntityOfPage: url } : {}),
+  ...(absoluteUrl('/og/default.png') ? { image: absoluteUrl('/og/default.png') } : {}),
+};
+const crumbs = breadcrumbJsonLd([
+  { name: 'Home', path: '/' },
+  { name: 'Guides', path: '/guides/' },
+  { name: g.title, path },
+]);
+---
+
+<BaseLayout title={g.seoTitle} description={g.description} jsonLd={[articleLd, ...(crumbs ? [crumbs] : [])]}>
+  <article>
+    <Crumbs items={[{ label: 'Guides', href: '/guides/' }, { label: g.title }]} />
+    {
+      g.draft && (
+        <DraftNote
+          kind={g.outline ? 'Outline' : 'Draft'}
+          note={
+            g.outline
+              ? 'Headings and notes only. Write it in full, then set outline: false, draft: false and a published date.'
+              : 'Ready for Mann’s review. To publish, set draft: false and a published date in the file’s front matter.'
+          }
+        />
+      )
+    }
+    <header class="gd-head container">
+      <p class="eyebrow">Guide</p>
+      <h1 class="gd-title">{g.title}</h1>
+      <p class="lead">{g.description}</p>
+      <p class="gd-meta small subtle">
+        By <a class="link" href="/about/">{profile.name}</a>, web designer in {profile.location}, Toronto
+        {g.published && (
+          <>
+            {' '}· Published <time datetime={g.published}>{fmt(g.published)}</time>
+          </>
+        )}
+        {g.updated && g.updated !== g.published && (
+          <>
+            {' '}· Updated <time datetime={g.updated}>{fmt(g.updated)}</time>
+          </>
+        )}
+      </p>
+    </header>
+
+    <div class="container gd-body">
+      <div class="prose">
+        <slot />
+      </div>
+    </div>
+
+    <nav class="section section--rule" aria-labelledby="gd-next-title">
+      <div class="container">
+        <h2 id="gd-next-title" class="eyebrow">Read next</h2>
+        <ul class="gd-next" role="list">
+          {
+            service && (
+              <li>
+                <a class="gd-next__link" href={g.service}>
+                  <span>{service.short}</span>
+                  <span class="muted small">{service.title}</span>
+                  <Icon name="arrow" />
+                </a>
+              </li>
+            )
+          }
+          <li>
+            <a class="gd-next__link" href="/pricing/">
+              <span>Pricing</span>
+              <span class="muted small">Every package side by side, and what each leaves out</span>
+              <Icon name="arrow" />
+            </a>
+          </li>
+          {
+            related.map((r) => (
+              <li>
+                <a class="gd-next__link" href={`/guides/${r.id}/`}>
+                  <span>{r.data.title}</span>
+                  <span class="muted small">Guide</span>
+                  <Icon name="arrow" />
+                </a>
+              </li>
+            ))
+          }
+        </ul>
+      </div>
+    </nav>
+  </article>
+
+  <FreeCheck id="check" />
+</BaseLayout>
+
+<style>
+  .gd-head {
+    display: grid;
+    gap: var(--s-5);
+    justify-items: start;
+    padding-block: clamp(var(--s-7), 6vw, var(--s-9)) var(--s-6);
+  }
+  .gd-title {
+    font-size: clamp(2.1rem, 1.2rem + 3vw, 4rem);
+    line-height: 1.02;
+    letter-spacing: -0.04em;
+    max-width: 22ch;
+  }
+  .gd-head .lead {
+    max-width: 52ch;
+  }
+  .gd-meta a {
+    color: var(--text-2);
+  }
+  .gd-body {
+    padding-bottom: var(--section);
+  }
+  .gd-next {
+    display: grid;
+    margin-top: var(--s-4);
+    border-top: 1px solid var(--line);
+  }
+  .gd-next li {
+    border-bottom: 1px solid var(--line);
+  }
+  .gd-next__link {
+    display: grid;
+    grid-template-columns: minmax(0, 1fr) auto;
+    align-items: center;
+    gap: 0.15rem var(--s-4);
+    padding-block: var(--s-4);
+    text-decoration: none;
+  }
+  .gd-next__link > span:first-child {
+    font-size: var(--fs-h3);
+    font-weight: 600;
+    letter-spacing: -0.02em;
+  }
+  .gd-next__link > .small {
+    grid-column: 1;
+  }
+  .gd-next__link :global(.icon) {
+    grid-row: 1 / span 2;
+    grid-column: 2;
+    color: var(--signal);
+    transition: transform var(--t-fast) var(--ease-out);
+  }
+  .gd-next__link:hover :global(.icon) {
+    transform: translateX(4px);
+  }
+</style>
