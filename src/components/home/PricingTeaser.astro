@@ -104,6 +104,7 @@ import Icon from '../ui/Icon.astro';
     font-size: clamp(1.3rem, 1.1rem + 0.8vw, 1.9rem);
     font-weight: 650;
     letter-spacing: -0.03em;
+    line-height: 1.1;
     font-variant-numeric: tabular-nums;
     color: var(--text);
     white-space: nowrap;
@@ -125,16 +126,23 @@ import Icon from '../ui/Icon.astro';
     display: none;
   }
   @media (min-width: 48em) {
+    /* 14 Nov 2026: a tidy price table. Name with its one-line scope underneath on the left; every
+       price in one fixed, right-aligned column, so names, scopes and prices line up row to row. */
     .pt__row a {
-      grid-template-columns: minmax(0, 1fr) minmax(0, 1.3fr) auto 1.25rem;
-      align-items: baseline;
+      grid-template-columns: minmax(0, 1fr) 13rem 1.25rem;
+      grid-template-areas:
+        'name price icon'
+        'boundary price icon';
+      align-items: start;
+      column-gap: var(--s-6);
+      row-gap: var(--s-2);
     }
-    .pt__name { grid-column: 1; grid-row: 1; }
-    .pt__boundary { grid-column: 2; grid-row: 1; }
-    .pt__price { grid-column: 3; grid-row: 1; }
+    .pt__name { grid-area: name; }
+    .pt__boundary { grid-area: boundary; max-width: 52ch; }
+    .pt__price { grid-area: price; }
     .pt__row a :global(.icon) {
       display: block;
-      grid-column: 4;
+      grid-area: icon;
       align-self: center;
       color: var(--signal);
       transition: transform var(--t-base) var(--ease-out);

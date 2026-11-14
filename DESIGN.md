@@ -13,6 +13,13 @@
 > Services, Pricing, About and Contact; Home gains a price list (`PricingTeaser.astro`).
 > Details: [`docs/24-final-upgrade.md`](docs/24-final-upgrade.md).
 >
+> **Desktop tidy-up (14 Nov 2026).** From 64em the hero fills the first screen (`100svh` minus the
+> header), so the light Selected work section never shows as a cut-off strip under it. The Home price
+> list is a two-column table: name with its scope underneath, and every price in one fixed,
+> right-aligned column. Pricing shows the five offers and the free check as an even 3 × 2 grid
+> (2 × 3 on tablets); Services shows its five packages as 3 + 2. The comparison table has equal
+> package columns and the price row first.
+>
 > **Logo update (10 Nov 2026): MΛNN PΛTEL.** The header logo is the outlined MΛNN PΛTEL wordmark
 > (`components/ui/Wordmark.astro`, files in `public/brand/`). The favicon (13 Nov 2026) is the stacked
 > MΛNN / PΛTEL icon: black tile, off-white letters, lime Λ's, bold Geist outlines sized to survive Google's

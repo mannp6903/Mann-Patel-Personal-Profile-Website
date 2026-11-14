@@ -579,9 +579,23 @@ const jump = [
       grid-template-columns: repeat(2, minmax(0, 1fr));
     }
   }
-  @media (min-width: 80em) {
+  @media (min-width: 48em) and (max-width: 71.99em) {
+    /* Two columns: the fifth package takes the full last row instead of sitting alone. */
+    .pkgs__grid > :global(li:last-child:nth-child(odd)) {
+      grid-column: 1 / -1;
+    }
+  }
+  @media (min-width: 72em) {
+    /* 14 Nov 2026: five packages as three on the first row and two on the second (was four plus one
+       left on its own). */
     .pkgs__grid {
-      grid-template-columns: repeat(4, minmax(0, 1fr));
+      grid-template-columns: repeat(6, minmax(0, 1fr));
+    }
+    .pkgs__grid > :global(li) {
+      grid-column: span 2;
+    }
+    .pkgs__grid > :global(li:nth-child(n + 4)) {
+      grid-column: span 3;
     }
   }
   /* Phones: one line per service until opened, no giant letters, packages swipe sideways. */

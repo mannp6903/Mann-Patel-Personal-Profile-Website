@@ -3,6 +3,9 @@
  * Side-by-side comparison of the packages (round 10): who each is for, its boundary, what it
  * covers and leaves out, what the client provides, what other providers bill, the timeline and the
  * price, all from src/data/packages.ts.
+ *
+ * 14 Nov 2026: equal-width package columns (fixed table layout) and the price row first, so the
+ * table reads as a tidy grid on desktop instead of columns sized by how much text each one has.
  */
 import { packages, priceLabel } from '../../data/packages';
 import { SERVICE_OPTIONS, labelFor } from '../../lib/enquiry/options';
@@ -36,6 +39,11 @@ const anyApproved = packages.some((p) => priceLabel(p).approved);
         </tr>
       </thead>
       <tbody>
+        <!-- 14 Nov 2026: the price comes first, right under the package names. -->
+        <tr class="cmp__price">
+          <th scope="row">Price</th>
+          {packages.map((p) => <td data-price>{priceLabel(p).text}</td>)}
+        </tr>
         <tr>
           <th scope="row">Best for</th>
           {packages.map((p) => <td>{p.forWho}</td>)}
@@ -63,10 +71,6 @@ const anyApproved = packages.some((p) => priceLabel(p).approved);
         <tr>
           <th scope="row">Timeline</th>
           {packages.map((p) => <td>{p.timeline}</td>)}
-        </tr>
-        <tr>
-          <th scope="row">Price</th>
-          {packages.map((p) => <td data-price>{priceLabel(p).text}</td>)}
         </tr>
         <tr>
           <th scope="row">Next step</th>
@@ -106,10 +110,15 @@ const anyApproved = packages.some((p) => priceLabel(p).approved);
   }
   .cmp__table {
     width: 100%;
-    min-width: 56rem;
+    min-width: 60rem;
+    table-layout: fixed;
     border-collapse: collapse;
     font-size: var(--fs-sm);
     line-height: 1.5;
+  }
+  /* The label column is fixed; the five package columns share the rest equally. */
+  .cmp__table thead td {
+    width: 9.5rem;
   }
   .cmp__table th,
   .cmp__table td {
@@ -137,5 +146,24 @@ const anyApproved = packages.some((p) => priceLabel(p).approved);
   }
   .cmp__table td {
     color: var(--text-2);
+    overflow-wrap: break-word;
+  }
+  .cmp__table thead th {
+    line-height: 1.25;
+    border-bottom-color: var(--control);
+  }
+  .cmp__price > * {
+    background: var(--surface);
+  }
+  .cmp__table .cmp__price th {
+    vertical-align: middle;
+  }
+  .cmp__table .cmp__price td {
+    font-size: 1.15rem;
+    font-weight: 650;
+    letter-spacing: -0.02em;
+    font-variant-numeric: tabular-nums;
+    color: var(--text);
+    white-space: nowrap;
   }
 </style>

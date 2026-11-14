@@ -78,17 +78,34 @@ const faqLd = {
   <section class="section section--rule" aria-labelledby="pr-packages">
     <div class="container stack" style="--stack: var(--s-6)">
       <h2 id="pr-packages" class="visually-hidden">Packages</h2>
+      <!-- 14 Nov 2026: the free check is the sixth tile, so the offers sit in a tidy grid (3 × 2 on
+           desktop, 2 × 3 on tablets) instead of three cards, two wider cards and a banner. -->
       <ol class="pr__grid" role="list">
         {packages.map((p, i) => <PackageCard pkg={p} index={i} level={3} />)}
-      </ol>
-      <div class="pr__free">
-        <div>
+        <li class="pr__free" id="pkg-check-up">
           <p class="eyebrow">Not sure yet?</p>
-          <h2 class="pr__h2">{checkUp.name}: free.</h2>
-          <p class="muted">{checkUp.boundary} {checkUp.notIncluded[0]}.</p>
-        </div>
-        <Button href="/contact/?package=check-up#check" variant="ghost">Request the free check</Button>
-      </div>
+          <h3 class="pr__free-name">{checkUp.name}</h3>
+          <p class="pr__free-cost">
+            <span class="pr__free-price">Free</span>
+            <span class="pr__free-terms">No obligation to buy anything</span>
+          </p>
+          <p class="pr__free-boundary">{checkUp.boundary}</p>
+          <ul class="pr__free-list" role="list">
+            {
+              checkUp.includes.map((d) => (
+                <li>
+                  <Icon name="check" />
+                  <span>{d}</span>
+                </li>
+              ))
+            }
+          </ul>
+          <p class="small subtle">Not included: {checkUp.notIncluded[0].charAt(0).toLowerCase() + checkUp.notIncluded[0].slice(1)}.</p>
+          <div class="pr__free-cta">
+            <Button href="/contact/?package=check-up#check" variant="ghost" size="sm">Request the free check</Button>
+          </div>
+        </li>
+      </ol>
       <PackageCompare id="pr-compare" title="Side by side" level={2} />
     </div>
   </section>
@@ -186,37 +203,67 @@ const faqLd = {
     }
   }
   @media (min-width: 72em) {
+    /* Five offers and the free check: three equal columns, two equal rows. */
     .pr__grid {
-      grid-template-columns: repeat(6, minmax(0, 1fr));
-    }
-    .pr__grid > :global(li) {
-      grid-column: span 2;
-    }
-    /* Five offers: three on the first row, the last two share the second. */
-    .pr__grid > :global(li:nth-child(n + 4)) {
-      grid-column: span 3;
+      grid-template-columns: repeat(3, minmax(0, 1fr));
     }
   }
   .pr__free {
-    display: grid;
+    display: flex;
+    flex-direction: column;
     gap: var(--s-4);
-    align-items: center;
-    padding: clamp(var(--s-4), 3vw, var(--s-6));
+    padding: clamp(1.25rem, 2.5vw, 2rem);
     border: 1px dashed var(--control);
     border-radius: var(--r-lg);
   }
-  @media (min-width: 48em) {
-    .pr__free {
-      grid-template-columns: 1fr auto;
-    }
+  .pr__free-name {
+    font-size: clamp(1.5rem, 1.3rem + 0.8vw, 2rem);
+    letter-spacing: -0.035em;
+    line-height: 1.1;
+  }
+  .pr__free-cost {
+    display: grid;
+    gap: 0.15rem;
+  }
+  .pr__free-price {
+    font-size: clamp(2rem, 1.6rem + 1.4vw, 2.75rem);
+    font-weight: 650;
+    letter-spacing: -0.04em;
+    line-height: 1;
+    color: var(--signal);
+  }
+  .pr__free-terms {
+    font-size: var(--fs-xs);
+    color: var(--text-3);
+  }
+  .pr__free-boundary {
+    font-size: var(--fs-sm);
+    font-weight: 600;
+    color: var(--text);
+  }
+  .pr__free-list {
+    display: grid;
+    gap: var(--s-2);
+    font-size: var(--fs-sm);
+    color: var(--text-2);
+  }
+  .pr__free-list li {
+    display: flex;
+    gap: var(--s-2);
+    align-items: flex-start;
+  }
+  .pr__free-list :global(.icon) {
+    flex: none;
+    margin-top: 0.2em;
+    color: var(--signal);
+  }
+  .pr__free-cta {
+    margin-top: auto;
+    padding-top: var(--s-2);
   }
   .pr__h2 {
     font-size: var(--fs-h2);
     max-width: 20ch;
-  }
-  .pr__free .pr__h2 {
-    font-size: var(--fs-h3);
-    max-width: none;
   }
   .pr__split {
     display: grid;

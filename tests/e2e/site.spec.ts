@@ -1470,3 +1470,43 @@ test.describe('audit of 11 Nov 2026', () => {
     expect(side).toBe(true);
   });
 });
+
+test.describe('desktop layout (14 Nov 2026)', () => {
+  test('the hero fills the first screen, so no strip of the light section below shows', async ({ page }) => {
+    for (const [w, h] of [[1440, 900], [1680, 1050], [1920, 1080], [1280, 720]]) {
+      await page.setViewportSize({ width: w, height: h });
+      await page.goto('/');
+      const bottom = await page.evaluate(() => document.querySelector('.hero')!.getBoundingClientRect().bottom);
+      expect(bottom).toBeGreaterThanOrEqual(h - 1);
+    }
+  });
+
+  test('the home price list lines up: names, scopes and prices in the same columns on every row', async ({ page }) => {
+    await page.setViewportSize({ width: 1440, height: 900 });
+    await page.goto('/');
+    const cols = await page.$$eval('#prices .pt__row', (rows) =>
+      rows.map((r) => ({
+        name: Math.round(r.querySelector('.pt__name')!.getBoundingClientRect().left),
+        scope: Math.round(r.querySelector('.pt__boundary')!.getBoundingClientRect().left),
+        price: Math.round(r.querySelector('.pt__price')!.getBoundingClientRect().right),
+      })),
+    );
+    expect(cols).toHaveLength(5);
+    for (const key of ['name', 'scope', 'price'] as const) expect(new Set(cols.map((c) => c[key])).size).toBe(1);
+  });
+
+  test('pricing: the offers sit in an even grid and the comparison columns are equal widths', async ({ page }) => {
+    await page.setViewportSize({ width: 1440, height: 900 });
+    await page.goto('/pricing/');
+    const tiles = await page.$$eval('.pr__grid > li', (els) => els.map((e) => Math.round(e.getBoundingClientRect().width)));
+    expect(tiles).toHaveLength(6); // five offers and the free check
+    expect(Math.max(...tiles) - Math.min(...tiles)).toBeLessThanOrEqual(1);
+    await expect(page.locator('#pkg-check-up').getByRole('link', { name: 'Request the free check' })).toHaveAttribute('href', '/contact/?package=check-up#check');
+    const table = page.getByRole('table', { name: 'Side by side' });
+    const widths = await table.locator('thead th').evaluateAll((ths) => ths.map((t) => Math.round(t.getBoundingClientRect().width)));
+    expect(widths).toHaveLength(5);
+    expect(Math.max(...widths) - Math.min(...widths)).toBeLessThanOrEqual(1);
+    // The price is the first row under the package names.
+    await expect(table.locator('tbody tr').first().getByRole('rowheader')).toHaveText('Price');
+  });
+});
