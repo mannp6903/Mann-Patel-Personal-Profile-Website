@@ -521,10 +521,22 @@ test.describe('home interactions', () => {
     await expect(page.locator('[data-header]').getByRole('link', { name: 'Contact', exact: true })).toBeHidden();
     await expect(page.locator('[data-menu-open]')).toBeVisible();
     const gap = await page.evaluate(
-      () => document.querySelector('[data-agent-graph]')!.getBoundingClientRect().top - document.querySelector('.hero__actions')!.getBoundingClientRect().bottom,
+      () => document.querySelector('[data-agent-graph]')!.getBoundingClientRect().top - document.querySelector('.hero__text')!.getBoundingClientRect().bottom,
     );
     expect(gap).toBeGreaterThanOrEqual(0);
     expect(gap).toBeLessThan(60);
+  });
+
+  test('small phones: the headline and both buttons fit on the first screen', async ({ page }) => {
+    // 14 Nov 2026: Mann saw the first screen cut off on his phone; the service list now follows the buttons on phones.
+    for (const [w, h] of [[320, 568], [360, 640], [375, 667], [390, 844]]) {
+      await page.setViewportSize({ width: w, height: h });
+      await page.goto('/');
+      await expect(page.locator('h1')).toBeInViewport({ ratio: 1 });
+      await expect(page.locator('.hero').getByRole('link', { name: 'Get a free website and Google check' })).toBeInViewport({ ratio: 1 });
+      await expect(page.locator('.hero').getByRole('link', { name: 'See prices' })).toBeInViewport({ ratio: 1 });
+      await noHorizontalOverflow(page);
+    }
   });
 
   test('the founder section keeps the real, whole portrait and the way into About', async ({ page }) => {

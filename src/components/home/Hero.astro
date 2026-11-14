@@ -296,7 +296,10 @@ const recent = [
   @media (max-width: 39.99em) {
     .hero__text { gap: var(--s-4); }
     .hero__lead { font-size: 0.95rem; }
-    .hero__services { gap: 0.4rem; }
+    .hero__services { gap: 0.4rem; order: 1; }
+    /* Phones: the buttons come straight after the lead so they fit on the first screen; the service list follows them. */
+    .hero__place { font-size: 0.98rem; margin-top: 0.45em; }
+    .hero__role { font-size: 0.72rem; }
     .hero__services a { font-size: 0.74rem; min-height: 1.9rem; padding-inline: 0.6rem; }
     .hero__status, .hero__actions :global(.hero__reach) { display: none; }
     .hero__actions :global(.btn-row) {
@@ -315,6 +318,12 @@ const recent = [
       padding-inline: var(--s-2);
     }
     .hero__actions :global(.hero__price-link .btn__icon) { display: none; }
+  }
+  @media (max-width: 22.5em) {
+    /* The smallest phones (320 px): smaller type so the buttons still fit on the first screen. */
+    .hero__title { font-size: 2.1rem; }
+    .hero__lead { font-size: 0.88rem; line-height: 1.5; }
+    .hero__text { gap: var(--s-3); }
   }
   @media (min-width: 40em) and (max-width: 63.99em) {
     .hero :global(.hero__graph) {
