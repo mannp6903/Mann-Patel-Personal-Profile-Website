@@ -105,11 +105,14 @@ const crumbs = breadcrumbJsonLd([
       <div class="stack" style="--stack: var(--s-4)">
         {
           area.neighbourhoods?.length ? (
-            <ul class="ar__hoods" role="list">
-              {area.neighbourhoods.map((n) => (
-                <li>{n}</li>
-              ))}
-            </ul>
+            <>
+              <p class="muted">Every neighbourhood in {area.name}, including:</p>
+              <ul class="ar__hoods" role="list">
+                {area.neighbourhoods.map((n) => (
+                  <li>{n}</li>
+                ))}
+              </ul>
+            </>
           ) : (
             <p>
               <Confirm note={`the ${area.name} neighbourhoods Mann serves (src/data/areas.ts)`} />

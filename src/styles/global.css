@@ -1207,35 +1207,38 @@ fieldset > legend + * {
   }
 }
 
-/* Images that open from a frame as they scroll into view (CSS scroll-driven, no JavaScript). */
+/* Images that open from a frame as they scroll into view (CSS scroll-driven, no JavaScript). Transform only (SEO
+   audit Phase 4): the frame grows from 86% while the screenshot inside settles from 116% to 100% (1.349 = 1.16 / 0.86),
+   both on the frame's own view timeline so they move together.
+   Every property is written out on purpose: given the `animation` shorthand plus `animation-timeline`, the CSS
+   minifier folds the timeline into the shorthand, which browsers reject, and the effect never ran (found 15 Nov 2026). */
 @supports (animation-timeline: view()) {
   @media (prefers-reduced-motion: no-preference) {
     .reveal-clip {
-      animation: clip-open linear both;
-      animation-timeline: view();
-      animation-range: entry 0% cover 38%;
+      view-timeline-name: --reveal-clip;
+      animation-name: clip-open;
+      animation-timing-function: linear;
+      animation-fill-mode: both;
+      animation-timeline: --reveal-clip;
+      animation-range: entry 0% cover 40%;
     }
     .reveal-clip img {
-      animation: img-settle linear both;
-      animation-timeline: view();
-      animation-range: entry 0% cover 55%;
+      animation-name: clip-settle;
+      animation-timing-function: linear;
+      animation-fill-mode: both;
+      animation-timeline: --reveal-clip;
+      animation-range: entry 0% cover 40%;
     }
   }
 }
 @keyframes clip-open {
   from {
-    clip-path: inset(14% 7% 14% 7% round var(--clip-r, var(--r-md)));
-  }
-  to {
-    clip-path: inset(0 0 0 0 round var(--clip-r, var(--r-md)));
+    scale: 0.86;
   }
 }
-@keyframes img-settle {
+@keyframes clip-settle {
   from {
-    scale: 1.16;
-  }
-  to {
-    scale: 1;
+    scale: 1.349;
   }
 }
 
