@@ -238,8 +238,8 @@ const pt = pct(tall);
     // stroke-dashoffset), on the same 4.2 s loop as before. In: source to core in the first 40%. Out: leaves
     // the core just after the signal arrives (46% to 86%). Reduced motion keeps the still, lit routes.
     const sparks: Animation[] = [];
-    if (!still.matches && 'animate' in Element.prototype) {
-      const STEPS = 24;
+    const build = () => {
+      const STEPS = 16;
       root.querySelectorAll<SVGPathElement>('.ag__pulse').forEach((path) => {
         const len = path.getTotalLength();
         if (!len) return;
@@ -254,22 +254,25 @@ const pt = pct(tall);
         spark.setAttribute('height', '3');
         spark.setAttribute('rx', '1.5');
         path.after(spark);
-        const pose = (t: number) => {
-          const at = Math.min(len, Math.max(0, t * len));
-          const a = path.getPointAtLength(Math.max(0, at - 1));
-          const b = path.getPointAtLength(Math.min(len, at + 1));
-          const p = path.getPointAtLength(at);
+        // One read per step; each streak points along the curve, from its neighbours.
+        const pts = Array.from({ length: STEPS + 1 }, (_, i) => path.getPointAtLength((len * i) / STEPS));
+        const pose = (i: number) => {
+          const a = pts[Math.max(0, i - 1)];
+          const b = pts[Math.min(STEPS, i + 1)];
           const deg = (Math.atan2(b.y - a.y, b.x - a.x) * 180) / Math.PI;
-          return `translate(${p.x.toFixed(1)}px, ${p.y.toFixed(1)}px) rotate(${deg.toFixed(1)}deg)`;
+          return `translate(${pts[i].x.toFixed(1)}px, ${pts[i].y.toFixed(1)}px) rotate(${deg.toFixed(1)}deg)`;
         };
         const frames: Keyframe[] = [];
         if (from > 0) frames.push({ offset: 0, opacity: 0, transform: pose(0) });
         for (let i = 0; i <= STEPS; i++)
-          frames.push({ offset: from + ((to - from) * i) / STEPS, opacity: i === 0 || i === STEPS ? 0 : 1, transform: pose(i / STEPS) });
-        if (to < 1) frames.push({ offset: 1, opacity: 0, transform: pose(1) });
-        sparks.push(spark.animate(frames, { duration: 4200, delay: 1400 + k * 700, iterations: Infinity, easing: 'linear' }));
+          frames.push({ offset: from + ((to - from) * i) / STEPS, opacity: i === 0 || i === STEPS ? 0 : 1, transform: pose(i) });
+        if (to < 1) frames.push({ offset: 1, opacity: 0, transform: pose(STEPS) });
+        // Same start as before, counted from page load (the work below waits for an idle moment).
+        const delay = Math.max(0, 1400 + k * 700 - performance.now());
+        sparks.push(spark.animate(frames, { duration: 4200, delay, iterations: Infinity, easing: 'linear' }));
       });
-    }
+      apply();
+    };
     const apply = () => {
       const paused = userPaused || offscreen;
       root.classList.toggle('is-paused', paused);
@@ -289,6 +292,11 @@ const pt = pct(tall);
         offscreen = !e.isIntersecting;
         apply();
       }).observe(root);
+    }
+    // The streaks only start at 1.4 s, so building them waits for an idle moment and stays off the load.
+    if (!still.matches && 'animate' in Element.prototype) {
+      if ('requestIdleCallback' in window) requestIdleCallback(build, { timeout: 1000 });
+      else setTimeout(build, 500);
     }
   });
 </script>

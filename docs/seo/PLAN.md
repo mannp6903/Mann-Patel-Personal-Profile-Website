@@ -349,8 +349,31 @@ Decisions made while building (Phase 3):
 
 ### PHASE 4: LATER (ask before each)
 
-Mann's choice (14 Nov 2026): the two pages below, then the security headers. Not chosen for now: the animation and
-inline-CSS speed work (lab scores are already 99–100 on mobile).
+Mann's choice (14 Nov 2026): the two pages below, then the security headers, then (15 Nov 2026) the speed work.
+
+**Speed work (15 Nov 2026).**
+- *Non-composited animations (F3): done.* Lighthouse named them all: 63 on the home page, every one in the agent
+  graph (lines drawn with stroke-dashoffset ×40, node twinkle with stroke/fill ×10, pulses with stroke-dashoffset ×12,
+  the Booking glow with filter ×1), and 2 width transitions on the case studies (the swipe-row dots on load). A new
+  e2e test lists every animation and transition on every page, at 390 and 1440 px while scrolling, and allows only
+  transform and opacity; it also caught the header's scroll transition (background, border, backdrop-filter), the
+  confirmation tick on /contact/received/ (stroke-dashoffset) and the footer name (fill). Now: graph lines fade in
+  (the one visible change: they no longer draw along their length); a lime copy of each node fades for the twinkle;
+  a glowing copy of the Booking pill fades for the glow; the pulses are streaks the script moves along each route
+  with transform, built at idle time (the first starts at 1.4 s); the header's solid layer fades with opacity; the
+  dots start current; the tick scales and fades in; a lime copy of each footer letter fades in. Reduced motion and
+  no-JS are unchanged. Lighthouse: 0 non-composited animations on /, the case study and /about/; home 99/99/99 over
+  three runs, total blocking time 0–60 ms (80–150 ms before the idle-time change, about 60 ms at the start).
+  Page-to-page view transitions keep their clip-path and filter (navigation only, never during a load).
+- *Inline CSS to a cached stylesheet (F5): measured, not kept.* `inlineStylesheets: 'never'` cut the home page HTML
+  from 171 KB to 102 KB, but first-visit Lighthouse mobile went from 98–100 to 97–100 and first paint from 1.1–1.5 s
+  to 1.5–2.0 s on /, /pricing/, /services/web-design/, /contact/ and /work/ (the 45 KB shared stylesheet blocks
+  rendering). The plan's condition ("only if Lighthouse performance holds") isn't met, so CSS stays inline.
+- *Found, not changed:* two scroll-driven effects have never run in the built site. The CSS minifier folds
+  `animation-timeline` into the `animation` shorthand, which browsers reject, so the declaration is dropped: the
+  case-study images opening from a frame as they scroll in (`.reveal-clip`, clip-path) and the header's reading-progress
+  line (`.hdr::after`). Restoring them would add motion visitors don't see today, so it waits for Mann's call (the
+  image one would need the transform version to stay cheap).
 
 **Security headers (14 Nov 2026).** One source, `src/lib/security-headers.ts`: the build writes the headers into
 `dist/client/_headers` in place of a marker line in `public/_headers` (astro.config.mjs → `security-headers`), and the

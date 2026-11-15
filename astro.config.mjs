@@ -79,6 +79,9 @@ export default defineConfig({
   prefetch: false,
   devToolbar: { enabled: false },
   // Inline all CSS: no render-blocking stylesheet requests (the whole site's CSS is small).
+  // Measured 15 Nov 2026 (SEO audit Phase 4): moving it to cached files ('never') cut the home page HTML from
+  // 171 KB to 102 KB, but on a first visit Lighthouse mobile scored 97–100 instead of 98–100, with first paint
+  // 1.5–2.0 s instead of 1.1–1.5 s (the 45 KB shared stylesheet blocks rendering). Kept inline.
   build: { inlineStylesheets: 'always' },
   image: { responsiveStyles: true },
   vite: {
