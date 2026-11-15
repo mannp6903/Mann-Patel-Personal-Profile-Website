@@ -2000,7 +2000,9 @@ test.describe('sharing images (Nov 2026 audit fixes)', () => {
 
 test.describe('North York page (Nov 2026 audit fixes)', () => {
   const src = readFileSync('src/data/areas.ts', 'utf8');
-  const NORTH_YORK_DRAFT = (src.match(/\bslug:\s*'north-york'[\s\S]*?\bneighbourhoods:\s*(null|\[\s*\]|\[)/) || [])[1] !== '[';
+  const entry = src.split(/(?=\bslug:\s*')/).find((e) => e.startsWith("slug: 'north-york'")) ?? '';
+  // A draft while the neighbourhoods are missing or the local example is null (areaIsDraft in src/data/areas.ts).
+  const NORTH_YORK_DRAFT = (entry.match(/\bneighbourhoods:\s*(null|\[\s*\]|\[)/) || [])[1] !== '[' || /\blocalExample:\s*null\b/.test(entry);
 
   test('the Scarborough page’s structure with its own copy; a marked draft until the neighbourhoods and an example are in', async ({ page }) => {
     await page.goto('/web-design-north-york/');
@@ -2013,11 +2015,13 @@ test.describe('North York page (Nov 2026 audit fixes)', () => {
     const types = blocks.map((b) => JSON.parse(b)['@type']);
     expect(types).toEqual(expect.arrayContaining(['ProfessionalService', 'FAQPage', ...(types.includes('BreadcrumbList') ? ['BreadcrumbList'] : [])]));
     expect(await page.locator('main section').last().getAttribute('id')).toBe('check');
-    if (NORTH_YORK_DRAFT) {
-      await expect(page.locator('[data-draft]')).toContainText('Draft, not published');
-      await expect(page.locator('[data-neighbourhoods] [data-confirm]')).toBeVisible();
-    }
-    if (/localExample:\s*null/.test(src)) await expect(page.locator('main [data-confirm]').first()).toBeVisible();
+    if (NORTH_YORK_DRAFT) await expect(page.locator('[data-draft]')).toContainText('Draft, not published');
+    // Every neighbourhood (Mann, 15 Nov 2026), or a "To confirm" note while the list is missing.
+    if (/\bneighbourhoods:\s*\[\s*'/.test(entry)) {
+      await expect(page.locator('[data-neighbourhoods]')).toContainText('Every neighbourhood in North York, including:');
+      await expect(page.locator('[data-neighbourhoods] li', { hasText: 'Willowdale' })).toHaveCount(1);
+    } else await expect(page.locator('[data-neighbourhoods] [data-confirm]')).toBeVisible();
+    if (/\blocalExample:\s*null\b/.test(entry)) await expect(page.locator('main [data-confirm]').first()).toBeVisible();
     // Footer link (previews show drafts; production links it only once it is published).
     await expect(page.locator('footer a[href="/web-design-north-york/"]')).toHaveText('Web design in North York');
   });

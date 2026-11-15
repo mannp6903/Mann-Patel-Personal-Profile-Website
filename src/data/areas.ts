@@ -1,12 +1,13 @@
 /**
  * Area pages (SEO audit Phase 3, 14 Nov 2026; docs/seo/PLAN.md B2): /web-design-<slug>/, rendered by
  * src/pages/web-design-[area].astro. Scarborough first: Mann is based there and Samp Hair & Spa is there.
- * North York scaffolded in the Nov 2026 audit fixes, as a draft until Mann lists its neighbourhoods and a local example.
+ * North York scaffolded in the Nov 2026 audit fixes; every neighbourhood listed (Mann, 15 Nov 2026); a draft until Mann
+ * sends a local example.
  *
- * A page is an unpublished draft while `neighbourhoods` is null or empty: built in previews (with a
- * "To confirm" note) and in `astro dev`, never in production, the sitemap or a link from another page.
- * scripts/seo-check.mjs reads `slug` and `neighbourhoods` from this file, so keep both written as
- * `slug: '…'` and `neighbourhoods: null` / `neighbourhoods: ['…']`.
+ * A page is an unpublished draft while `neighbourhoods` is null or empty, or while `localExample` is null (needed but
+ * not supplied yet): built in previews (with a "To confirm" note) and in `astro dev`, never in production, the sitemap
+ * or a link from another page. scripts/seo-check.mjs and the e2e suite read these from this file, so keep them written
+ * as `slug: '…'`, `neighbourhoods: null` / `neighbourhoods: ['…']` and `localExample: null` / `localExample: '…'`.
  */
 import type { Faq } from './service-pages';
 import { packageById, priceLabel, type PackageId } from './packages';
@@ -35,13 +36,14 @@ export interface Area {
   /**
    * One or two sentences on a real project in this area, exactly as Mann words it (Nov 2026 audit fixes), shown under
    * "Local work" with the projects whose location names the area. Leave it out where those projects say enough (the
-   * Scarborough page). null = needed but not supplied: previews show a "To confirm" note and a production build stops.
+   * Scarborough page). null = needed but not supplied: the page stays a draft, and previews show a "To confirm" note.
    */
   localExample?: string | null;
   faqs: Faq[];
 }
 
-export const areaIsDraft = (a: Pick<Area, 'neighbourhoods'>) => !a.neighbourhoods || a.neighbourhoods.length === 0;
+export const areaIsDraft = (a: Pick<Area, 'neighbourhoods' | 'localExample'>) =>
+  !a.neighbourhoods || a.neighbourhoods.length === 0 || a.localExample === null;
 export const areaPath = (a: Pick<Area, 'slug'>) => `/web-design-${a.slug}/`;
 
 export const areas: Area[] = [
@@ -124,12 +126,53 @@ export const areas: Area[] = [
     h1: 'A web designer for North York small businesses',
     lines: ['A web designer for', 'North York small businesses'],
     lead: 'I’m Mann Patel, a web designer based in Scarborough who works with small businesses in North York and across Toronto and the GTA. I build websites, set up Google Business Profiles and connect online booking, and my prices are published.',
-    // TODO(Mann): the North York neighbourhoods you serve, exactly as you'd list them, e.g. ['Willowdale', '…'].
-    // Not guessed. While this is null the page is a draft: previews only, never in production, the sitemap or a link.
-    neighbourhoods: null,
-    neighbourhoodsLead: 'North York neighbourhoods I work in:',
+    // Mann serves every neighbourhood in North York (15 Nov 2026: "include all"). Names of the former City of North
+    // York's neighbourhoods as Toronto uses them. Wikipedia couldn't be reached from the build session to check them,
+    // so Mann reviews this list before the page is published. The page says "including", so it needn't be exhaustive.
+    neighbourhoods: [
+      'Amesbury',
+      'Armour Heights',
+      'Bathurst Manor',
+      'Bayview Village',
+      'Bayview Woods–Steeles',
+      'Black Creek',
+      'Bridle Path',
+      'Clanton Park',
+      'Don Mills',
+      'Don Valley Village',
+      'Downsview',
+      'Flemingdon Park',
+      'Glen Park',
+      'Graydon Hall',
+      'Henry Farm',
+      'Hillcrest Village',
+      'Hoggs Hollow',
+      'Humber Summit',
+      'Humbermede',
+      'Humberlea',
+      'Jane and Finch',
+      'Lansing',
+      'Lawrence Heights',
+      'Lawrence Manor',
+      'Ledbury Park',
+      'Maple Leaf',
+      'Newtonbrook',
+      'North York Centre',
+      'Oriole',
+      'Parkway Forest',
+      'Parkwoods',
+      'Pelmo Park',
+      'Rustic',
+      'St. Andrew–Windfields',
+      'Victoria Village',
+      'Westminster–Branson',
+      'Willowdale',
+      'Wilson Heights',
+      'York Mills',
+      'York University Heights',
+    ],
     // TODO(Mann): one or two sentences on a real North York project (a client, or Nest & Rest's work there), in your
-    // words. While this is null a production build with the neighbourhoods filled in stops with a "To confirm" error.
+    // words. While this is null the page stays a draft: previews only, never in production, the sitemap or a link.
     localExample: null,
     faqs: [
       {

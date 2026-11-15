@@ -405,12 +405,21 @@ if (existsSync(guideDir)) {
   }
   (live ? newPages : drafts).push('/guides/');
 }
-// Area pages (src/data/areas.ts → /web-design-<slug>/): a draft while `neighbourhoods` is null or empty.
+// Area pages (src/data/areas.ts → /web-design-<slug>/): a draft while `neighbourhoods` is null or empty, or while
+// `localExample` is null (the same switches as areaIsDraft()). Each entry is read on its own, from its slug to the next.
 const areaFile = 'src/data/areas.ts';
 if (existsSync(areaFile)) {
-  const found = [...readFileSync(areaFile, 'utf8').matchAll(/\bslug:\s*'([a-z-]+)'[\s\S]*?\bneighbourhoods:\s*(null|\[\s*\]|\[)/g)];
-  if (!found.length) err('drafts', `${areaFile}: no area with a slug and neighbourhoods found, so its draft state can't be checked`);
-  for (const [, slug, list] of found) (list === '[' ? newPages : drafts).push(`/web-design-${slug}/`);
+  const entries = readFileSync(areaFile, 'utf8').split(/(?=\bslug:\s*')/).slice(1);
+  let found = 0;
+  for (const entry of entries) {
+    const slug = (entry.match(/^slug:\s*'([a-z-]+)'/) || [])[1];
+    const list = (entry.match(/\bneighbourhoods:\s*(null|\[\s*\]|\[)/) || [])[1];
+    if (!slug || !list) continue;
+    found++;
+    const draft = list !== '[' || /\blocalExample:\s*null\b/.test(entry);
+    (draft ? drafts : newPages).push(`/web-design-${slug}/`);
+  }
+  if (!found) err('drafts', `${areaFile}: no area with a slug and neighbourhoods found, so its draft state can't be checked`);
 }
 for (const path of newPages) {
   const p = pages.get(path);

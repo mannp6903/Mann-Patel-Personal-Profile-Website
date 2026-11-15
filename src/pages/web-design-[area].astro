@@ -54,7 +54,12 @@ const crumbs = breadcrumbJsonLd([
   {
     draft && (
       <DraftNote
-        note={`It is left out of the live site, the sitemap and every link until the neighbourhoods below${area.localExample === null ? ' and a local example are' : ' are'} added in src/data/areas.ts.`}
+        note={`It is left out of the live site, the sitemap and every link until ${[
+          !area.neighbourhoods?.length && 'the neighbourhoods',
+          area.localExample === null && 'a local example',
+        ]
+          .filter(Boolean)
+          .join(' and ')} ${area.localExample === null && !area.neighbourhoods?.length ? 'are' : 'is'} added in src/data/areas.ts.`}
       />
     )
   }
