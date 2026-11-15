@@ -1,8 +1,7 @@
 /**
  * Area pages (SEO audit Phase 3, 14 Nov 2026; docs/seo/PLAN.md B2): /web-design-<slug>/, rendered by
  * src/pages/web-design-[area].astro. Scarborough first: Mann is based there and Samp Hair & Spa is there.
- * North York scaffolded in the Nov 2026 audit fixes; every neighbourhood listed (Mann, 15 Nov 2026); a draft until Mann
- * sends a local example.
+ * North York added in the Nov 2026 audit fixes, with every neighbourhood listed, and published 15 Nov 2026.
  *
  * A page is an unpublished draft while `neighbourhoods` is null or empty, or while `localExample` is null (needed but
  * not supplied yet): built in previews (with a "To confirm" note) and in `astro dev`, never in production, the sitemap
@@ -171,9 +170,9 @@ export const areas: Area[] = [
       'York Mills',
       'York University Heights',
     ],
-    // TODO(Mann): one or two sentences on a real North York project (a client, or Nest & Rest's work there), in your
-    // words. While this is null the page stays a draft: previews only, never in production, the sitemap or a link.
-    localExample: null,
+    // Published 15 Nov 2026 at Mann's request ("make it live"). The local work shown is Nest & Rest Cleaning, which
+    // serves North York (its case study says so). TODO(Mann), optional: one or two sentences on a North York project in
+    // your words; add them as `localExample: '…'` and they appear under "Local work".
     faqs: [
       {
         q: 'Do you work with businesses in North York?',

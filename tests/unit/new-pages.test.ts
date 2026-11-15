@@ -101,7 +101,8 @@ describe('area pages', () => {
     // Neighbourhoods and the local example are Mann's to supply: never guessed, so the page is a draft until then.
     if (ny.neighbourhoods === null || ny.localExample === null) expect(areaIsDraft(ny)).toBe(true);
     expect(new Set(ny.neighbourhoods ?? []).size).toBe((ny.neighbourhoods ?? []).length); // no name twice
-    expect(ny.localExample === null || (typeof ny.localExample === 'string' && ny.localExample.length > 20)).toBe(true);
+    // A local example, when given, is Mann's own words; left out, the page shows its real local work only.
+    expect(ny.localExample === undefined || ny.localExample === null || ny.localExample.length > 20).toBe(true);
   });
 });
 
