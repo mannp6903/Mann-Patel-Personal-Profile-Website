@@ -13,6 +13,9 @@ const defaults = {
   SITE_MODE: 'production',
   PUBLIC_SITE_URL: 'https://mannpatel.me',
   SITE_INDEXING: 'true',
+  // GA4 property "mannpatel.me" (created 15 Nov 2026). The ID is public (it ships in every page); GA loads only
+  // after the visitor clicks Allow on the consent prompt (src/components/Analytics.astro).
+  PUBLIC_GA4_ID: 'G-WM5G62C3HX',
   // Wrangler (used by the Cloudflare adapter while prerendering) would otherwise read a local .env
   // file as dev vars and override the values above: a build from a computer with the preview .env
   // came out "noindex" with no canonical URLs. Production builds never read .env.

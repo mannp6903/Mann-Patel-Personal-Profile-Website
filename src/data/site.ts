@@ -95,22 +95,21 @@ export const sameAs = social.flatMap((s) => (s.url && s.id !== 'facebook' ? [s.u
  * - `url`: the share link, used for the visible "on Google Maps" links.
  * - `mapsUrl`: the full Google Maps address of the profile, for the business structured data (sameAs). A short
  *   maps.app.goo.gl link is a redirect, so search engines match the full one more reliably.
- *   TODO(Mann): paste the full URL (open the share link in a browser and copy the address bar, ideally the
- *   https://www.google.com/maps?cid=… form). Until then sameAs keeps the share link.
+ *   15 Nov 2026: the stable cid form, worked out from the share link and checked to open the "Mann Patel" profile.
  */
 export const gbp = {
   url: 'https://maps.app.goo.gl/dYccTa9jQJczpeac6',
-  mapsUrl: null as string | null,
+  mapsUrl: 'https://www.google.com/maps?cid=5023923139940890210' as string | null,
 };
 
 /**
  * The business's own profiles, for the business structured data only (they are not shown as buttons).
- * TODO(Mann): YouTube channel URL and the LinkedIn URL for the business (if it's your personal profile,
- * https://www.linkedin.com/in/mannp6903/, paste that). Each joins the business sameAs once set.
+ * TODO(Mann): YouTube channel URL. LinkedIn is the personal profile (no separate business page), added
+ * 15 Nov 2026 so the business entity links to the same person.
  */
 export const businessProfiles: { youtube: string | null; linkedin: string | null } = {
   youtube: null,
-  linkedin: null,
+  linkedin: 'https://www.linkedin.com/in/mannp6903/',
 };
 
 /** The business logo (512 × 512, from public/favicon.svg by `npm run images`), for the business structured data. */
