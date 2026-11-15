@@ -312,11 +312,16 @@ const hasGuides = (await visibleGuides()).length > 0;
     transform-box: fill-box;
     transform-origin: 50% 100%;
     translate: 0 calc(var(--g) * -9%);
-    fill: color-mix(in oklab, var(--text) calc(100% - var(--g) * 100%), var(--signal));
-    transition: translate 420ms var(--ease-out), fill 420ms var(--ease-out);
+    transition: translate 420ms var(--ease-out);
   }
-  .ftr__name :global([data-k-ch][data-lam]) {
-    fill: color-mix(in oklab, var(--signal) calc(100% - var(--g) * 100%), var(--signal-strong));
+  /* The colour change is a lime copy of each letter fading in: opacity, not fill (SEO audit Phase 4). */
+  .ftr__name :global(.wm__lit) {
+    fill: var(--signal);
+    opacity: var(--g);
+    transition: opacity 420ms var(--ease-out);
+  }
+  .ftr__name :global([data-lam] .wm__lit) {
+    fill: var(--signal-strong);
   }
 
   .ftr__bottom {

@@ -12,7 +12,10 @@ interface Props {
   height?: number;
   /** Colour the two Λ's lime. */
   accent?: boolean;
-  /** Mark each letter with data-k-ch so the footer's kinetic script can move it. */
+  /**
+   * Mark each letter with data-k-ch so the footer's kinetic script can move it. Each letter is a group with a
+   * lime copy on top (.wm__lit) that fades in near the pointer: opacity, not fill (SEO audit Phase 4).
+   */
   kinetic?: boolean;
 }
 const { class: className, height = 14, accent = true, kinetic = false } = Astro.props;
@@ -43,7 +46,18 @@ const letters: { d: string; lam?: boolean }[] = [
   data-accent={accent ? '' : undefined}
   aria-hidden="true"
   focusable="false"
-  >{letters.map((l) => <path d={l.d} data-lam={l.lam ? '' : undefined} data-k-ch={kinetic ? '' : undefined} />)}</svg
+  >{
+    letters.map((l) =>
+      kinetic ? (
+        <g data-k-ch data-lam={l.lam ? '' : undefined}>
+          <path d={l.d} />
+          <path class="wm__lit" d={l.d} />
+        </g>
+      ) : (
+        <path d={l.d} data-lam={l.lam ? '' : undefined} />
+      ),
+    )
+  }</svg
 >
 
 <style>

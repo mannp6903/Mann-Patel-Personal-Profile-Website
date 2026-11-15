@@ -459,17 +459,22 @@ test.describe('home interactions', () => {
     await page.goto('/');
     const svg = page.locator('.ag__svg--wide');
     for (const label of ['Google', 'Maps', 'AI answers', 'Enquiry', 'Reply', 'Booking']) await expect(svg).toContainText(label);
-    const pulse = page.locator('.ag__svg--wide .ag__pulse').first();
-    expect(await pulse.evaluate((e) => getComputedStyle(e).animationName)).toBe('ag-in');
+    // SEO audit Phase 4 (speed): the pulses are streaks moved along each route with transform (Web Animations),
+    // one per route and layout: 12 routes × 2 layouts.
+    const sparks = page.locator('.ag__svg--wide .ag__spark');
+    await expect(sparks).toHaveCount(12);
+    const states = () => page.evaluate(() => [...document.querySelectorAll('.ag__spark')].flatMap((e) => e.getAnimations().map((a) => a.playState)));
+    expect(new Set(await states())).toEqual(new Set(['running']));
     const toggle = page.locator('[data-ag-toggle]');
     await expect(toggle).toHaveAccessibleName('Pause animation');
     await toggle.click();
     await expect(toggle).toHaveAttribute('aria-pressed', 'true');
     await expect(page.locator('[data-agent-graph]')).toHaveClass(/is-paused/);
-    expect(await pulse.evaluate((e) => getComputedStyle(e).animationPlayState)).toBe('paused');
+    expect(new Set(await states())).toEqual(new Set(['paused']));
+    expect(await page.locator('.ag__orbit').first().evaluate((e) => getComputedStyle(e).animationPlayState)).toBe('paused');
     await toggle.click();
     await expect(toggle).toHaveAttribute('aria-pressed', 'false');
-    expect(await pulse.evaluate((e) => getComputedStyle(e).animationPlayState)).toBe('running');
+    expect(new Set(await states())).toEqual(new Set(['running']));
   });
 
 
@@ -480,6 +485,7 @@ test.describe('home interactions', () => {
     expect(await page.locator('.ag__svg--tall .ag__pulse').first().evaluate((e) => getComputedStyle(e).animationName)).toBe('none');
     expect(await page.locator('.ag__orbit').first().evaluate((e) => getComputedStyle(e).animationName)).toBe('none');
     await expect(page.locator('.ag__svg--tall .ag__pulse:visible')).toHaveCount(4);
+    await expect(page.locator('.ag__spark')).toHaveCount(0);
     await expect(page.locator('[data-ag-toggle]')).toBeHidden();
     await ctx.close();
   });
@@ -972,6 +978,68 @@ test.describe('content security policy', () => {
       expect(violations, path).toEqual([]);
     }
     expect(problems).toEqual([]);
+  });
+});
+
+// SEO audit Phase 4, speed (14 Nov 2026): Lighthouse found 63 non-composited animations on the home page (the agent
+// graph drew and lit its lines with stroke-dashoffset, stroke, fill and filter) and two width transitions on the case
+// studies. Every animation and transition now moves only transform or opacity, which browsers can run cheaply. This
+// lists every one on every page, at phone and laptop widths, while the page loads and as it is scrolled through.
+test.describe('motion: transform and opacity only', () => {
+  const ALLOWED = new Set(['transform', 'opacity', 'translate', 'scale', 'rotate']);
+  const animated = (page: Page) =>
+    page.evaluate(() =>
+      document.getAnimations().flatMap((a) => {
+        const effect = a.effect as KeyframeEffect | null;
+        // Page-to-page transitions run only on navigation (never during a load) and keep their design.
+        if (!effect || effect.pseudoElement?.startsWith('::view-transition')) return [];
+        const el = effect.target as Element | null;
+        const where = `${el?.tagName.toLowerCase()}${el && typeof el.className === 'string' && el.className ? '.' + el.className.split(' ')[0] : ''}`;
+        if ('transitionProperty' in a) return [`${(a as CSSTransition).transitionProperty} (transition on ${where})`];
+        const props = [...new Set(effect.getKeyframes().flatMap((k) => Object.keys(k)))].filter((p) => !['offset', 'computedOffset', 'easing', 'composite'].includes(p));
+        const name = (a as CSSAnimation).animationName || 'script';
+        return props.map((p) => `${p} (${name} on ${where})`);
+      }),
+    );
+  for (const [w, h] of [
+    [390, 844],
+    [1440, 900],
+  ]) {
+    test(`every animation on every page moves only transform or opacity at ${w}px`, async ({ page }) => {
+      test.setTimeout(180_000);
+      await page.setViewportSize({ width: w, height: h });
+      const bad = new Set<string>();
+      const check = async (path: string) => {
+        for (const p of await animated(page)) if (!ALLOWED.has(p.split(' ')[0])) bad.add(`${path}: ${p}`);
+      };
+      for (const path of PAGES) {
+        await page.goto(path);
+        await page.waitForTimeout(250);
+        await check(path);
+        await page.evaluate(async () => {
+          for (let y = 0; y < document.documentElement.scrollHeight; y += innerHeight * 0.6) {
+            scrollTo(0, y);
+            await new Promise((r) => setTimeout(r, 40));
+          }
+        });
+        await check(path);
+      }
+      expect([...bad]).toEqual([]);
+    });
+  }
+
+  test('the footer name lights up near the pointer with transform and opacity only', async ({ page }) => {
+    await page.setViewportSize({ width: 1440, height: 900 });
+    await page.goto('/about/');
+    const name = page.locator('.ftr__name');
+    await name.scrollIntoViewIfNeeded();
+    const box = (await name.boundingBox())!;
+    await page.mouse.move(box.x + box.width * 0.3, box.y + box.height / 2);
+    await page.mouse.move(box.x + box.width * 0.35, box.y + box.height / 2, { steps: 5 });
+    await page.waitForTimeout(100);
+    const props = await animated(page);
+    expect(props.filter((p) => /on (path|g)/.test(p)).length, 'the letters should animate').toBeGreaterThan(0);
+    expect(props.filter((p) => !ALLOWED.has(p.split(' ')[0]))).toEqual([]);
   });
 });
 
