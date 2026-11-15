@@ -15,6 +15,8 @@ const SITE = 'https://mannpatel.me';
 // ── What the pages must say (SEO audit, 14 Nov 2026). Exact, after decoding entities and collapsing spaces.
 const EXACT = {
   '/': {
+    // Nov 2026 audit fixes.
+    title: 'Mann Patel — Web Design & Local SEO, Scarborough & Toronto',
     description:
       'Websites, local SEO and Google Business Profile setup for Toronto small businesses. Published prices: websites from $1,950 CAD. Free website check.',
     h1: 'Websites and local SEO for Toronto small businesses.',
@@ -26,6 +28,11 @@ const EXACT = {
   },
   '/services/local-visibility/': { title: 'Local SEO & Google Business Profile Toronto | Mann Patel' },
   '/vision/': { title: 'Vision | Mann Patel, Web Designer in Toronto' },
+  // Nov 2026 audit fixes (the address stays the same).
+  '/guides/how-to-get-recommended-by-chatgpt/': {
+    title: 'Showing Up in ChatGPT & AI Overviews | Mann Patel',
+    h1: 'How local businesses show up in ChatGPT and Google AI Overviews',
+  },
 };
 /**
  * Pages added by this SEO work (Phase 3): each needs a BreadcrumbList, a link to the free check and a sitemap
@@ -45,6 +52,8 @@ const KEYWORDS = {
   '/websites-for-cleaning-companies/': 'cleaning company website design toronto',
   '/websites-for-salons-and-spas/': 'salon website design toronto',
   '/web-design-scarborough/': 'web design scarborough',
+  // Nov 2026 audit fixes (keyword C17), checked once the page is published.
+  '/web-design-north-york/': 'web designer north york',
   '/services/website-care/': 'website maintenance toronto',
   '/services/ai-search-optimization/': 'ai search optimization toronto',
 };
@@ -160,6 +169,7 @@ for (const path of published) if (!pages.has(path)) err('sitemap', `${path} is i
 
 // ── Per page
 const titles = new Map();
+const ogImages = new Map();
 for (const [path, p] of pages) {
   const isPublished = published.includes(path);
   if (p.h1s.length !== 1) err('one H1', `${path} has ${p.h1s.length} H1s`);
@@ -198,6 +208,55 @@ for (const [path, p] of pages) {
       err('no review schema', `${path}: Review/AggregateRating markup found`);
   }
 
+  // Schema by page type (Nov 2026 audit): what each type of page must carry, and FAQPage only for visible FAQs.
+  const visible = text(p.html.replace(/<script\b[\s\S]*?<\/script>|<style\b[\s\S]*?<\/style>|<template\b[\s\S]*?<\/template>/g, ' '));
+  const flat = (s) => decode(String(s)).replace(/\s+/g, ' ').trim();
+  for (const faq of all.filter((n) => types(n).includes('FAQPage'))) {
+    for (const q of [].concat(faq.mainEntity ?? [])) {
+      if (!visible.includes(flat(q.name))) err('schema by page type', `${path}: FAQPage question "${q.name}" is not visible on the page`);
+      else if (!visible.includes(flat(q.acceptedAnswer?.text ?? '').slice(0, 80)))
+        err('schema by page type', `${path}: the FAQPage answer to "${q.name}" is not visible on the page`);
+    }
+  }
+  if (/<nav\b[^>]*aria-label="Breadcrumb"/.test(p.html) && !all.some((n) => types(n).includes('BreadcrumbList')))
+    err('schema by page type', `${path}: shows a breadcrumb but has no BreadcrumbList`);
+  if (isPublished && /^\/guides\/[^/]+\/$/.test(path)) {
+    const post = all.find((n) => types(n).includes('BlogPosting'));
+    if (!post) err('schema by page type', `${path}: a guide without BlogPosting`);
+    else {
+      if (post.headline !== p.h1s[0]) err('schema by page type', `${path}: BlogPosting headline "${post.headline}" is not the H1 "${p.h1s[0]}"`);
+      for (const k of ['datePublished', 'dateModified'])
+        if (!/^\d{4}-\d{2}-\d{2}/.test(post[k] ?? '')) err('schema by page type', `${path}: BlogPosting has no ${k}`);
+      if (!/#person$/.test(post.author?.['@id'] ?? '')) err('schema by page type', `${path}: BlogPosting author is not the Person @id`);
+      // The visible "Updated" date, when shown, is the dateModified.
+      const shown = [...p.html.matchAll(/Updated <time datetime="([^"]+)"/g)].map((m) => m[1]);
+      if (shown.length && shown[0] !== post.dateModified) err('schema by page type', `${path}: shows Updated ${shown[0]} but dateModified is ${post.dateModified}`);
+    }
+  }
+  if (isPublished && /^\/services\/[^/]+\/$/.test(path)) {
+    const svc = all.find((n) => types(n).includes('Service') && n.provider);
+    if (!svc) err('schema by page type', `${path}: a service page without a Service (with a provider)`);
+    else for (const o of [].concat(svc.offers ?? []))
+      if (o.priceCurrency !== 'CAD' || (o.price === undefined && o.priceSpecification?.minPrice === undefined))
+        err('schema by page type', `${path}: Offer "${o.name}" has no CAD price`);
+  }
+
+  // Sharing image (Nov 2026 audit fixes): every page has its own, in the build, 1200 × 630.
+  const og = (p.html.match(/<meta property="og:image" content="([^"]+)"/) || [])[1];
+  if (!og) err('sharing images', `${path}: no og:image`);
+  else {
+    const ogPath = new URL(decode(og), `${SITE}/`).pathname;
+    const file = join(DIST, ogPath);
+    if (ogPath === '/og/default.png') err('sharing images', `${path}: still uses the shared /og/default.png`);
+    else if (!existsSync(file)) err('sharing images', `${path}: ${ogPath} is not in the build`);
+    else {
+      const png = readFileSync(file);
+      const size = png.subarray(1, 4).toString() === 'PNG' ? [png.readUInt32BE(16), png.readUInt32BE(20)] : null;
+      if (!size || size[0] !== 1200 || size[1] !== 630) err('sharing images', `${path}: ${ogPath} is ${size ? size.join(' × ') : 'not a PNG'}, not 1200 × 630`);
+    }
+    if (isPublished) ogImages.set(ogPath, [...(ogImages.get(ogPath) ?? []), path]);
+  }
+
   // Footer labels are not headings.
   const footer = (p.html.match(/<footer\b[\s\S]*?<\/footer>/) || [''])[0];
   for (const m of footer.matchAll(/<(h[1-6])\b[^>]*>([\s\S]*?)<\/\1>/g)) {
@@ -217,6 +276,19 @@ for (const [path, p] of pages) {
   }
 }
 for (const [title, paths] of titles) if (paths.length > 1) err('unique titles', `"${title}" is used by ${paths.join(', ')}`);
+for (const [image, paths] of ogImages) if (paths.length > 1) err('sharing images', `${image} is shared by ${paths.join(', ')}`);
+
+// ── Modern JavaScript only (Nov 2026 audit fixes): Astro builds the client scripts for current browsers (esnext);
+// no down-levelling helpers or polyfills may creep in with a dependency.
+{
+  const astroDir = join(DIST, '_astro');
+  const legacy = /core-js|regeneratorRuntime|__awaiter|__generator|_asyncToGenerator|_classCallCheck|__async\(|__publicField|__spreadValues/;
+  if (existsSync(astroDir))
+    for (const f of readdirSync(astroDir).filter((n) => n.endsWith('.js'))) {
+      const m = readFileSync(join(astroDir, f), 'utf8').match(legacy);
+      if (m) err('modern JavaScript', `_astro/${f} contains "${m[0]}" (a polyfill or down-levelling helper)`);
+    }
+}
 
 // ── Exact copy
 for (const [path, want] of Object.entries(EXACT)) {
@@ -232,8 +304,8 @@ for (const [path, want] of Object.entries(EXACT)) {
 }
 
 // ── The business entity
-// The Scarborough page carries the full node too, once it is published (plan B2; a draft isn't built).
-for (const path of [...BUSINESS_PAGES, ...(pages.has('/web-design-scarborough/') ? ['/web-design-scarborough/'] : [])]) {
+// The area pages carry the full node too, once they are published (plan B2; a draft isn't built).
+for (const path of [...BUSINESS_PAGES, ...[...pages.keys()].filter((p) => /^\/web-design-[a-z-]+\/$/.test(p))]) {
   const p = pages.get(path);
   const biz = p && nodes(p.ld).find((n) => types(n).includes('ProfessionalService') && n.telephone);
   if (!biz) {
@@ -247,6 +319,18 @@ for (const path of [...BUSINESS_PAGES, ...(pages.has('/web-design-scarborough/')
   if (!biz.priceRange) err('ProfessionalService', `${path}: no priceRange`);
   if (!Array.isArray(biz.sameAs) || !biz.sameAs.some((u) => /maps\.app\.goo\.gl|google\.com\/maps/.test(u)))
     err('ProfessionalService', `${path}: sameAs has no Google Business Profile link`);
+  const logoUrl = typeof biz.logo === 'string' ? biz.logo : biz.logo?.url;
+  if (!logoUrl?.startsWith(`${SITE}/`)) err('ProfessionalService', `${path}: no logo on ${SITE}`);
+  else if (!existsSync(join(DIST, new URL(logoUrl).pathname))) err('ProfessionalService', `${path}: logo ${logoUrl} is not in the build`);
+}
+// The business catalogue (home page): every Offer priced in CAD.
+{
+  const biz = nodes(pages.get('/')?.ld ?? []).find((n) => types(n).includes('ProfessionalService') && n.hasOfferCatalog);
+  const offers = [].concat(biz?.hasOfferCatalog?.itemListElement ?? []);
+  if (!offers.length) err('ProfessionalService', '/: no hasOfferCatalog with offers');
+  for (const o of offers)
+    if (o.priceCurrency !== 'CAD' || (o.price === undefined && o.priceSpecification?.minPrice === undefined))
+      err('ProfessionalService', `/: catalogue Offer "${o.name}" has no CAD price`);
 }
 
 // ── The services overview: short, and not a copy of other pages
@@ -366,6 +450,9 @@ const checks = [
   'exact copy',
   'JSON-LD parses',
   'ProfessionalService',
+  'schema by page type',
+  'sharing images',
+  'modern JavaScript',
   'no worksFor Nest & Rest',
   'no street address',
   'no review schema',

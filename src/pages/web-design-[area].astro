@@ -1,6 +1,7 @@
 ---
 /**
- * Area pages (SEO audit Phase 3, 14 Nov 2026; plan B2): /web-design-scarborough/. Content: src/data/areas.ts.
+ * Area pages (SEO audit Phase 3, 14 Nov 2026; plan B2): /web-design-scarborough/ and, once Mann lists its
+ * neighbourhoods, /web-design-north-york/ (Nov 2026 audit fixes). Content: src/data/areas.ts.
  *
  * A page is a draft until Mann lists the neighbourhoods he serves (`neighbourhoods: null`): built in previews
  * and `astro dev` with a "To confirm" note, never in production (src/lib/published.ts). It carries the full
@@ -50,7 +51,13 @@ const crumbs = breadcrumbJsonLd([
 
 <BaseLayout title={area.title} description={area.description} jsonLd={[businessJsonLd(), faqLd, ...(crumbs ? [crumbs] : [])]}>
   <Crumbs items={[{ label: 'Home', href: '/' }, { label: `Web design in ${area.name}` }]} />
-  {draft && <DraftNote note="It is left out of the live site, the sitemap and every link until the neighbourhoods below are listed in src/data/areas.ts." />}
+  {
+    draft && (
+      <DraftNote
+        note={`It is left out of the live site, the sitemap and every link until the neighbourhoods below${area.localExample === null ? ' and a local example are' : ' are'} added in src/data/areas.ts.`}
+      />
+    )
+  }
 
   <PageHead eyebrow={area.eyebrow} lines={lines} lead={area.lead} compact>
     <div class="ar__actions" data-reveal="load" style="--d:300">
@@ -93,6 +100,14 @@ const crumbs = breadcrumbJsonLd([
           ))
         }
       </ul>
+      {area.localExample && <p class="ar__example" data-local-example>{area.localExample}</p>}
+      {
+        area.localExample === null && (
+          <p>
+            <Confirm note={`a real ${area.name} example, in Mann’s words (src/data/areas.ts → localExample)`} />
+          </p>
+        )
+      }
     </div>
   </section>
 
@@ -106,7 +121,7 @@ const crumbs = breadcrumbJsonLd([
         {
           area.neighbourhoods?.length ? (
             <>
-              <p class="muted">Every neighbourhood in {area.name}, including:</p>
+              <p class="muted">{area.neighbourhoodsLead ?? `Every neighbourhood in ${area.name}, including:`}</p>
               <ul class="ar__hoods" role="list">
                 {area.neighbourhoods.map((n) => (
                   <li>{n}</li>
@@ -260,6 +275,10 @@ const crumbs = breadcrumbJsonLd([
     border-radius: var(--r-pill);
     font-family: var(--font-mono);
     font-size: 0.75rem;
+    color: var(--text-2);
+  }
+  .ar__example {
+    max-width: 60ch;
     color: var(--text-2);
   }
   .ar__hoods {

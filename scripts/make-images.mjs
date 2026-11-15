@@ -1,4 +1,4 @@
-// Generates favicon PNGs and the default Open Graph image (1200×630) from code, in the
+// Generates favicon PNGs, the 512 px logo and the default Open Graph image (1200×630) from code, in the
 // MΛNN PΛTEL brand (Nov 2026): the outlined wordmark, lime Λ's, over "Found. Answered. Booked."
 // Run: npm run images   (when the portrait, favicon or headline changes)
 import { chromium } from '@playwright/test';
@@ -16,6 +16,8 @@ const favicon = await readFile(`${root}public/favicon.svg`);
 const iconPng = (size) => sharp(favicon, { density: 1024 }).resize(size, size).png().toBuffer();
 await writeFile(`${root}public/favicon-192.png`, await iconPng(192));
 await writeFile(`${root}public/apple-touch-icon.png`, await iconPng(180));
+// The business logo in structured data (src/data/site.ts → logo): the same icon, 512 × 512.
+await writeFile(`${root}public/brand/mann-patel-logo.png`, await iconPng(512));
 // A multi-size .ico (16, 32, 48 px) holding PNG images, which every current browser reads.
 const icoSizes = [16, 32, 48];
 const icoImages = await Promise.all(icoSizes.map(iconPng));

@@ -63,6 +63,13 @@ export const profile = {
      * Set to null to hide the phone. See src/lib/contact.ts.
      */
     phoneKey: 'MzA5Njg3OTc0NjE=' as null | string,
+    /**
+     * One line on how quickly Mann replies, shown on /contact/ (under "Prefer to talk?") and in the footer's Contact
+     * column. Nov 2026 audit fixes. null = not shown.
+     * TODO(Mann): your wording, e.g. how soon you reply and on which days. Not written here: it's a promise only you
+     * can make.
+     */
+    replyTime: null as null | string,
   },
 };
 
@@ -85,11 +92,39 @@ export const sameAs = social.flatMap((s) => (s.url && s.id !== 'facebook' ? [s.u
 /**
  * Google Business Profile (live, supplied by Mann 14 Nov 2026). Service-area business: the home address
  * is hidden on the profile and never published here.
+ * - `url`: the share link, used for the visible "on Google Maps" links.
+ * - `mapsUrl`: the full Google Maps address of the profile, for the business structured data (sameAs). A short
+ *   maps.app.goo.gl link is a redirect, so search engines match the full one more reliably.
+ *   TODO(Mann): paste the full URL (open the share link in a browser and copy the address bar, ideally the
+ *   https://www.google.com/maps?cid=… form). Until then sameAs keeps the share link.
  */
-export const gbp = { url: 'https://maps.app.goo.gl/dYccTa9jQJczpeac6' } as const;
+export const gbp = {
+  url: 'https://maps.app.goo.gl/dYccTa9jQJczpeac6',
+  mapsUrl: null as string | null,
+};
 
-/** The business's own profiles (business sameAs): Google Business Profile, plus the Facebook Page once set. */
-export const businessSameAs = [gbp.url, ...social.flatMap((s) => (s.id === 'facebook' && s.url ? [s.url] : []))];
+/**
+ * The business's own profiles, for the business structured data only (they are not shown as buttons).
+ * TODO(Mann): YouTube channel URL and the LinkedIn URL for the business (if it's your personal profile,
+ * https://www.linkedin.com/in/mannp6903/, paste that). Each joins the business sameAs once set.
+ */
+export const businessProfiles: { youtube: string | null; linkedin: string | null } = {
+  youtube: null,
+  linkedin: null,
+};
+
+/** The business logo (512 × 512, from public/favicon.svg by `npm run images`), for the business structured data. */
+export const logo = { src: '/brand/mann-patel-logo.png', width: 512, height: 512 } as const;
+
+/**
+ * The business's own profiles (business sameAs): Google Business Profile, plus the Facebook Page, YouTube and
+ * LinkedIn once set.
+ */
+export const businessSameAs = [
+  gbp.mapsUrl ?? gbp.url,
+  ...social.flatMap((s) => (s.id === 'facebook' && s.url ? [s.url] : [])),
+  ...[businessProfiles.youtube, businessProfiles.linkedin].filter((u): u is string => Boolean(u)),
+];
 
 export const businesses: Business[] = [
   {
@@ -112,11 +147,17 @@ export const businesses: Business[] = [
   },
 ];
 
-/** Main menu (14 Nov 2026): the order a new client reads in: proof, what I do, what it costs, who I am. */
+/**
+ * Main menu (14 Nov 2026): the order a new client reads in: proof, what I do, what it costs, who I am.
+ * Header (desktop and phone menu) and footer read it through visibleNav() (src/lib/published.ts), which leaves out
+ * Pricing while no price is published and Guides while no guide is.
+ */
 export const nav = [
   { href: '/work/', label: 'Work' },
   { href: '/services/', label: 'Services' },
   { href: '/pricing/', label: 'Pricing' },
+  // Nov 2026 audit fixes: the guides join the menu (they were linked from the footer only).
+  { href: '/guides/', label: 'Guides' },
   { href: '/about/', label: 'About' },
   // 14 Nov 2026: what Mann is building, and an open door to professionals who want to build with him.
   { href: '/vision/', label: 'Vision' },

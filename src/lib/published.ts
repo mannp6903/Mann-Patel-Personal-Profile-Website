@@ -6,6 +6,8 @@
 import { getCollection, type CollectionEntry } from 'astro:content';
 import { indexing, isProduction } from './mode';
 import { areas, areaIsDraft, areaPath } from '../data/areas';
+import { nav } from '../data/site';
+import { pricesPublished } from '../data/packages';
 
 /** Never in production, and never in a build search engines may index (even if SITE_MODE was left at preview). */
 export const showDrafts = !isProduction && !indexing;
@@ -29,3 +31,9 @@ export const areaHref = (slug: string) => {
   const a = visibleAreas().find((x) => x.slug === slug);
   return a ? areaPath(a) : null;
 };
+
+/** The main menu as built: Pricing only while a price is published, Guides only while a guide is visible. */
+export async function visibleNav() {
+  const hasGuides = (await visibleGuides()).length > 0;
+  return nav.filter((item) => (item.href !== '/pricing/' || pricesPublished) && (item.href !== '/guides/' || hasGuides));
+}

@@ -28,7 +28,7 @@ const fmtDate = (iso: string) =>
             <li>
               <article class="sw__card" aria-labelledby={`sw-${entry.id}`} data-spotlight>
                 <a class="sw__media" href={href} tabindex="-1" aria-hidden="true">
-                  <ProjectMedia scene={project.scene} sizes="(min-width: 64em) 49vw, 90vw" />
+                  <ProjectMedia scene={project.scene} sizes="(min-width: 90em) 700px, (min-width: 64em) 49vw, 84vw" phoneSizes="(min-width: 90em) 168px, (min-width: 64em) 12vw, 22vw" />
                 </a>
                 <div class="sw__body">
                   <p class="sw__index num" aria-hidden="true">{String(index + 1).padStart(2, '0')} / {String(work.length).padStart(2, '0')}</p>

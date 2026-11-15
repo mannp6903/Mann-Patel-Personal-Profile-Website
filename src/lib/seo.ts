@@ -1,7 +1,8 @@
-import { profile, sameAs, businessSameAs } from '../data/site';
+import { profile, sameAs, businessSameAs, logo } from '../data/site';
 import { groups, addOns, servicesInGroup } from '../data/services';
-import { servicePages, serviceHref } from '../data/service-pages';
-import { packages } from '../data/packages';
+import { servicePages, moreServicePages, serviceHref } from '../data/service-pages';
+import { packages, packageById, type Package } from '../data/packages';
+import { areas, areaIsDraft, areaPath } from '../data/areas';
 import { contact } from './contact';
 import { absoluteUrl } from './mode';
 
@@ -10,7 +11,10 @@ import { absoluteUrl } from './mode';
  * - the business (`/#business`, ProfessionalService "Mann Patel"): phone, email, a city-level address,
  *   the areas served, the published price range and the Google Business Profile. It sells the services.
  * - Mann himself (`/#person`): a Toronto web designer, the business's founder.
- * Plus a WebSite on the home page and Service nodes on the service pages.
+ * Plus a WebSite on the home page, Service nodes on the service and industry pages, BlogPosting on the guides
+ * (src/layouts/GuideLayout.astro), FAQPage only where the questions are visible, and BreadcrumbList wherever a
+ * breadcrumb shows (scripts/seo-check.mjs enforces these by page type). Every price comes from
+ * src/data/packages.ts through offerPrice(), so the markup and /pricing/ can't drift apart.
  *
  * Only verified facts and verified profile links (sameAs). Never a rating, review, street address,
  * postal code or award (SEO audit rules, 14 Nov 2026).
@@ -38,9 +42,52 @@ export function priceRange(): string | null {
   return `${cad.format(Math.min(...amounts))}–${cad.format(Math.max(...amounts))} CAD`;
 }
 
-const areasServed = [
-  { '@type': 'Place', name: 'Scarborough, Toronto, ON' },
-  { '@type': 'Place', name: 'North York, Toronto, ON' },
+/**
+ * The price fields of an Offer for a package, from src/data/packages.ts (the data /pricing/ shows), so the
+ * structured data can never disagree with the page. Empty while a package has no approved price.
+ * - fixed price (Website Launch $1,950): price + priceCurrency
+ * - a range (Website Fix $450–$850): priceCurrency + a PriceSpecification with minPrice and maxPrice (no single
+ *   `price`, which would claim the low end is the price)
+ * - monthly (Website Care $149 a month): price + priceCurrency + a UnitPriceSpecification per month
+ */
+export function offerPrice(p: Package): Record<string, unknown> {
+  const amount = p.price.amount;
+  if (amount === null) return {};
+  if (p.price.max)
+    return {
+      priceCurrency: 'CAD',
+      priceSpecification: { '@type': 'PriceSpecification', minPrice: amount, maxPrice: p.price.max, priceCurrency: 'CAD' },
+    };
+  if (p.price.unit === 'month')
+    return {
+      price: amount,
+      priceCurrency: 'CAD',
+      priceSpecification: {
+        '@type': 'UnitPriceSpecification',
+        price: amount,
+        priceCurrency: 'CAD',
+        unitCode: 'MON',
+        referenceQuantity: { '@type': 'QuantitativeValue', value: 1, unitCode: 'MON' },
+      },
+    };
+  return { price: amount, priceCurrency: 'CAD' };
+}
+
+/** An Offer for a package with an approved price (Service and industry pages, the business catalogue). */
+export function packageOffer(p: Package): Record<string, unknown> {
+  return { '@type': 'Offer', name: p.name, description: p.boundary, ...offerPrice(p) };
+}
+
+/**
+ * Where the business works: one Place per area in src/data/areas.ts (Scarborough, North York), with the address of its
+ * page once that page is published, then Toronto. Nov 2026 audit fixes: read from the area data, so a new area page
+ * joins areaServed by itself.
+ */
+const areasServed = () => [
+  ...areas.map((a) => {
+    const url = areaIsDraft(a) ? null : absoluteUrl(areaPath(a));
+    return { '@type': 'Place', name: `${a.name}, Toronto, ON`, ...(url ? { url } : {}) };
+  }),
   { '@type': 'City', name: 'Toronto' },
 ];
 
@@ -62,8 +109,20 @@ export function businessJsonLd({ withServices = false }: { withServices?: boolea
     ...(contact.phone ? { telephone: contact.phone.schema } : {}),
     ...(contact.email ? { email: contact.email } : {}),
     ...(profile.portrait && url ? { image: new URL('/brand/mann-patel-portrait.jpg', url).toString() } : {}),
+    // The MΛNN PΛTEL icon, 512 × 512 (Google asks for at least 112 × 112).
+    ...(url
+      ? {
+          logo: {
+            '@type': 'ImageObject',
+            url: new URL(logo.src, url).toString(),
+            contentUrl: new URL(logo.src, url).toString(),
+            width: logo.width,
+            height: logo.height,
+          },
+        }
+      : {}),
     address: { '@type': 'PostalAddress', addressLocality: 'Scarborough', addressRegion: 'ON', addressCountry: 'CA' },
-    areaServed: areasServed,
+    areaServed: areasServed(),
     ...(range ? { priceRange: range } : {}),
     founder: personRef(),
     ...(businessSameAs.length ? { sameAs: businessSameAs } : {}),
@@ -150,33 +209,43 @@ export function breadcrumbJsonLd(items: { name: string; path: string }[]) {
   };
 }
 
-/** The three services the business leads with, each pointing at its own page (home page). */
+/**
+ * What the business sells (home page): one Offer per published package, priced from src/data/packages.ts (the
+ * same data as /pricing/), each pointing at the service page that explains it. Plus the AI search check, named
+ * on its own because people search for it: it is part of Local Visibility Setup, so it carries that price.
+ */
 function serviceCatalog() {
   const url = absoluteUrl('/');
+  const pages = [...servicePages, ...moreServicePages];
+  const service = (name: string, page: string, serviceType?: string) => ({
+    '@type': 'Service',
+    name,
+    ...(serviceType ? { serviceType } : {}),
+    areaServed: 'Toronto',
+    ...(url ? { url: new URL(page, url).toString() } : {}),
+  });
+  const localVisibility = packageById('local-visibility');
   return {
     '@type': 'OfferCatalog',
     name: 'Services',
     itemListElement: [
-      ...servicePages.map((p) => ({
-        '@type': 'Offer',
-        itemOffered: {
-          '@type': 'Service',
-          name: p.h1,
-          areaServed: 'Toronto',
-          ...(url ? { url: `${url}services/${p.slug}/` } : {}),
-        },
-      })),
-      // Part of the local visibility set-up, named on its own because people search for it.
-      {
-        '@type': 'Offer',
-        itemOffered: {
-          '@type': 'Service',
-          name: 'AI search visibility check (GEO and AEO)',
-          serviceType: 'Generative engine optimization',
-          areaServed: 'Toronto',
-          ...(url ? { url: `${url}services/ai-search-optimization/` } : {}),
-        },
-      },
+      ...packages
+        .filter((p) => p.price.amount !== null)
+        .map((p) => ({
+          ...packageOffer(p),
+          itemOffered: service(p.name, p.page, pages.find((s) => `/services/${s.slug}/` === p.page)?.short),
+        })),
+      ...(localVisibility && localVisibility.price.amount !== null
+        ? [
+            {
+              '@type': 'Offer',
+              name: 'AI search visibility check (GEO and AEO)',
+              description: `Part of ${localVisibility.name}.`,
+              ...offerPrice(localVisibility),
+              itemOffered: service('AI search visibility check (GEO and AEO)', '/services/ai-search-optimization/', 'Generative engine optimization'),
+            },
+          ]
+        : []),
     ],
   };
 }

@@ -6,6 +6,7 @@ import sitemap from '@astrojs/sitemap';
 import { pricesPublished } from './src/data/packages.ts';
 import { lastmodFor } from './scripts/sitemap-lastmod.mjs';
 import { buildHeadersFile } from './src/lib/security-headers.ts';
+import { writeOgImages } from './scripts/og-images.mjs';
 import { randomBytes } from 'node:crypto';
 import { copyFile, readdir, readFile, writeFile } from 'node:fs/promises';
 import { fileURLToPath } from 'node:url';
@@ -26,6 +27,21 @@ const securityHeaders = {
       const pages = await Promise.all(files.map((f) => readFile(join(root, f), 'utf8')));
       const target = join(root, '_headers');
       await writeFile(target, buildHeadersFile(await readFile(target, 'utf8'), pages));
+    },
+  },
+};
+
+/**
+ * Sharing images (Nov 2026 audit fixes): after every build, draw each page's own 1200 × 630 Open Graph card from its
+ * title (scripts/og-images.mjs; the address comes from src/lib/og.ts through BaseLayout).
+ */
+/** @type {import('astro').AstroIntegration} */
+const ogImages = {
+  name: 'og-images',
+  hooks: {
+    'astro:build:done': async ({ dir, logger }) => {
+      const count = await writeOgImages(fileURLToPath(dir));
+      logger.info(`${count} sharing images written to og/p/`);
     },
   },
 };
@@ -59,6 +75,7 @@ export default defineConfig({
   integrations: INDEXING
     ? [
         securityHeaders,
+        ogImages,
         sitemap({
           // /free-check/ is a noindex campaign landing page (reached from social links only).
           filter: (page) =>
@@ -79,7 +96,7 @@ export default defineConfig({
           },
         },
       ]
-    : [securityHeaders],
+    : [securityHeaders, ogImages],
   prefetch: false,
   devToolbar: { enabled: false },
   // Inline all CSS: no render-blocking stylesheet requests (the whole site's CSS is small).

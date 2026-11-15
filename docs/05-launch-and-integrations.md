@@ -125,7 +125,9 @@ The site runs on **Cloudflare Workers** (free plan): the pages are static files,
    - Project name: **`mann-patel-website`** (must match `name` in `wrangler.jsonc`)
    - Production branch: your main branch (`ccr-96e3375f-xynmc5`)
    - Build command: **`npm run build:cloudflare`**
-   - Deploy command: **`npx wrangler deploy`**
+   - Deploy command: **`npx wrangler deploy && node scripts/indexnow.mjs ping`** (Nov 2026: after deploying, tells
+     Bing and the other IndexNow search engines which pages changed; it never fails a deploy. Plain `npx wrangler deploy`
+     still works, without the ping.)
    - No build variables are needed.
 
    Save and deploy. The first deploy also connects **mannpatel.me** and **www.mannpatel.me** (from `routes` in `wrangler.jsonc`); Cloudflare creates the DNS records and HTTPS certificates. If the deploy says the domain can't be found, step 1 isn't finished yet: wait for **Active** and retry.

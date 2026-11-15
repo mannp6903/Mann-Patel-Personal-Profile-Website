@@ -4,17 +4,17 @@
  * Phones: a "Menu" button opens a focused side panel (native <dialog>: focus is contained,
  * Esc closes, focus returns). Without JavaScript the links show as a plain row instead.
  */
-import { nav as allNav, primaryCta, profile } from '../data/site';
-import { pricesPublished } from '../data/packages';
+import { primaryCta, profile } from '../data/site';
 import { emailHref } from '../lib/contact';
+import { visibleNav } from '../lib/published';
 import Button from './ui/Button.astro';
 import Icon from './ui/Icon.astro';
 import Wordmark from './ui/Wordmark.astro';
 
 const path = Astro.url.pathname;
 const isCurrent = (href: string) => (href === '/' ? path === '/' : path.startsWith(href));
-// Pricing is in the menu only while at least one price is published.
-const nav = allNav.filter((item) => item.href !== '/pricing/' || pricesPublished);
+// Pricing is in the menu only while at least one price is published, Guides while at least one guide is.
+const nav = await visibleNav();
 const sheetLinks = [{ href: '/', label: 'Home' }, ...nav];
 ---
 
@@ -425,6 +425,13 @@ const sheetLinks = [{ href: '/', label: 'Home' }, ...nav];
       display: inline-flex;
     }
   }
+  /* Six menu links since Guides joined (Nov 2026 audit fixes): just above the desktop breakpoint there is no room for
+     the (decorative) Toronto clock as well, so it waits until the bar is a little wider. Nothing else changes. */
+  @container hdr (min-width: 64em) and (max-width: 67.5em) {
+    .hdr__clock {
+      display: none;
+    }
+  }
 
   /* A compact drawer: four destinations, one project action, one direct email link. */
   :global(html:has(#site-menu[open])) {
@@ -562,6 +569,21 @@ const sheetLinks = [{ href: '/', label: 'Home' }, ...nav];
   }
   .sheet__legal a:hover {
     color: var(--text);
+  }
+  /* Seven since Guides joined (Nov 2026 audit fixes): on the shortest phones (320 × 568) the spacing between the
+     blocks tightens so the whole menu, down to Privacy and Terms, still fits without scrolling. Rows keep their
+     full tap height. */
+  @media (max-height: 600px) {
+    .sheet__inner {
+      gap: 0.5rem;
+    }
+    .sheet__foot {
+      gap: 0.25rem;
+    }
+    .sheet__legal {
+      margin-top: 0.25rem;
+      padding-top: 0.25rem;
+    }
   }
   @media (prefers-reduced-motion: no-preference) {
     .sheet[open] {

@@ -406,3 +406,27 @@ lists, the menu or the finder, no "Service by service" details (no repeated cont
 - Speed Index 3.8 s: fix the 63 non-composited entrance animations (transform/opacity only, respect prefers-reduced-motion).
 - Move the ~87 KB repeated inline CSS to a cached stylesheet, only if Lighthouse performance holds.
 - Security headers (CSP, HSTS, COOP): optional, no ranking effect, host-dependent.
+
+---
+
+## Nov 2026 audit fixes (15 Nov 2026)
+
+Mann's list from his second audit doc, in seven groups; the build, `npm run check:seo`, `npm test`, `npm run check` and
+the e2e suite ran after each group. No URL slug, price or design change.
+
+| # | Item | Done | Where |
+| --- | --- | --- | --- |
+| 1 | `public/llms.txt` | **Waiting for Mann's draft** (not written here: a placeholder would be served publicly) | — |
+| 2 | Offer prices in the business catalogue (Website Launch $1,950, Website + Enquiry System $3,350, Local Visibility Setup $650, Website Fix $450–$850 as a range, Website Care $149/month) | Read from `src/data/packages.ts` through `offerPrice()`, also used by the service and industry pages (Website Fix there was `price: 450` before; now a range) | `src/lib/seo.ts`, `src/pages/services/[slug].astro`, `src/components/IndustryPage.astro` |
+| 2 | `logo` on ProfessionalService | 512 × 512 icon, `public/brand/mann-patel-logo.png` (`npm run images`) | `src/data/site.ts` → `logo` |
+| 2 | Full Google Maps URL, YouTube and LinkedIn in the business sameAs | **TODO(Mann)** slots: `gbp.mapsUrl`, `businessProfiles.youtube`, `businessProfiles.linkedin` (the short link stays until then; maps.app.goo.gl couldn't be resolved from the build machine) | `src/data/site.ts` |
+| 2 | Schema by page type | Guides: BlogPosting (headline = H1, datePublished, dateModified, author `#person`). Already right and now enforced by `seo-check.mjs`: BreadcrumbList wherever a breadcrumb shows, Service on service pages, FAQPage only with every question and answer visible | `src/layouts/GuideLayout.astro`, `scripts/seo-check.mjs` |
+| 3 | Sitemap lastmod | The live sitemap gave all 25 URLs the last commit's date: Cloudflare builds from a shallow clone. Now the history is fetched first; guides use `updated`/`published`; pages are dated by their own sources, not the header/footer | `scripts/sitemap-lastmod.mjs` |
+| 4 | Page fixes | Home title; ChatGPT guide title and H1 (same URL); cost guide's first sentence with the trttech.ca link; /work/ labels are H2s (pixel-identical); guides show "Updated" (both edited guides: 15 Nov 2026) feeding dateModified; Guides in the header (desktop, phone menu, ⌘K); a reply-time slot (**TODO(Mann)** wording: `profile.contact.replyTime`) | see the files list in the commit |
+| 5 | Per-page sharing images | Drawn at build time with sharp from Geist (no new dependency), 1200 × 630, `/og/p/<page>.png`; case studies keep their capture cards | `src/lib/og.ts`, `scripts/og-images.mjs`, `astro.config.mjs` |
+| 6 | Images at displayed size | `sizes` measured from 320 to 1920 px; phone captures no longer flagged by Lighthouse | `ProjectMedia.astro`, `SelectedWork.astro`, `IndustryPage.astro`, `work/[id].astro`, `about.astro`, `free-check.astro` |
+| 6 | Modern JS | Astro already builds client JS for `esnext`; `seo-check.mjs` now fails on polyfills or down-levelling helpers. The legacy script on the live site is Cloudflare's injected `/cdn-cgi/challenge-platform/scripts/jsd/main.js` (bot JavaScript detections, a dashboard setting) | `scripts/seo-check.mjs` |
+| 6 | Cache lifetimes | `/_astro/*` and `/fonts/*` already served `max-age=31536000, immutable` live; now guarded by a unit test and the pre-launch check | `public/_headers` |
+| 6 | HSTS | `max-age=31536000; includeSubDomains` (host: Cloudflare Workers; `_headers` for static files, the Worker for its own responses) | `src/lib/security-headers.ts` |
+| 6 | IndexNow | Key file `public/61a5f4cf359b3e776e7e4b9f1b7b370b.txt`; `build:cloudflare` saves the live sitemap's dates, `node scripts/indexnow.mjs ping` after deploy sends the URLs whose date changed. **TODO(Mann)**: set the Cloudflare deploy command to `npx wrangler deploy && node scripts/indexnow.mjs ping` | `scripts/indexnow.mjs`, `scripts/build-cloudflare.mjs` |
+| 7 | /web-design-north-york/ | Same template as Scarborough, own copy, Nest & Rest as real local work. **Draft** until Mann fills `neighbourhoods` and `localExample` (TODOs in `src/data/areas.ts`); a production build stops if the neighbourhoods are in but the example isn't. Once published it joins the sitemap, the footer ("Web design in North York") and areaServed (with its URL) by itself; a simulated publish passed every check | `src/data/areas.ts`, `src/pages/web-design-[area].astro`, `Footer.astro`, `src/lib/seo.ts` |

@@ -4,7 +4,7 @@
  * MΛNN PΛTEL wordmark (letters lift and turn lime near the pointer) and the bottom bar with the
  * Toronto clock.
  */
-import { profile, businesses, nav } from '../data/site';
+import { profile, businesses } from '../data/site';
 import { groups } from '../data/services';
 import { servicePageForGroup } from '../data/service-pages';
 import { pricesPublished } from '../data/packages';
@@ -16,7 +16,8 @@ import ContactActions from './ContactActions.astro';
 import SocialLinks from './SocialLinks.astro';
 import Wordmark from './ui/Wordmark.astro';
 import { businessHref } from '../lib/work';
-import { areaHref, visibleGuides } from '../lib/published';
+import { areaHref, visibleAreas, visibleNav } from '../lib/published';
+import { areaPath } from '../data/areas';
 
 interface Props {
   cta?: boolean;
@@ -26,8 +27,11 @@ const year = new Date().getFullYear();
 const mail = emailHref();
 const nest = businesses[0];
 // SEO audit Phase 3: the Scarborough page and the guides are linked only once they are public (previews show drafts).
+// Guides is in the main menu since the Nov 2026 audit fixes, so it comes through visibleNav().
 const scarborough = areaHref('scarborough');
-const hasGuides = (await visibleGuides()).length > 0;
+const nav = await visibleNav();
+// Area pages other than the home base (linked in the "Based in …" line): North York once it is published.
+const otherAreas = visibleAreas().filter((a) => a.name !== profile.location);
 ---
 
 <footer class="ftr">
@@ -61,7 +65,6 @@ const hasGuides = (await visibleGuides()).length > 0;
       <ul role="list">
         <li><a class="link-quiet" href="/">Home</a></li>
         {nav.map((n) => <li><a class="link-quiet" href={n.href}>{n.label}</a></li>)}
-        {hasGuides && <li><a class="link-quiet" href="/guides/">Guides</a></li>}
         <li><a class="link-quiet" href="/contact/">Contact</a></li>
       </ul>
     </nav>
@@ -73,6 +76,7 @@ const hasGuides = (await visibleGuides()).length > 0;
           return <li><a class="link-quiet" href={sp ? `/services/${sp.slug}/` : `/services/#${g.id}`}>{sp ? sp.short : g.title}</a></li>;
         })}
         <li><a class="link-quiet" href={pricesPublished ? '/pricing/' : '/services/#packages'}>{pricesPublished ? 'Pricing' : 'Packages'}</a></li>
+        {otherAreas.map((a) => <li><a class="link-quiet" href={areaPath(a)}>Web design in {a.name}</a></li>)}
         <li><a class="link-quiet" href="/services/#check">Free website and Google check</a></li>
       </ul>
     </div>
@@ -110,6 +114,13 @@ const hasGuides = (await visibleGuides()).length > 0;
                 <Icon name="whatsapp" />
                 Message on WhatsApp
               </a>
+            </li>
+          )
+        }
+        {
+          profile.contact.replyTime && (
+            <li class="subtle" data-reply-time>
+              <span>{profile.contact.replyTime}</span>
             </li>
           )
         }
