@@ -4,7 +4,10 @@
  *   (astro.config.mjs → `security-headers`);
  * - the responses the Worker builds itself, the 404 page and /api/ (src/worker/entry.ts → withSecurityHeaders).
  *
- * HSTS starts at six months, without includeSubDomains or preload, so it is easy to undo. The Content Security
+ * HSTS: one year, including subdomains (Nov 2026 audit fixes; it started at six months for this host only). Every
+ * subdomain of mannpatel.me must answer over HTTPS from now on (www does: Cloudflare redirects it). Not `preload`,
+ * which is hard to undo. The host is Cloudflare Workers: static pages get it from _headers, the Worker's own responses
+ * from withSecurityHeaders() below. The Content Security
  * Policy ships as Content-Security-Policy-Report-Only first: Cloudflare can inject scripts into the live site (an
  * analytics beacon, email obfuscation) that a local build never shows. Inline scripts are allowed by their exact
  * sha256 hash, computed from the built pages, never by 'unsafe-inline'. Styles need 'unsafe-inline' (the pages use
@@ -18,8 +21,8 @@ export const securityHeaders: Record<string, string> = {
   'Referrer-Policy': 'strict-origin-when-cross-origin',
   'Permissions-Policy': 'camera=(), microphone=(), geolocation=(), interest-cohort=()',
   'X-Frame-Options': 'DENY',
-  // Six months, this host only. Raise it (and consider includeSubDomains) once it has run without problems.
-  'Strict-Transport-Security': 'max-age=15552000',
+  // One year, this host and every subdomain (Nov 2026 audit fixes; six months, this host only, until then).
+  'Strict-Transport-Security': 'max-age=31536000; includeSubDomains',
   'Cross-Origin-Opener-Policy': 'same-origin',
 };
 

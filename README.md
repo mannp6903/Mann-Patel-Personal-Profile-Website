@@ -38,10 +38,11 @@ npm run preview             # node ./dist/server/entry.mjs → http://localhost:
 | `npm run qa:captures` | Full-page screenshots at 360/390/768/1024/1440 + overflow report (server must be running) |
 | `npm run qa:lighthouse` | Lighthouse mobile run (`npm i --no-save lighthouse` first) |
 | `python3 scripts/make-favicon.py` | Rebuild `public/favicon.svg`, the stacked MΛNN / PΛTEL icon (`pip install fonttools brotli` first; then run `npm run images`) |
-| `npm run images` | Regenerate favicon.ico and the PNG icons, the default sharing image and one sharing card per case study (from its real capture and status) |
+| `npm run images` | Regenerate favicon.ico, the PNG icons and the 512 px logo, the default sharing image and one sharing card per case study (from its real capture and status). Every other page's sharing card is drawn at build time from its title (`scripts/og-images.mjs`) |
 | `python3 scripts/subset-fonts.py` | Re-cut the web fonts to the characters the copy uses (`pip install fonttools brotli` first) |
 | `npm run preview:static` | Export a server-less copy with relative links to `preview-static/` (for private previews; the form shows "not connected") |
 | `npm run check:redirects` | Trace www, http and slashless addresses: one permanent hop to https://mannpatel.me with path and ?utm_ kept, and a self-canonical page (needs internet) |
+| `npm run indexnow` | After a deploy: send the pages whose sitemap date changed to IndexNow (Bing and others); `node scripts/indexnow.mjs ping --dry-run` lists them without sending |
 | `npm run prelaunch` | Production gate: env, preview markers, canonicals, robots/sitemap, internal links |
 
 ## Editing content
@@ -63,7 +64,7 @@ Setup steps, monitoring, deploy, rollback and recurring costs: [`docs/05-launch-
 
 ## Deploy (summary)
 
-Cloudflare Workers, connected to GitHub: build command `npm run build:cloudflare`, deploy command `npx wrangler deploy`, project name `mann-patel-website`. `wrangler.jsonc` connects mannpatel.me and www.mannpatel.me. The form emails briefs through Cloudflare Email (Email Routing + Secret `ENQUIRY_TO_EMAIL`); the phone number for the Call/WhatsApp/Text buttons is the build variable `PUBLIC_CONTACT_PHONE`. Full steps, secrets and rollback: [`docs/05-launch-and-integrations.md`](docs/05-launch-and-integrations.md) §4.
+Cloudflare Workers, connected to GitHub: build command `npm run build:cloudflare`, deploy command `npx wrangler deploy && node scripts/indexnow.mjs ping` (the ping tells IndexNow search engines which pages changed), project name `mann-patel-website`. `wrangler.jsonc` connects mannpatel.me and www.mannpatel.me. The form emails briefs through Cloudflare Email (Email Routing + Secret `ENQUIRY_TO_EMAIL`); the phone number for the Call/WhatsApp/Text buttons is the build variable `PUBLIC_CONTACT_PHONE`. Full steps, secrets and rollback: [`docs/05-launch-and-integrations.md`](docs/05-launch-and-integrations.md) §4.
 
 ## Documentation
 

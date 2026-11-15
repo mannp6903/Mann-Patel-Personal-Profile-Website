@@ -35,6 +35,14 @@ const crumbs = breadcrumbJsonLd([
   { name: d.title, path: `/work/${entry.id}/` },
 ]);
 const gallery = [c.desktop, c.mobile, ...(c.earlier ? [c.earlier] : [])];
+// How wide each capture is drawn (measured 320–1920 px, Nov 2026 audit fixes), so phones never download desktop files.
+// Phones: a sideways rail. From 64em: the main capture beside an 18rem phone column; the earlier one at most 40rem.
+const railSizes = '(min-width: 48em) 93vw, (min-width: 28em) 352px, 78vw';
+const gallerySizes = {
+  main: `(min-width: 90em) 1030px, (min-width: 64em) calc(100vw - 25rem), ${railSizes}`,
+  earlier: `(min-width: 64em) 640px, ${railSizes}`,
+  phone: '(min-width: 48em) 276px, 52vw',
+};
 const checked = new Intl.DateTimeFormat('en-CA', { day: 'numeric', month: 'long', year: 'numeric', timeZone: 'UTC' }).format(
   new Date(`${d.checked}T12:00:00Z`),
 );
@@ -85,7 +93,7 @@ const industry = industryPageForWork(entry.id);
     </header>
 
     <div class="container cs-hero" data-reveal="load-media" style="--d:120">
-      <ProjectMedia scene={d.scene} eager sizes="(min-width: 80em) 76rem, 94vw" />
+      <ProjectMedia scene={d.scene} eager sizes="(min-width: 80em) 1130px, 86vw" phoneSizes="(min-width: 64em) 168px, 22vw" />
     </div>
 
     <!-- The short version first (round 7): relationship, status, role and the problem. -->
@@ -208,7 +216,7 @@ const industry = industryPageForWork(entry.id);
               <li data-reveal style={`--d:${i * 100}`}>
                 <figure>
                   <div class="closer__img reveal-clip">
-                    <Image src={x.src} alt={x.alt} widths={[360, 560, 760]} sizes="(min-width: 56em) 40vw, 92vw" loading="lazy" decoding="async" />
+                    <Image src={x.src} alt={x.alt} widths={[360, 480, 560, 660, 760]} sizes="(min-width: 90em) 660px, (min-width: 56em) 46vw, 90vw" loading="lazy" decoding="async" />
                   </div>
                   <figcaption>
                     <span class="num closer__n">{String(i + 1).padStart(2, '0')}</span>
@@ -296,8 +304,8 @@ const industry = industryPageForWork(entry.id);
                   <Image
                     src={g.src}
                     alt={g.alt}
-                    widths={i === 1 ? [300, 460] : [600, 960, 1400]}
-                    sizes={i === 1 ? '18rem' : '(min-width: 64em) 60vw, 92vw'}
+                    widths={i === 1 ? [200, 300, 460] : [480, 640, 960, 1400]}
+                    sizes={gallerySizes[i === 1 ? 'phone' : i === 2 ? 'earlier' : 'main']}
                     loading="lazy"
                     decoding="async"
                   />

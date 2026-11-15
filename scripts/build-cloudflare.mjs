@@ -29,6 +29,10 @@ const run = (cmd, args) => {
 console.log(`Building for Cloudflare: ${env.PUBLIC_SITE_URL} (SITE_MODE=${env.SITE_MODE}, SITE_INDEXING=${env.SITE_INDEXING})`);
 run('npx', ['astro', 'build']);
 
+// IndexNow (Nov 2026 audit fixes): note the dates in the sitemap that is live now, before this build is deployed, so
+// `node scripts/indexnow.mjs ping` after `wrangler deploy` sends only the pages that changed. Never fails the build.
+if (env.SITE_INDEXING === 'true') run('node', ['scripts/indexnow.mjs', 'snapshot']);
+
 // Permanent redirects for addresses typed without the final slash (/services -> /services/).
 // Cloudflare's static-asset handling would answer those with a temporary 307; a `_redirects` file
 // in the asset folder answers first, with a 301 (growth report, 10 Nov 2026). One line per built

@@ -19,7 +19,7 @@ import { servicePages, moreServicePages, type ServicePage } from '../../data/ser
 import FreeCheck from '../../components/home/FreeCheck.astro';
 import { packageById, priceLabel, type Package } from '../../data/packages';
 import { absoluteUrl } from '../../lib/mode';
-import { breadcrumbJsonLd, businessRef } from '../../lib/seo';
+import { breadcrumbJsonLd, businessRef, packageOffer } from '../../lib/seo';
 import { projectSite } from '../../lib/work';
 import { industryPages } from '../../data/industry-pages';
 import { areaHref, visibleGuides } from '../../lib/published';
@@ -65,23 +65,9 @@ const serviceLd = {
     { '@type': 'City', name: 'Toronto' },
     { '@type': 'AdministrativeArea', name: 'Greater Toronto Area' },
   ],
-  ...(pkgs.some((p) => p.price.amount !== null)
-    ? {
-        offers: pkgs
-          .filter((p) => p.price.amount !== null)
-          .map((p) => ({
-            '@type': 'Offer',
-            name: p.name,
-            price: p.price.amount,
-            priceCurrency: 'CAD',
-            description: p.boundary,
-            // A monthly plan says so (Website Care, $149 a month).
-            ...(p.price.unit === 'month'
-              ? { priceSpecification: { '@type': 'UnitPriceSpecification', price: p.price.amount, priceCurrency: 'CAD', unitCode: 'MON' } }
-              : {}),
-          })),
-      }
-    : {}),
+  // Prices from src/data/packages.ts through one helper (src/lib/seo.ts → offerPrice): a range stays a range
+  // (Website Fix, $450–$850) and a monthly plan says so (Website Care, $149 a month).
+  ...(pkgs.some((p) => p.price.amount !== null) ? { offers: pkgs.filter((p) => p.price.amount !== null).map(packageOffer) } : {}),
 };
 const faqLd = {
   '@context': 'https://schema.org',

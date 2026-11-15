@@ -4,8 +4,14 @@ import { securityHeaders, contentSecurityPolicy, inlineScriptHashes, withSecurit
 
 // SEO audit Phase 4, security headers (Mann's choice, 14 Nov 2026). One source: src/lib/security-headers.ts.
 describe('security headers', () => {
-  it('HSTS for six months, without preload or subdomains (a first step that is easy to undo)', () => {
-    expect(securityHeaders['Strict-Transport-Security']).toBe('max-age=15552000');
+  it('HSTS for a year, subdomains included, not preloaded (Nov 2026 audit fixes)', () => {
+    expect(securityHeaders['Strict-Transport-Security']).toBe('max-age=31536000; includeSubDomains');
+  });
+
+  it('hashed build files and fonts are cached for a year (public/_headers)', () => {
+    const file = readFileSync('public/_headers', 'utf8');
+    for (const path of ['/_astro/*', '/fonts/*'])
+      expect(file, path).toMatch(new RegExp(`^${path.replace(/[.*]/g, '\\$&')}\\n\\s+Cache-Control: public, max-age=31536000, immutable`, 'm'));
   });
 
   it('keeps the headers the site already sent, and adds COOP', () => {
@@ -67,7 +73,7 @@ describe('security headers', () => {
     const res = withSecurityHeaders(new Response('x', { status: 404, headers: { 'X-Frame-Options': 'SAMEORIGIN' } }));
     expect(res.status).toBe(404);
     expect(await res.text()).toBe('x');
-    expect(res.headers.get('Strict-Transport-Security')).toBe('max-age=15552000');
+    expect(res.headers.get('Strict-Transport-Security')).toBe('max-age=31536000; includeSubDomains');
     expect(res.headers.get('Cross-Origin-Opener-Policy')).toBe('same-origin');
     expect(res.headers.get('X-Frame-Options')).toBe('SAMEORIGIN');
   });

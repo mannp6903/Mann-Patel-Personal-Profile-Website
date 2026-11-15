@@ -179,6 +179,9 @@ if (cloudflare) {
     (h) => !new RegExp(`^\\s+${h}(-Report-Only)?:`, 'm').test(headers),
   );
   check(sec.length === 0 && !headers.includes('# Security headers: written here'), '_headers carries the security headers (HSTS, COOP, CSP)', `_headers is missing: ${sec.join(', ') || 'the build step (marker still there)'}`);
+  // Long cache lifetimes for the content-hashed build files and the fonts (Nov 2026 audit fixes).
+  const uncached = ['/_astro/*', '/fonts/*'].filter((p) => !new RegExp(`^${p.replace(/[.*]/g, '\\$&')}\\s*\\n\\s+Cache-Control: public, max-age=31536000, immutable`, 'm').test(headers));
+  check(uncached.length === 0, '_headers caches /_astro/ and /fonts/ for a year', `_headers has no one-year Cache-Control for: ${uncached.join(', ')}`);
 }
 
 // ── Report ──────────────────────────────────────────────────

@@ -4,12 +4,13 @@ seoTitle: How Much Does a Website Cost in Toronto?
 description: 'What a small business website costs in Toronto, using my published prices: what each price covers, what you pay other providers, and what changes a quote.'
 draft: false
 published: 2026-11-14
+updated: 2026-11-15
 service: /services/web-design/
 related:
   - google-business-profile-without-a-storefront
 ---
 
-It depends on what the website has to do, and on how clearly the quote says what is included. I publish my prices, so this guide uses them as a worked example. All prices are in Canadian dollars, before tax.
+A five-page small business website costs $1,950 CAD with me, fixed scope; Toronto agencies often quote [$3,000–$10,000](https://trttech.ca/?p=11988). It depends on what the website has to do, and on how clearly the quote says what is included. I publish my prices, so this guide uses them as a worked example. All prices are in Canadian dollars, before tax.
 
 ## What a small business website costs with me
 

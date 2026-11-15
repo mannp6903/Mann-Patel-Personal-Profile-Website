@@ -1,7 +1,7 @@
 /**
  * Area pages (SEO audit Phase 3, 14 Nov 2026; docs/seo/PLAN.md B2): /web-design-<slug>/, rendered by
  * src/pages/web-design-[area].astro. Scarborough first: Mann is based there and Samp Hair & Spa is there.
- * North York only later, once there is real proof there too (audit, keyword C17).
+ * North York scaffolded in the Nov 2026 audit fixes, as a draft until Mann lists its neighbourhoods and a local example.
  *
  * A page is an unpublished draft while `neighbourhoods` is null or empty: built in previews (with a
  * "To confirm" note) and in `astro dev`, never in production, the sitemap or a link from another page.
@@ -30,6 +30,14 @@ export interface Area {
    * and the page stays an unpublished draft.
    */
   neighbourhoods: string[] | null;
+  /** The line above the neighbourhood list. Default: "Every neighbourhood in <name>, including:". */
+  neighbourhoodsLead?: string;
+  /**
+   * One or two sentences on a real project in this area, exactly as Mann words it (Nov 2026 audit fixes), shown under
+   * "Local work" with the projects whose location names the area. Leave it out where those projects say enough (the
+   * Scarborough page). null = needed but not supplied: previews show a "To confirm" note and a production build stops.
+   */
+  localExample?: string | null;
   faqs: Faq[];
 }
 
@@ -99,6 +107,46 @@ export const areas: Area[] = [
       {
         q: 'What does a website cost?',
         a: `My prices are published: a website of up to five pages is ${price('website-launch')} CAD plus tax, a website with online booking and one follow-up workflow is ${price('website-enquiry')}, and Google Business Profile setup is ${price('local-visibility')}. Domain, hosting and tool subscriptions are billed to you directly by each provider.`,
+      },
+    ],
+  },
+  {
+    // Nov 2026 audit fixes: scaffolded with the Scarborough page's structure and its own copy. Every sentence below is
+    // already true elsewhere on the site (based in Scarborough; working across Toronto and the GTA with a focus on
+    // Scarborough and North York; Nest & Rest Cleaning serves North York; the published prices and the free check).
+    // It stays an unpublished draft (not built in production, not in the sitemap, not linked) until both TODOs are done.
+    slug: 'north-york',
+    name: 'North York',
+    title: 'North York Web Designer for Small Businesses',
+    description:
+      'Web designer for small businesses in North York, Toronto: websites, Google Business Profile setup and online booking, with published prices.',
+    eyebrow: 'North York, Toronto',
+    h1: 'A web designer for North York small businesses',
+    lines: ['A web designer for', 'North York small businesses'],
+    lead: 'I’m Mann Patel, a web designer based in Scarborough who works with small businesses in North York and across Toronto and the GTA. I build websites, set up Google Business Profiles and connect online booking, and my prices are published.',
+    // TODO(Mann): the North York neighbourhoods you serve, exactly as you'd list them, e.g. ['Willowdale', '…'].
+    // Not guessed. While this is null the page is a draft: previews only, never in production, the sitemap or a link.
+    neighbourhoods: null,
+    neighbourhoodsLead: 'North York neighbourhoods I work in:',
+    // TODO(Mann): one or two sentences on a real North York project (a client, or Nest & Rest's work there), in your
+    // words. While this is null a production build with the neighbourhoods filled in stops with a "To confirm" error.
+    localExample: null,
+    faqs: [
+      {
+        q: 'Do you work with businesses in North York?',
+        a: 'Yes. North York and Scarborough are the two areas I focus on. I’m based in Scarborough and also work with small businesses across the rest of Toronto and the GTA.',
+      },
+      {
+        q: 'How do you help a North York business get found on Google Maps?',
+        a: 'Usually by starting with your Google Business Profile: the right category, services, hours and service area, real photos, and a routine for asking customers for genuine reviews. Your other listings are made to match. Google decides local rankings, so no one can promise a position; you see a before-and-after snapshot of what changed.',
+      },
+      {
+        q: 'How much is a website?',
+        a: `The prices are published. Up to five pages costs ${price('website-launch')} CAD plus tax; with online booking and one follow-up workflow, ${price('website-enquiry')}; Google Business Profile and listings set up, ${price('local-visibility')}. Your domain, hosting and tool subscriptions are billed to you by each provider, never marked up.`,
+      },
+      {
+        q: 'Can I start with something smaller?',
+        a: 'Yes. The free website and Google check is open to owners in Toronto and the GTA: I look you up the way a customer would and send a short written list of fixes, most important first, with no obligation.',
       },
     ],
   },

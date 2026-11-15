@@ -6,6 +6,7 @@ import QuickMenu from '../components/QuickMenu.astro';
 import Analytics from '../components/Analytics.astro';
 import { profile } from '../data/site';
 import { absoluteUrl, indexing } from '../lib/mode';
+import { ogAlt as defaultOgAlt, ogImagePath } from '../lib/og';
 
 interface Props {
   title: string;
@@ -13,8 +14,12 @@ interface Props {
   /** Full title override (the home page and About put the name first or inside the title). */
   fullTitle?: string;
   noindex?: boolean;
+  /**
+   * Sharing image. Default: this page's own card, drawn from its title at build time (/og/p/…, src/lib/og.ts and
+   * scripts/og-images.mjs). The case studies pass their own.
+   */
   ogImage?: string;
-  /** Describes the sharing image (it changes per case study). */
+  /** Describes the sharing image. Default: the card's title. */
   ogAlt?: string;
   jsonLd?: Record<string, unknown> | Record<string, unknown>[];
   /** Show the closing call to action in the footer (off on the contact page). */
@@ -26,12 +31,13 @@ const {
   description,
   fullTitle,
   noindex = false,
-  ogImage = '/og/default.png',
-  ogAlt = 'Mann Patel: web design and local SEO for Toronto service businesses. Found, answered, booked.',
+  ogImage = ogImagePath(Astro.url.pathname),
+  ogAlt,
   jsonLd,
   footerCta = true,
 } = Astro.props;
 const pageTitle = fullTitle ?? `${title} | ${profile.name}`;
+const ogImageAlt = ogAlt ?? defaultOgAlt(pageTitle);
 const canonical = absoluteUrl(Astro.url.pathname);
 const ogImageUrl = absoluteUrl(ogImage) ?? ogImage;
 const robots = indexing && !noindex ? 'index, follow' : 'noindex, nofollow';
@@ -62,7 +68,7 @@ const ld = jsonLd ? (Array.isArray(jsonLd) ? jsonLd : [jsonLd]) : [];
     <meta property="og:image" content={ogImageUrl} />
     <meta property="og:image:width" content="1200" />
     <meta property="og:image:height" content="630" />
-    <meta property="og:image:alt" content={ogAlt} />
+    <meta property="og:image:alt" content={ogImageAlt} />
     <meta property="og:locale" content="en_CA" />
     {canonical && <meta property="og:url" content={canonical} />}
     <meta name="twitter:card" content="summary_large_image" />

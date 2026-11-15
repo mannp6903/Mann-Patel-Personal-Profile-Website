@@ -78,19 +78,22 @@ const crumbs = breadcrumbJsonLd([
         }
       </ol>
 
-      <!-- SEO audit Phase 3 (14 Nov 2026): each project leads an industry page. -->
-      <p class="trades small">
-        <span class="subtle">By trade:</span>{' '}
-        {industryPages.map((ip, i) => (
-          <>
-            {i > 0 && ' · '}
-            <a class="link" href={`/${ip.slug}/`}>{ip.linkLabel}</a>
-          </>
-        ))}
-      </p>
+      <!-- SEO audit Phase 3 (14 Nov 2026): each project leads an industry page. Nov 2026 audit: the section labels
+           are real H2s (styled exactly as before), so the page outline lists every section. -->
+      <div class="trades small">
+        <h2 class="trades__h subtle">By trade:</h2>{' '}
+        <p class="trades__links">
+          {industryPages.map((ip, i) => (
+            <>
+              {i > 0 && ' · '}
+              <a class="link" href={`/${ip.slug}/`}>{ip.linkLabel}</a>
+            </>
+          ))}
+        </p>
+      </div>
 
-      <aside class="note" data-reveal>
-        <p class="eyebrow eyebrow--plain">What you won’t see here</p>
+      <aside class="note" data-reveal aria-labelledby="work-note-title">
+        <h2 id="work-note-title" class="eyebrow eyebrow--plain">What you won’t see here</h2>
         <p>
           Made-up results, borrowed client logos, or concept mock-ups dressed up as clients. When there’s more real work to
           show, it goes here with the same labels.
@@ -194,5 +197,15 @@ const crumbs = breadcrumbJsonLd([
   }
   .trades {
     margin-top: var(--s-6);
+  }
+  /* A heading in the run of text: the same size, weight and colour as the line around it. */
+  .trades__h,
+  .trades__links {
+    display: inline;
+  }
+  .trades__h {
+    font: inherit;
+    letter-spacing: inherit;
+    text-wrap: inherit;
   }
 </style>

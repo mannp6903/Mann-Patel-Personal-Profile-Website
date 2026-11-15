@@ -81,6 +81,24 @@ describe('area pages', () => {
   it('makes no promises', () => {
     expect(JSON.stringify(areas)).not.toMatch(NO_PROMISES);
   });
+
+  it('North York (Nov 2026 audit fixes): its own copy for "web designer north york", a draft until Mann adds the TODOs', () => {
+    const ny = areas.find((a) => a.slug === 'north-york')!;
+    expect(ny).toBeDefined();
+    expect(targets(ny.title, 'web designer north york')).toBe(true);
+    expect(targets(ny.h1, 'web designer north york')).toBe(true);
+    expect(ny.lines.join(' ')).toBe(ny.h1);
+    expect((ny.title + SUFFIX).length).toBeLessThanOrEqual(60);
+    expect(ny.description.length).toBeLessThanOrEqual(155);
+    // Its own copy: no sentence of its lead or answers repeats the Scarborough page word for word.
+    const scarborough = areas.find((a) => a.slug === 'scarborough')!;
+    const sentences = (a: typeof ny) => [a.lead, a.description, ...a.faqs.flatMap((f) => [f.q, f.a])].flatMap((t) => t.split(/(?<=[.?!])\s+/));
+    const theirs = new Set(sentences(scarborough));
+    for (const s of sentences(ny)) expect(theirs.has(s), s).toBe(false);
+    // Neighbourhoods and the local example are Mann's to supply: never guessed, so the page is a draft until then.
+    if (ny.neighbourhoods === null) expect(areaIsDraft(ny)).toBe(true);
+    expect(ny.localExample === null || (typeof ny.localExample === 'string' && ny.localExample.length > 20)).toBe(true);
+  });
 });
 
 describe('guides', () => {
@@ -132,6 +150,17 @@ describe('guides', () => {
     expect(bySlug('why-isnt-my-business-on-google-maps').body).toContain('/contact/?package=check-up#check');
   });
 
+  it('the cost guide opens with the fixed price, the published Website Launch price, and a sourced agency range', async () => {
+    const { packageById, priceLabel } = await import('../../src/data/packages');
+    const first = bySlug('how-much-does-a-website-cost-in-toronto').body.trim().split('\n')[0];
+    expect(first.startsWith(`A five-page small business website costs ${priceLabel(packageById('website-launch')!).text} CAD with me, fixed scope; `)).toBe(true);
+    expect(first).toContain('Toronto agencies often quote [$3,000–$10,000](https://trttech.ca/?p=11988).');
+  });
+
+  it('a guide’s `updated` date, when set, is on or after its published date', () => {
+    for (const g of all) if (g.field('updated')) expect(g.field('updated')! >= g.field('published')!, g.slug).toBe(true);
+  });
+
   it('the Business Profile guide states Google’s opening-date rule correctly (help answer 9174409)', () => {
     const gbp = bySlug('google-business-profile-without-a-storefront').body;
     expect(gbp).toMatch(/90 days/);
@@ -147,10 +176,12 @@ describe('guides', () => {
     for (const g of all) expect(g.body, g.slug).not.toMatch(/\]\(\/guides\//);
   });
 
-  it('every dollar figure is a published price, and nothing is promised', () => {
+  it('every dollar figure is a published price (or another business’s, linked to its source), and nothing is promised', () => {
     const published = new Set(packages.flatMap((p) => [p.price.amount, p.price.max]).filter((n) => typeof n === 'number'));
     for (const g of all) {
-      for (const m of g.src.matchAll(/\$([\d,]+)/g)) expect(published.has(Number(m[1].replace(/,/g, ''))), `${g.slug}: ${m[0]}`).toBe(true);
+      // Figures quoted from elsewhere must be the text of a link to their source (e.g. the cost guide's agency range).
+      const own = g.src.replace(/\[[^\]]*\]\(https:\/\/[^)]+\)/g, '');
+      for (const m of own.matchAll(/\$([\d,]+)/g)) expect(published.has(Number(m[1].replace(/,/g, ''))), `${g.slug}: ${m[0]}`).toBe(true);
       expect(g.src, g.slug).not.toMatch(NO_PROMISES);
     }
   });

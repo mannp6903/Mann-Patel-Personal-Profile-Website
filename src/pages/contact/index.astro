@@ -73,6 +73,7 @@ const description = contact.phone
               </p>
             )
           }
+          {profile.contact.replyTime && <p class="small" data-reply-time>{profile.contact.replyTime}</p>}
           <p class="small subtle">
             Toronto time <time class="num" data-clock>--:--</time>. Based in {profile.location}, working across {profile.serviceArea}.
           </p>

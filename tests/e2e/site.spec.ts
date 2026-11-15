@@ -46,6 +46,8 @@ const PAGES = [
   '/websites-for-cleaning-companies/',
   '/websites-for-salons-and-spas/',
   '/web-design-scarborough/',
+  // Nov 2026 audit fixes: a draft until Mann lists its neighbourhoods and a local example (previews only).
+  '/web-design-north-york/',
   '/guides/',
   ...GUIDES.map((g) => `/guides/${g}/`),
   // SEO audit Phase 4 (14 Nov 2026).
@@ -166,7 +168,7 @@ test.describe('pages', () => {
   // The copy map from the growth report (10 Nov 2026), updated by the SEO audit (14 Nov 2026,
   // docs/seo/PLAN.md): each page names its service and the place.
   const COPY: [string, string, string, string][] = [
-    ['/', 'Mann Patel | Local SEO, Websites & AI Automation in Toronto', 'Websites and local SEO for Toronto small businesses.', 'Websites, local SEO and Google Business Profile setup for Toronto small businesses. Published prices: websites from $1,950 CAD. Free website check.'],
+    ['/', 'Mann Patel — Web Design & Local SEO, Scarborough & Toronto', 'Websites and local SEO for Toronto small businesses.', 'Websites, local SEO and Google Business Profile setup for Toronto small businesses. Published prices: websites from $1,950 CAD. Free website check.'],
     ['/services/', 'Website, Local SEO & Booking Services | Mann Patel', 'Website, local SEO and enquiry services', 'Compare web design, local SEO, Google Business Profile setup and enquiry automation for Toronto service businesses. See packages and request a quote.'],
     ['/services/web-design/', 'Toronto Small Business Web Design | Mann Patel', 'Web design for Toronto small businesses', 'Get a mobile-friendly website or redesign with clear service pages, a tested enquiry path and a written handover. See projects and ask for a quote.'],
     ['/services/local-visibility/', 'Local SEO & Google Business Profile Toronto | Mann Patel', 'Local SEO and Google Business Profile setup in Toronto', 'Improve your Google presence with eligible profile setup, listing updates and a review workflow. Ask about SEO foundations and an AI search check.'],
@@ -233,7 +235,8 @@ test.describe('pages', () => {
     expect(biz.address).toEqual({ '@type': 'PostalAddress', addressLocality: 'Scarborough', addressRegion: 'ON', addressCountry: 'CA' });
     expect(JSON.stringify(biz.areaServed)).toMatch(/Scarborough.*North York.*Toronto/);
     expect(biz.priceRange).toBe('$149–$3,350 CAD');
-    expect(biz.sameAs).toContain('https://maps.app.goo.gl/dYccTa9jQJczpeac6');
+    // The Google Business Profile: the full Maps URL once Mann adds it to src/data/site.ts (gbp.mapsUrl), else the share link.
+    expect(biz.sameAs.some((u: string) => /^https:\/\/(maps\.app\.goo\.gl|www\.google\.com\/maps)/.test(u))).toBe(true);
     expect(home.text).not.toMatch(/worksFor|streetAddress|postalCode|AggregateRating|"Review"/);
     const contactBiz = (await graph('/contact/')).blocks.find((b) => b['@type'] === 'ProfessionalService');
     expect(contactBiz.telephone).toBe('+1-647-978-6903');
@@ -380,7 +383,9 @@ test.describe('navigation', () => {
     const sheet = page.locator('#site-menu');
     await expect(sheet).toBeVisible();
     await expect(btn).toHaveAttribute('aria-expanded', 'true');
-    await expect(sheet.getByRole('navigation', { name: 'Menu' }).getByRole('link')).toHaveCount(6);
+    // Home + Work, Services, Pricing, Guides, About, Vision (Guides joined in the Nov 2026 audit fixes).
+    await expect(sheet.getByRole('navigation', { name: 'Menu' }).getByRole('link')).toHaveCount(7);
+    await expect(sheet.getByRole('link', { name: 'Guides', exact: true })).toHaveAttribute('href', '/guides/');
     await expect(sheet.getByRole('link', { name: 'Pricing', exact: true })).toHaveAttribute('href', '/pricing/');
     await expect(sheet.getByRole('link', { name: 'Vision', exact: true })).toHaveAttribute('href', '/vision/');
     await expect(sheet.locator('a[href="/contact/"]')).toHaveCount(1);
@@ -591,7 +596,7 @@ test.describe('home interactions', () => {
       await page.waitForTimeout(700);
       const fit = await sheet.evaluate((d) => d.scrollHeight - d.clientHeight);
       expect(fit).toBeLessThanOrEqual(1);
-      for (const name of ['Home', 'Work', 'Services', 'Pricing', 'About', 'Vision', 'Contact', 'Privacy', 'Terms'])
+      for (const name of ['Home', 'Work', 'Services', 'Pricing', 'Guides', 'About', 'Vision', 'Contact', 'Privacy', 'Terms'])
         await expect(sheet.getByRole('link', { name, exact: true }).first()).toBeInViewport();
       await expect(sheet.getByRole('link', { name: /Email Mann/ })).toBeInViewport();
     });
@@ -872,7 +877,7 @@ test.describe('new pages (SEO audit Phase 3)', () => {
     await expect(page.locator('footer a[href="/web-design-scarborough/"]')).toBeAttached();
   });
 
-  test('guides: an index, Article data by Mann, the cost and Business Profile cluster, outlines marked', async ({ page }) => {
+  test('guides: an index, BlogPosting data by Mann, the cost and Business Profile cluster, outlines marked', async ({ page }) => {
     await page.goto('/guides/');
     for (const g of GUIDES) await expect(page.locator(`main a[href="/guides/${g}/"]`).first()).toBeAttached();
     expect(await lastSectionId(page)).toBe('check');
@@ -880,7 +885,7 @@ test.describe('new pages (SEO audit Phase 3)', () => {
     // Every guide: a draft note while it's a draft ("Outline" for outlines); once published, a date instead.
     for (const g of GUIDES) {
       await page.goto(`/guides/${g}/`);
-      const article = (await ld(page)).find((b) => b['@type'] === 'Article');
+      const article = (await ld(page)).find((b) => b['@type'] === 'BlogPosting');
       expect(article.author['@id'], g).toMatch(/#person$/);
       if (guideIsDraft(g)) {
         await expect(page.locator('[data-draft]'), g).toContainText(guideIsOutline(g) ? 'Outline' : 'Draft');
@@ -893,7 +898,7 @@ test.describe('new pages (SEO audit Phase 3)', () => {
     }
 
     await page.goto(`/guides/${GUIDES[0]}/`);
-    const article = (await ld(page)).find((b) => b['@type'] === 'Article');
+    const article = (await ld(page)).find((b) => b['@type'] === 'BlogPosting');
     expect(article.headline).toBe((await page.locator('h1').innerText()).replace(/\s+/g, ' ').trim());
     for (const to of ['/pricing/', '/services/web-design/', `/guides/${GUIDES[1]}/`, '/contact/?package=check-up#check'])
       await expect(page.locator(`main a[href="${to}"]`).first(), to).toBeAttached();
@@ -1970,5 +1975,50 @@ test.describe('desktop layout (14 Nov 2026)', () => {
     expect(Math.max(...widths) - Math.min(...widths)).toBeLessThanOrEqual(1);
     // The price is the first row under the package names.
     await expect(table.locator('tbody tr').first().getByRole('rowheader')).toHaveText('Price');
+  });
+});
+
+test.describe('sharing images (Nov 2026 audit fixes)', () => {
+  test('every page has its own 1200 × 630 card, drawn at build time (case studies keep theirs)', async ({ page, request }) => {
+    const seen = new Map<string, string>();
+    for (const path of PAGES) {
+      await page.goto(path);
+      const og = await page.locator('meta[property="og:image"]').getAttribute('content');
+      const image = new URL(og!, page.url()).pathname;
+      if (path.startsWith('/work/') && path !== '/work/') expect(image, path).toMatch(/^\/og\/work-[a-z-]+\.png$/);
+      else expect(image, path).toMatch(/^\/og\/p\/[a-z0-9-]+\.png$/);
+      expect(seen.get(image), `${path} shares ${image} with ${seen.get(image)}`).toBeUndefined();
+      seen.set(image, path);
+      const res = await request.get(image);
+      expect(res.status(), image).toBe(200);
+      const png = await res.body();
+      expect([png.readUInt32BE(16), png.readUInt32BE(20)], image).toEqual([1200, 630]);
+      expect(await page.locator('meta[property="og:image:alt"]').getAttribute('content'), path).toBeTruthy();
+    }
+  });
+});
+
+test.describe('North York page (Nov 2026 audit fixes)', () => {
+  const src = readFileSync('src/data/areas.ts', 'utf8');
+  const NORTH_YORK_DRAFT = (src.match(/\bslug:\s*'north-york'[\s\S]*?\bneighbourhoods:\s*(null|\[\s*\]|\[)/) || [])[1] !== '[';
+
+  test('the Scarborough page’s structure with its own copy; a marked draft until the neighbourhoods and an example are in', async ({ page }) => {
+    await page.goto('/web-design-north-york/');
+    await expect(page.locator('h1')).toHaveText(/A web designer for\s+North York small businesses/);
+    await expect(page.locator('nav[aria-label="Breadcrumb"]')).toContainText('Web design in North York');
+    // Real local work only: Nest & Rest Cleaning serves North York (its case study says so).
+    await expect(page.locator('main a[href="/work/nest-and-rest-cleaning/"]').first()).toBeAttached();
+    await expect(page.locator('main a[href="/work/samp-hair-spa/"]')).toHaveCount(0);
+    const blocks = await page.locator('script[type="application/ld+json"]').allTextContents();
+    const types = blocks.map((b) => JSON.parse(b)['@type']);
+    expect(types).toEqual(expect.arrayContaining(['ProfessionalService', 'FAQPage', ...(types.includes('BreadcrumbList') ? ['BreadcrumbList'] : [])]));
+    expect(await page.locator('main section').last().getAttribute('id')).toBe('check');
+    if (NORTH_YORK_DRAFT) {
+      await expect(page.locator('[data-draft]')).toContainText('Draft, not published');
+      await expect(page.locator('[data-neighbourhoods] [data-confirm]')).toBeVisible();
+    }
+    if (/localExample:\s*null/.test(src)) await expect(page.locator('main [data-confirm]').first()).toBeVisible();
+    // Footer link (previews show drafts; production links it only once it is published).
+    await expect(page.locator('footer a[href="/web-design-north-york/"]')).toHaveText('Web design in North York');
   });
 });
