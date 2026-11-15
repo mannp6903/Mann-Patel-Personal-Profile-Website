@@ -124,13 +124,23 @@ export async function writeOgImages(clientDir) {
     const pagePath = rel === 'index.html' ? '/' : rel.endsWith('/index.html') ? `/${rel.slice(0, -'index.html'.length)}` : `/${rel}`;
     jobs.set(imagePath, { title: ogCardTitle(title), section: ogSection(pagePath) });
   }
+  let fallback = null;
   await Promise.all(
     [...jobs].map(async ([imagePath, card]) => {
       const out = join(clientDir, imagePath);
       await mkdir(dirname(out), { recursive: true });
-      await writeFile(out, await renderOgCard(card));
+      let png;
+      try {
+        png = await renderOgCard(card);
+      } catch (e) {
+        // Never fail a deploy over a sharing image: use the shared card and say so in the build log.
+        fallback ??= e;
+        png = await readFile(join(ROOT, 'public/og/default.png'));
+      }
+      await writeFile(out, png);
     }),
   );
+  if (fallback) console.warn(`[og-images] WARNING: could not draw the cards (${fallback.message}); used public/og/default.png instead.`);
   return jobs.size;
 }
 
