@@ -72,10 +72,13 @@ describe('area pages', () => {
   });
 
   it('stays an unpublished draft until Mann supplies the neighbourhoods (never invented)', () => {
-    for (const a of areas) expect(areaIsDraft(a)).toBe(a.neighbourhoods === null || a.neighbourhoods.length === 0);
+    for (const a of areas) expect(areaIsDraft(a)).toBe(a.neighbourhoods === null || a.neighbourhoods.length === 0 || a.localExample === null);
     expect(areaIsDraft({ ...scarborough, neighbourhoods: null })).toBe(true);
     expect(areaIsDraft({ ...scarborough, neighbourhoods: [] })).toBe(true);
     expect(areaIsDraft({ ...scarborough, neighbourhoods: ['Somewhere'] })).toBe(false);
+    // A local example that is needed but not supplied keeps a page a draft too (North York, Nov 2026).
+    expect(areaIsDraft({ ...scarborough, neighbourhoods: ['Somewhere'], localExample: null })).toBe(true);
+    expect(areaIsDraft({ ...scarborough, neighbourhoods: ['Somewhere'], localExample: 'A real project.' })).toBe(false);
   });
 
   it('makes no promises', () => {
@@ -96,8 +99,10 @@ describe('area pages', () => {
     const theirs = new Set(sentences(scarborough));
     for (const s of sentences(ny)) expect(theirs.has(s), s).toBe(false);
     // Neighbourhoods and the local example are Mann's to supply: never guessed, so the page is a draft until then.
-    if (ny.neighbourhoods === null) expect(areaIsDraft(ny)).toBe(true);
-    expect(ny.localExample === null || (typeof ny.localExample === 'string' && ny.localExample.length > 20)).toBe(true);
+    if (ny.neighbourhoods === null || ny.localExample === null) expect(areaIsDraft(ny)).toBe(true);
+    expect(new Set(ny.neighbourhoods ?? []).size).toBe((ny.neighbourhoods ?? []).length); // no name twice
+    // A local example, when given, is Mann's own words; left out, the page shows its real local work only.
+    expect(ny.localExample === undefined || ny.localExample === null || ny.localExample.length > 20).toBe(true);
   });
 });
 
