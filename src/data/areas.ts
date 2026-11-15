@@ -47,9 +47,42 @@ export const areas: Area[] = [
     h1: 'Web design in Scarborough, Ontario',
     lines: ['Web design in', 'Scarborough, Ontario'],
     lead: 'I’m Mann Patel, a web designer based in Scarborough, Ontario. I build websites, set up Google Business Profiles and connect online booking for small businesses here and across Toronto and the GTA, with my prices published.',
-    // TODO(Mann): list the Scarborough neighbourhoods you serve, as plain names: ['First neighbourhood', 'Second neighbourhood']. The page publishes
-    // (production build, sitemap, links from the service pages and footer) as soon as this list is filled in.
-    neighbourhoods: null,
+    // Mann serves every neighbourhood in Scarborough (15 Nov 2026). Names as Toronto uses them, checked against
+    // Wikipedia's neighbourhood articles; Centennial (= Port Union) and Scarborough Junction (= Kennedy Park) are
+    // left out as second names for the same places. The page says "including", so the list needn't be exhaustive.
+    neighbourhoods: [
+      'Agincourt',
+      'Bendale',
+      'Birch Cliff',
+      'Bridlewood',
+      'Clairlea',
+      'Cliffcrest',
+      'Cliffside',
+      'Dorset Park',
+      'Eglinton East',
+      'Golden Mile',
+      'Guildwood',
+      'Highland Creek',
+      'Ionview',
+      'Kennedy Park',
+      'L’Amoreaux',
+      'Malvern',
+      'Maryvale',
+      'Milliken',
+      'Morningside',
+      'Morningside Heights',
+      'Oakridge',
+      'Port Union',
+      'Rouge',
+      'Scarborough City Centre',
+      'Scarborough Village',
+      'Steeles',
+      'Tam O’Shanter–Sullivan',
+      'West Hill',
+      'West Rouge',
+      'Wexford',
+      'Woburn',
+    ],
     faqs: [
       {
         q: 'Are you in Scarborough, Ontario, or Scarborough in England?',

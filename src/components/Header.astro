@@ -199,8 +199,12 @@ const sheetLinks = [{ href: '/', label: 'Home' }, ...nav];
   }
   @supports (animation-timeline: scroll()) {
     @media (prefers-reduced-motion: no-preference) {
+      /* Written out on purpose: the minifier folds a separate animation-timeline into the `animation` shorthand,
+         which browsers reject, and the line never showed (found 15 Nov 2026). */
       .hdr::after {
-        animation: read-progress linear both;
+        animation-name: read-progress;
+        animation-timing-function: linear;
+        animation-fill-mode: both;
         animation-timeline: scroll(root block);
       }
       .hdr.is-scrolled::after {

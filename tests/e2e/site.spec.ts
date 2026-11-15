@@ -13,7 +13,8 @@ const NEST_STATUS = NEST_LIVE ? 'Website live' : 'Launched Oct 2026 · live link
 // a guide is a draft while its front matter says `draft: true`; the Scarborough page while `neighbourhoods: null`.
 const guideIsDraft = (slug: string) => /^draft:\s*true\s*$/m.test(readFileSync(`src/content/guides/${slug}.md`, 'utf8'));
 const guideIsOutline = (slug: string) => /^outline:\s*true\s*$/m.test(readFileSync(`src/content/guides/${slug}.md`, 'utf8'));
-const SCARBOROUGH_DRAFT = /\bneighbourhoods:\s*(null|\[\s*\])/.test(readFileSync('src/data/areas.ts', 'utf8'));
+// Read from the Scarborough entry itself, as scripts/seo-check.mjs does (the file's comments mention the switch too).
+const SCARBOROUGH_DRAFT = (readFileSync('src/data/areas.ts', 'utf8').match(/\bslug:\s*'scarborough'[\s\S]*?\bneighbourhoods:\s*(null|\[\s*\]|\[)/) || [])[1] !== '[';
 
 /** The guides (src/content/guides/): the first two published 14 Nov 2026; three outlines, still drafts. */
 const GUIDES = [
@@ -1027,6 +1028,39 @@ test.describe('motion: transform and opacity only', () => {
       expect([...bad]).toEqual([]);
     });
   }
+
+  // Two scroll-driven effects never ran: the CSS minifier folded animation-timeline into the animation shorthand,
+  // which browsers reject (found 15 Nov 2026). Restored at Mann's request, transform and opacity only.
+  test('the scroll effects run: case-study screens open as they scroll in, and the header shows reading progress', async ({ page }) => {
+    await page.setViewportSize({ width: 1440, height: 900 });
+    await page.goto('/work/nest-and-rest-cleaning/');
+    const frame = page.locator('.reveal-clip').first();
+    expect(await frame.evaluate((e) => getComputedStyle(e).animationName)).toBe('clip-open');
+    // The frame and the screenshot inside share the frame's own view timeline.
+    expect(await frame.evaluate((e) => getComputedStyle(e).viewTimelineName)).toBe('--reveal-clip');
+    expect(await frame.evaluate((e) => getComputedStyle(e).animationTimeline)).toBe('--reveal-clip');
+    expect(await frame.locator('img').evaluate((e) => getComputedStyle(e).animationTimeline)).toBe('--reveal-clip');
+    expect(await frame.locator('img').evaluate((e) => getComputedStyle(e).animationName)).toBe('clip-settle');
+    // The reading-progress line under the header follows the page's scroll position.
+    const progress = () =>
+      page.evaluate(() => {
+        const a = document.getAnimations().find((x) => (x as CSSAnimation).animationName === 'read-progress');
+        return a ? Number(a.effect!.getComputedTiming().progress ?? 0) : -1;
+      });
+    expect(await progress()).toBeGreaterThanOrEqual(0);
+    await page.evaluate(() => scrollTo(0, (document.documentElement.scrollHeight - innerHeight) / 2));
+    await expect.poll(progress).toBeGreaterThan(0.3);
+    await expect.poll(progress).toBeLessThan(0.7);
+  });
+
+  test('reduced motion: no scroll effects', async ({ browser }) => {
+    const ctx = await browser.newContext({ reducedMotion: 'reduce', viewport: { width: 1440, height: 900 } });
+    const page = await ctx.newPage();
+    await page.goto('/work/nest-and-rest-cleaning/');
+    expect(await page.locator('.reveal-clip').first().evaluate((e) => getComputedStyle(e).animationName)).toBe('none');
+    expect(await page.evaluate(() => document.getAnimations().filter((a) => (a as CSSAnimation).animationName === 'read-progress').length)).toBe(0);
+    await ctx.close();
+  });
 
   test('the footer name lights up near the pointer with transform and opacity only', async ({ page }) => {
     await page.setViewportSize({ width: 1440, height: 900 });

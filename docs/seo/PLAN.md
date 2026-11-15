@@ -8,7 +8,7 @@ Branch: `seo-audit-2026-11`, one commit per phase, pushed to `origin seo-audit-2
 verification (Mann's approval, 14 Nov 2026). No PR, no deploy. Stop after each phase and wait for Mann. (In practice each
 phase was merged by its own pull request at Mann's request; Phase 3 was built on `claude/zen-maxwell-tkspc1`.)
 
-Status: Phase 1 done and live (PR #33, merged 14 Nov 2026) · Phase 2 done (PR #34, merged 14 Nov 2026) · Phase 3 done and merged (14 Nov 2026; the Scarborough page and three outline guides wait on Mann, see below) · Phase 4: Mann chose the Website Care and AI search pages (14 Nov 2026, done on `claude/zen-maxwell-tkspc1`); speed and security headers not chosen.
+Status: Phase 1 done and live (PR #33, merged 14 Nov 2026) · Phase 2 done (PR #34, merged 14 Nov 2026) · Phase 3 done and merged (14 Nov 2026; the Scarborough page and the last three guides published 14–15 Nov) · Phase 4: Mann chose the Website Care and AI search pages (14 Nov 2026, done on `claude/zen-maxwell-tkspc1`); speed and security headers not chosen.
 
 ### Verification log
 
@@ -329,7 +329,7 @@ on /services/, on arrival and on hash change; own keys only, malformed addresses
 | --- | --- | --- |
 | `/websites-for-cleaning-companies/` ("Cleaning Company Website Design in Toronto") | Live with the next deploy | Nest & Rest case study (own business, website live, opens summer 2027, no results claimed) → Website Launch $1,950 + Local Visibility Setup $650 → 5 FAQs → related → free check |
 | `/websites-for-salons-and-spas/` ("Salon & Spa Website Design in Toronto") | Live with the next deploy | Samp Hair & Spa (client, in progress, accessibility findings open) → Website + Enquiry System $3,350, Website Launch $1,950 as the lighter option → 5 FAQs → related → free check |
-| `/web-design-scarborough/` ("Web Design in Scarborough, Ontario") | **Draft** until Mann lists neighbourhoods in `src/data/areas.ts` | Local work (Samp, Nest & Rest), GBP link, neighbourhoods [TODO(Mann)], services and prices, 4 FAQs ("Scarborough, Ontario, or Scarborough in England?"), full business node, free check |
+| `/web-design-scarborough/` ("Web Design in Scarborough, Ontario") | **Published 15 Nov 2026**: Mann serves every Scarborough neighbourhood (31 listed in `src/data/areas.ts`) | Local work (Samp, Nest & Rest), GBP link, 31 neighbourhoods, services and prices, 4 FAQs ("Scarborough, Ontario, or Scarborough in England?"), full business node, free check |
 | `/guides/` + 5 guides | Cost guide and Business Profile guide **published 14 Nov 2026** (Mann: "make everything live"); the other three written in full and published the same day (Mann: "make everything live") | Cost guide and Business Profile guide in full; ChatGPT/AI Overviews, missed-call text-back and Google Maps checklist as outlines (can't be published while `outline: true`) |
 
 Links in and out: the web design service page links both industry pages, enquiry follow-up links the salon page, local
@@ -369,7 +369,12 @@ Mann's choice (14 Nov 2026): the two pages below, then the security headers, the
   from 171 KB to 102 KB, but first-visit Lighthouse mobile went from 98–100 to 97–100 and first paint from 1.1–1.5 s
   to 1.5–2.0 s on /, /pricing/, /services/web-design/, /contact/ and /work/ (the 45 KB shared stylesheet blocks
   rendering). The plan's condition ("only if Lighthouse performance holds") isn't met, so CSS stays inline.
-- *Found, not changed:* two scroll-driven effects have never run in the built site. The CSS minifier folds
+- *Restored (15 Nov 2026, Mann's request):* the two scroll-driven effects below now run, written as longhand
+  properties so the minifier can't fold the timeline into the shorthand. The case-study screens open as they scroll
+  in, rebuilt with transform only (the frame grows from 86% while the screen settles from 116%, on one named view
+  timeline); the header's reading-progress line was already transform-only. Both are off with reduced motion, and
+  the e2e suite checks they run.
+- *Found (14 Nov), since restored:* two scroll-driven effects had never run in the built site. The CSS minifier folds
   `animation-timeline` into the `animation` shorthand, which browsers reject, so the declaration is dropped: the
   case-study images opening from a frame as they scroll in (`.reveal-clip`, clip-path) and the header's reading-progress
   line (`.hdr::after`). Restoring them would add motion visitors don't see today, so it waits for Mann's call (the

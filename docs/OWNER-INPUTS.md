@@ -62,10 +62,10 @@ Full detail: [`docs/23-website-audit/`](23-website-audit/). Issue IDs refer to `
 
 Plan and status: [`docs/seo/PLAN.md`](seo/PLAN.md). These pages wait on you; nothing about them is invented.
 
-1. **List the Scarborough neighbourhoods you serve.** In `src/data/areas.ts`, replace `neighbourhoods: null` with the
-   names, e.g. `neighbourhoods: ['First neighbourhood', 'Second neighbourhood']`. That one change publishes
-   `/web-design-scarborough/`: it is built, added to the sitemap, and linked from the "Based in Scarborough" lines in
-   the footer, the service pages and the industry pages. Until then it is a draft you can see in a preview build only.
+1. ~~List the Scarborough neighbourhoods you serve~~ **Done (15 Nov 2026): every neighbourhood in Scarborough.**
+   `/web-design-scarborough/` is published with 31 neighbourhood names (Toronto's usual names, checked against
+   Wikipedia's neighbourhood articles), introduced as "Every neighbourhood in Scarborough, including". Edit the list
+   in `src/data/areas.ts`; emptying it takes the page back to a draft.
 2. **Read the five guides on the live site.** All five in `src/content/guides/` were **published on 14 Nov 2026** at your
    request ("make everything live"): the cost guide, the Google Business Profile guide, getting recommended by ChatGPT
    and Google AI Overviews, missed-call text-back for salons and cleaners, and the Google Maps checklist. Tell me
