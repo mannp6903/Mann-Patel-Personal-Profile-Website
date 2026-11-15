@@ -13,7 +13,8 @@ const NEST_STATUS = NEST_LIVE ? 'Website live' : 'Launched Oct 2026 · live link
 // a guide is a draft while its front matter says `draft: true`; the Scarborough page while `neighbourhoods: null`.
 const guideIsDraft = (slug: string) => /^draft:\s*true\s*$/m.test(readFileSync(`src/content/guides/${slug}.md`, 'utf8'));
 const guideIsOutline = (slug: string) => /^outline:\s*true\s*$/m.test(readFileSync(`src/content/guides/${slug}.md`, 'utf8'));
-const SCARBOROUGH_DRAFT = /\bneighbourhoods:\s*(null|\[\s*\])/.test(readFileSync('src/data/areas.ts', 'utf8'));
+// Read from the Scarborough entry itself, as scripts/seo-check.mjs does (the file's comments mention the switch too).
+const SCARBOROUGH_DRAFT = (readFileSync('src/data/areas.ts', 'utf8').match(/\bslug:\s*'scarborough'[\s\S]*?\bneighbourhoods:\s*(null|\[\s*\]|\[)/) || [])[1] !== '[';
 
 /** The guides (src/content/guides/): the first two published 14 Nov 2026; three outlines, still drafts. */
 const GUIDES = [
