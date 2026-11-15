@@ -60,8 +60,12 @@ export default defineConfig({
     ? [
         securityHeaders,
         sitemap({
+          // /free-check/ is a noindex campaign landing page (reached from social links only).
           filter: (page) =>
-            !page.includes('/api/') && !page.includes('/contact/received/') && (pricesPublished || !page.endsWith('/pricing/')),
+            !page.includes('/api/') &&
+            !page.includes('/contact/received/') &&
+            !page.endsWith('/free-check/') &&
+            (pricesPublished || !page.endsWith('/pricing/')),
           // <lastmod> per URL from the last commit to that page's source files (scripts/sitemap-lastmod.mjs).
           serialize: (item) => ({ ...item, lastmod: lastmodFor(new URL(item.url).pathname) }),
         }),
