@@ -51,6 +51,8 @@ const PAGES = [
   // SEO audit Phase 4 (14 Nov 2026).
   '/services/website-care/',
   '/services/ai-search-optimization/',
+  // Campaign landing page for the launch posts (noindex, unlinked).
+  '/free-check/',
 ];
 
 async function noHorizontalOverflow(page: Page) {
@@ -112,6 +114,22 @@ test.describe('pages', () => {
       expect(r.status(), href).toBe(200);
     }
     expect(seen.size).toBeGreaterThan(10);
+  });
+
+  test('campaign landing page: noindex, unlinked, one form, and every button lands on it', async ({ page }) => {
+    await page.goto('/free-check/');
+    await expect(page.locator('meta[name="robots"]')).toHaveAttribute('content', /noindex/);
+    await expect(page.locator('form[data-check-form]')).toHaveCount(1);
+    const missing = await page.$$eval('a[href^="#"]', (as) =>
+      as.map((a) => a.getAttribute('href')!.slice(1)).filter((id) => id && !document.getElementById(id)),
+    );
+    expect(missing).toEqual([]);
+    for (const cta of await page.getByRole('link', { name: 'Get my free check' }).all()) await expect(cta).toHaveAttribute('href', '#check');
+    // Reached from campaign links only: no page on the site links to it.
+    for (const path of PAGES.filter((p) => p !== '/free-check/')) {
+      await page.goto(path);
+      await expect(page.locator('a[href^="/free-check"]'), path).toHaveCount(0);
+    }
   });
 
   test('every in-page anchor on the home page has a target', async ({ page }) => {

@@ -87,10 +87,11 @@ const files = await htmlFiles(root).catch(() => []);
 check(files.length > 0, `${files.length} HTML pages built`, `No built pages found in ${outDir}. Run the build first.`);
 
 const exists = async (p) => stat(p).then(() => true, () => false);
-// Pages that may stay "noindex" on purpose: /pricing/ until a price is approved (src/data/packages.ts).
+// Pages that may stay "noindex" on purpose: /pricing/ until a price is approved (src/data/packages.ts), and
+// campaign landing pages reached only from social links (/free-check/).
 // Allowed only while the page is left out of the sitemap and no other page links to it.
 const sitemapXml = await readFile(join(root, 'sitemap-0.xml'), 'utf8').catch(() => '');
-const unpublished = new Set(['/pricing/'].filter((path) => !sitemapXml.includes(`${site}${path}<`)));
+const unpublished = new Set(['/pricing/', '/free-check/'].filter((path) => !sitemapXml.includes(`${site}${path}<`)));
 const linkedUnpublished = new Set();
 const brokenLinks = new Set();
 const brokenAssets = new Set();
