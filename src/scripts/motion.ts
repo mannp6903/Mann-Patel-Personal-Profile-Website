@@ -153,7 +153,12 @@ document.querySelectorAll<HTMLElement>('[data-rail]').forEach((rail) => {
   const dots = document.createElement('div');
   dots.className = 'rail-dots';
   dots.setAttribute('aria-hidden', 'true');
-  items.forEach(() => dots.append(document.createElement('i')));
+  // The first dot starts current before the dots are on the page, so nothing animates while it loads.
+  items.forEach((_, i) => {
+    const dot = document.createElement('i');
+    if (i === 0) dot.className = 'is-on';
+    dots.append(dot);
+  });
   rail.after(dots);
   let raf = 0;
   const update = () => {

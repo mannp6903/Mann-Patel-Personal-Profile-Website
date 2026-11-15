@@ -47,28 +47,30 @@ import Button from '../../components/ui/Button.astro';
     stroke-linecap: round;
     stroke-linejoin: round;
   }
-  .rc__mark circle {
-    stroke-dasharray: 227;
-  }
+  /* The ring settles in, then the tick pops in: transform and opacity only (SEO audit Phase 4). */
+  .rc__mark circle,
   .rc__mark path {
-    stroke-dasharray: 50;
+    transform-box: fill-box;
+    transform-origin: center;
   }
   @media (prefers-reduced-motion: no-preference) {
     .rc__mark circle {
-      animation: draw-c 900ms var(--ease-out) both;
+      animation: ring-in 900ms var(--ease-out) both;
     }
     .rc__mark path {
-      animation: draw-p 600ms var(--ease-out) 500ms both;
+      animation: tick-in 600ms var(--ease-spring, var(--ease-out)) 500ms both;
     }
   }
-  @keyframes draw-c {
+  @keyframes ring-in {
     from {
-      stroke-dashoffset: 227;
+      opacity: 0;
+      transform: scale(0.82) rotate(-40deg);
     }
   }
-  @keyframes draw-p {
+  @keyframes tick-in {
     from {
-      stroke-dashoffset: 50;
+      opacity: 0;
+      transform: scale(0.5);
     }
   }
 </style>
