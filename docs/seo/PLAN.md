@@ -21,7 +21,7 @@ Status: Phase 1 done and live (PR #33, merged 14 Nov 2026) · Phase 2 done (PR #
   phone e2e test follows PUBLIC_CONTACT_PHONE). Phase 1 landed as three commits: squashing needs a force-push,
   which is blocked here; "Squash and merge" gives one commit.
 - **Phase 2 (14 Nov 2026):** `npm run check:seo` 0 errors, 2 warnings (/privacy/ description 158 characters; /services/
-  840 words against the ~600 aim, see the open decision above). `npm run check` 0 errors; `npm test` 78/78;
+  840 words against the ~600 aim; Mann chose to keep it, 15 Nov 2026). `npm run check` 0 errors; `npm test` 78/78;
   `npm run test:e2e` 132/132. Lighthouse 13.6 mobile, local production-like build: / 99, /about/ 99, /services/ 100,
   the three service pages 100, /work/ 100 (accessibility, best practices and SEO 100 on all). Subagent review: 7 gaps,
   fixed (add-on limits shown, full process moved to /about/#process, home FAQPage, forward script hardened and moved
@@ -265,7 +265,7 @@ HTML outside `<template>`; capture images never have empty alt text.
 Before: 6,653 words; 72% of /pricing/ and 43% of /services/web-design/ repeated on it (8-word shingles of the main
 content, matching the audit). After: 840 words (seo-check count); 2% and 0%. `seo-check.mjs` fails if any service
 page or /pricing/ is more than 20% repeated on /services/, if the page has no main content or passes 1,000 words, and
-warns above 650. **Open decision for Mann:** the page is ~240 words over the ~600 target because the add-ons (print,
+warns above 650. **Decided (Mann, 15 Nov 2026): leave it as is** (about 850 words; repeats 0–2% of other pages; the add-ons and their limits stay on /services/). Background: the page is ~240 words over the ~600 target because the add-ons (print,
 social, sprint) have no other page and must state their limits, plus the shared free check (147) and finder (123).
 Reaching ~600 means an add-ons page of their own, or moving the finder off /services/.
 
