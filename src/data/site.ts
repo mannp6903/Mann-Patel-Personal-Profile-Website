@@ -129,23 +129,26 @@ export const gbp = {
  * The business's own profiles, for the business structured data only (they are not shown as buttons here).
  * YouTube comes from `youtubeUrl` above. LinkedIn is the personal profile (no separate business page), added
  * 15 Nov 2026 so the business entity links to the same person.
+ * Clutch (16 Nov 2026): the business's Clutch directory profile.
+ * TODO(Mann): your Clutch profile URL (https://clutch.co/profile/…). Never guessed: null leaves it out.
  */
-export const businessProfiles: { youtube: string | null; linkedin: string | null } = {
+export const businessProfiles: { youtube: string | null; linkedin: string | null; clutch: string | null } = {
   youtube: youtubeUrl,
   linkedin: 'https://www.linkedin.com/in/mannp6903/',
+  clutch: null,
 };
 
 /** The business logo (512 × 512, from public/favicon.svg by `npm run images`), for the business structured data. */
 export const logo = { src: '/brand/mann-patel-logo.png', width: 512, height: 512 } as const;
 
 /**
- * The business's own profiles (business sameAs): Google Business Profile, plus the Facebook Page, YouTube and
- * LinkedIn once set.
+ * The business's own profiles (business sameAs): Google Business Profile, plus the Facebook Page, YouTube, LinkedIn
+ * and Clutch once set.
  */
 export const businessSameAs = [
   gbp.mapsUrl ?? gbp.url,
   ...social.flatMap((s) => (s.id === 'facebook' && s.url ? [s.url] : [])),
-  ...[businessProfiles.youtube, businessProfiles.linkedin].filter((u): u is string => Boolean(u)),
+  ...[businessProfiles.youtube, businessProfiles.linkedin, businessProfiles.clutch].filter((u): u is string => Boolean(u)),
 ];
 
 export const businesses: Business[] = [

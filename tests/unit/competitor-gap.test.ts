@@ -3,7 +3,7 @@ import { readFileSync } from 'node:fs';
 import { moreServicePages } from '../../src/data/service-pages';
 import { packageById, priceLabel } from '../../src/data/packages';
 import { areas, areaIsDraft } from '../../src/data/areas';
-import { bookingUrl, businessProfiles, gbp, social } from '../../src/data/site';
+import { bookingUrl, businessProfiles, businessSameAs, gbp, social } from '../../src/data/site';
 
 // Competitor gap work (16 Nov 2026; docs/26-competitor-gap-hireadrian.md).
 const SUFFIX = ' | Mann Patel';
@@ -61,9 +61,17 @@ describe('Markham, Pickering, East York and Ajax area pages', () => {
 
 describe('owner inputs', () => {
   it('are real links or null, never a placeholder', () => {
-    const values = [bookingUrl, gbp.reviewUrl, businessProfiles.youtube, ...social.map((s) => s.url)];
+    const values = [bookingUrl, gbp.reviewUrl, businessProfiles.youtube, businessProfiles.clutch, ...social.map((s) => s.url)];
     for (const v of values) if (v !== null) expect(v, v).toMatch(/^https:\/\/[^\s[\]]+$/);
     expect(social.find((s) => s.id === 'youtube')!.url).toBe(businessProfiles.youtube);
+  });
+
+  it('Clutch: a clutch.co profile in the business structured data once set, and nowhere while it is null', () => {
+    if (businessProfiles.clutch === null) expect(businessSameAs.some((u) => /clutch\.co/.test(u))).toBe(false);
+    else {
+      expect(businessProfiles.clutch).toMatch(/^https:\/\/clutch\.co\/profile\/[^\s/]+\/?$/);
+      expect(businessSameAs).toContain(businessProfiles.clutch);
+    }
   });
 });
 
