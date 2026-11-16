@@ -12,9 +12,13 @@
 //
 // Found 15 Nov 2026: the live sitemap gave all 25 URLs the same date, the last commit's. Cloudflare builds from a
 // shallow clone (one commit), so every file's "last commit" was the newest one. A shallow clone is now deepened
-// before the first date is read; if that fails, the build warns and uses the latest commit's date.
+// before the first date is read.
 //
-// Files with uncommitted changes count as changed now (local builds). With no git at all, the build date is used.
+// Website Playbook (16 Nov 2026): when no true date can be read, the URL gets no <lastmod> at all, rather than one
+// shared date for every page (which tells search engines nothing, and teaches them to ignore the field). That covers
+// a shallow clone that can't be deepened and a build with no git. Guides keep their front-matter dates either way.
+//
+// Files with uncommitted changes count as changed now (local builds).
 import { spawnSync } from 'node:child_process';
 import { existsSync, readFileSync, readdirSync } from 'node:fs';
 
@@ -81,38 +85,60 @@ const hasGit = git(['rev-parse', '--is-inside-work-tree']) === 'true';
 const buildTime = new Date();
 const cache = new Map();
 
-/** Full history is needed to date each file. Deepen a shallow clone once (CI); warn if that isn't possible. */
-let historyChecked = false;
+/**
+ * Full history is needed to date each file. Deepen a shallow clone once (CI). true = each file's own last commit can
+ * be read; false = no git, or a shallow clone that couldn't be deepened (warned once).
+ */
+let historyOk = null;
 function ensureHistory() {
-  if (historyChecked || !hasGit) return;
-  historyChecked = true;
-  if (git(['rev-parse', '--is-shallow-repository']) !== 'true') return;
-  console.log('[sitemap-lastmod] Shallow clone: fetching the full commit history to date each page…');
-  if (git(['fetch', '--unshallow', '--quiet']) === null || git(['rev-parse', '--is-shallow-repository']) === 'true')
-    console.warn(
-      '[sitemap-lastmod] WARNING: could not fetch the full git history. Pages without a front-matter date get the latest commit\'s date, so most <lastmod> values will match.',
-    );
+  if (historyOk !== null) return historyOk;
+  historyOk = false;
+  if (!hasGit) return historyOk;
+  if (git(['rev-parse', '--is-shallow-repository']) === 'true') {
+    console.log('[sitemap-lastmod] Shallow clone: fetching the full commit history to date each page…');
+    if (git(['fetch', '--unshallow', '--quiet']) === null || git(['rev-parse', '--is-shallow-repository']) === 'true') {
+      console.warn(
+        '[sitemap-lastmod] WARNING: could not fetch the full git history. Pages without a front-matter date get no <lastmod> (rather than the same date for every page).',
+      );
+      return historyOk;
+    }
+  }
+  return (historyOk = true);
 }
 
 const day = (d) => d.toISOString();
 
-/** Date for a URL path (cached per build): ISO date-time, or YYYY-MM-DD from a guide's front matter. */
+/**
+ * A page's date from git, or null when git can't give a true one. Pure, for the tests.
+ * - historyOk: the full history is readable (see ensureHistory)
+ * - dirty: `git status --porcelain` output for the page's files (non-empty = changed and not committed yet)
+ * - committed: the ISO date of the last commit to them
+ */
+export function gitDate({ historyOk, dirty, committed }, now = buildTime) {
+  if (!historyOk) return null;
+  if (dirty) return day(now);
+  return committed ? day(new Date(committed)) : null;
+}
+
+/**
+ * Date for a URL path (cached per build): ISO date-time, YYYY-MM-DD from a guide's front matter, or null for no
+ * <lastmod> (astro.config.mjs then leaves the field out).
+ */
 export function lastmodFor(pathname) {
   if (cache.has(pathname)) return cache.get(pathname);
-  let value;
+  let value = null;
   const guide = pathname.match(/^\/guides\/([^/]+)\/$/);
   const dates = guide ? guideDates(guide[1]) : null;
   if (dates && (dates.updated || dates.published)) value = dates.updated ?? dates.published;
   else {
-    let date = buildTime;
     const files = sourcesFor(pathname);
-    if (hasGit && files.length) {
-      ensureHistory();
-      const dirty = git(['status', '--porcelain', '--', ...files]);
-      const committed = git(['log', '-1', '--format=%cI', '--', ...files]);
-      if (!dirty && committed) date = new Date(committed);
+    if (files.length && ensureHistory()) {
+      value = gitDate({
+        historyOk: true,
+        dirty: git(['status', '--porcelain', '--', ...files]),
+        committed: git(['log', '-1', '--format=%cI', '--', ...files]),
+      });
     }
-    value = day(date);
     // /guides/ changes when a guide is published or updated, as well as when its own file does.
     if (pathname === '/guides/' && existsSync(GUIDES)) {
       const newest = readdirSync(GUIDES)
@@ -123,7 +149,7 @@ export function lastmodFor(pathname) {
         .filter(Boolean)
         .sort()
         .at(-1);
-      if (newest && newest > value.slice(0, 10)) value = newest;
+      if (newest && (!value || newest > value.slice(0, 10))) value = newest;
     }
   }
   cache.set(pathname, value);

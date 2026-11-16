@@ -1,6 +1,6 @@
 import { describe, expect, it } from 'vitest';
 import { readdirSync } from 'node:fs';
-import { guideDates, lastmodFor, sourcesFor } from '../../scripts/sitemap-lastmod.mjs';
+import { gitDate, guideDates, lastmodFor, sourcesFor } from '../../scripts/sitemap-lastmod.mjs';
 
 const guides = readdirSync('src/content/guides')
   .filter((f) => f.endsWith('.md'))
@@ -23,6 +23,18 @@ describe('sitemap <lastmod>: each page’s own date, never the build time', () =
         expect(files, path).not.toContain(chrome);
     }
     expect(sourcesFor('/privacy/')).toEqual(['src/pages/privacy.astro']);
+  });
+
+  it('no true date, no <lastmod>: an unreadable history never stamps every page with one date (Website Playbook)', () => {
+    const now = new Date('2026-11-16T12:00:00Z');
+    // Shallow clone that couldn't be deepened, or no git: nothing, whatever the last commit says.
+    expect(gitDate({ historyOk: false, dirty: '', committed: '2026-11-16T07:15:37-05:00' }, now)).toBeNull();
+    // Full history: the page's own last commit.
+    expect(gitDate({ historyOk: true, dirty: '', committed: '2026-11-08T10:50:28-05:00' }, now)).toBe('2026-11-08T15:50:28.000Z');
+    // Changed and not committed yet (a local build): changed now.
+    expect(gitDate({ historyOk: true, dirty: ' M src/pages/privacy.astro', committed: '2026-11-08T10:50:28-05:00' }, now)).toBe(now.toISOString());
+    // Never committed: nothing.
+    expect(gitDate({ historyOk: true, dirty: '', committed: null }, now)).toBeNull();
   });
 
   it('every area page (/web-design-<area>/) is dated from the area template and data', () => {

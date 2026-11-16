@@ -105,8 +105,8 @@ for (const f of files) {
   }
   if (!rel.startsWith('/404') && !rel.startsWith('/contact/received')) {
     if (!html.includes(`<link rel="canonical" href="${site}${rel}"`)) errors.push(`${rel}: canonical URL missing or not ${site}${rel}`);
-    if (env.SITE_INDEXING === 'true' && !html.includes('content="index, follow"') && !unpublished.has(rel))
-      errors.push(`${rel}: robots meta is not "index, follow"`);
+    if (env.SITE_INDEXING === 'true' && !html.includes('content="index, follow, max-image-preview:large"') && !unpublished.has(rel))
+      errors.push(`${rel}: robots meta is not "index, follow, max-image-preview:large"`);
   }
   for (const path of unpublished) if (rel !== path && html.includes(`href="${path}"`)) linkedUnpublished.add(`${rel} → ${path}`);
   for (const m of html.matchAll(/href="(\/[^"#?]*)/g)) {
@@ -138,6 +138,8 @@ check(brokenAssets.size === 0, 'All images, fonts and scripts referenced by the 
 const robots = await readFile(join(root, 'robots.txt'), 'utf8').catch(() => '');
 if (env.SITE_INDEXING === 'true') {
   check(robots.includes('Allow: /') && robots.includes(`Sitemap: ${site}/sitemap.xml`), 'robots.txt allows crawling and lists the sitemap', 'robots.txt is not in production form');
+  const aiBots = ['OAI-SearchBot', 'ChatGPT-User', 'Claude-SearchBot', 'Claude-User', 'PerplexityBot', 'Perplexity-User'];
+  check(aiBots.every((bot) => robots.includes(`User-agent: ${bot}\n`)), 'robots.txt names the AI search bots', `robots.txt is missing an AI search bot (${aiBots.join(', ')})`);
   check(await exists(join(root, 'sitemap-index.xml')), 'sitemap-index.xml generated', 'sitemap-index.xml missing');
   check(await exists(join(root, 'sitemap.xml')), 'sitemap.xml generated', 'sitemap.xml missing');
 }
