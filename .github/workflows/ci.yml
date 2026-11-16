@@ -1,0 +1,86 @@
+# Quality gates (Website Playbook, 16 Nov 2026): unit and end-to-end tests, the production build with its pre-launch
+# check, a link check of the built pages and Lighthouse budgets (lighthouserc.json). Nothing here deploys.
+#
+# Action inputs checked against each action's action.yml and README at the pinned major version (16 Nov 2026).
+name: CI
+
+on:
+  pull_request:
+  push:
+    # The repository's default branch is ccr-96e3375f-xynmc5 (there is no main yet); main is listed for when it is
+    # renamed.
+    branches: [main, ccr-96e3375f-xynmc5]
+  schedule:
+    # Mondays 09:17 UTC (04:17 in Toronto): catches links that broke and Lighthouse drift while nothing changed.
+    - cron: '17 9 * * 1'
+
+permissions:
+  contents: read
+
+concurrency:
+  group: ci-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  quality:
+    runs-on: ubuntu-latest
+    timeout-minutes: 30
+    steps:
+      - uses: actions/checkout@v7
+        with:
+          # Full history: each page's sitemap <lastmod> is the last commit to its own files (scripts/sitemap-lastmod.mjs).
+          fetch-depth: 0
+
+      - uses: actions/setup-node@v7
+        with:
+          node-version-file: .nvmrc
+          cache: npm
+
+      - run: npm ci
+
+      - name: Unit tests
+        run: npm test
+
+      - name: Install Chromium for Playwright
+        run: npx playwright install --with-deps chromium
+
+      - name: Build the preview site (the end-to-end tests run against it)
+        run: npm run build
+
+      - name: End-to-end tests
+        run: npx playwright test --trace off
+
+      - name: Production build for Cloudflare (with the pre-launch check)
+        run: npm run build:cloudflare
+
+      - name: Check links in the built pages
+        uses: lycheeverse/lychee-action@v2
+        with:
+          fail: true
+          # Root-relative links (/services/) resolve inside dist/client. /api/ is the Worker's form endpoint, not a file.
+          # LinkedIn and Instagram block link checkers, and so do these (403 to lychee, first CI run 16 Nov 2026): the
+          # Google Maps share link, OpenAI's help centre and the CRTC. Add a host here only after opening the link in
+          # a browser. https://mannpatel.me/ is the live site, which doesn't have a branch's new pages until it is
+          # deployed; those links are the same pages checked here through --root-dir. 429 (rate limited) is not a
+          # broken link.
+          args: >-
+            --no-progress
+            --root-dir "${{ github.workspace }}/dist/client"
+            --exclude '/api/'
+            --exclude 'linkedin\.com'
+            --exclude 'instagram\.com'
+            --exclude 'maps\.app\.goo\.gl'
+            --exclude 'help\.openai\.com'
+            --exclude 'crtc\.gc\.ca'
+            --exclude '^https://mannpatel\.me/'
+            --max-retries 3
+            --accept '200..=299,429'
+            'dist/**/*.html'
+
+      - name: Lighthouse
+        uses: treosh/lighthouse-ci-action@v12
+        with:
+          configPath: ./lighthouserc.json
+          uploadArtifacts: true
+          # Reports stay in this run's artifacts, not on Google's temporary public storage.
+          temporaryPublicStorage: false

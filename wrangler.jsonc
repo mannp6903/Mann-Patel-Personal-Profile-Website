@@ -14,7 +14,9 @@
   // (src/worker/entry.ts). The adapter fills in the static-assets folder.
   "main": "./src/worker/entry.ts",
   // The Worker must see requests before static files are served, or the redirect never runs.
-  "assets": { "binding": "ASSETS", "run_worker_first": true },
+  // not_found_handling (Website Playbook, 16 Nov 2026): an unknown address gets the built 404.html with a real 404
+  // status; the Worker then hands any 404 to Astro's handler, which serves the same page (src/worker/entry.ts).
+  "assets": { "binding": "ASSETS", "run_worker_first": true, "not_found_handling": "404-page" },
   "observability": { "enabled": true },
 
   // Serve the site on mannpatel.me. Cloudflare creates the DNS records and HTTPS
