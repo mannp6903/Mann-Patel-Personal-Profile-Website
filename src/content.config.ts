@@ -51,6 +51,23 @@ const work = defineCollection({
     location: z.string().optional(),
     result: z.string().optional(),
     nextStep: z.string(),
+    /**
+     * Website Playbook (16 Nov 2026), all optional and empty until there is a real value. The project's state stays in
+     * `status` and `relationship` above (own business vs client).
+     */
+    /** The live website's address, once it is public. */
+    liveUrl: z.url().optional(),
+    /** A public link to the client's review of the work (for example their Google review). */
+    reviewUrl: z.url().optional(),
+    /** The client's words about the work, exactly as written, with their permission. */
+    quote: z.string().optional(),
+    /** Who said `quote`: their full name, as they agreed to show it. */
+    quoteAuthor: z.string().optional(),
+    /** PageSpeed Insights mobile performance score (0–100) before and after the work, from real runs only. */
+    psiBefore: z.number().int().min(0).max(100).optional(),
+    psiAfter: z.number().int().min(0).max(100).optional(),
+    /** YYYY-MM-DD, when the case study last changed. Also the page's sitemap <lastmod> (scripts/sitemap-lastmod.mjs). */
+    updated: isoDay.optional(),
   }),
 });
 

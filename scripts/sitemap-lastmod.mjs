@@ -4,6 +4,7 @@
 // Each URL gets the date its own content last changed, never the build time:
 // - a guide: the `updated` date in its front matter, else its `published` date (the same date the page shows and
 //   gives as BlogPosting dateModified, so the sitemap and the page agree);
+// - a case study with an `updated` date in its front matter: that date (Website Playbook, 16 Nov 2026);
 // - /guides/: the newest of the published guides' dates and its own route file;
 // - every other page: the date of the latest git commit that touched its own source files: the page, the dynamic
 //   route that renders it, its content or data file, and the shared data it shows in its main content (EXTRA,
@@ -46,6 +47,7 @@ const ROUTE_DATA = {
   work: ['src/data/captures.ts'],
 };
 const GUIDES = 'src/content/guides';
+const WORK = 'src/content/work';
 
 /** Source files for a URL path such as "/services/web-design/". Only files that exist. */
 export function sourcesFor(pathname) {
@@ -75,6 +77,14 @@ export function guideDates(slug) {
   const fm = (readFileSync(file, 'utf8').match(/^---\r?\n([\s\S]*?)\r?\n---/) || [])[1] ?? '';
   const day = (key) => (fm.match(new RegExp(`^${key}:\\s*['"]?(\\d{4}-\\d{2}-\\d{2})['"]?\\s*$`, 'm')) || [])[1] ?? null;
   return { published: day('published'), updated: day('updated'), draft: !/^draft:\s*false\s*$/m.test(fm) };
+}
+
+/** A case study's front-matter `updated` date (Website Playbook, 16 Nov 2026), or null. */
+export function workUpdated(slug) {
+  const file = `${WORK}/${slug}.md`;
+  if (!existsSync(file)) return null;
+  const fm = (readFileSync(file, 'utf8').match(/^---\r?\n([\s\S]*?)\r?\n---/) || [])[1] ?? '';
+  return (fm.match(/^updated:\s*['"]?(\d{4}-\d{2}-\d{2})['"]?\s*$/m) || [])[1] ?? null;
 }
 
 const git = (args) => {
@@ -129,7 +139,10 @@ export function lastmodFor(pathname) {
   let value = null;
   const guide = pathname.match(/^\/guides\/([^/]+)\/$/);
   const dates = guide ? guideDates(guide[1]) : null;
+  const work = pathname.match(/^\/work\/([^/]+)\/$/);
+  const workDate = work ? workUpdated(work[1]) : null;
   if (dates && (dates.updated || dates.published)) value = dates.updated ?? dates.published;
+  else if (workDate) value = workDate;
   else {
     const files = sourcesFor(pathname);
     if (files.length && ensureHistory()) {

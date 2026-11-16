@@ -4,6 +4,7 @@
  * Without JavaScript the links point to the contact page.
  */
 import { channelHref, decodePhone, type Channel } from '../lib/phone';
+import { clickEventName, clickLocation } from '../lib/click-events';
 import { track } from './analytics';
 
 document.querySelectorAll<HTMLAnchorElement>('a[data-reach][data-k]').forEach((a) => {
@@ -20,13 +21,27 @@ document.querySelectorAll<HTMLAnchorElement>('a[data-reach][data-k]').forEach((a
 // project opens. Only the kind of click and where it was; never anything typed into a form.
 const where = (el: Element) =>
   el.closest('header')?.matches('[data-header]') ? 'header' : el.closest('footer') ? 'footer' : (el.closest('section[id]')?.id ?? 'page');
+// Website Playbook (16 Nov 2026): phone_click, whatsapp_click, email_click and booking_click, each with where the
+// link was (src/lib/click-events.ts). contact_click still goes out for every contact link, as before.
+const place = (el: Element) =>
+  clickLocation({
+    header: Boolean(el.closest('header')?.matches('[data-header]')),
+    footer: Boolean(el.closest('footer')),
+    hero: Boolean(el.closest('#hero')),
+    quickMenu: Boolean(el.closest('[data-qm]')),
+    path: location.pathname,
+    section: el.closest('section[id]')?.id,
+  });
 document.addEventListener('click', (e) => {
   const a = (e.target as Element | null)?.closest<HTMLAnchorElement>('a[href]');
   if (!a) return;
+  const named = clickEventName({ contact: a.dataset.contact, booking: a.hasAttribute('data-booking') });
+  if (named) track(named, { location: place(a) });
   if (a.dataset.contact) {
     track('contact_click', { method: a.dataset.contact });
     return;
   }
+  if (named) return;
   const url = new URL(a.href, location.href);
   if (url.origin !== location.origin) return;
   if (url.pathname === '/contact/') {

@@ -1,6 +1,6 @@
 import { describe, expect, it } from 'vitest';
 import { readdirSync } from 'node:fs';
-import { gitDate, guideDates, lastmodFor, sourcesFor } from '../../scripts/sitemap-lastmod.mjs';
+import { gitDate, guideDates, lastmodFor, sourcesFor, workUpdated } from '../../scripts/sitemap-lastmod.mjs';
 
 const guides = readdirSync('src/content/guides')
   .filter((f) => f.endsWith('.md'))
@@ -35,6 +35,15 @@ describe('sitemap <lastmod>: each page’s own date, never the build time', () =
     expect(gitDate({ historyOk: true, dirty: ' M src/pages/privacy.astro', committed: '2026-11-08T10:50:28-05:00' }, now)).toBe(now.toISOString());
     // Never committed: nothing.
     expect(gitDate({ historyOk: true, dirty: '', committed: null }, now)).toBeNull();
+  });
+
+  it('a case study with an `updated` date in its front matter uses it (Website Playbook)', () => {
+    for (const slug of readdirSync('src/content/work').filter((f) => f.endsWith('.md')).map((f) => f.replace(/\.md$/, ''))) {
+      const updated = workUpdated(slug);
+      if (updated) expect(lastmodFor(`/work/${slug}/`), slug).toBe(updated);
+      else expect(updated, slug).toBeNull();
+    }
+    expect(workUpdated('no-such-project')).toBeNull();
   });
 
   it('every area page (/web-design-<area>/) is dated from the area template and data', () => {
