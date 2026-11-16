@@ -75,6 +75,23 @@ Plan and status: [`docs/seo/PLAN.md`](seo/PLAN.md). These pages wait on you; not
 3. **After each publish:** deploy, then request indexing in Search Console for the new address (see
    [`docs/seo/OFFSITE-CHECKLIST.md`](seo/OFFSITE-CHECKLIST.md)).
 
+## From the competitor gap work (16 Nov 2026)
+
+Plan and status: [`docs/26-competitor-gap-hireadrian.md`](26-competitor-gap-hireadrian.md). Each item below is built and
+hidden until you send it; nothing is guessed.
+
+1. **YouTube channel URL** → `src/data/site.ts` → `youtubeUrl`. Turns on the YouTube button (footer, About), the About
+   "Find me elsewhere" entry and the structured data `sameAs`.
+2. **Booking link for a free 15-minute call** (Google Calendar appointment schedule or Cal.com) → `bookingUrl`. Turns on
+   "Book a free 15-minute call" on /contact/, /pricing/ and the area pages (a plain link that opens in a new tab).
+3. **Google review link** (Business Profile → "Ask for reviews") → `gbp.reviewUrl`. Turns on "Clients: leave a Google
+   review" in the footer.
+4. **Facebook Page URL** → `social` → facebook. Turns on the Facebook button, the About entry and the business `sameAs`.
+5. **Neighbourhoods** for Markham, Pickering, East York and Ajax (`src/data/areas.ts`), plus an optional local-project
+   line each. Those four pages stay drafts until then.
+6. **Landing page design** (which package covers it, or drop it) and **a larger-site tier** (name, price, page limit, or
+   skip): not built until you decide.
+
 ## Accounts and live actions (only Mann can do these)
 
 | Action | Why | Where it's explained |

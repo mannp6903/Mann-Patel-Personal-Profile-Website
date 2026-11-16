@@ -10,6 +10,8 @@ import Button from '../components/ui/Button.astro';
 import PackageCard from '../components/packages/PackageCard.astro';
 import PackageCompare from '../components/packages/PackageCompare.astro';
 import { packages, checkUp, pricesPublished, packageById, priceLabel } from '../data/packages';
+import ReviewsStrip from '../components/ReviewsStrip.astro';
+import { bookingUrl } from '../data/site';
 import { breadcrumbJsonLd } from '../lib/seo';
 import { visibleGuides } from '../lib/published';
 
@@ -20,6 +22,29 @@ const description = `Published prices in CAD: 5-page website ${price('website-la
 
 // SEO audit Phase 3 (14 Nov 2026): the cost guide links here; this page links back once it is published.
 const costGuide = (await visibleGuides()).find((g) => g.id === 'how-much-does-a-website-cost-in-toronto');
+
+// "Which package fits?" (16 Nov 2026, competitor gap work): common requests mapped to the existing packages. No new
+// package or price: every number comes from src/data/packages.ts.
+const fits = [
+  {
+    t: 'My website is dated or hard to use on a phone',
+    d: `A redesign: Website Launch, ${price('website-launch')}, rebuilds up to five pages on the domain you already own.`,
+    href: '/services/website-redesign/',
+    link: 'How a website redesign works',
+  },
+  {
+    t: 'One thing on my website is broken',
+    d: `A repair: Website Fix, ${price('website-fix')} by size, fixes one defined problem and leaves the rest of the site alone.`,
+    href: '#pkg-website-fix',
+    link: 'Website Fix',
+  },
+  {
+    t: 'I’m not sure what I need',
+    d: 'Start with the free website and Google check: a short written list of fixes, most important first, with no obligation.',
+    href: '/contact/?package=check-up#check',
+    link: 'Request the free check',
+  },
+];
 
 const costs = [...new Set(packages.flatMap((p) => p.thirdParty).filter((c) => !c.startsWith('Everything in')))];
 
@@ -110,14 +135,49 @@ const faqLd = {
             }
           </ul>
           <p class="small subtle">Not included: {checkUp.notIncluded[0].charAt(0).toLowerCase() + checkUp.notIncluded[0].slice(1)}.</p>
-          <div class="pr__free-cta">
+          <div class:list={['pr__free-cta', bookingUrl && 'btn-row']}>
             <Button href="/contact/?package=check-up#check" variant="ghost" size="sm">Request the free check</Button>
+            {
+              // 16 Nov 2026: a plain link to Mann's booking page, once he adds it (src/data/site.ts → bookingUrl).
+              bookingUrl && (
+                <Button href={bookingUrl} variant="ghost" icon="arrow-ne" target="_blank" rel="noopener" aria-label="Book a free 15-minute call (opens in a new tab)" data-booking size="sm">
+                  Book a free 15-minute call
+                </Button>
+              )
+            }
           </div>
         </li>
       </ol>
       <PackageCompare id="pr-compare" title="Side by side" level={2} />
     </div>
   </section>
+
+  <section class="section section--rule" id="fit" aria-labelledby="pr-fit">
+    <div class="container pr__split">
+      <div class="stack" style="--stack: var(--s-4)">
+        <p class="eyebrow">Redesign, repair or not sure</p>
+        <h2 id="pr-fit" class="pr__h2">Which package <span class="accent">fits?</span></h2>
+      </div>
+      <dl class="pr__affects">
+        {
+          fits.map((f) => (
+            <div>
+              <dt>{f.t}</dt>
+              <dd>
+                {f.d}{' '}
+                <a class="link" href={f.href}>
+                  {f.link}
+                </a>
+              </dd>
+            </div>
+          ))
+        }
+      </dl>
+    </div>
+  </section>
+
+  <!-- Real client reviews only (src/data/reviews.ts); renders nothing until there are some. -->
+  <ReviewsStrip />
 
 
   <section class="section section--alt" aria-labelledby="pr-example">
@@ -179,8 +239,9 @@ const faqLd = {
   <section class="section section--rule" aria-labelledby="pr-faq">
     <div class="container pr__split">
       <div class="stack" style="--stack: var(--s-4)">
-        <p class="eyebrow">Buying questions</p>
-        <h2 id="pr-faq" class="pr__h2">Before you <span class="accent">decide.</span></h2>
+        <!-- 16 Nov 2026: a question people search for; the slogan is the eyebrow. -->
+        <p class="eyebrow">Before you decide</p>
+        <h2 id="pr-faq" class="pr__h2">What’s included <span class="accent">in the price?</span></h2>
         {
           costGuide && (
             <a class="link-arrow" href={`/guides/${costGuide.id}/`}>
@@ -194,7 +255,7 @@ const faqLd = {
           questions.map((f) => (
             <details class="acc" name="pr-faq">
               <summary>
-                <span>{f.q}</span>
+                <h3 class="acc__q">{f.q}</h3>
                 <span class="acc__plus" aria-hidden="true" />
               </summary>
               <div class="acc__body">

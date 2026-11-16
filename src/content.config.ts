@@ -84,6 +84,8 @@ const guides = defineCollection({
         // SEO audit Phase 4 pages.
         '/services/website-care/',
         '/services/ai-search-optimization/',
+        // Competitor gap work (16 Nov 2026).
+        '/services/website-redesign/',
       ]),
       /** Other guides (file names without .md) to link under "Read next", shown only once they are published. */
       related: z.array(z.string()).default([]),

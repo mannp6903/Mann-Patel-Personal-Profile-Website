@@ -4,7 +4,7 @@
  * MΛNN PΛTEL wordmark (letters lift and turn lime near the pointer) and the bottom bar with the
  * Toronto clock.
  */
-import { profile, businesses } from '../data/site';
+import { profile, businesses, gbp } from '../data/site';
 import { groups } from '../data/services';
 import { servicePageForGroup } from '../data/service-pages';
 import { pricesPublished } from '../data/packages';
@@ -139,6 +139,17 @@ const otherAreas = visibleAreas().filter((a) => a.name !== profile.location);
             <Icon name={nest.siteLive ? 'arrow-ne' : 'arrow'} />
           </a>
         </li>
+        {
+          // 16 Nov 2026: the Business Profile's review link, once Mann adds it (src/data/site.ts → gbp.reviewUrl).
+          gbp.reviewUrl && (
+            <li>
+              <a class="link-quiet" href={gbp.reviewUrl} rel="noopener" data-review-link>
+                Clients: leave a Google review
+                <Icon name="arrow-ne" />
+              </a>
+            </li>
+          )
+        }
       </ul>
     </div>
   </div>

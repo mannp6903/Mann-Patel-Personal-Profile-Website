@@ -103,3 +103,45 @@ Ask each tool the same three questions in a fresh chat, and log whether you appe
 ## 10. Later
 
 - [ ] North York page: only once there is real proof there (a client or project in North York). Not before.
+
+## 11. Closing the gap with hireadrian.com (added 16 Nov 2026)
+
+From the competitor audit of 15–16 Nov 2026 ([`docs/26-competitor-gap-hireadrian.md`](../26-competitor-gap-hireadrian.md)).
+The competitor has 127 Google reviews, about 159 pages in Google and a Domain Rating of 56; this site had 0, 10 and 0.
+Most of that gap is closed off the site, by you.
+
+- [ ] **(16 Nov 2026) Request indexing.** Search Console → URL Inspection → paste each address → Request indexing. Google's `site:` search showed the first three missing on 16 Nov 2026:
+  - [ ] https://mannpatel.me/
+  - [ ] https://mannpatel.me/pricing/
+  - [ ] https://mannpatel.me/web-design-scarborough/
+  - [ ] https://mannpatel.me/services/web-design/
+  - [ ] https://mannpatel.me/services/local-visibility/
+  - [ ] https://mannpatel.me/about/
+  - [ ] After the next deploy, the new pages too: https://mannpatel.me/services/website-redesign/ and each new guide.
+- [ ] **(16 Nov 2026) Ask 5 real clients for a Google review.** Send each the review link from your Business Profile
+  (Business Profile → "Ask for reviews" or "Get more reviews" → copy the link). Ask everyone, not only happy customers,
+  and offer nothing in return (Google doesn't allow either). Then send me the link so the footer can show "Clients:
+  leave a Google review" (`gbp.reviewUrl` in `src/data/site.ts`).
+- [ ] **(16 Nov 2026) Complete the Business Profile:**
+  - [ ] Services, each with its published price (the list in section 3).
+  - [ ] Service areas: Scarborough, North York and Toronto (add Markham, Pickering, East York or Ajax only if you serve them, and only once their pages are published).
+  - [ ] 10 or more real photos: you, your workspace or laptop, and real screenshots of your work. No stock photos.
+  - [ ] A post every week (Business Profile → Add update): a finished project, a tip from a guide, or a free-check offer.
+- [ ] **(16 Nov 2026) Identical listings** (same name, phone and website as the table at the top of this file):
+  - [ ] Bing Places for Business (can import from Google Business Profile)
+  - [ ] Apple Business Connect
+  - [ ] Yelp.ca
+  - [ ] Clutch
+  - [ ] DesignRush
+  - [ ] A Facebook Page (then send me its URL: it goes into `src/data/site.ts` → `social`)
+- [ ] **(16 Nov 2026) "Website by Mann Patel" credit links:**
+  - [ ] nestnrestcleaning.com: a footer link to https://mannpatel.me/ (that site has its own repository).
+  - [ ] Samp Hair & Spa: the same footer credit at launch, with the owner's agreement.
+- [ ] **(16 Nov 2026) YouTube:** put https://mannpatel.me/ in the channel's About section and in every video
+  description. Then send me the channel URL: it goes into `src/data/site.ts` (`youtubeUrl`) and appears on the site.
+- [ ] **(16 Nov 2026) Earn the first 10 referring domains** (real links from real organisations, never bought):
+  - [ ] Local business associations and BIAs (Business Improvement Areas) in Scarborough and nearby: member directories often link to members' websites.
+  - [ ] A Seneca alumni showcase or alumni directory.
+  - [ ] Guest posts on small-business blogs, written from your own experience (for example, what you learned setting up Nest & Rest's website and Business Profile).
+  - [ ] The directories above (Clutch, DesignRush, Yelp.ca) also count once your profile links to the site.
+  - Log each one here: date, site, the page that links to you. ______

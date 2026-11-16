@@ -118,9 +118,13 @@ describe('guides', () => {
   const all = files.map(guide);
   const bySlug = (slug: string) => all.find((g) => g.slug === slug)!;
 
-  it('five guides; an outline is never published, and a published guide has a date', () => {
+  it('eight guides; an outline is never published, and a published guide has a date', () => {
     expect(all.map((g) => g.slug).sort()).toEqual(
       [
+        // + three from the competitor gap work (16 Nov 2026).
+        'how-to-get-more-google-reviews',
+        'how-to-optimize-google-business-profile',
+        'website-redesign-cost-toronto',
         'google-business-profile-without-a-storefront',
         'how-much-does-a-website-cost-in-toronto',
         'how-to-get-recommended-by-chatgpt',
@@ -133,7 +137,7 @@ describe('guides', () => {
       if (g.field('outline') === 'true') expect(g.field('draft'), `${g.slug}: an outline can't be published`).toBe('true');
       if (g.field('draft') === 'false') expect(g.field('published'), g.slug).toMatch(/^\d{4}-\d{2}-\d{2}$/);
     }
-    // All five are written in full (the last three drafted 14 Nov 2026, waiting for Mann to publish).
+    // All are written in full (no outlines).
     expect(all.filter((g) => g.field('outline') === 'true').map((g) => g.slug)).toEqual([]);
   });
 

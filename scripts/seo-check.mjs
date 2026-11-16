@@ -15,8 +15,8 @@ const SITE = 'https://mannpatel.me';
 // ── What the pages must say (SEO audit, 14 Nov 2026). Exact, after decoding entities and collapsing spaces.
 const EXACT = {
   '/': {
-    // Nov 2026 audit fixes.
-    title: 'Mann Patel — Web Design & Local SEO, Scarborough & Toronto',
+    // Competitor gap work (16 Nov 2026): keyword first.
+    title: 'Web Design & Local SEO in Scarborough, Toronto | Mann Patel',
     description:
       'Websites, local SEO and Google Business Profile setup for Toronto small businesses. Published prices: websites from $1,950 CAD. Free website check.',
     h1: 'Websites and local SEO for Toronto small businesses.',
@@ -44,6 +44,8 @@ const NEW_PAGES = [
   // Phase 4 (Mann chose these two, 14 Nov 2026).
   '/services/website-care/',
   '/services/ai-search-optimization/',
+  // Competitor gap work (16 Nov 2026).
+  '/services/website-redesign/',
 ];
 /** Pages that must NOT be built, listed or linked while they are drafts (detected below: guides and area pages). */
 const DRAFT_PATHS = [];
@@ -56,6 +58,12 @@ const KEYWORDS = {
   '/web-design-north-york/': 'web designer north york',
   '/services/website-care/': 'website maintenance toronto',
   '/services/ai-search-optimization/': 'ai search optimization toronto',
+  // Competitor gap work (16 Nov 2026); the four area pages are checked once they are published.
+  '/services/website-redesign/': 'website redesign toronto',
+  '/web-design-markham/': 'web design markham',
+  '/web-design-pickering/': 'web design pickering',
+  '/web-design-east-york/': 'web design east york',
+  '/web-design-ajax/': 'web design ajax',
 };
 /** Where the business node must appear in full. */
 const BUSINESS_PAGES = ['/', '/contact/'];
@@ -290,6 +298,20 @@ for (const [image, paths] of ogImages) if (paths.length > 1) err('sharing images
     }
 }
 
+// ── llms.txt (16 Nov 2026): every address is a Markdown link, [label](https://…), so tools that read the file
+// (Lighthouse's agentic browsing audit among them) find links. A bare https:// address on any line fails.
+{
+  const file = join(DIST, 'llms.txt');
+  if (!existsSync(file)) err('llms.txt links', 'llms.txt is not in the build');
+  else
+    readFileSync(file, 'utf8')
+      .split('\n')
+      .forEach((line, i) => {
+        const rest = line.replace(/\[[^\]]*\]\(\s*https?:\/\/[^)\s]+\s*\)/g, '');
+        if (/https?:\/\//i.test(rest)) err('llms.txt links', `line ${i + 1} has an address outside Markdown link syntax: ${line.trim()}`);
+      });
+}
+
 // ── Exact copy
 for (const [path, want] of Object.entries(EXACT)) {
   const p = pages.get(path);
@@ -462,6 +484,7 @@ const checks = [
   'schema by page type',
   'sharing images',
   'modern JavaScript',
+  'llms.txt links',
   'no worksFor Nest & Rest',
   'no street address',
   'no review schema',
