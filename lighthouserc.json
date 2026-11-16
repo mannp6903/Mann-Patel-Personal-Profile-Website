@@ -1,0 +1,28 @@
+{
+  "ci": {
+    "collect": {
+      "staticDistDir": "./dist/client",
+      "numberOfRuns": 3,
+      "url": [
+        "http://localhost/",
+        "http://localhost/services/",
+        "http://localhost/services/web-design/",
+        "http://localhost/pricing/",
+        "http://localhost/contact/",
+        "http://localhost/work/nest-and-rest-cleaning/",
+        "http://localhost/guides/how-much-does-a-website-cost-in-toronto/",
+        "http://localhost/web-design-scarborough/"
+      ]
+    },
+    "assert": {
+      "assertions": {
+        "categories:performance": ["error", { "minScore": 0.9 }],
+        "categories:accessibility": ["error", { "minScore": 1 }],
+        "categories:seo": ["error", { "minScore": 1 }],
+        "largest-contentful-paint": ["error", { "maxNumericValue": 2500 }],
+        "cumulative-layout-shift": ["error", { "maxNumericValue": 0.1 }],
+        "total-blocking-time": ["warn", { "maxNumericValue": 200 }]
+      }
+    }
+  }
+}

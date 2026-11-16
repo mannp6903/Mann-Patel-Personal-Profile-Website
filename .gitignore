@@ -17,6 +17,7 @@ test-results/
 playwright-report/
 qa-output/
 coverage/
+.lighthouseci/
 
 # OS / editor
 .DS_Store
