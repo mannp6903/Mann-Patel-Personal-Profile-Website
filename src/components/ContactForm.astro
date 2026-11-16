@@ -8,7 +8,7 @@ import { SERVICE_OPTIONS, PACKAGE_OPTIONS, BUDGET_OPTIONS, TIMEFRAME_OPTIONS } f
 import { LIMITS } from '../lib/enquiry/validate';
 import { HONEYPOT_FIELD } from '../lib/enquiry/spam';
 import { PUBLIC_TURNSTILE_SITE_KEY } from 'astro:env/client';
-import { profile } from '../data/site';
+import { bookingUrl, profile } from '../data/site';
 import Button from './ui/Button.astro';
 import Icon from './ui/Icon.astro';
 
@@ -251,6 +251,16 @@ const tick = '<svg viewBox="0 0 16 16"><path d="m3.5 8.5 3 3 6-7" /></svg>';
         <li><span class="num">03</span> If we go ahead, you get a written scope before any work starts.</li>
       </ol>
       <p class="small subtle">Reference: <span class="num" data-success-id></span></p>
+      {
+        // Website Playbook (16 Nov 2026): the booking link, only once Mann adds it (src/data/site.ts → bookingUrl).
+        bookingUrl && (
+          <p>
+            <a class="link-arrow" href={bookingUrl} target="_blank" rel="noopener" aria-label="Book a free 15-minute call (opens in a new tab)" data-booking>
+              Book a free 15-minute call <Icon name="arrow-ne" />
+            </a>
+          </p>
+        )
+      }
       <p><a class="link-arrow" href="/work/">While you wait, see my work <Icon name="arrow" /></a></p>
     </section>
   </template>

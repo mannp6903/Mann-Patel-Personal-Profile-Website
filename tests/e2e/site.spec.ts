@@ -2167,3 +2167,111 @@ test.describe('Website Playbook, SEO foundations (16 Nov 2026)', () => {
     }
   });
 });
+
+test.describe('Website Playbook, conversion tracking (16 Nov 2026)', () => {
+  // Every generate_lead also fires a DOM event, `mp:lead` (src/scripts/analytics.ts), so the lead count can be read
+  // here without GA4.
+  test.beforeEach(async ({ page }) => {
+    await page.addInitScript(() => {
+      const w = window as unknown as { __leads: unknown[] };
+      w.__leads = [];
+      document.addEventListener('mp:lead', (e) => w.__leads.push((e as CustomEvent).detail));
+    });
+  });
+  const leads = (page: Page) => page.evaluate(() => (window as unknown as { __leads: Record<string, unknown>[] }).__leads);
+  /** Answer the POST to /api/enquiry/ with this response instead of the server (the token GET still goes through). */
+  const answerPost = (page: Page, answer: (r: import('@playwright/test').Route) => Promise<void>) =>
+    page.route('**/api/enquiry/', (r) => (r.request().method() === 'POST' ? answer(r) : r.continue()));
+  // The endpoint's accepted answer (src/lib/enquiry/handler.ts). Answered here rather than by the server, whose limit
+  // of 5 sends in 10 minutes the rest of the suite already reaches; the real path is covered by the enquiry form tests.
+  const accepted = (id: string) => ({ status: 200, json: { ok: true, id, acknowledgement: 'not-configured' } });
+
+  test('generate_lead fires only once /api/enquiry accepts the brief: never on the click, an error or a failure', async ({ page }) => {
+    await page.goto('/contact/');
+    const send = page.getByRole('button', { name: 'Send my brief' });
+    const next = page.getByRole('button', { name: 'Continue' });
+    await page.locator('#f-name').fill('Lead Test');
+    await page.locator('#f-email').fill('lead-test@example.ca');
+    await next.click();
+    await page.locator('label.area', { hasText: 'Get found and chosen' }).click();
+    await next.click();
+    // Too short: the browser's own check stops it, nothing is sent.
+    await page.locator('#f-message').fill('Short');
+    await send.click();
+    await expect(page.locator('#e-message')).not.toBeEmpty();
+    expect(await leads(page)).toEqual([]);
+
+    await page.locator('#f-message').fill(`Lead tracking test ${Date.now()}: a salon that needs booking requests.`);
+    // The server refuses it, fails, or can't be reached: still no lead.
+    await answerPost(page, (r) => r.fulfill({ status: 422, json: { ok: false, code: 'validation', message: 'Please check the form.' } }));
+    await send.click();
+    await expect(page.locator('[data-brief] [data-success]')).toHaveCount(0);
+    await answerPost(page, (r) => r.fulfill({ status: 500, json: { ok: false } }));
+    await send.click();
+    await expect(page.locator('[data-brief] [data-copy-brief]')).toBeVisible();
+    await answerPost(page, (r) => r.abort());
+    await send.click();
+    await expect(page.locator('[data-brief] [data-copy-brief]')).toBeVisible();
+    expect(await leads(page)).toEqual([]);
+
+    // Accepted: exactly one lead.
+    await page.unrouteAll({ behavior: 'wait' });
+    await answerPost(page, (r) => r.fulfill(accepted('enq_20261116_0000a001')));
+    await send.click();
+    await expect(page.locator('[data-brief] [data-success]')).toBeVisible();
+    expect(await leads(page)).toEqual([expect.objectContaining({ form_id: 'project_brief', lead_source: 'website' })]);
+    // The success state offers the booking link only once Mann adds it (src/data/site.ts → bookingUrl).
+    const bookingSet = !/export const bookingUrl: string \| null = null;/.test(readFileSync('src/data/site.ts', 'utf8'));
+    await expect(page.locator('[data-brief] [data-success] a[data-booking]')).toHaveCount(bookingSet ? 1 : 0);
+  });
+
+  test('the free check counts a lead only when the server accepts it', async ({ page }) => {
+    await page.goto('/contact/?package=check-up');
+    const check = page.locator('[data-check]');
+    const stamp = Date.now();
+    await page.locator('#c-name').fill('Check Lead Test');
+    await page.locator('#c-email').fill(`check-lead-${stamp}@example.ca`);
+    await page.locator('#c-website').fill(`check-lead-${stamp}.example.ca`);
+    await answerPost(page, (r) => r.fulfill({ status: 500, json: { ok: false } }));
+    await check.getByRole('button', { name: 'Request the free check' }).click();
+    await expect(check.locator('[data-copy-brief]')).toBeVisible();
+    expect(await leads(page)).toEqual([]);
+
+    await page.unrouteAll({ behavior: 'wait' });
+    await answerPost(page, (r) => r.fulfill(accepted('enq_20261116_0000a002')));
+    await check.getByRole('button', { name: 'Request the free check' }).click();
+    await expect(check.locator('[data-success]')).toBeVisible();
+    expect(await leads(page)).toEqual([expect.objectContaining({ form_id: 'free_check' })]);
+  });
+
+  test('phone, WhatsApp and email clicks are named and placed (?ga_debug=1 logs each event)', async ({ page }) => {
+    // In the order they were logged: [name, params].
+    const logged: Promise<[string, Record<string, unknown>]>[] = [];
+    page.on('console', (msg) => {
+      if (!msg.text().startsWith('[analytics]')) return;
+      logged.push(Promise.all(msg.args().map((a) => a.jsonValue())).then(([, name, params]) => [name, params]));
+    });
+    const clickWithoutLeaving = async (selector: string) => {
+      // Keep the page: tel:, mailto: and WhatsApp links would otherwise leave it.
+      await page.evaluate(() => window.addEventListener('click', (e) => e.preventDefault(), { capture: true }));
+      await page.locator(selector).first().click();
+    };
+
+    await page.goto('/?ga_debug=1');
+    await clickWithoutLeaving('footer a[data-contact="email"]');
+    await clickWithoutLeaving('#hero a[data-contact="whatsapp"]');
+    await page.goto('/contact/');
+    await clickWithoutLeaving('main a[data-contact="phone"]');
+    await expect.poll(() => logged.length).toBeGreaterThanOrEqual(6);
+    const events = await Promise.all(logged);
+
+    const named = events.filter(([n]) => n.endsWith('_click') && n !== 'contact_click' && n !== 'cta_click');
+    expect(named).toEqual([
+      ['email_click', { location: 'footer' }],
+      ['whatsapp_click', { location: 'hero' }],
+      ['phone_click', { location: 'contact' }],
+    ]);
+    // The older contact_click still goes out alongside.
+    expect(events.filter(([n]) => n === 'contact_click').map(([, p]) => p.method)).toEqual(['email', 'whatsapp', 'phone']);
+  });
+});

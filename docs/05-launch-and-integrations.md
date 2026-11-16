@@ -86,8 +86,9 @@ Optional durable record: a Google Sheet + Apps Script web app (`ENQUIRY_WEBHOOK_
 | `select_content` | first step chosen in the labelled walkthrough (home and /services/enquiry-follow-up/, round 10) | `content_type: workflow_demo` | Fictional data only. |
 | `tune_in` (custom) | the hero tuner is tuned back onto 104.3 by the visitor | `method: drag` or `keyboard` | Since round 10 the portrait starts clear and never tunes itself, so this counts people who played with the dial. Nothing else is sent. |
 | `contact_click` (custom) | click on email/phone/WhatsApp links | `method` | Only once these contact details exist |
+| `phone_click`, `whatsapp_click`, `email_click` (custom) | click on a phone, WhatsApp or email link (Website Playbook, 16 Nov 2026) | `location`: `header`, `footer`, `hero` or `contact` (anywhere on /contact/); elsewhere `quick_menu`, the section id or `page` | Sent alongside `contact_click`. Text-message and social links send only `contact_click`. Names and places: src/lib/click-events.ts |
+| `booking_click` (custom) | click on “Book a free 15-minute call” (/contact/, the brief’s success state, /pricing/, area pages) | `location`, as above | Only once `bookingUrl` is set in src/data/site.ts |
 | outbound clicks (e.g. Nest & Rest) | Enhanced measurement | — | Turn **off** Enhanced Measurement "form interactions", to avoid double-counting forms |
-| booking events | **not used** | — | There is no real booking system |
 
 **Consent:** GA loads only after "Allow" (stored in localStorage), with Google Consent Mode defaults denying all advertising storage. **Verify:** GA4 → Admin → DebugView with the GA Debugger extension; submit a test brief; confirm one `generate_lead`. Then mark `generate_lead` as a key event.
 

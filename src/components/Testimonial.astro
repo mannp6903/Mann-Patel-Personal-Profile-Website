@@ -1,0 +1,49 @@
+---
+/**
+ * One client testimonial (Website Playbook, 16 Nov 2026): the quote, the client's full name, their business and
+ * suburb, and a link to the review. Renders nothing at all without both a quote and a name (src/lib/testimonial.ts),
+ * so no placeholder or empty box ever reaches a page. Set like a card in the reviews strip (ReviewsStrip.astro).
+ * No Review/AggregateRating structured data: search engines don't allow self-serving review stars.
+ */
+import { testimonialData, type TestimonialInput } from '../lib/testimonial';
+
+type Props = TestimonialInput & { class?: string };
+const { class: cls, ...input } = Astro.props;
+const t = testimonialData(input);
+const where = t ? [t.business, t.suburb].filter(Boolean).join(', ') : '';
+---
+
+{
+  t && (
+    <figure class:list={['tm', cls]} data-testimonial>
+      <blockquote>
+        <p>{t.quote}</p>
+      </blockquote>
+      <figcaption class="small">
+        {t.reviewUrl ? (
+          <a class="link" href={t.reviewUrl} rel="noopener">
+            <b>{t.name}</b>
+          </a>
+        ) : (
+          <b>{t.name}</b>
+        )}
+        {where && <span class="subtle">, {where}</span>}
+      </figcaption>
+    </figure>
+  )
+}
+
+<style>
+  .tm {
+    display: grid;
+    gap: var(--s-4);
+    padding: clamp(1.25rem, 2.5vw, 2rem);
+    border: 1px solid var(--line);
+    border-radius: var(--r-lg);
+  }
+  .tm blockquote {
+    font-size: 1.0625rem;
+    line-height: 1.5;
+    color: var(--text);
+  }
+</style>
