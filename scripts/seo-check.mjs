@@ -44,6 +44,8 @@ const NEW_PAGES = [
   // Phase 4 (Mann chose these two, 14 Nov 2026).
   '/services/website-care/',
   '/services/ai-search-optimization/',
+  // Competitor gap work (16 Nov 2026).
+  '/services/website-redesign/',
 ];
 /** Pages that must NOT be built, listed or linked while they are drafts (detected below: guides and area pages). */
 const DRAFT_PATHS = [];
@@ -56,6 +58,12 @@ const KEYWORDS = {
   '/web-design-north-york/': 'web designer north york',
   '/services/website-care/': 'website maintenance toronto',
   '/services/ai-search-optimization/': 'ai search optimization toronto',
+  // Competitor gap work (16 Nov 2026); the four area pages are checked once they are published.
+  '/services/website-redesign/': 'website redesign toronto',
+  '/web-design-markham/': 'web design markham',
+  '/web-design-pickering/': 'web design pickering',
+  '/web-design-east-york/': 'web design east york',
+  '/web-design-ajax/': 'web design ajax',
 };
 /** Where the business node must appear in full. */
 const BUSINESS_PAGES = ['/', '/contact/'];

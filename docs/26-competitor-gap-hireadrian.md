@@ -113,3 +113,10 @@ Recorded with what each costs if it's wrong; see the verification log below.
   laptop. e2e expectations updated on purpose: the home title, the "How I work" heading, the /about/ phone length
   budget (8.75 → 9.5 screens, for "Find me elsewhere"), the FAQ selector (`summary > .acc__q`) and the About LinkedIn
   link (now twice).
+- **Phase 2 (16 Nov 2026):** production-like build passes; `npm run check:seo` 0 errors, the same 2 warnings (/services/
+  now 864 words), 27 sitemap URLs (+ /services/website-redesign/). The four area drafts are not in `dist/client`, the
+  sitemap or any link; in previews they show the draft note and the "To confirm" neighbourhoods note. `npm run check`
+  0 errors; `npm test` 135/135, `npm run test:e2e` 169/169 (the new unit tests failed against the Phase 1 code first: 5 of 6). e2e expectations
+  updated on purpose: the list of extra service pages (unit), the /pricing/ phone length budget (15 → 16 screens, for
+  "Which package fits?"). The redesign section on /services/web-design/ now links to the redesign page instead of
+  straight to the brief (the page head still has "Request a quote").

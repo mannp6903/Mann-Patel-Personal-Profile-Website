@@ -14,7 +14,8 @@ const targets = (text: string, keyword: string) => words(keyword).every((w) => w
 
 describe('more service pages (SEO audit Phase 4)', () => {
   it('Website Care and AI search optimization, under /services/; the three main services are unchanged', () => {
-    expect(moreServicePages.map((p) => p.slug)).toEqual(['website-care', 'ai-search-optimization']);
+    // + the website redesign page (competitor gap work, 16 Nov 2026).
+    expect(moreServicePages.map((p) => p.slug)).toEqual(['website-care', 'ai-search-optimization', 'website-redesign']);
     expect(servicePages.map((p) => p.slug)).toEqual(['web-design', 'local-visibility', 'enquiry-follow-up']);
   });
 
@@ -27,7 +28,11 @@ describe('more service pages (SEO audit Phase 4)', () => {
   });
 
   it('each targets its search in the title and the H1 (plan C15, C16)', () => {
-    const keyword = { 'website-care': 'website maintenance toronto', 'ai-search-optimization': 'ai search optimization toronto' } as Record<string, string>;
+    const keyword = {
+      'website-care': 'website maintenance toronto',
+      'ai-search-optimization': 'ai search optimization toronto',
+      'website-redesign': 'website redesign toronto',
+    } as Record<string, string>;
     for (const p of moreServicePages) {
       expect(targets(p.title, keyword[p.slug]), p.title).toBe(true);
       expect(targets(p.h1, keyword[p.slug]), p.h1).toBe(true);

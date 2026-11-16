@@ -7,7 +7,9 @@
  * src/data/packages.ts (shown as "Written quote after a short brief" until Mann approves a figure).
  */
 import { serviceById, type GroupId } from './services';
-import type { PackageId } from './packages';
+import { packageById, priceLabel, type PackageId } from './packages';
+
+const price = (id: PackageId) => priceLabel(packageById(id)!).text;
 
 export interface Faq {
   q: string;
@@ -39,7 +41,7 @@ export interface Sample {
 }
 
 export interface ServicePage {
-  slug: 'web-design' | 'local-visibility' | 'enquiry-follow-up' | 'website-care' | 'ai-search-optimization';
+  slug: 'web-design' | 'local-visibility' | 'enquiry-follow-up' | 'website-care' | 'ai-search-optimization' | 'website-redesign';
   /** The matching area on /services/ (its anchor keeps working). */
   group: GroupId;
   /** Short name used in navigation and breadcrumbs. */
@@ -138,7 +140,8 @@ export const servicePages: ServicePage[] = [
           'One enquiry path tested end to end before launch, with the results handed over',
         ],
         note: 'Writing all your copy from scratch, photography and online stores aren’t included. If most of your site works, a repair (below) costs less, and I’ll say so.',
-        cta: { label: 'Ask for a redesign quote', href: '/contact/?package=website-launch#brief' },
+        // 16 Nov 2026: the redesign has its own page now (competitor gap work); this section links to it.
+        cta: { label: 'Website redesign, step by step', href: '/services/website-redesign/' },
       },
       {
         id: 'repair',
@@ -439,7 +442,8 @@ export const servicePages: ServicePage[] = [
  * optimization, each a search people make ("website maintenance toronto small business", "ai search optimization
  * toronto"). Same template as the three above, but not one of the three main services: they don't appear in the
  * service lists, the menu or the finder, carry no "Service by service" details, and end with the free check.
- * They sell existing packages only (Website Care; the AI search check is part of Local Visibility Setup).
+ * They sell existing packages only (Website Care; the AI search check is part of Local Visibility Setup; the website
+ * redesign page, added 16 Nov 2026, is Website Launch or Website Fix).
  */
 export const moreServicePages: ServicePage[] = [
   {
@@ -608,6 +612,89 @@ export const moreServicePages: ServicePage[] = [
     sources: [
       { label: 'Google: AI features and your website', url: 'https://developers.google.com/search/docs/appearance/ai-features' },
       { label: 'Google: how local results are ranked', url: 'https://support.google.com/business/answer/7091?hl=en' },
+    ],
+  },
+  {
+    // Competitor gap work (16 Nov 2026; "website redesign toronto"). Sells existing packages only: Website Launch for a
+    // redesign of up to five pages, Website Fix when one problem is the issue. Prices come from src/data/packages.ts.
+    // No case study is shown: both projects are new builds, not redesigns.
+    // TODO(Mann): if you set up redirects from old page addresses during a redesign, say so in a step or FAQ here.
+    slug: 'website-redesign',
+    group: 'booked',
+    short: 'Website redesign',
+    name: 'Website redesign',
+    card: 'A dated or hard-to-use website rebuilt as up to five clear pages, with one tested enquiry path, on the domain you already own.',
+    title: 'Website Redesign in Toronto',
+    description: `Website redesign for Toronto small businesses: up to five pages rebuilt for phones for ${price('website-launch')} CAD, or one problem fixed for ${price('website-fix')}.`,
+    eyebrow: 'Website redesign',
+    h1: 'Website redesign for Toronto small businesses',
+    lines: ['Website redesign', 'for Toronto small businesses'],
+    lead: 'For small businesses in Toronto and the GTA whose website is dated, slow or hard to use on a phone. I rebuild it as up to five clear pages with one tested enquiry path, on the domain you already own, for a published price. If most of your site works, I say so and quote a repair instead.',
+    packages: ['website-launch', 'website-fix'],
+    forWho: [
+      'Your website looks dated, or is hard to read and use on a phone',
+      'Customers can’t easily find your services, your area, your prices or how to book',
+      'You can’t update the site yourself, or don’t know who has the logins',
+    ],
+    notFor: 'Online stores, member logins, or sites that need dozens of pages or custom software. If only one thing is broken, a Website Fix costs less.',
+    steps: [
+      {
+        title: 'The free check first',
+        body: 'I look at your current site the way a customer would, on a phone and a laptop, and send a short written list of what fails today, most important first.',
+      },
+      {
+        title: 'Redesign or repair',
+        body: `If one problem is costing you customers, a Website Fix (${price('website-fix')}) solves it and leaves the rest alone. If the site needs rebuilding, Website Launch (${price('website-launch')}) covers up to five pages. You decide with a written scope in hand.`,
+      },
+      {
+        title: 'Keep what still works',
+        body: 'Your domain stays, and so do the words and photos that still earn their place, edited for clarity. Every page is rebuilt for phones first, with click-to-call and one clear next step.',
+      },
+      {
+        title: 'Test before the switch',
+        body: 'The new enquiry path is tested end to end and the layout checked at phone and laptop widths before the new site replaces the old one.',
+      },
+      {
+        title: 'Launch and hand over',
+        body: 'The new site goes live on the domain you already own, with page titles, descriptions, a sitemap and Search Console in your name, plus every login and a short editing guide.',
+      },
+    ],
+    work: [],
+    checklist: {
+      title: 'Redesign or repair: how to tell',
+      intro: 'The free check answers this for your site. These are the usual signs.',
+      items: [
+        'A repair is enough when one thing fails: a form that doesn’t reach you, a booking button customers can’t find, an outdated menu or a slow page',
+        'A redesign makes sense when several pages are hard to use on a phone, or the site doesn’t say what you do, where you work and how to book',
+        'A redesign also makes sense when no one can edit the site, or the logins aren’t in your name',
+        'Either way, the written scope says what changes, what stays and the price before any work starts',
+      ],
+    },
+    limits: [
+      'Google decides rankings and traffic, before and after a redesign, so I don’t promise either.',
+      'You supply the facts and photos; I edit your existing text for clarity rather than write everything from scratch.',
+      'Two rounds of revisions are included; more are quoted before they start.',
+    ],
+    costs:
+      'Your domain name stays with your registrar, billed yearly. Hosting and email at your domain are billed by those providers if they charge. Each is named in your scope before you decide.',
+    handover: 'A login list, a short “how to edit” guide, the form test results and a list of anything you still need to do.',
+    faqs: [
+      {
+        q: 'How much does a website redesign cost?',
+        a: `A redesign of up to five pages is the Website Launch package: ${price('website-launch')} CAD plus tax, paid half at kickoff and half once the agreed launch checks pass. If only one thing on your site needs fixing, a Website Fix is ${price('website-fix')}, by size. Domain, hosting and tool subscriptions are billed to you directly by each provider.`,
+      },
+      {
+        q: 'Do I need a redesign, or just a fix?',
+        a: 'Start with the free check: it shows what fails today. If one problem is costing you customers, a fix costs less and I’ll say so. If several pages are hard to use on a phone, or no one can edit the site, I quote a redesign instead, and you decide.',
+      },
+      {
+        q: 'Can I keep my domain and my content?',
+        a: 'Yes. The new site goes live on the domain you already own. Text and photos that still work are kept and edited for clarity; writing everything from scratch is quoted separately.',
+      },
+      {
+        q: 'Who owns the redesigned website?',
+        a: 'You do. The domain, hosting and every account are in your name, and you get every login at handover. If we stop working together, you keep everything and my access is removed.',
+      },
     ],
   },
 ];

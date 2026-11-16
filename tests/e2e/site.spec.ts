@@ -687,7 +687,8 @@ test.describe('phones: short pages', () => {
     '/services/local-visibility/': 12.25,
     '/services/enquiry-follow-up/': 14,
     // 14 Nov 2026 (SEO audit): the intro names Toronto and the GTA, one more line on a phone.
-    '/pricing/': 15,
+    // 16 Nov 2026 (competitor gap work): + "Which package fits?" (previews also list the draft area pages in the footer).
+    '/pricing/': 16,
   };
   for (const [path, max] of Object.entries(BUDGET)) {
     test(`${path} stays under ${max} phone screens`, async ({ page }) => {
@@ -2089,5 +2090,48 @@ test.describe('competitor gap work (16 Nov 2026)', () => {
     for (const name of ['Google Maps', 'LinkedIn', 'GitHub']) await expect(elsewhere.getByRole('link', { name: `Mann Patel on ${name}` })).toHaveCount(1);
     await expect(elsewhere.getByRole('link', { name: 'Mann Patel on YouTube' })).toHaveCount(YOUTUBE_SET ? 1 : 0);
     await expect(elsewhere.getByRole('link', { name: 'Mann Patel on Facebook' })).toHaveCount(FACEBOOK_SET ? 1 : 0);
+  });
+});
+
+test.describe('competitor gap work, new pages (16 Nov 2026)', () => {
+  test('website redesign page: its own search, both packages, linked from /services/, /pricing/ and web design, ends with the free check', async ({ page }) => {
+    await page.goto('/services/website-redesign/');
+    await expect(page).toHaveTitle('Website Redesign in Toronto | Mann Patel');
+    await expect(page.locator('h1')).toHaveText(/Website redesign\s+for Toronto small businesses/);
+    await expect(page.locator('main')).toContainText('$1,950');
+    await expect(page.locator('main')).toContainText('$450–$850');
+    // No case-study cards: both projects are new builds (the shared "Based in Scarborough" line still names them).
+    await expect(page.locator('main .sp__work')).toHaveCount(0);
+    expect(await page.locator('main section').last().getAttribute('id')).toBe('check');
+    for (const from of ['/services/', '/pricing/', '/services/web-design/']) {
+      await page.goto(from);
+      await expect(page.locator('main a[href="/services/website-redesign/"]').first(), from).toBeAttached();
+    }
+  });
+
+  test('pricing: "Which package fits?" maps requests to existing packages, and the FAQ heading is a question', async ({ page }) => {
+    await page.goto('/pricing/');
+    const fit = page.locator('#fit');
+    await expect(fit.getByRole('heading', { level: 2 })).toHaveText('Which package fits?');
+    await expect(fit).toContainText('Website Launch, $1,950');
+    await expect(fit).toContainText('Website Fix, $450–$850');
+    await expect(page.locator('#pr-faq')).toHaveText('What’s included in the price?');
+  });
+
+  test('Markham, Pickering, East York and Ajax: drafts with a note until Mann lists the neighbourhoods', async ({ page }) => {
+    const src = readFileSync('src/data/areas.ts', 'utf8');
+    for (const [slug, name] of [['markham', 'Markham'], ['pickering', 'Pickering'], ['east-york', 'East York'], ['ajax', 'Ajax']]) {
+      const entry = src.split(/(?=\bslug:\s*')/).find((e) => e.startsWith(`slug: '${slug}'`)) ?? '';
+      const draft = (entry.match(/\bneighbourhoods:\s*(null|\[\s*\]|\[)/) || [])[1] !== '[';
+      await page.goto(`/web-design-${slug}/`);
+      await expect(page.locator('h1'), slug).toContainText(name);
+      expect(await page.locator('main section').last().getAttribute('id')).toBe('check');
+      if (draft) {
+        await expect(page.locator('[data-draft]')).toContainText('Draft, not published');
+        await expect(page.locator('[data-neighbourhoods] [data-confirm]')).toBeVisible();
+      }
+      // Never an empty "Local work" list: no project here yet, so no section.
+      await expect(page.locator('#ar-work-title')).toHaveCount(0);
+    }
   });
 });

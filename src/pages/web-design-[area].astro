@@ -85,45 +85,53 @@ const crumbs = breadcrumbJsonLd([
     </div>
   </PageHead>
 
-  <section class="section section--rule" aria-labelledby="ar-work-title">
-    <div class="container stack" style="--stack: var(--s-6)">
-      <div class="section-head">
-        <p class="eyebrow">Local work</p>
-        <h2 id="ar-work-title" class="ar__h2">Real work in {area.name}, <span class="accent">clearly labelled.</span></h2>
-      </div>
-      <ul class="ar__work" role="list">
-        {
-          work.map((w) => (
-            <li>
-              <p class="ar__tags small">
-                <span>{w.data.relationship}</span>
-                <span>{projectSite(w.data).websiteStatus}</span>
-                {w.data.businessStatus && <span>{w.data.businessStatus}</span>}
+  {
+    // Local work (16 Nov 2026): shown when there is a project in this area or a local example (or, in previews, the
+    // "To confirm" note while a needed example is missing), so a published page never shows an empty list.
+    (work.length > 0 || area.localExample !== undefined) && (
+      <section class="section section--rule" aria-labelledby="ar-work-title">
+        <div class="container stack" style="--stack: var(--s-6)">
+          <div class="section-head">
+            <p class="eyebrow">Local work</p>
+            <h2 id="ar-work-title" class="ar__h2">Real work in {area.name}, <span class="accent">clearly labelled.</span></h2>
+          </div>
+          {work.length > 0 && (
+          <ul class="ar__work" role="list">
+            {
+              work.map((w) => (
+                <li>
+                  <p class="ar__tags small">
+                    <span>{w.data.relationship}</span>
+                    <span>{projectSite(w.data).websiteStatus}</span>
+                    {w.data.businessStatus && <span>{w.data.businessStatus}</span>}
+                  </p>
+                  <h3>
+                    <a href={`/work/${w.id}/`}>{w.data.title}</a>
+                  </h3>
+                  <p class="muted">
+                    {w.data.industry} · {w.data.location}
+                  </p>
+                  <p class="small">{w.data.result}</p>
+                  <a class="link-arrow" href={`/work/${w.id}/`}>
+                    Case study<span class="visually-hidden">: {w.data.title}</span> <Icon name="arrow" />
+                  </a>
+                </li>
+              ))
+            }
+          </ul>
+          )}
+          {area.localExample && <p class="ar__example" data-local-example>{area.localExample}</p>}
+          {
+            area.localExample === null && (
+              <p>
+                <Confirm note={`a real ${area.name} example, in Mann’s words (src/data/areas.ts → localExample)`} />
               </p>
-              <h3>
-                <a href={`/work/${w.id}/`}>{w.data.title}</a>
-              </h3>
-              <p class="muted">
-                {w.data.industry} · {w.data.location}
-              </p>
-              <p class="small">{w.data.result}</p>
-              <a class="link-arrow" href={`/work/${w.id}/`}>
-                Case study<span class="visually-hidden">: {w.data.title}</span> <Icon name="arrow" />
-              </a>
-            </li>
-          ))
-        }
-      </ul>
-      {area.localExample && <p class="ar__example" data-local-example>{area.localExample}</p>}
-      {
-        area.localExample === null && (
-          <p>
-            <Confirm note={`a real ${area.name} example, in Mann’s words (src/data/areas.ts → localExample)`} />
-          </p>
-        )
-      }
-    </div>
-  </section>
+            )
+          }
+        </div>
+      </section>
+    )
+  }
 
   <!-- Real client reviews only (src/data/reviews.ts); renders nothing until there are some. -->
   <ReviewsStrip />
