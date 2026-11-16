@@ -1,4 +1,5 @@
 import { describe, expect, it } from 'vitest';
+import { readFileSync } from 'node:fs';
 import { moreServicePages } from '../../src/data/service-pages';
 import { packageById, priceLabel } from '../../src/data/packages';
 import { areas, areaIsDraft } from '../../src/data/areas';
@@ -63,5 +64,36 @@ describe('owner inputs', () => {
     const values = [bookingUrl, gbp.reviewUrl, businessProfiles.youtube, ...social.map((s) => s.url)];
     for (const v of values) if (v !== null) expect(v, v).toMatch(/^https:\/\/[^\s[\]]+$/);
     expect(social.find((s) => s.id === 'youtube')!.url).toBe(businessProfiles.youtube);
+  });
+});
+
+describe('three new guides', () => {
+  const read = (slug: string) => readFileSync(`src/content/guides/${slug}.md`, 'utf8');
+  const GUIDES: [string, string][] = [
+    ['how-to-get-more-google-reviews', '/services/local-visibility/'],
+    ['how-to-optimize-google-business-profile', '/services/local-visibility/'],
+    ['website-redesign-cost-toronto', '/services/website-redesign/'],
+  ];
+
+  it('each leads to its service page, in the front matter and in the text', () => {
+    for (const [slug, service] of GUIDES) {
+      const src = read(slug);
+      expect(src, slug).toMatch(new RegExp(`^service: ${service}$`, 'm'));
+      expect(src, slug).toContain(`](${service})`);
+      expect(src, slug).toContain('](/contact/?package=check-up#check)');
+    }
+  });
+
+  it('cite outside facts only to Google’s own help pages', () => {
+    for (const [slug] of GUIDES)
+      for (const m of read(slug).matchAll(/\]\((https?:\/\/[^)\s]+)\)/g))
+        expect(m[1], slug).toMatch(/^https:\/\/(support|developers)\.google\.com\//);
+  });
+
+  it('answer first: the opening sentence answers the question in the title', () => {
+    const first = (slug: string) => read(slug).split(/\n---\n/)[1].trim().split('\n')[0];
+    expect(first('how-to-get-more-google-reviews')).toMatch(/^To get more Google reviews, ask every customer/);
+    expect(first('how-to-optimize-google-business-profile')).toMatch(/^To optimize your Google Business Profile,/);
+    expect(first('website-redesign-cost-toronto')).toMatch(/^A website redesign of up to five pages costs \$1,950 CAD/);
   });
 });

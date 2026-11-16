@@ -23,6 +23,10 @@ const GUIDES = [
   'how-to-get-recommended-by-chatgpt',
   'missed-call-text-back-for-salons-and-cleaners',
   'why-isnt-my-business-on-google-maps',
+  // Competitor gap work (16 Nov 2026).
+  'how-to-get-more-google-reviews',
+  'how-to-optimize-google-business-profile',
+  'website-redesign-cost-toronto',
 ];
 
 const PAGES = [

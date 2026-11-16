@@ -8,6 +8,8 @@ service: /services/local-visibility/
 related:
   - how-much-does-a-website-cost-in-toronto
   - why-isnt-my-business-on-google-maps
+  - how-to-optimize-google-business-profile
+  - how-to-get-more-google-reviews
 ---
 
 If you clean homes, fix things or run your business from home, you can still have a Google Business Profile and show up on Google Maps. You set it up as a **service-area business**: your home address stays hidden, and Google shows the areas you serve instead.

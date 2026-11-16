@@ -7,6 +7,8 @@ published: 2026-11-14
 service: /services/local-visibility/
 related:
   - google-business-profile-without-a-storefront
+  - how-to-optimize-google-business-profile
+  - how-to-get-more-google-reviews
 ---
 
 You search for your business on Google Maps and it isn't there, or it only appears when you type its exact name. Work through this checklist in order: the most common problems are near the top.

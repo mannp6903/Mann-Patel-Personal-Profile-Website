@@ -100,6 +100,23 @@ Recorded with what each costs if it's wrong; see the verification log below.
 - Home H2s: the descriptive text takes the display style; the slogan becomes the eyebrow.
 - The three new guides are written as published (`draft: false`, 16 Nov 2026) so they can be linked and listed; nothing
   goes live until Mann deploys, and `draft: true` takes any of them back out.
+- The guides' `TODO(Mann)` notes live in this file (below), not in the guide files: the repo's unit tests forbid "TODO"
+  in a guide's source, so an unfinished note can never reach a page.
+- Guides link each other through `related` ("Read next"), never in the text, as the existing tests require (a link to a
+  guide that is later unpublished would 404).
+- The redesign page shows no case study: Nest & Rest and Samp Hair & Spa are new builds, not redesigns.
+
+## TODO(Mann)
+
+- `src/data/site.ts`: `youtubeUrl`, `bookingUrl`, `gbp.reviewUrl`, the Facebook Page URL (`social`), and `profile.contact.replyTime` (from before).
+- `src/data/areas.ts`: neighbourhoods for Markham, Pickering, East York and Ajax (and an optional `localExample` each); an optional North York `localExample` (from before).
+- `/services/website-redesign/` and the redesign cost guide: do you set up redirects from old page addresses to the new
+  ones during a redesign? If yes, it can be added to both; it isn't promised anywhere until you say so.
+- How to get more Google reviews: once you have asked real clients, a sentence or two on what worked for you, in your words.
+- How to optimize your Google Business Profile: a short before-and-after from a real profile you set up (yours, or a
+  client's with permission), in your words. No result is claimed until then.
+- Website redesign cost: a real redesign example once you have finished one.
+- Landing page design page and a larger-site tier: your decision (Phase 0 questions b and c).
 
 ## Verification log
 
@@ -120,3 +137,12 @@ Recorded with what each costs if it's wrong; see the verification log below.
   updated on purpose: the list of extra service pages (unit), the /pricing/ phone length budget (15 → 16 screens, for
   "Which package fits?"). The redesign section on /services/web-design/ now links to the redesign page instead of
   straight to the brief (the page head still has "Request a quote").
+- **Phase 3 (16 Nov 2026):** production-like build passes; `npm run check:seo` 0 errors, the same 2 warnings, 30 sitemap
+  URLs (+ three guides), no "TODO" in any built page. Each new guide is linked from its service page, /guides/ and
+  related guides. `npm run check` 0 errors; `npm test` 138/138; `npm run test:e2e` 172/172 (the new guides join the
+  one-H1, console and axe checks). Lighthouse 13.6 mobile on the local production-like build: / 97 on the first (cold)
+  run, then 98, 99 and 99; /pricing/ 99; /contact/ 98; /web-design-scarborough/ 100; accessibility, best practices and
+  SEO 100 on all four. The pre-branch commit measured the same way: / 97 cold, then 99 and 99, so nothing regressed.
+  HTML grows 58–410 bytes gzipped on those pages. Google's help pages couldn't be opened from the build machine, so
+  each Google fact in the guides was checked through search results quoting the official page, and only facts found
+  there are used. Expectations updated on purpose: the pinned list of guides (five → eight).

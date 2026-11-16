@@ -8,6 +8,7 @@ updated: 2026-11-15
 service: /services/web-design/
 related:
   - google-business-profile-without-a-storefront
+  - website-redesign-cost-toronto
 ---
 
 A five-page small business website costs $1,950 CAD with me, fixed scope; Toronto agencies often quote [$3,000–$10,000](https://trttech.ca/?p=11988). It depends on what the website has to do, and on how clearly the quote says what is included. I publish my prices, so this guide uses them as a worked example. All prices are in Canadian dollars, before tax.
