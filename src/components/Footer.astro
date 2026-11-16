@@ -6,7 +6,7 @@
  */
 import { profile, businesses, gbp } from '../data/site';
 import { groups } from '../data/services';
-import { servicePageForGroup } from '../data/service-pages';
+import { moreServicePages, servicePageForGroup } from '../data/service-pages';
 import { pricesPublished } from '../data/packages';
 import { contact, emailHref } from '../lib/contact';
 import Button from './ui/Button.astro';
@@ -32,6 +32,9 @@ const scarborough = areaHref('scarborough');
 const nav = await visibleNav();
 // Area pages other than the home base (linked in the "Based in …" line): North York once it is published.
 const otherAreas = visibleAreas().filter((a) => a.name !== profile.location);
+// Website Playbook (16 Nov 2026): the two service pages with no group of their own, so every service page is one
+// click from any page.
+const footerMore = moreServicePages.filter((sp) => sp.slug === 'website-care' || sp.slug === 'ai-search-optimization');
 ---
 
 <footer class="ftr">
@@ -75,6 +78,7 @@ const otherAreas = visibleAreas().filter((a) => a.name !== profile.location);
           const sp = servicePageForGroup(g.id);
           return <li><a class="link-quiet" href={sp ? `/services/${sp.slug}/` : `/services/#${g.id}`}>{sp ? sp.short : g.title}</a></li>;
         })}
+        {footerMore.map((sp) => <li><a class="link-quiet" href={`/services/${sp.slug}/`}>{sp.short}</a></li>)}
         <li><a class="link-quiet" href={pricesPublished ? '/pricing/' : '/services/#packages'}>{pricesPublished ? 'Pricing' : 'Packages'}</a></li>
         {otherAreas.map((a) => <li><a class="link-quiet" href={areaPath(a)}>Web design in {a.name}</a></li>)}
         <li><a class="link-quiet" href="/services/#check">Free website and Google check</a></li>

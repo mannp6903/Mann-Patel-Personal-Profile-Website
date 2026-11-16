@@ -2139,3 +2139,31 @@ test.describe('competitor gap work, new pages (16 Nov 2026)', () => {
     }
   });
 });
+
+test.describe('Website Playbook, SEO foundations (16 Nov 2026)', () => {
+  test('AI search and Website care are linked from /services/ and from the footer of every page', async ({ page }) => {
+    for (const path of ['/', '/services/', '/about/', '/guides/how-much-does-a-website-cost-in-toronto/']) {
+      await page.goto(path);
+      for (const href of ['/services/ai-search-optimization/', '/services/website-care/'])
+        await expect(page.locator(`footer a[href="${href}"]`), `${path} footer → ${href}`).toHaveCount(1);
+    }
+    await page.goto('/services/');
+    for (const href of ['/services/ai-search-optimization/', '/services/website-care/'])
+      await expect(page.locator(`main a[href="${href}"]`).first(), href).toBeAttached();
+  });
+
+  test('the business serves only published areas, plus Toronto (drafts stay out of the structured data)', async ({ page }) => {
+    await page.goto('/');
+    const blocks = await page.$$eval('script[type="application/ld+json"]', (s) => s.map((x) => JSON.parse(x.textContent || '{}')));
+    const biz = blocks.find((b) => b['@type'] === 'ProfessionalService');
+    const served = JSON.stringify(biz.areaServed);
+    expect(served).toMatch(/Scarborough.*North York.*Toronto/);
+    // Read each area's switch from its entry, as the area-page tests do, so publishing one never turns this red.
+    const src = readFileSync('src/data/areas.ts', 'utf8');
+    for (const [slug, name] of [['markham', 'Markham'], ['pickering', 'Pickering'], ['east-york', 'East York'], ['ajax', 'Ajax']]) {
+      const entry = src.split(/(?=\bslug:\s*')/).find((e) => e.startsWith(`slug: '${slug}'`)) ?? '';
+      const draft = (entry.match(/\bneighbourhoods:\s*(null|\[\s*\]|\[)/) || [])[1] !== '[' || /\blocalExample:\s*null\b/.test(entry);
+      if (draft) expect(served, name).not.toContain(name);
+    }
+  });
+});

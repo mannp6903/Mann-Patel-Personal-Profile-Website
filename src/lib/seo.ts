@@ -79,15 +79,18 @@ export function packageOffer(p: Package): Record<string, unknown> {
 }
 
 /**
- * Where the business works: one Place per area in src/data/areas.ts (Scarborough, North York), with the address of its
- * page once that page is published, then Toronto. Nov 2026 audit fixes: read from the area data, so a new area page
- * joins areaServed by itself.
+ * Where the business works: one Place per published area page in src/data/areas.ts (Scarborough, North York), with
+ * the address of its page, then Toronto. Nov 2026 audit fixes: read from the area data, so a new area page joins
+ * areaServed by itself. Website Playbook (16 Nov 2026): draft areas (Markham, Pickering, East York, Ajax) stay out
+ * until their page is published, as they do from the sitemap and every link.
  */
 const areasServed = () => [
-  ...areas.map((a) => {
-    const url = areaIsDraft(a) ? null : absoluteUrl(areaPath(a));
-    return { '@type': 'Place', name: `${a.name}, Toronto, ON`, ...(url ? { url } : {}) };
-  }),
+  ...areas
+    .filter((a) => !areaIsDraft(a))
+    .map((a) => {
+      const url = absoluteUrl(areaPath(a));
+      return { '@type': 'Place', name: `${a.name}, Toronto, ON`, ...(url ? { url } : {}) };
+    }),
   { '@type': 'City', name: 'Toronto' },
 ];
 

@@ -83,8 +83,12 @@ export default defineConfig({
             !page.includes('/contact/received/') &&
             !page.endsWith('/free-check/') &&
             (pricesPublished || !page.endsWith('/pricing/')),
-          // <lastmod> per URL from the last commit to that page's source files (scripts/sitemap-lastmod.mjs).
-          serialize: (item) => ({ ...item, lastmod: lastmodFor(new URL(item.url).pathname) }),
+          // <lastmod> per URL: a guide's front-matter date, else the last commit to that page's source files
+          // (scripts/sitemap-lastmod.mjs). Left out when no true date can be read (Website Playbook, 16 Nov 2026).
+          serialize: (item) => {
+            const lastmod = lastmodFor(new URL(item.url).pathname);
+            return lastmod ? { ...item, lastmod } : item;
+          },
         }),
         // Also serve the index at the conventional /sitemap.xml (what Search Console and most guides expect).
         {

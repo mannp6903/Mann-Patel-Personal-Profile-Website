@@ -40,7 +40,8 @@ const pageTitle = fullTitle ?? `${title} | ${profile.name}`;
 const ogImageAlt = ogAlt ?? defaultOgAlt(pageTitle);
 const canonical = absoluteUrl(Astro.url.pathname);
 const ogImageUrl = absoluteUrl(ogImage) ?? ogImage;
-const robots = indexing && !noindex ? 'index, follow' : 'noindex, nofollow';
+// Indexable pages also allow large image previews in search results (Website Playbook, 16 Nov 2026).
+const robots = indexing && !noindex ? 'index, follow, max-image-preview:large' : 'noindex, nofollow';
 const ld = jsonLd ? (Array.isArray(jsonLd) ? jsonLd : [jsonLd]) : [];
 ---
 
