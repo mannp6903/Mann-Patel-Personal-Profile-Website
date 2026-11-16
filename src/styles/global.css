@@ -16,7 +16,8 @@
 html {
   -webkit-text-size-adjust: 100%;
   text-size-adjust: 100%;
-  scroll-padding-top: calc(var(--header-h) + 1rem);
+  /* The sticky header's height plus 8px, so an anchor's heading lands just below it (Website Playbook, 16 Nov 2026). */
+  scroll-padding-top: calc(var(--header-h) + 0.5rem);
   interpolate-size: allow-keywords;
 }
 body {
@@ -73,9 +74,18 @@ a {
   color: var(--on-signal);
 }
 :focus-visible {
+  /* 2px ring, 2px off the element: lime (#d4f84a) on the dark site, near-black (#0b0b0c) on light surfaces, which set
+     --focus to var(--focus-on-light) (Website Playbook, 16 Nov 2026). Buttons keep 4px so the ring clears their fill. */
   outline: 2px solid var(--focus);
-  outline-offset: 3px;
+  outline-offset: 2px;
   border-radius: 4px;
+}
+/* Breadcrumb links (src/components/Crumbs.astro and the service and case-study trails): a 44 × 44px hit area around
+   the small text, without moving anything (Website Playbook, 16 Nov 2026). */
+.crumbs a {
+  display: inline-block;
+  padding: 0.85rem 0.45rem;
+  margin: -0.85rem -0.45rem;
 }
 main:focus,
 [tabindex='-1']:focus {
@@ -342,7 +352,9 @@ p {
   left: 0;
   top: 100%;
 }
-@media (hover: hover) {
+/* Hover and press movement only when the visitor allows it (Website Playbook, 16 Nov 2026). Under reduced motion
+   the links and buttons keep their instant colour feedback. */
+@media (hover: hover) and (prefers-reduced-motion: no-preference) {
   :hover > .roll > span {
     transform: translateY(-100%);
   }
@@ -383,8 +395,10 @@ p {
     border-color var(--t-base) var(--ease-out);
   -webkit-tap-highlight-color: transparent;
 }
-.btn:active {
-  transform: scale(0.97);
+@media (prefers-reduced-motion: no-preference) {
+  .btn:active {
+    transform: scale(0.97);
+  }
 }
 .btn:focus-visible {
   outline-offset: 4px;
@@ -432,7 +446,7 @@ p {
   stroke-width: 2;
   transition: transform 520ms var(--ease-out);
 }
-@media (hover: hover) {
+@media (hover: hover) and (prefers-reduced-motion: no-preference) {
   .btn:hover .btn__label > span {
     transform: translateY(-100%);
   }
@@ -563,11 +577,13 @@ p {
 .link-arrow .icon {
   transition: transform var(--t-base) var(--ease-out);
 }
-.link-arrow:hover .icon {
-  transform: translateX(4px);
-}
-.link-arrow:hover .icon--ne {
-  transform: translate(3px, -3px);
+@media (prefers-reduced-motion: no-preference) {
+  .link-arrow:hover .icon {
+    transform: translateX(4px);
+  }
+  .link-arrow:hover .icon--ne {
+    transform: translate(3px, -3px);
+  }
 }
 .prose a:not([class]),
 .text-links a:not([class]) {
@@ -814,7 +830,7 @@ fieldset > legend + * {
 }
 .chip:has(input:focus-visible) {
   outline: 2px solid var(--focus);
-  outline-offset: 3px;
+  outline-offset: 2px;
 }
 .chip:has(input[aria-invalid='true']) {
   border-color: var(--error);
@@ -830,7 +846,7 @@ fieldset > legend + * {
 }
 .notice:focus {
   outline: 2px solid var(--focus);
-  outline-offset: 3px;
+  outline-offset: 2px;
 }
 .notice a {
   color: inherit;

@@ -111,20 +111,22 @@ const { title, lead, updated, see } = Astro.props;
       gap: var(--s-1);
       border-left: 1px solid var(--line);
     }
-    .toc a {
+    /* :global: the links are written by the script below, so scoped styles never reached them (found 16 Nov 2026).
+       0.65rem padding makes each one at least 44px tall (Website Playbook). */
+    .toc :global(a) {
       display: block;
-      padding: 0.35rem 0 0.35rem var(--s-4);
+      padding: 0.65rem 0 0.65rem var(--s-4);
       margin-left: -1px;
       border-left: 1px solid transparent;
       font-size: var(--fs-sm);
       color: var(--text-3);
       text-decoration: none;
-      transition: color var(--t-fast), border-color var(--t-fast);
+      /* No colour transition: the site animates transform and opacity only (tests/e2e "motion"). */
     }
-    .toc a:hover {
+    .toc :global(a:hover) {
       color: var(--text);
     }
-    .toc a[aria-current] {
+    .toc :global(a[aria-current]) {
       color: var(--signal);
       border-left-color: var(--signal);
     }

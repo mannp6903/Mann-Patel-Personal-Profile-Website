@@ -148,8 +148,10 @@ import Icon from '../ui/Icon.astro';
       color: var(--signal);
       transition: transform var(--t-base) var(--ease-out);
     }
-    .pt__row a:hover :global(.icon) {
-      transform: translateX(4px);
+    @media (prefers-reduced-motion: no-preference) {
+      .pt__row a:hover :global(.icon) {
+        transform: translateX(4px);
+      }
     }
   }
   @media (min-width: 64em) {

@@ -688,7 +688,8 @@ test.describe('phones: short pages', () => {
     '/about/': 9.5,
     '/contact/': 3.75,
     '/services/web-design/': 15, // plus the Website Fix package, the redesign section and its services
-    '/services/local-visibility/': 12.25,
+    // 16 Nov 2026 (Website Playbook): footer links at least 44 × 44px make the phone footer about 70px taller.
+    '/services/local-visibility/': 12.5,
     '/services/enquiry-follow-up/': 14,
     // 14 Nov 2026 (SEO audit): the intro names Toronto and the GTA, one more line on a phone.
     // 16 Nov 2026 (competitor gap work): + "Which package fits?" (previews also list the draft area pages in the footer).
@@ -2273,5 +2274,150 @@ test.describe('Website Playbook, conversion tracking (16 Nov 2026)', () => {
     ]);
     // The older contact_click still goes out alongside.
     expect(events.filter(([n]) => n === 'contact_click').map(([, p]) => p.method)).toEqual(['email', 'whatsapp', 'phone']);
+  });
+});
+
+test.describe('Website Playbook, accessibility and brand (16 Nov 2026)', () => {
+  /**
+   * Visible targets under `selector` smaller than 44 × 44px (half a pixel of rounding allowed). Layout size
+   * (offsetWidth/Height), not the box on screen: entrance animations scale elements while they run.
+   */
+  const tooSmall = (page: Page, selector: string) =>
+    page.$$eval(selector, (els) =>
+      (els as HTMLElement[])
+        .filter((e) => e.offsetWidth > 0 && e.offsetHeight > 0 && getComputedStyle(e).visibility !== 'hidden')
+        .map((e) => ({ name: (e.textContent || e.getAttribute('aria-label') || '').trim().replace(/\s+/g, ' ').slice(0, 30), w: e.offsetWidth, h: e.offsetHeight }))
+        .filter((t) => t.w < 43.5 || t.h < 43.5),
+    );
+  const TARGETS = 'header a, header button, footer a.link-quiet, footer button, .sl__btn, .ca__btn, a.btn, button.btn';
+
+  for (const viewport of [{ width: 390, height: 844 }, { width: 1440, height: 900 }]) {
+    test(`nav links, buttons and social icons are at least 44 × 44px (${viewport.width}px)`, async ({ page }) => {
+      await page.setViewportSize(viewport);
+      for (const path of ['/', '/contact/', '/about/']) {
+        await page.goto(path);
+        expect(await tooSmall(page, TARGETS), path).toEqual([]);
+      }
+      await page.goto('/guides/how-much-does-a-website-cost-in-toronto/');
+      expect(await tooSmall(page, '.crumbs a'), 'guide breadcrumb').toEqual([]);
+      await page.goto('/services/web-design/');
+      expect(await tooSmall(page, '.crumbs a'), 'service breadcrumb').toEqual([]);
+      if (viewport.width < 600) {
+        await page.getByRole('button', { name: 'Menu' }).click();
+        expect(await tooSmall(page, '#site-menu a, #site-menu button'), 'phone menu').toEqual([]);
+      } else {
+        await page.goto('/privacy/');
+        await expect(page.locator('[data-toc] a').first()).toBeVisible();
+        expect(await tooSmall(page, '[data-toc] a'), 'privacy contents').toEqual([]);
+      }
+    });
+  }
+
+  test('social links are named "Mann Patel on …"', async ({ page }) => {
+    await page.goto('/about/');
+    const labels = await page.locator('.sl__btn').evaluateAll((els) => els.map((e) => e.getAttribute('aria-label')));
+    expect(labels.length).toBeGreaterThan(0);
+    for (const l of labels) expect(l).toMatch(/^Mann Patel on \S/);
+  });
+
+  test('the wordmark is an image named "Mann Patel"; names, titles and H1s use Latin letters; lang is en-CA', async ({ page }) => {
+    await page.goto('/');
+    const home = page.locator('header a.wordmark');
+    await expect(home).toHaveAccessibleName('Mann Patel, home');
+    await expect(home.locator('svg')).toHaveAttribute('role', 'img');
+    await expect(home.locator('svg')).toHaveAccessibleName('Mann Patel');
+    for (const path of ['/', '/about/', '/contact/', '/services/web-design/', '/guides/', '/work/nest-and-rest-cleaning/', '/no-such-page/']) {
+      await page.goto(path);
+      await expect(page.locator('html'), path).toHaveAttribute('lang', 'en-CA');
+      await expect(page.locator('meta[property="og:site_name"]'), path).toHaveAttribute('content', 'Mann Patel');
+      expect(await page.title(), path).not.toContain('Λ');
+      expect(await page.locator('h1').first().innerText(), path).not.toContain('Λ');
+    }
+  });
+
+  test('focus rings: 2px lime, 2px off, on the dark site; near-black on the light "Selected work" section', async ({ page }) => {
+    await page.goto('/');
+    await page.keyboard.press('Tab'); // keyboard mode, so focus() below shows :focus-visible
+    const ring = async (selector: string) => {
+      const el = page.locator(selector).first();
+      await el.focus();
+      return el.evaluate((e) => {
+        const s = getComputedStyle(e);
+        return [s.outlineStyle, s.outlineWidth, s.outlineColor, s.outlineOffset];
+      });
+    };
+    expect(await ring('footer .ftr__col--pages a')).toEqual(['solid', '2px', 'rgb(212, 248, 74)', '2px']);
+    expect(await ring('.sw a')).toEqual(['solid', '2px', 'rgb(11, 11, 12)', '2px']);
+    const tokens = await page.evaluate(() => {
+      const s = getComputedStyle(document.documentElement);
+      return [s.getPropertyValue('--accent-on-light').trim(), s.getPropertyValue('--focus-on-light').trim()];
+    });
+    expect(tokens).toEqual(['#637b05', '#0b0b0c']);
+  });
+
+  test('the hero "Pause animation" button works from the keyboard (Enter and Space)', async ({ page }) => {
+    await page.goto('/');
+    const btn = page.locator('[data-ag-toggle]');
+    await expect(btn).toBeVisible();
+    await btn.focus();
+    await expect(btn).toBeFocused();
+    await page.keyboard.press('Enter');
+    await expect(btn).toHaveAttribute('aria-pressed', 'true');
+    await expect(btn).toHaveAccessibleName('Play animation');
+    await expect(page.locator('[data-agent-graph]')).toHaveClass(/is-paused/);
+    await page.keyboard.press('Space');
+    await expect(btn).toHaveAttribute('aria-pressed', 'false');
+    await expect(btn).toHaveAccessibleName('Pause animation');
+  });
+
+  test('reduced motion: hover and press give colour feedback only, and nothing moves with the scroll', async ({ page }) => {
+    const iconOnHover = async () => {
+      await page.goto('/services/');
+      const link = page.locator('main a.link-arrow').first();
+      await link.scrollIntoViewIfNeeded();
+      await link.hover();
+      return link.locator('.icon').first().evaluate((e) => getComputedStyle(e).transform);
+    };
+    // With motion allowed, the arrow nudges on hover (so the check below means something).
+    await page.emulateMedia({ reducedMotion: 'no-preference' });
+    await expect.poll(iconOnHover).not.toBe('none');
+    await page.emulateMedia({ reducedMotion: 'reduce' });
+    expect(await iconOnHover()).toBe('none');
+    // Buttons: no label roll or icon turn.
+    const btn = page.locator('main a.btn:has(.btn__icon)').first();
+    await btn.hover();
+    expect(await btn.locator('.btn__icon').first().evaluate((e) => getComputedStyle(e).transform)).toBe('none');
+    // Scroll-linked progress (the free-check badge on the home page) holds still at its end state.
+    await page.goto('/');
+    const progress = page.locator('[data-progress]').first();
+    await expect(progress).toHaveAttribute('style', /--p:\s*1/);
+    await page.mouse.wheel(0, 2000);
+    await page.waitForTimeout(200);
+    await expect(progress).toHaveAttribute('style', /--p:\s*1(;|$)/);
+  });
+
+  test('images: one priority image per page at most, the LCP image never lazy, every <img> sized', async ({ page }) => {
+    for (const path of ['/', '/about/', '/work/', '/work/nest-and-rest-cleaning/', '/work/samp-hair-spa/', '/services/web-design/', '/websites-for-cleaning-companies/', '/free-check/']) {
+      await page.goto(path);
+      const imgs = await page.$$eval('img', (els) => els.map((i) => ({ src: i.getAttribute('src'), w: i.getAttribute('width'), h: i.getAttribute('height'), loading: i.getAttribute('loading'), fp: i.getAttribute('fetchpriority') })));
+      expect(imgs.filter((i) => !i.w || !i.h), `${path}: <img> without width and height`).toEqual([]);
+      expect(imgs.filter((i) => i.fp === 'high').length, `${path}: priority images`).toBeLessThanOrEqual(1);
+      expect(await page.locator('iframe:not([width][height]), video:not([width][height])').count(), path).toBe(0);
+      const lcp = await page.evaluate(
+        () =>
+          new Promise<{ tag: string; loading: string | null; fp: string | null } | null>((resolve) => {
+            let last: (PerformanceEntry & { element?: Element }) | null = null;
+            new PerformanceObserver((l) => l.getEntries().forEach((e) => (last = e))).observe({ type: 'largest-contentful-paint', buffered: true });
+            setTimeout(() => {
+              const el = last?.element;
+              resolve(el ? { tag: el.tagName, loading: el.getAttribute('loading'), fp: el.getAttribute('fetchpriority') } : null);
+            }, 800);
+          }),
+      );
+      if (lcp?.tag === 'IMG') {
+        expect(lcp.loading, `${path}: LCP image`).not.toBe('lazy');
+        expect(lcp.fp, `${path}: LCP image`).toBe('high');
+      }
+    }
   });
 });

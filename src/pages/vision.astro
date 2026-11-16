@@ -199,7 +199,11 @@ const jsonLd = { '@context': 'https://schema.org', '@type': 'ProfilePage', mainE
   }
   .vi-venture:hover {
     border-color: var(--control);
-    transform: translateY(-2px);
+  }
+  @media (prefers-reduced-motion: no-preference) {
+    .vi-venture:hover {
+      transform: translateY(-2px);
+    }
   }
   .vi-venture__tag {
     display: grid;

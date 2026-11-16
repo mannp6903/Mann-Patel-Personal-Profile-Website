@@ -319,7 +319,9 @@ const crumbs = breadcrumbJsonLd([
     color: var(--signal);
     transition: transform var(--t-fast) var(--ease-out);
   }
-  .ip__more-link:hover :global(.icon) {
-    transform: translateX(4px);
+  @media (prefers-reduced-motion: no-preference) {
+    .ip__more-link:hover :global(.icon) {
+      transform: translateX(4px);
+    }
   }
 </style>

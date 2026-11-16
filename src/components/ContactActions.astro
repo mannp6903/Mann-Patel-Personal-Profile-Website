@@ -115,11 +115,14 @@ const channels = [
     border-color: var(--text);
     color: var(--ink);
   }
-  .ca__btn:hover .icon {
-    transform: rotate(-10deg) scale(1.12);
-  }
-  .ca__btn:active {
-    transform: scale(0.96);
+  /* Movement only when the visitor allows it (Website Playbook, 16 Nov 2026); colour feedback stays. */
+  @media (prefers-reduced-motion: no-preference) {
+    .ca__btn:hover .icon {
+      transform: rotate(-10deg) scale(1.12);
+    }
+    .ca__btn:active {
+      transform: scale(0.96);
+    }
   }
   .ca--compact .ca__btn {
     width: var(--tap);

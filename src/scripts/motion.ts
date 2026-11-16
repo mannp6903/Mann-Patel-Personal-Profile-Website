@@ -190,7 +190,9 @@ document.querySelectorAll<HTMLElement>('[data-rail]').forEach((rail) => {
 
 /* ── Scroll progress (--p) ──────────────────────────────── */
 const progressEls = [...document.querySelectorAll<HTMLElement>('[data-progress]')];
-if (progressEls.length) {
+// Reduced motion (Website Playbook, 16 Nov 2026): nothing moves with the scroll; each progress line shows complete.
+if (progressEls.length && reduced.matches) for (const el of progressEls) el.style.setProperty('--p', '1');
+else if (progressEls.length) {
   let ticking = false;
   const update = () => {
     ticking = false;
