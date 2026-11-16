@@ -58,18 +58,22 @@ export const areas: Area[] = [
     lead: 'I’m Mann Patel, a web designer based in Scarborough, Ontario. I build websites, set up Google Business Profiles and connect online booking for small businesses here and across Toronto and the GTA, with my prices published.',
     // Mann serves every neighbourhood in Scarborough (15 Nov 2026). Names as Toronto uses them, checked against
     // Wikipedia's neighbourhood articles; Centennial (= Port Union) and Scarborough Junction (= Kennedy Park) are
-    // left out as second names for the same places. The page says "including", so the list needn't be exhaustive.
+    // left out as second names for the same places. 16 Nov 2026: Cedarbrae, Glen Andrew and Golfdale added from the
+    // City's official neighbourhood list. The page says "including", so the list needn't be exhaustive.
     neighbourhoods: [
       'Agincourt',
       'Bendale',
       'Birch Cliff',
       'Bridlewood',
+      'Cedarbrae',
       'Clairlea',
       'Cliffcrest',
       'Cliffside',
       'Dorset Park',
       'Eglinton East',
+      'Glen Andrew',
       'Golden Mile',
+      'Golfdale',
       'Guildwood',
       'Highland Creek',
       'Ionview',
@@ -126,22 +130,30 @@ export const areas: Area[] = [
     lines: ['A web designer for', 'North York small businesses'],
     lead: 'I’m Mann Patel, a web designer based in Scarborough who works with small businesses in North York and across Toronto and the GTA. I build websites, set up Google Business Profiles and connect online booking, and my prices are published.',
     // Mann serves every neighbourhood in North York (15 Nov 2026: "include all"). Names of the former City of North
-    // York's neighbourhoods as Toronto uses them. Wikipedia couldn't be reached from the build session to check them,
-    // so Mann reviews this list before the page is published. The page says "including", so it needn't be exhaustive.
+    // York's neighbourhoods as Toronto uses them. 16 Nov 2026: checked against the City's official neighbourhood list
+    // (via Wikipedia's "List of neighbourhoods in Toronto"); places it names that were missing were added under their
+    // everyday names (e.g. "Bedford Park-Nortown" as Bedford Park and Nortown). The page says "including".
     neighbourhoods: [
       'Amesbury',
       'Armour Heights',
+      'Avondale',
+      'Banbury',
       'Bathurst Manor',
       'Bayview Village',
       'Bayview Woods–Steeles',
+      'Bedford Park',
       'Black Creek',
       'Bridle Path',
+      'Brookhaven',
       'Clanton Park',
       'Don Mills',
       'Don Valley Village',
       'Downsview',
+      'Englemount',
+      'Fenside',
       'Flemingdon Park',
       'Glen Park',
+      'Glenfield–Jane Heights',
       'Graydon Hall',
       'Henry Farm',
       'Hillcrest Village',
@@ -157,13 +169,19 @@ export const areas: Area[] = [
       'Maple Leaf',
       'Newtonbrook',
       'North York Centre',
+      'Nortown',
+      'O’Connor Hills',
+      'Oakdale–Beverly Heights',
       'Oriole',
       'Parkway Forest',
       'Parkwoods',
       'Pelmo Park',
+      'Pleasant View',
       'Rustic',
       'St. Andrew–Windfields',
+      'Sunnybrook',
       'Victoria Village',
+      'Westgate',
       'Westminster–Branson',
       'Willowdale',
       'Wilson Heights',
