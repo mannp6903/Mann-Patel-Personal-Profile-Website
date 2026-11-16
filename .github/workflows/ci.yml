@@ -57,14 +57,21 @@ jobs:
         uses: lycheeverse/lychee-action@v2
         with:
           fail: true
-          # Root-relative links (/services/) resolve inside dist/client. LinkedIn and Instagram block link checkers.
-          # https://mannpatel.me/ is the live site, which doesn't have a branch's new pages until it is deployed; those
-          # links are the same pages checked here through --root-dir. 429 (rate limited) is not a broken link.
+          # Root-relative links (/services/) resolve inside dist/client. /api/ is the Worker's form endpoint, not a file.
+          # LinkedIn and Instagram block link checkers, and so do these (403 to lychee, first CI run 16 Nov 2026): the
+          # Google Maps share link, OpenAI's help centre and the CRTC. Add a host here only after opening the link in
+          # a browser. https://mannpatel.me/ is the live site, which doesn't have a branch's new pages until it is
+          # deployed; those links are the same pages checked here through --root-dir. 429 (rate limited) is not a
+          # broken link.
           args: >-
             --no-progress
             --root-dir "${{ github.workspace }}/dist/client"
+            --exclude '/api/'
             --exclude 'linkedin\.com'
             --exclude 'instagram\.com'
+            --exclude 'maps\.app\.goo\.gl'
+            --exclude 'help\.openai\.com'
+            --exclude 'crtc\.gc\.ca'
             --exclude '^https://mannpatel\.me/'
             --max-retries 3
             --accept '200..=299,429'
