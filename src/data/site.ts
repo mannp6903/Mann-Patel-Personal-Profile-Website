@@ -74,17 +74,34 @@ export const profile = {
 };
 
 /**
+ * Mann's YouTube channel (competitor gap work, 16 Nov 2026): a button in the footer and on About, in the Person and
+ * business structured data (sameAs) and in About's "Find me elsewhere" list, all from this one value.
+ * TODO(Mann): your channel URL (for example https://www.youtube.com/@…). Never guessed: null keeps it hidden.
+ */
+const youtubeUrl: string | null = null;
+
+/**
+ * A free 15-minute call (competitor gap work, 16 Nov 2026): a "Book a free 15-minute call" button on /contact/,
+ * /pricing/ and the area pages, opening in a new tab. A plain link: no embed, script or extra dependency.
+ * TODO(Mann): your Google Calendar appointment schedule or Cal.com link. null = no button anywhere.
+ */
+export const bookingUrl: string | null = null;
+
+/**
  * Social profiles. `url: null` = not supplied yet: shown as a greyed placeholder in
  * previews and hidden in production. Only real URLs go into structured data (sameAs).
  */
-export const social: { id: 'github' | 'instagram' | 'facebook' | 'linkedin'; label: string; url: string | null }[] = [
+export const social: { id: 'github' | 'instagram' | 'facebook' | 'linkedin' | 'youtube'; label: string; url: string | null }[] = [
   // LinkedIn supplied by Mann, 9 Nov 2026 (tracking parameters removed).
   { id: 'linkedin', label: 'LinkedIn', url: 'https://www.linkedin.com/in/mannp6903/' },
   // Instagram: Mann will send the link; the button appears as soon as `url` is set.
   { id: 'instagram', label: 'Instagram', url: null },
   { id: 'github', label: 'GitHub', url: 'https://github.com/mannp6903' },
-  // TODO(Mann): Facebook Page URL. It then appears as a button and in the business structured data (sameAs).
+  // TODO(Mann): Facebook Page URL. It then appears as a button, in About's "Find me elsewhere" list and in the business
+  // structured data (sameAs).
   { id: 'facebook', label: 'Facebook', url: null },
+  // 16 Nov 2026: from `youtubeUrl` above (hidden while it is null).
+  { id: 'youtube', label: 'YouTube', url: youtubeUrl },
 ];
 /** Mann's own profiles (Person sameAs). The Facebook Page belongs to the business, below. */
 export const sameAs = social.flatMap((s) => (s.url && s.id !== 'facebook' ? [s.url] : []));
@@ -100,15 +117,21 @@ export const sameAs = social.flatMap((s) => (s.url && s.id !== 'facebook' ? [s.u
 export const gbp = {
   url: 'https://maps.app.goo.gl/dYccTa9jQJczpeac6',
   mapsUrl: 'https://www.google.com/maps?cid=5023923139940890210' as string | null,
+  /**
+   * The review link from the Business Profile ("Ask for reviews" / "Get more reviews" → copy the link), for the
+   * footer's "Clients: leave a Google review" (16 Nov 2026).
+   * TODO(Mann): paste the link Google gives you. null = the footer link is hidden.
+   */
+  reviewUrl: null as string | null,
 };
 
 /**
- * The business's own profiles, for the business structured data only (they are not shown as buttons).
- * TODO(Mann): YouTube channel URL. LinkedIn is the personal profile (no separate business page), added
+ * The business's own profiles, for the business structured data only (they are not shown as buttons here).
+ * YouTube comes from `youtubeUrl` above. LinkedIn is the personal profile (no separate business page), added
  * 15 Nov 2026 so the business entity links to the same person.
  */
 export const businessProfiles: { youtube: string | null; linkedin: string | null } = {
-  youtube: null,
+  youtube: youtubeUrl,
   linkedin: 'https://www.linkedin.com/in/mannp6903/',
 };
 

@@ -103,4 +103,13 @@ Recorded with what each costs if it's wrong; see the verification log below.
 
 ## Verification log
 
-(Filled in after each phase.)
+- **Phase 1 (16 Nov 2026):** production-like build passes; `npm run check:seo` 0 errors, 2 warnings (both from before:
+  /privacy/ description 158 characters; /services/ 862 words), 26 sitemap URLs. The new llms.txt rule failed all 23 bare
+  URLs in the old file and passes on the new one. `npm run check` 0 errors; `npm test` 129/129; `npm run test:e2e`
+  166/166. A simulated build with a sample review, booking link, review link and YouTube URL (reverted, never committed)
+  showed the reviews strip on /, /pricing/ and both area pages, the booking button (new tab) on /contact/, /pricing/ and
+  the area pages, the footer review link on every page and YouTube on About. Home section headings compared before and
+  after at 390 and 1440 px: same type, size and two-tone style; the services heading grows from two lines to four on a
+  laptop. e2e expectations updated on purpose: the home title, the "How I work" heading, the /about/ phone length
+  budget (8.75 → 9.5 screens, for "Find me elsewhere"), the FAQ selector (`summary > .acc__q`) and the About LinkedIn
+  link (now twice).

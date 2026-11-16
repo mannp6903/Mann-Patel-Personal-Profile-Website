@@ -10,6 +10,8 @@ import Button from '../components/ui/Button.astro';
 import PackageCard from '../components/packages/PackageCard.astro';
 import PackageCompare from '../components/packages/PackageCompare.astro';
 import { packages, checkUp, pricesPublished, packageById, priceLabel } from '../data/packages';
+import ReviewsStrip from '../components/ReviewsStrip.astro';
+import { bookingUrl } from '../data/site';
 import { breadcrumbJsonLd } from '../lib/seo';
 import { visibleGuides } from '../lib/published';
 
@@ -110,14 +112,25 @@ const faqLd = {
             }
           </ul>
           <p class="small subtle">Not included: {checkUp.notIncluded[0].charAt(0).toLowerCase() + checkUp.notIncluded[0].slice(1)}.</p>
-          <div class="pr__free-cta">
+          <div class:list={['pr__free-cta', bookingUrl && 'btn-row']}>
             <Button href="/contact/?package=check-up#check" variant="ghost" size="sm">Request the free check</Button>
+            {
+              // 16 Nov 2026: a plain link to Mann's booking page, once he adds it (src/data/site.ts → bookingUrl).
+              bookingUrl && (
+                <Button href={bookingUrl} variant="ghost" icon="arrow-ne" target="_blank" rel="noopener" aria-label="Book a free 15-minute call (opens in a new tab)" data-booking size="sm">
+                  Book a free 15-minute call
+                </Button>
+              )
+            }
           </div>
         </li>
       </ol>
       <PackageCompare id="pr-compare" title="Side by side" level={2} />
     </div>
   </section>
+
+  <!-- Real client reviews only (src/data/reviews.ts); renders nothing until there are some. -->
+  <ReviewsStrip />
 
 
   <section class="section section--alt" aria-labelledby="pr-example">
@@ -194,7 +207,7 @@ const faqLd = {
           questions.map((f) => (
             <details class="acc" name="pr-faq">
               <summary>
-                <span>{f.q}</span>
+                <h3 class="acc__q">{f.q}</h3>
                 <span class="acc__plus" aria-hidden="true" />
               </summary>
               <div class="acc__body">

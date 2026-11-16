@@ -168,7 +168,7 @@ test.describe('pages', () => {
   // The copy map from the growth report (10 Nov 2026), updated by the SEO audit (14 Nov 2026,
   // docs/seo/PLAN.md): each page names its service and the place.
   const COPY: [string, string, string, string][] = [
-    ['/', 'Mann Patel — Web Design & Local SEO, Scarborough & Toronto', 'Websites and local SEO for Toronto small businesses.', 'Websites, local SEO and Google Business Profile setup for Toronto small businesses. Published prices: websites from $1,950 CAD. Free website check.'],
+    ['/', 'Web Design & Local SEO in Scarborough, Toronto | Mann Patel', 'Websites and local SEO for Toronto small businesses.', 'Websites, local SEO and Google Business Profile setup for Toronto small businesses. Published prices: websites from $1,950 CAD. Free website check.'],
     ['/services/', 'Website, Local SEO & Booking Services | Mann Patel', 'Website, local SEO and enquiry services', 'Compare web design, local SEO, Google Business Profile setup and enquiry automation for Toronto service businesses. See packages and request a quote.'],
     ['/services/web-design/', 'Toronto Small Business Web Design | Mann Patel', 'Web design for Toronto small businesses', 'Get a mobile-friendly website or redesign with clear service pages, a tested enquiry path and a written handover. See projects and ask for a quote.'],
     ['/services/local-visibility/', 'Local SEO & Google Business Profile Toronto | Mann Patel', 'Local SEO and Google Business Profile setup in Toronto', 'Improve your Google presence with eligible profile setup, listing updates and a review workflow. Ask about SEO foundations and an AI search check.'],
@@ -639,7 +639,7 @@ test.describe('home interactions', () => {
       await page.waitForFunction(() => (document.querySelector('.hero .ag__photo') as HTMLImageElement).naturalWidth > 0);
       await expect(page.locator('main img[alt*="Mann Patel smiling"]')).toHaveCount(1);
       const section = page.locator('#how-i-work');
-      await expect(section.getByRole('heading', { level: 2 })).toHaveText('Clear steps. No surprises.');
+      await expect(section.getByRole('heading', { level: 2 })).toHaveText('How a website project works.');
       await expect(section.getByText('Hi, I’m Mann')).toHaveCount(0);
       await expect(section.getByRole('link', { name: 'More about me' })).toHaveAttribute('href', '/about/');
     }
@@ -680,7 +680,8 @@ test.describe('phones: short pages', () => {
     '/work/samp-hair-spa/': 7.5,
     // 14 Nov 2026 (SEO audit): "Based in Scarborough…" stays visible in the phone footer (+1 line on every page).
     // + the five-step process with your part and mine, moved from the old /services/ (SEO audit Phase 2).
-    '/about/': 8.75,
+    // 16 Nov 2026 (competitor gap work): + "Find me elsewhere", the profiles that are set.
+    '/about/': 9.5,
     '/contact/': 3.75,
     '/services/web-design/': 15, // plus the Website Fix package, the redesign section and its services
     '/services/local-visibility/': 12.25,
@@ -765,7 +766,7 @@ test.describe('phones: short pages', () => {
       const faq = blocks.find((b) => b['@type'] === 'FAQPage');
       expect(faq, path).toBeTruthy();
       const inSchema = faq.mainEntity.map((q: { name: string }) => q.name).sort();
-      const shown = (await page.locator('main details.acc:not(.svc) > summary > span:first-child').allInnerTexts()).map((t) => t.trim()).sort();
+      const shown = (await page.locator('main details.acc:not(.svc) > summary > .acc__q').allInnerTexts()).map((t) => t.trim()).sort();
       expect(shown, path).toEqual(inSchema);
     }
   });
@@ -1344,7 +1345,9 @@ test.describe('direct contact', () => {
     await expect(footer.getByRole('link', { name: /Message on WhatsApp/ })).toHaveAttribute('href', /^https:\/\/wa\.me\/1\d{10}\?text=/);
     await expect(footer.getByRole('link', { name: 'Mann Patel on LinkedIn' })).toHaveAttribute('href', 'https://www.linkedin.com/in/mannp6903/');
     await page.goto('/about/');
-    await expect(page.locator('main').getByRole('link', { name: 'Mann Patel on LinkedIn' })).toBeVisible();
+    // Twice since 16 Nov 2026: the button by the intro, and the "Find me elsewhere" list.
+    await expect(page.locator('main').getByRole('link', { name: 'Mann Patel on LinkedIn' })).toHaveCount(2);
+    await expect(page.locator('main').getByRole('link', { name: 'Mann Patel on LinkedIn' }).first()).toBeVisible();
     // Only confirmed profiles: no Instagram or Facebook button until a link is set.
     await expect(page.locator('a[data-contact="instagram"], a[data-contact="facebook"]')).toHaveCount(0);
     // Structured data lists the confirmed profiles.
@@ -2024,5 +2027,67 @@ test.describe('North York page (Nov 2026 audit fixes)', () => {
     if (/\blocalExample:\s*null\b/.test(entry)) await expect(page.locator('main [data-confirm]').first()).toBeVisible();
     // Footer link (previews show drafts; production links it only once it is published).
     await expect(page.locator('footer a[href="/web-design-north-york/"]')).toHaveText('Web design in North York');
+  });
+});
+
+test.describe('competitor gap work (16 Nov 2026)', () => {
+  const site = readFileSync('src/data/site.ts', 'utf8');
+  // The owner inputs are null until Mann sends them; these tests follow the source either way.
+  const BOOKING_SET = !/export const bookingUrl: string \| null = null;/.test(site);
+  const REVIEW_LINK_SET = !/\breviewUrl: null\b/.test(site);
+  const YOUTUBE_SET = !/const youtubeUrl: string \| null = null;/.test(site);
+  const FACEBOOK_SET = !/\{ id: 'facebook', label: 'Facebook', url: null \}/.test(site);
+
+  test('home: each section heading says what it is about; the slogan is the eyebrow, and the anchors stay', async ({ page }) => {
+    await page.goto('/');
+    const sections: [string, string, string][] = [
+      ['#work', 'Website projects in Scarborough.', '01 / Work in the wild'],
+      ['#what-i-do', 'Web design, local SEO and booking services.', '02 / From search to booked'],
+      ['#prices', 'Website prices in Toronto (CAD).', '03 / Prices you can see before you call'],
+      ['#how-i-work', 'How a website project works.', '04 / Clear steps, no surprises'],
+      ['#faq', 'Web design questions.', 'Straight answers'],
+    ];
+    for (const [id, h2, eyebrow] of sections) {
+      const section = page.locator(id);
+      await expect(section.getByRole('heading', { level: 2 }).first()).toHaveText(h2);
+      await expect(section.locator('.eyebrow').first()).toHaveText(eyebrow);
+    }
+  });
+
+  test('every FAQ question is an h3 inside its summary, set exactly like the summary', async ({ page }) => {
+    for (const path of ['/', '/pricing/', '/services/', '/services/web-design/', '/web-design-scarborough/', '/websites-for-cleaning-companies/']) {
+      await page.goto(path);
+      const faqs = page.locator('details.acc:has(.acc__q)');
+      expect(await faqs.count(), path).toBeGreaterThan(0);
+      for (const d of await faqs.all()) await expect(d.locator(':scope > summary > h3.acc__q')).toHaveCount(1);
+      const same = await page.locator('details.acc summary:has(.acc__q)').first().evaluate((s) => {
+        const a = getComputedStyle(s);
+        const b = getComputedStyle(s.querySelector('.acc__q')!);
+        return ['fontSize', 'fontWeight', 'letterSpacing', 'lineHeight', 'color', 'marginTop', 'marginBottom'].every(
+          (k) => (k.startsWith('margin') ? b[k as 'marginTop'] === '0px' : a[k as 'fontSize'] === b[k as 'fontSize']),
+        );
+      });
+      expect(same, path).toBe(true);
+    }
+  });
+
+  test('booking, review link, YouTube and Facebook appear only once Mann adds their links', async ({ page }) => {
+    for (const path of ['/contact/', '/pricing/', '/web-design-scarborough/']) {
+      await page.goto(path);
+      const booking = page.locator('main a[data-booking]');
+      if (BOOKING_SET) {
+        await expect(booking).toHaveCount(1);
+        await expect(booking).toHaveAttribute('target', '_blank');
+        await expect(booking).toHaveAttribute('rel', /noopener/);
+        await expect(booking).toHaveAccessibleName('Book a free 15-minute call (opens in a new tab)');
+      } else await expect(booking).toHaveCount(0);
+    }
+    await page.goto('/about/');
+    await expect(page.locator('footer a[data-review-link]')).toHaveCount(REVIEW_LINK_SET ? 1 : 0);
+    const elsewhere = page.locator('#elsewhere');
+    await expect(elsewhere.getByRole('heading', { level: 2 })).toHaveText('Find me elsewhere.');
+    for (const name of ['Google Maps', 'LinkedIn', 'GitHub']) await expect(elsewhere.getByRole('link', { name: `Mann Patel on ${name}` })).toHaveCount(1);
+    await expect(elsewhere.getByRole('link', { name: 'Mann Patel on YouTube' })).toHaveCount(YOUTUBE_SET ? 1 : 0);
+    await expect(elsewhere.getByRole('link', { name: 'Mann Patel on Facebook' })).toHaveCount(FACEBOOK_SET ? 1 : 0);
   });
 });

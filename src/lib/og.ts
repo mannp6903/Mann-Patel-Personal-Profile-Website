@@ -21,6 +21,7 @@ export function ogImagePath(pathname: string): string {
  * The words on the card: the page's own part of its title, without the site name the wordmark already shows.
  * "How Much Does a Website Cost in Toronto? | Mann Patel" → "How Much Does a Website Cost in Toronto?"
  * "Contact Mann Patel | Web Design & Local SEO in Toronto" → "Contact Mann Patel"
+ * "Web Design & Local SEO in Scarborough, Toronto | Mann Patel" (the home page) → "Web Design & Local SEO in Scarborough, Toronto"
  * "Mann Patel — Web Design & Local SEO, Scarborough & Toronto" → "Web Design & Local SEO, Scarborough & Toronto"
  */
 export function ogCardTitle(pageTitle: string): string {

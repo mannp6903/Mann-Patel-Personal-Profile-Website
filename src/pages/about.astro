@@ -7,11 +7,21 @@ import Icon from '../components/ui/Icon.astro';
 import ContactActions from '../components/ContactActions.astro';
 import SocialLinks from '../components/SocialLinks.astro';
 import Process from '../components/Process.astro';
-import { profile, businesses } from '../data/site';
+import { profile, businesses, gbp, social } from '../data/site';
 import { businessHref } from '../lib/work';
 import { personJsonLd } from '../lib/seo';
 
 const nest = businesses[0];
+// "Find me elsewhere" (16 Nov 2026): the profiles that are set, so people (and search engines) can match this site to
+// the same Mann Patel elsewhere. YouTube and Facebook appear once their links are added in src/data/site.ts.
+const profileUrl = (id: string) => social.find((s) => s.id === id)?.url ?? null;
+const elsewhere = [
+  { t: 'Google Business Profile', d: 'My business on Google Maps, with my services and the area I work in.', url: gbp.url, me: false },
+  { t: 'LinkedIn', d: 'My professional profile.', url: profileUrl('linkedin'), me: true },
+  { t: 'GitHub', d: 'Code I’ve published.', url: profileUrl('github'), me: true },
+  { t: 'YouTube', d: 'My videos.', url: profileUrl('youtube'), me: true },
+  { t: 'Facebook', d: 'My business page.', url: profileUrl('facebook'), me: false },
+].filter((p): p is typeof p & { url: string } => Boolean(p.url));
 const glance = [
   {
     t: 'What I deliver',
@@ -265,6 +275,30 @@ const jsonLd = { '@context': 'https://schema.org', '@type': 'ProfilePage', mainE
         )}
         <Button href={nest.caseStudy}>Read the case study</Button>
       </div>
+    </div>
+  </section>
+
+  <section class="section section--rule" id="elsewhere" aria-labelledby="elsewhere-title">
+    <div class="container glance">
+      <div class="stack" style="--stack: var(--s-4)">
+        <p class="eyebrow">Profiles</p>
+        <h2 id="elsewhere-title" class="glance__title">Find me <span class="accent">elsewhere.</span></h2>
+      </div>
+      <dl class="glance__list">
+        {
+          elsewhere.map((p) => (
+            <div>
+              <dt>{p.t}</dt>
+              <dd>
+                {p.d}{' '}
+                <a class="link" href={p.url} rel={p.me ? 'me noopener' : 'noopener'}>
+                  {profile.name} on {p.t === 'Google Business Profile' ? 'Google Maps' : p.t}
+                </a>
+              </dd>
+            </div>
+          ))
+        }
+      </dl>
     </div>
   </section>
 </BaseLayout>

@@ -19,34 +19,34 @@ Small service businesses such as cleaning companies, salons and spas, and other 
 ## Contact
 - Email: info@mannpatel.me
 - Phone: +1-647-978-6903
-- Project brief form: https://mannpatel.me/contact/
+- [Project brief form](https://mannpatel.me/contact/): send a short brief, or ask for the free website and Google check
 
 ## Key pages
-- Services: https://mannpatel.me/services/
-- Pricing: https://mannpatel.me/pricing/
-- Web design: https://mannpatel.me/services/web-design/
-- Local SEO and Google Business Profile: https://mannpatel.me/services/local-visibility/
-- AI search optimization: https://mannpatel.me/services/ai-search-optimization/
-- Enquiry follow-up and booking: https://mannpatel.me/services/enquiry-follow-up/
-- Website care: https://mannpatel.me/services/website-care/
-- Web design in Scarborough: https://mannpatel.me/web-design-scarborough/
-- Web design in North York: https://mannpatel.me/web-design-north-york/
-- Websites for cleaning companies: https://mannpatel.me/websites-for-cleaning-companies/
-- Websites for salons and spas: https://mannpatel.me/websites-for-salons-and-spas/
-- About: https://mannpatel.me/about/
+- [Services](https://mannpatel.me/services/): an overview of every service and add-on
+- [Pricing](https://mannpatel.me/pricing/): published prices in CAD, and what each package includes and leaves out
+- [Web design](https://mannpatel.me/services/web-design/): new websites and redesigns of up to five pages
+- [Local SEO and Google Business Profile](https://mannpatel.me/services/local-visibility/): Business Profile setup, listings and a review routine
+- [AI search optimization](https://mannpatel.me/services/ai-search-optimization/): what ChatGPT, Gemini and Perplexity say about a business, checked and fixed at the source
+- [Enquiry follow-up and booking](https://mannpatel.me/services/enquiry-follow-up/): missed-call text-back, form follow-up and online booking
+- [Website care](https://mannpatel.me/services/website-care/): monthly website maintenance, $149 a month
+- [Web design in Scarborough](https://mannpatel.me/web-design-scarborough/): the neighbourhoods I serve in Scarborough, Ontario
+- [Web design in North York](https://mannpatel.me/web-design-north-york/): the neighbourhoods I serve in North York, Toronto
+- [Websites for cleaning companies](https://mannpatel.me/websites-for-cleaning-companies/): the package that fits a cleaning business
+- [Websites for salons and spas](https://mannpatel.me/websites-for-salons-and-spas/): websites with online booking for salons and spas
+- [About](https://mannpatel.me/about/): who I am and how a project runs
 
 ## Work
-- Nest & Rest Cleaning (own business; website live since October 2026, bookings open summer 2027): https://mannpatel.me/work/nest-and-rest-cleaning/
-- Samp Hair & Spa (client website, in progress): https://mannpatel.me/work/samp-hair-spa/
+- [Nest & Rest Cleaning](https://mannpatel.me/work/nest-and-rest-cleaning/): my own business; website live since October 2026, bookings open summer 2027
+- [Samp Hair & Spa](https://mannpatel.me/work/samp-hair-spa/): a client website for a Scarborough salon, in progress
 
 ## Guides
-- How much does a website cost in Toronto?: https://mannpatel.me/guides/how-much-does-a-website-cost-in-toronto/
-- Why isn't my business on Google Maps?: https://mannpatel.me/guides/why-isnt-my-business-on-google-maps/
-- Google Business Profile without a storefront: https://mannpatel.me/guides/google-business-profile-without-a-storefront/
-- How local businesses show up in ChatGPT and Google AI Overviews: https://mannpatel.me/guides/how-to-get-recommended-by-chatgpt/
-- Missed-call text-back for salons and cleaners: https://mannpatel.me/guides/missed-call-text-back-for-salons-and-cleaners/
+- [How much does a website cost in Toronto?](https://mannpatel.me/guides/how-much-does-a-website-cost-in-toronto/): what a small business website costs, using my published prices
+- [Why isn't my business on Google Maps?](https://mannpatel.me/guides/why-isnt-my-business-on-google-maps/): a checklist of the usual reasons, and what to do
+- [Google Business Profile without a storefront](https://mannpatel.me/guides/google-business-profile-without-a-storefront/): setting up a profile for a home-based or service-area business
+- [How local businesses show up in ChatGPT and Google AI Overviews](https://mannpatel.me/guides/how-to-get-recommended-by-chatgpt/): what AI assistants draw on, and what a business can fix
+- [Missed-call text-back for salons and cleaners](https://mannpatel.me/guides/missed-call-text-back-for-salons-and-cleaners/): how it works, and what Canada's anti-spam law says about it
 
 ## Profiles
-- Google Maps: https://www.google.com/maps?cid=5023923139940890210
-- LinkedIn: https://www.linkedin.com/in/mannp6903/
-- GitHub: https://github.com/mannp6903
+- [Google Maps](https://www.google.com/maps?cid=5023923139940890210): my Google Business Profile
+- [LinkedIn](https://www.linkedin.com/in/mannp6903/): my professional profile
+- [GitHub](https://github.com/mannp6903): my code

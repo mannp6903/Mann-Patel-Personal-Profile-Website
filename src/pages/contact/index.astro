@@ -5,8 +5,9 @@ import ContactForm from '../../components/ContactForm.astro';
 import CheckForm from '../../components/CheckForm.astro';
 import ContactActions from '../../components/ContactActions.astro';
 import Icon from '../../components/ui/Icon.astro';
+import Button from '../../components/ui/Button.astro';
 import { contact, emailHref } from '../../lib/contact';
-import { profile } from '../../data/site';
+import { profile, bookingUrl } from '../../data/site';
 import { businessJsonLd } from '../../lib/seo';
 
 const mail = emailHref();
@@ -60,6 +61,14 @@ const description = contact.phone
         <div class="aside__card" data-spotlight>
           <h2 id="reach-title" class="aside__title">Prefer to talk?</h2>
           <ContactActions showNumber />
+          {
+            // 16 Nov 2026: a plain link to Mann's booking page, once he adds it (src/data/site.ts → bookingUrl).
+            bookingUrl && (
+              <Button href={bookingUrl} variant="ghost" icon="arrow-ne" target="_blank" rel="noopener" aria-label="Book a free 15-minute call (opens in a new tab)" data-booking size="sm">
+                Book a free 15-minute call
+              </Button>
+            )
+          }
           {
             contact.email && (
               <p class="aside__email">
