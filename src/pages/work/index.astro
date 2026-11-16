@@ -177,8 +177,10 @@ const crumbs = breadcrumbJsonLd([
   .row__cta .icon {
     transition: transform var(--t-base) var(--ease-out);
   }
-  .row__link:hover .row__cta .icon {
-    transform: translateX(5px);
+  @media (prefers-reduced-motion: no-preference) {
+    .row__link:hover .row__cta .icon {
+      transform: translateX(5px);
+    }
   }
   .note {
     margin-top: var(--s-8);

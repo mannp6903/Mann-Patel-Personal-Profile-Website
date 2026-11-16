@@ -3,9 +3,13 @@
  * The MΛNN PΛTEL wordmark (Nov 2026 brand): Geist Regular capitals, +26% tracking with optical
  * pair spacing, the A's drawn without crossbars. Outlined, so it needs no font. Letters follow
  * `currentColor`; the two Λ's take lime (`--wm-accent`, default `--signal`) unless `accent` is
- * false. Size it by height, or by width with `height: auto` in CSS. Decorative: give the
- * surrounding link or heading its own name.
+ * false. Size it by height, or by width with `height: auto` in CSS.
+ * Website Playbook (16 Nov 2026): an image named in Latin letters, "Mann Patel" (role="img"), so screen readers
+ * never spell out the Λ's. A link around it still needs its own name (aria-label); a purely decorative copy sits
+ * inside aria-hidden (the footer's).
  */
+import { profile } from '../../data/site';
+
 interface Props {
   class?: string;
   /** Rendered height in px (CSS can still override it; width follows the aspect ratio). */
@@ -44,7 +48,8 @@ const letters: { d: string; lam?: boolean }[] = [
   viewBox="92 0 7980 710"
   fill="currentColor"
   data-accent={accent ? '' : undefined}
-  aria-hidden="true"
+  role="img"
+  aria-label={profile.name}
   focusable="false"
   >{
     letters.map((l) =>

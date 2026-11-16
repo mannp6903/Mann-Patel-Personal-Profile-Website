@@ -8,6 +8,10 @@ import { captures } from '../../data/captures';
 
 interface Props {
   scene: 'nest-and-rest' | 'samp';
+  /**
+   * The page's main image: the desktop capture gets Astro `priority` (eager, sync, fetchpriority high: the one per
+   * page, Website Playbook 16 Nov 2026) and the phone capture loads eagerly at low priority. Otherwise both lazy.
+   */
   eager?: boolean;
   /**
    * How wide the desktop capture is drawn, for the browser to pick a file (Nov 2026 audit fixes: measured from
@@ -38,9 +42,7 @@ const loading = eager ? 'eager' : 'lazy';
       widths={[480, 540, 600, 680, 800, 1000, 1200]}
       quality={74}
       sizes={sizes}
-      loading={loading}
-      decoding={eager ? 'sync' : 'async'}
-      fetchpriority={eager ? 'high' : undefined}
+      priority={eager}
     />
   </div>
   <div class="pm__phone">
@@ -102,12 +104,14 @@ const loading = eager ? 'eager' : 'lazy';
     box-shadow: 0 30px 50px -20px rgb(0 0 0 / 0.85);
     transition: transform 900ms var(--ease-out);
   }
-  :global(a:hover) > .pm .pm__desk,
-  :global(.pm-host:hover) .pm__desk {
-    transform: scale(1.015) rotate(-0.4deg);
-  }
-  :global(a:hover) > .pm .pm__phone,
-  :global(.pm-host:hover) .pm__phone {
-    transform: translateY(-10px) rotate(2deg);
+  @media (prefers-reduced-motion: no-preference) {
+    :global(a:hover) > .pm .pm__desk,
+    :global(.pm-host:hover) .pm__desk {
+      transform: scale(1.015) rotate(-0.4deg);
+    }
+    :global(a:hover) > .pm .pm__phone,
+    :global(.pm-host:hover) .pm__phone {
+      transform: translateY(-10px) rotate(2deg);
+    }
   }
 </style>

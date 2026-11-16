@@ -599,7 +599,7 @@ const fmtDate = (iso: string) =>
   }
   .sp__table-wrap:focus-visible {
     outline: 2px solid var(--focus);
-    outline-offset: 3px;
+    outline-offset: 2px;
   }
   .sp__table {
     width: 100%;
@@ -702,7 +702,9 @@ const fmtDate = (iso: string) =>
     color: var(--signal);
     transition: transform var(--t-fast) var(--ease-out);
   }
-  .sp__more-link:hover :global(.icon) {
-    transform: translateX(4px);
+  @media (prefers-reduced-motion: no-preference) {
+    .sp__more-link:hover :global(.icon) {
+      transform: translateX(4px);
+    }
   }
 </style>

@@ -57,6 +57,10 @@
   --paper: #f2f1ec;
   --ink: #0b0b0c;
   --focus: var(--signal);
+  /* Website Playbook (16 Nov 2026): on light surfaces the lime fails (1.21:1 on white). Focus rings there are
+     near-black; lime text or icons there use the darker accent (4.81:1 on white). */
+  --focus-on-light: var(--ink);
+  --accent-on-light: #637b05;
 
   /* ── Type ── */
   --font-sans: 'Geist', 'Geist Fallback', ui-sans-serif, system-ui, sans-serif;
@@ -113,6 +117,18 @@
   --t-base: 320ms;
   --t-slow: 700ms;
   --t-reveal: 1100ms;
+
+  /* Motion tokens (Website Playbook, 16 Nov 2026) for new work; the --t-* and --ease-* above stay as they are.
+     --ease-out keeps its existing curve, cubic-bezier(0.16, 1, 0.3, 1): the playbook's
+     cubic-bezier(0.05, 0.7, 0.1, 1) would change every existing animation, so it waits for a decision. */
+  --dur-instant: 100ms;
+  --dur-fast: 150ms;
+  --dur-base: 250ms;
+  --dur-slow: 400ms;
+  --dur-hero: 600ms;
+  --stagger: 50ms;
+  --ease-standard: cubic-bezier(0.2, 0, 0, 1);
+  --ease-in: cubic-bezier(0.3, 0, 0.8, 0.15);
 }
 
 @media (prefers-reduced-motion: reduce) {
@@ -121,5 +137,11 @@
     --t-base: 0ms;
     --t-slow: 0ms;
     --t-reveal: 0ms;
+    --dur-instant: 0ms;
+    --dur-fast: 0ms;
+    --dur-base: 0ms;
+    --dur-slow: 0ms;
+    --dur-hero: 0ms;
+    --stagger: 0ms;
   }
 }

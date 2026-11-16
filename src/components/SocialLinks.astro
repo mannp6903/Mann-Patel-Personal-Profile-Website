@@ -74,11 +74,14 @@ const links = social.filter((s) => s.url && (!only || only.includes(s.id)));
     border-color: var(--text);
     color: var(--ink);
   }
-  .sl__btn:hover :global(.icon) {
-    transform: rotate(-8deg) scale(1.1);
-  }
-  .sl__btn:active {
-    transform: scale(0.96);
+  /* Movement only when the visitor allows it (Website Playbook, 16 Nov 2026); colour feedback stays. */
+  @media (prefers-reduced-motion: no-preference) {
+    .sl__btn:hover :global(.icon) {
+      transform: rotate(-8deg) scale(1.1);
+    }
+    .sl__btn:active {
+      transform: scale(0.96);
+    }
   }
   .sl--compact .sl__btn {
     width: var(--tap);

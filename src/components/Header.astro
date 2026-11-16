@@ -20,8 +20,7 @@ const sheetLinks = [{ href: '/', label: 'Home' }, ...nav];
 
 <header class="hdr" data-header>
   <div class="hdr__bar container">
-    <a class="wordmark" href="/">
-      <span class="visually-hidden">{profile.name}, home</span>
+    <a class="wordmark" href="/" aria-label={`${profile.name}, home`}>
       <Wordmark class="wordmark__logo" />
     </a>
 
@@ -379,9 +378,11 @@ const sheetLinks = [{ href: '/', label: 'Home' }, ...nav];
     background: currentColor;
     transition: transform var(--t-base) var(--ease-out);
   }
-  .menu-btn:hover .menu-btn__lines i:last-child {
-    transform: scaleX(0.6);
-    transform-origin: left;
+  @media (prefers-reduced-motion: no-preference) {
+    .menu-btn:hover .menu-btn__lines i:last-child {
+      transform: scaleX(0.6);
+      transform-origin: left;
+    }
   }
   /* No JavaScript: no sheet. Show the links as a plain row instead. */
   :global(html:not(.js)) .menu-btn {
@@ -505,14 +506,23 @@ const sheetLinks = [{ href: '/', label: 'Home' }, ...nav];
     border-radius: 50%;
     background: var(--signal);
     opacity: 0;
-    transform: scale(0.5);
     transition: opacity var(--t-fast), transform var(--t-base) var(--ease-out);
   }
   .sheet__links a[aria-current='page'] .sheet__indicator,
   .sheet__links a:hover .sheet__indicator,
   .sheet__links a:focus-visible .sheet__indicator {
     opacity: 1;
-    transform: scale(1);
+  }
+  /* The dot grows in only when movement is allowed; otherwise it just fades (Website Playbook, 16 Nov 2026). */
+  @media (prefers-reduced-motion: no-preference) {
+    .sheet__indicator {
+      transform: scale(0.5);
+    }
+    .sheet__links a[aria-current='page'] .sheet__indicator,
+    .sheet__links a:hover .sheet__indicator,
+    .sheet__links a:focus-visible .sheet__indicator {
+      transform: scale(1);
+    }
   }
   .sheet__label {
     font-size: clamp(1.75rem, min(10.5vw, 6.4dvh), 3.25rem);
@@ -563,7 +573,10 @@ const sheetLinks = [{ href: '/', label: 'Home' }, ...nav];
   .sheet__legal a {
     display: inline-flex;
     align-items: center;
+    justify-content: center;
     min-height: var(--tap);
+    /* At least 44px wide too ("Terms" is narrower): Website Playbook, 16 Nov 2026. */
+    min-width: var(--tap);
     color: inherit;
     text-decoration: none;
   }

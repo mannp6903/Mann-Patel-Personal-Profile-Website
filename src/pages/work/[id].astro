@@ -739,8 +739,10 @@ const industry = industryPageForWork(entry.id);
     letter-spacing: -0.02em;
     color: var(--signal);
   }
-  .next__link:hover .next__title .icon {
-    transform: translateX(0.15em);
+  @media (prefers-reduced-motion: no-preference) {
+    .next__link:hover .next__title .icon {
+      transform: translateX(0.15em);
+    }
   }
 
   /* Phones: decisions and captures swipe sideways instead of stacking. */
