@@ -6,7 +6,7 @@
 >   (from 64em, and on phones held sideways), and again if the window crosses over. Without JavaScript the tall layout
 >   shows at every width.
 > - **Closed menus are empty:** the quick menu's items and the phone menu's contents join the page on first open. Both
->   need JavaScript to open anyway. Home went from 1,234 elements to about 915 (gate P3: at most 950).
+>   need JavaScript to open anyway. Home went from 1,234 elements to 923 (gate P3: at most 950).
 > - **CSS stays inline:** measured against `'auto'` (linked stylesheets), inline paints 0.26 s sooner on a first visit
 >   (`docs/stack.md` → CSS delivery).
 > - **Budgets:** `lighthouserc.json` now fails CI below 0.95 performance (0.97 on Home), above 1.8 s LCP or 0.02 CLS,

@@ -59,7 +59,8 @@ five runs per page; medians below.
 
 ## Lighthouse budgets (design upgrade Phase 7, task 7.5)
 
-`lighthouserc.json` runs on eight pages in CI (three runs each). Gate P1 is the source of each number:
+`lighthouserc.json` runs on eight pages in CI (three runs each) and judges each page by its **median** run (Lighthouse
+CI's default is the best run, which let two slow runs out of three pass). Gate P1 is the source of each number:
 
 - **Performance:** at least 0.95 on every page, or CI fails; at least 0.98, or CI warns; Home at least 0.97, or CI fails.
 - **LCP:** at most 1.8 s (P1). The plan's task 7.5 said 2.0 s; the stricter P1 figure is used, so CI checks the gate.

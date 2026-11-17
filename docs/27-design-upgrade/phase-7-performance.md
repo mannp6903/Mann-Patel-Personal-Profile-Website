@@ -38,6 +38,8 @@ Phase 6 already met P1 (every page 1.00, LCP about 0.8 s), P2 (Home at 375: 289 
   [`docs/stack.md`](../stack.md) → CSS delivery, with the table.
 - **Budgets (7.5).** `lighthouserc.json` now uses an `assertMatrix`: performance at least 0.95 (fails) and 0.98 (warns)
   on every page, at least 0.97 on Home (fails); LCP at most 1.8 s; CLS at most 0.02; TBT at most 100 ms (warns).
+  - Each page is judged by its median run. Lighthouse CI's default is the best of the three, which would let a page
+    pass with two slow runs; P1 is defined on medians, as every record reports them.
   Checked on Phase 6's saved results: all pass, and raising Home's floor to an impossible 1.01 fails exactly one page,
   Home.
 - **Nothing animates at rest (7.4, P4):** unchanged since Phase 4. M2's test is now titled "M2 and P4".
@@ -79,12 +81,54 @@ Nothing was skipped or loosened.
 
 ## Gates
 
-GATES
+| Gate | Result | Evidence |
+| --- | --- | --- |
+| P1 | pass | Lighthouse (mobile, simulated), medians of 3 on eight pages: performance 1.00 everywhere (Home ≥ 0.97), LCP 0.79–0.81 s (≤ 1.8 s), CLS 0 (≤ 0.02), TBT 12–51 ms (≤ 100 ms). `lighthouserc.json` assertions pass, judged on the median run |
+| P2 | pass | › P2: Home at 375 loads 290 KB decoded (≤ 300), 26 KB script (≤ 60), 38 KB fonts (≤ 70), measured as Phase 0 (1× density). At 2× it is 326 KB: see deviation 4 |
+| P3 | pass | › P3: Home has 923 elements in the production build at 375 and at 1440 (≤ 950; was 1,234) |
+| P4 | pass | › M2 and P4: 15 s after load nothing animates on any page's own clock |
+| P5 | needs owner | Field data (p75 on mobile: LCP ≤ 2.0 s, INP ≤ 150 ms, CLS ≤ 0.05) comes from real visitors: Search Console's Core Web Vitals report or Chrome UX data, once the site has enough traffic. Mann |
+| P6 | pass | [`docs/stack.md`](../stack.md) → CSS delivery: measured, with the table, and kept inline |
 
 ## Quality gates
 
-QUALITY_GATES
+| Check | Result |
+| --- | --- |
+| `npm test` | 158/158 |
+| `npm run build` | ✓ |
+| `npx playwright test --trace off` | 227/227 (225 before; P2 and P3 are new) |
+| `npm run build:cloudflare` | ✓ (0 errors, the same 2 warnings) |
+| Lighthouse CI assertions (the new budgets) | ✓ |
 
 ## Numbers, Phase 6 → Phase 7
 
-NUMBERS
+**Lighthouse** (mobile, medians of 3): every page scores 1.00 for performance, accessibility and SEO, as in Phase 6.
+
+- **LCP:** Home 807 → 810 ms; the case study 796 → 795 ms; the others 790–804 ms. Two single runs reached 1.4 s (the
+  guide and the Scarborough page); their medians are 790 and 796 ms. Simulated-timing noise, as in Phase 5.
+- **Total blocking time:** 12–51 ms on every page (Phase 6: 11–54 ms). Home's moves between about 20 and 50 ms from run
+  to run in both phases.
+
+**Elements, weight and motion** (production builds, lab):
+
+| | Phase 6 | Phase 7 |
+| --- | --- | --- |
+| Home, elements | 1,234 | 923 |
+| `/services/`, case study, About, Contact, elements | 815, 821, 829, 910 | 614, 620, 628, 709 |
+| Home, KB at load, 375 / 768 / 1440 | 289 / 336 / 335 | 290 / 337 / 336 (the swap script) |
+| Home, KB at load at 375 and 2× | – | 326 |
+| Script on Home / Contact | 26 / 49 KB | 26 / 50 KB |
+| Running 15 s after load | 0 | 0 |
+
+- **Unchanged:** CLS 0–0.004 in the lab; LCP elements; every page height at the ten matrix sizes. (`/contact/` at 390
+  measured 17px shorter, because its "Toronto time" line wrapped differently at 4:37 PM than at 11:22 AM.)
+- **HTML:** Home's HTML is about the same size (202 KB, 38 KB compressed; +1 KB for the swap script): the second graph and the menus are still in it,
+  inert inside `<template>`s. Of the 202 KB, 88 KB is CSS (kept inline, see 7.1).
+
+## Notes for later phases
+
+- P5 needs real-visitor data, which Mann can read in Search Console once there is enough traffic.
+- At 2× density Home loads 326 KB at 375 (the sharper Selected Work captures). If Mann wants P2 to hold for 2× phones
+  too, the captures' quality or their first-screen loading could be revisited.
+- D7: Archivo trial shown; Geist stays unless Mann adopts it (then 7.3: subset under 30 KB, no preload, metric-matched
+  fallback).
