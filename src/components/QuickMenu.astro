@@ -78,6 +78,8 @@ const groups: { title: string; items: Item[] }[] = [
       <kbd>Esc</kbd>
     </div>
     <div class="qm__list" id="qm-list" role="listbox" aria-label="Pages and actions" data-qm-list>
+      {/* The items join the page on first open (design upgrade Phase 7, gate P3): a closed menu adds nothing to it. */}
+      <template data-qm-items>
       {
         groups.map((g) => (
           <div role="group" aria-label={g.title} class="qm__group" data-qm-group>
@@ -109,6 +111,7 @@ const groups: { title: string; items: Item[] }[] = [
           </div>
         ))
       }
+      </template>
       <p class="qm__empty" data-qm-empty hidden>No matches. Try “services”, “email” or “work”.</p>
     </div>
     <p class="qm__foot" aria-hidden="true">
@@ -122,12 +125,14 @@ const groups: { title: string; items: Item[] }[] = [
 
 <script>
   import { track } from '../scripts/analytics';
+  import { fillReach } from '../scripts/reach';
 
   const dlg = document.querySelector<HTMLDialogElement>('[data-qm]');
   if (dlg) {
     const input = dlg.querySelector<HTMLInputElement>('[data-qm-input]')!;
-    const items = [...dlg.querySelectorAll<HTMLAnchorElement>('[data-qm-item]')];
-    const groups = [...dlg.querySelectorAll<HTMLElement>('[data-qm-group]')];
+    const list = dlg.querySelector<HTMLElement>('[data-qm-list]')!;
+    let items: HTMLAnchorElement[] = [];
+    let groups: HTMLElement[] = [];
     const empty = dlg.querySelector<HTMLElement>('[data-qm-empty]')!;
     const live = dlg.querySelector<HTMLElement>('[data-qm-live]')!;
     const status = dlg.querySelector<HTMLElement>('[data-qm-status]')!;
@@ -160,8 +165,25 @@ const groups: { title: string; items: Item[] }[] = [
       live.textContent = q ? `${visible.length} result${visible.length === 1 ? '' : 's'}` : '';
       setActive(0);
     };
+    /* The first open puts the items in the page (they wait in a <template> until then: gate P3). */
+    const ensureItems = () => {
+      const tpl = list.querySelector<HTMLTemplateElement>('template[data-qm-items]');
+      if (!tpl) return;
+      tpl.replaceWith(tpl.content);
+      items = [...list.querySelectorAll<HTMLAnchorElement>('[data-qm-item]')];
+      groups = [...list.querySelectorAll<HTMLElement>('[data-qm-group]')];
+      fillReach(list);
+      items.forEach((el) => {
+        el.addEventListener('click', (e) => run(el, e));
+        el.addEventListener('pointermove', () => {
+          const idx = visible.indexOf(el);
+          if (idx !== -1 && idx !== active) setActive(idx);
+        });
+      });
+    };
     const open = () => {
       if (dlg.open) return;
+      ensureItems();
       opener = document.activeElement as HTMLElement | null;
       input.value = '';
       status.textContent = '';
@@ -211,13 +233,6 @@ const groups: { title: string; items: Item[] }[] = [
         const el = visible[active];
         if (el) run(el);
       }
-    });
-    items.forEach((el) => {
-      el.addEventListener('click', (e) => run(el, e));
-      el.addEventListener('pointermove', () => {
-        const idx = visible.indexOf(el);
-        if (idx !== -1 && idx !== active) setActive(idx);
-      });
     });
     // Click on the backdrop closes.
     dlg.addEventListener('click', (e) => {
