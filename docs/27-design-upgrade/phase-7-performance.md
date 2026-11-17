@@ -122,8 +122,8 @@ Nothing was skipped or loosened.
 
 - **Unchanged:** CLS 0–0.004 in the lab; LCP elements; every page height at the ten matrix sizes. (`/contact/` at 390
   measured 17px shorter, because its "Toronto time" line wrapped differently at 4:37 PM than at 11:22 AM.)
-- **HTML:** Home's HTML is about the same size (202 KB, 38 KB compressed; +1 KB for the swap script): the second graph and the menus are still in it,
-  inert inside `<template>`s. Of the 202 KB, 88 KB is CSS (kept inline, see 7.1).
+- **HTML:** Home's HTML is about the same size (202 KB, 38 KB compressed; +1 KB for the swap script): the second graph
+  and the menus are still in it, inert inside `<template>`s. Of the 202 KB, 88 KB is CSS (kept inline, see 7.1).
 
 ## Notes for later phases
 
