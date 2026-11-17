@@ -1,5 +1,13 @@
 # DESIGN.md · "Signal" (round 5, Nov 2026), compact editorial portfolio (round 7)
 
+> **Design upgrade, Phase 0 (17 Nov 2026): baseline only, no design change.** The design upgrade in
+> [`DESIGN_UPGRADE_PLAN.md`](DESIGN_UPGRADE_PLAN.md) (from [`DESIGN_AUDIT.md`](DESIGN_AUDIT.md), 16 Nov 2026) runs one
+> phase at a time, each with pass/fail gates. Phase 0 adds `scripts/design-shots.mjs` (`npm run qa:design`), which
+> captures five pages across the ten-size device matrix and measures LCP, CLS, decoded bytes, DOM size, animations
+> still running after 15 s and the H1/H2 sizes. Every later phase compares its before and after with it. Nothing on
+> the site changed. Baseline numbers: [`docs/27-design-upgrade/phase-0-baseline.md`](docs/27-design-upgrade/phase-0-baseline.md).
+> How to use it: **Checking the design** at the end of this file.
+
 > **Round 11 (14 Nov 2026): agent graph hero, published prices, new menu.** This note overrides the
 > sections below on the hero, "Tune in" and the signal sculpture, which were removed. The hero opens with
 > Mann's face and name, keeps the service-and-place H1 (now "and AI automation"), shows the website price
@@ -279,3 +287,18 @@ lighting, decoding on every label, and the dot field behind page titles and the 
 | Brief / free-check chooser | `aria-current` on the chosen form | `pages/contact/index.astro` |
 | Case study: at a glance, evidence table (stacked on phones with explicit table roles), limitations, outcomes, next step | folded preview on phones | `pages/work/[id].astro` |
 | Package comparison table | scrollable labelled region on narrow screens | `pages/services.astro` |
+
+## Checking the design
+
+Since the design upgrade (Phase 0, 17 Nov 2026), every design change is checked the same way:
+
+1. **Screenshots and numbers before and after.** Build each version for production and capture it:
+   `npm run build:cloudflare && npm run qa:design -- --serve dist/client --metrics --label before` (then `--label after`
+   on the changed branch). The build for production matters: it carries the GA4 ID, so the consent prompt shows as it
+   does for a first visit. The script captures `/`, `/services/`, `/work/nest-and-rest-cleaning/`, `/about/` and
+   `/contact/` at 320×568, 360×740, 375×812, 390×844, 768×1024, 1024×768, 1280×800, 1440×900, 1920×1080 and 844×390.
+   It writes a first-screen and a full-page capture of each, a contact sheet per report width (375, 768, 1440),
+   `summary.md` and `results.json` to `qa-output/design/<label>/`. Lab numbers depend on the machine, so compare runs
+   from the same machine.
+2. **The gates.** Each phase adds its pass/fail checks to `tests/e2e/design-gates.spec.ts` (in the browser) and
+   `tests/unit/design-tokens.test.ts` (in the source), as listed in [`DESIGN_UPGRADE_PLAN.md`](DESIGN_UPGRADE_PLAN.md) §5.
