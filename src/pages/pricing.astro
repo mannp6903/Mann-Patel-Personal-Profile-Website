@@ -105,7 +105,7 @@ const faqLd = {
 >
   <PageHead
     eyebrow="Pricing"
-    lines={['What it costs,', '<span class="accent accent--signal">and what it covers.</span>']}
+    lines={['What it costs,', '<span class="accent">and what it covers</span><span class="stop">.</span>']}
     lead="Five offers for small businesses in Toronto and the GTA, each with a published price and a clear boundary, plus a free check if you’re not sure where to start. All prices in Canadian dollars, plus applicable tax."
   />
 
@@ -294,7 +294,7 @@ const faqLd = {
     border-radius: var(--r-lg);
   }
   .pr__free-name {
-    font-size: clamp(1.5rem, 1.3rem + 0.8vw, 2rem);
+    font-size: var(--fs-h3);
     letter-spacing: -0.035em;
     line-height: 1.1;
   }
@@ -303,19 +303,19 @@ const faqLd = {
     gap: 0.15rem;
   }
   .pr__free-price {
-    font-size: clamp(2rem, 1.6rem + 1.4vw, 2.75rem);
-    font-weight: 650;
-    letter-spacing: -0.04em;
+    font-size: var(--fs-h3);
+    font-weight: var(--w-head);
+    letter-spacing: var(--track-head);
     line-height: 1;
     color: var(--signal);
   }
   .pr__free-terms {
-    font-size: var(--fs-xs);
+    font-size: var(--fs-label);
     color: var(--text-3);
   }
   .pr__free-boundary {
     font-size: var(--fs-sm);
-    font-weight: 600;
+    font-weight: var(--w-head);
     color: var(--text);
   }
   .pr__free-list {
@@ -363,7 +363,7 @@ const faqLd = {
     border-top: 1px solid var(--line);
   }
   .pr__affects dt {
-    font-weight: 600;
+    font-weight: var(--w-head);
   }
   .pr__affects dd {
     color: var(--text-2);

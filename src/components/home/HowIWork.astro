@@ -68,7 +68,7 @@ const rules = [
 
 <style>
   @media (max-width: 39.99em) {
-    .about { padding-block: 2.25rem; }
+    .about { padding-block: var(--section-tight); }
   }
   .about__grid {
     display: grid;
@@ -76,14 +76,15 @@ const rules = [
   }
   .about__head {
     display: grid;
-    gap: var(--s-4);
+    row-gap: var(--head-gap-2);
     align-content: start;
     justify-items: start;
   }
+  .about__head .eyebrow { margin-bottom: calc(var(--head-gap-1) - var(--head-gap-2)); }
   .about__title {
-    font-size: clamp(2.65rem, 4.5vw, 5.5rem);
-    letter-spacing: -0.075em;
-    line-height: 0.98;
+    font-size: var(--fs-h2);
+    letter-spacing: var(--track-head);
+    line-height: 1;
     max-width: 15ch;
   }
   .about__lead {
@@ -95,8 +96,8 @@ const rules = [
   }
   .about__h {
     font-family: var(--font-mono);
-    font-size: var(--fs-xs);
-    font-weight: 500;
+    font-size: var(--fs-label);
+    font-weight: var(--w-ui);
     letter-spacing: var(--track-label);
     text-transform: uppercase;
     color: var(--text-3);
@@ -118,13 +119,13 @@ const rules = [
   .steps b,
   .rules b {
     color: var(--text);
-    font-weight: 600;
+    font-weight: var(--w-head);
   }
   .steps__n {
     flex: none;
     width: 2ch;
-    font-size: var(--fs-xs);
-    color: var(--signal);
+    font-size: var(--fs-label);
+    color: var(--text-3);
   }
   .rules li {
     align-items: flex-start;
@@ -132,7 +133,7 @@ const rules = [
   }
   .rules :global(.icon) {
     margin-top: 0.2em;
-    color: var(--signal);
+    color: var(--text-2);
   }
   @media (min-width: 64em) {
     .about__grid {

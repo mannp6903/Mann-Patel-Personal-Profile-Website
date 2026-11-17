@@ -26,7 +26,7 @@ const description = contact.phone
 >
   <PageHead
     eyebrow="Contact"
-    lines={['Tell me about', '<span class="accent accent--signal">your business.</span>']}
+    lines={['Tell me about', '<span class="accent">your business</span><span class="stop">.</span>']}
     lead="Choose a short project brief or the free check. I read every one myself and reply by email."
   />
 
@@ -151,7 +151,7 @@ const description = contact.phone
     transition: border-color var(--t-fast), background-color var(--t-fast);
   }
   .choose__opt b {
-    font-weight: 600;
+    font-weight: var(--w-head);
   }
   .choose__opt span {
     font-size: var(--fs-sm);
@@ -187,7 +187,7 @@ const description = contact.phone
     max-width: 56ch;
   }
   .contact {
-    padding-top: var(--s-4);
+    padding-top: var(--section-tight);
   }
   .contact__grid {
     display: grid;
@@ -207,8 +207,8 @@ const description = contact.phone
     background: var(--surface);
   }
   .aside__title {
-    font-size: 1.35rem;
-    font-weight: 600;
+    font-size: var(--fs-lead);
+    font-weight: var(--w-head);
     letter-spacing: -0.02em;
   }
   .aside__email {
@@ -228,7 +228,7 @@ const description = contact.phone
     border-radius: var(--r-pill);
     background: transparent;
     font-size: var(--fs-sm);
-    font-weight: 600;
+    font-weight: var(--w-head);
     transition: background-color var(--t-fast), color var(--t-fast), border-color var(--t-fast);
   }
   .copy:hover {
@@ -255,7 +255,7 @@ const description = contact.phone
   }
   .aside__steps .num {
     color: var(--signal);
-    font-size: var(--fs-xs);
+    font-size: var(--fs-label);
     padding-top: 0.25em;
   }
   @media (min-width: 64em) {

@@ -31,15 +31,18 @@ const { eyebrow, lines, lead, class: cls, compact = false } = Astro.props;
   .ph__inner {
     position: relative;
     display: grid;
-    gap: var(--s-5);
+    row-gap: var(--head-gap-2);
     justify-items: start;
+  }
+  .ph__inner > .eyebrow {
+    margin-bottom: calc(var(--head-gap-1) - var(--head-gap-2));
   }
   .ph__inner :global(.ph__title) {
     font-size: var(--fs-h1);
     max-width: 16ch;
   }
   .ph--compact .ph__inner :global(.ph__title) {
-    font-size: clamp(2.25rem, 1.2rem + 3.3vw, 4.5rem);
+    font-size: var(--fs-h1);
     max-width: 24ch;
     line-height: 1;
   }

@@ -4,6 +4,7 @@
  * /services/enquiry-follow-up/. Content: src/data/service-pages.ts. Packages and prices:
  * src/data/packages.ts. The overview at /services/ (and its #anchors) is unchanged.
  */
+import { accentLine } from '../../lib/headline';
 import { getCollection } from 'astro:content';
 import BaseLayout from '../../layouts/BaseLayout.astro';
 import PageHead from '../../components/PageHead.astro';
@@ -49,7 +50,7 @@ const scarborough = areaHref('scarborough');
 const path = `/services/${page.slug}/`;
 const url = absoluteUrl(path);
 
-const lines = page.lines.map((l, i) => (i === page.lines.length - 1 ? `<span class="accent accent--signal">${l}</span>` : l));
+const lines = page.lines.map((l, i) => (i === page.lines.length - 1 ? accentLine(l) : l));
 
 // Structured data matches what the page shows: no price unless one is approved and shown.
 const serviceLd = {
@@ -414,7 +415,7 @@ const fmtDate = (iso: string) =>
 <style>
   .crumbs {
     padding-top: var(--s-5);
-    font-size: var(--fs-xs);
+    font-size: var(--fs-label);
     font-family: var(--font-mono);
     letter-spacing: 0.04em;
     color: var(--text-3);
@@ -439,7 +440,7 @@ const fmtDate = (iso: string) =>
   }
   .sp__price {
     font-family: var(--font-mono);
-    font-size: var(--fs-xs);
+    font-size: var(--fs-label);
   }
   .sp__local {
     max-width: 60ch;
@@ -507,11 +508,11 @@ const fmtDate = (iso: string) =>
     border-top: 1px solid var(--line);
   }
   .sp__steps h3 {
-    font-size: 1.125rem;
-    font-weight: 600;
+    font-size: var(--fs-base);
+    font-weight: var(--w-head);
   }
   .sp__n {
-    font-size: var(--fs-xs);
+    font-size: var(--fs-label);
     color: var(--signal);
   }
   .sp__work {
@@ -551,7 +552,7 @@ const fmtDate = (iso: string) =>
     border: 1px solid var(--line);
     border-radius: var(--r-pill);
     font-family: var(--font-mono);
-    font-size: 0.75rem;
+    font-size: var(--fs-label);
     color: var(--text-2);
   }
   .sp__foot {
@@ -589,7 +590,7 @@ const fmtDate = (iso: string) =>
     border: 1px dashed var(--control);
     border-radius: var(--r-pill);
     font-family: var(--font-mono);
-    font-size: var(--fs-xs);
+    font-size: var(--fs-label);
     color: var(--text-2);
   }
   .sp__table-wrap {
@@ -619,14 +620,14 @@ const fmtDate = (iso: string) =>
   }
   .sp__table thead th {
     font-family: var(--font-mono);
-    font-size: var(--fs-xs);
-    font-weight: 500;
+    font-size: var(--fs-label);
+    font-weight: var(--w-ui);
     text-transform: uppercase;
     letter-spacing: var(--track-label);
     color: var(--text-3);
   }
   .sp__table tbody th {
-    font-weight: 600;
+    font-weight: var(--w-head);
     color: var(--text);
   }
   .sp__table td {
@@ -661,8 +662,8 @@ const fmtDate = (iso: string) =>
     color: var(--text-2);
   }
   .sp__facts h3 {
-    font-size: 1rem;
-    font-weight: 600;
+    font-size: var(--fs-ui);
+    font-weight: var(--w-head);
     color: var(--text);
   }
   .sp__plain {
@@ -690,7 +691,7 @@ const fmtDate = (iso: string) =>
   }
   .sp__more-link > span:first-child {
     font-size: var(--fs-h3);
-    font-weight: 600;
+    font-weight: var(--w-head);
     letter-spacing: -0.02em;
   }
   .sp__more-link > .small {

@@ -272,15 +272,15 @@ const faq = [
   }
   .lp-hero__copy :global(.lp-hero__title) {
     /* Two lines at every width: "Don’t miss / the next call." */
-    font-size: clamp(2.6rem, 1.1rem + 5vw, 6.25rem);
+    font-size: var(--fs-hero);
     line-height: 0.92;
-    letter-spacing: var(--track-display);
+    letter-spacing: var(--track-hero);
   }
   .lp-hero__lead {
     max-width: 40ch;
   }
   .lp-hero__meta {
-    font-size: var(--fs-xs);
+    font-size: var(--fs-label);
     letter-spacing: var(--track-label);
     text-transform: uppercase;
     color: var(--text-3);
@@ -301,14 +301,14 @@ const faq = [
     gap: var(--s-1);
   }
   .mc__tag {
-    font-size: var(--fs-xs);
+    font-size: var(--fs-label);
     letter-spacing: var(--track-label);
     text-transform: uppercase;
     color: var(--text-3);
   }
   .mc__title {
     font-size: var(--fs-h3);
-    font-weight: 560;
+    font-weight: var(--w-ui);
     letter-spacing: -0.025em;
   }
   .mc__list {
@@ -383,12 +383,12 @@ const faq = [
     border-radius: var(--r-pill);
     background: var(--ink);
     color: var(--paper);
-    font-weight: 600;
+    font-weight: var(--w-head);
   }
   .mc__meta {
     display: block;
     margin-top: var(--s-2);
-    font-size: 0.7rem;
+    font-size: var(--fs-label);
     letter-spacing: var(--track-label);
     text-transform: uppercase;
     opacity: 0.6;
@@ -510,7 +510,7 @@ const faq = [
   }
   .lp-me__name {
     font-size: var(--fs-h3);
-    font-weight: 600;
+    font-weight: var(--w-head);
     letter-spacing: -0.03em;
   }
   .lp-me__role {
@@ -527,7 +527,7 @@ const faq = [
     display: grid;
     gap: var(--s-2);
     font-family: var(--font-mono);
-    font-size: var(--fs-xs);
+    font-size: var(--fs-label);
     letter-spacing: var(--track-label);
     text-transform: uppercase;
     color: var(--text-2);
@@ -567,7 +567,7 @@ const faq = [
     color: var(--ink);
     font-family: var(--font-mono);
     font-size: var(--fs-sm);
-    mask: conic-gradient(from -45deg at bottom, #0000, #000 1deg 89deg, #0000 90deg) 50% / var(--z) 100%;
+    mask: conic-gradient(from -45deg at bottom, transparent, black 1deg 89deg, transparent 90deg) 50% / var(--z) 100%;
   }
   .rc__head {
     display: flex;
@@ -576,7 +576,7 @@ const faq = [
     border-bottom: 2px dashed rgb(11 11 12 / 0.4);
     text-transform: uppercase;
     letter-spacing: var(--track-label);
-    font-weight: 600;
+    font-weight: var(--w-head);
   }
   .rc__list {
     list-style: none;
@@ -592,20 +592,20 @@ const faq = [
   }
   .rc__name {
     text-transform: uppercase;
-    font-weight: 600;
+    font-weight: var(--w-head);
     letter-spacing: 0.02em;
   }
   .rc__price {
-    font-weight: 600;
+    font-weight: var(--w-head);
     text-align: right;
   }
   .rc__note {
     grid-column: 1 / -1;
-    font-size: var(--fs-xs);
-    color: #55544f;
+    font-size: var(--fs-label);
+    color: var(--paper-text-3);
   }
   .rc__list--zero .rc__name {
-    font-weight: 500;
+    font-weight: var(--w-ui);
   }
   .rc__row--free {
     margin: var(--s-2) calc(var(--s-3) * -1) 0;
@@ -614,15 +614,15 @@ const faq = [
     background: var(--signal);
   }
   .rc__row--free .rc__name {
-    font-weight: 700;
+    font-weight: var(--w-head);
   }
   .rc__foot {
     padding-top: var(--s-4);
     text-align: center;
-    font-size: var(--fs-xs);
+    font-size: var(--fs-label);
     letter-spacing: var(--track-label);
     text-transform: uppercase;
-    color: #55544f;
+    color: var(--paper-text-3);
   }
 
   /* ── Questions ── */
@@ -649,7 +649,7 @@ const faq = [
     gap: var(--s-4);
     padding-block: var(--s-5);
     font-size: var(--fs-lead);
-    font-weight: 560;
+    font-weight: var(--w-ui);
     letter-spacing: -0.015em;
     cursor: pointer;
     list-style: none;

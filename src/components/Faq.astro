@@ -19,7 +19,7 @@ const folds = items.length > SHORT + 1;
 
 <section class="faq section" id={id} aria-labelledby={`${id}-title`}>
   <div class="container faq__grid">
-    <div class="faq__head stack" style="--stack: var(--s-5)">
+    <div class="faq__head stack" style="--stack: var(--head-gap-2)">
       <!-- 16 Nov 2026: a descriptive heading people search for; the slogan is the eyebrow. -->
       <p class="eyebrow">Straight answers</p>
       <Heading id={`${id}-title`} lines={['Web design', '<span class="accent">questions.</span>']} />
@@ -106,9 +106,9 @@ const folds = items.length > SHORT + 1;
     border: 0;
     border-bottom: 1px solid var(--line);
     background: none;
-    color: var(--signal);
+    color: var(--text);
     font: inherit;
-    font-weight: 600;
+    font-weight: var(--w-head);
     text-align: left;
     cursor: pointer;
   }

@@ -110,13 +110,13 @@ const last = steps.length - 1;
     border: 1px dashed var(--control);
     border-radius: var(--r-pill);
     font-family: var(--font-mono);
-    font-size: var(--fs-xs);
+    font-size: var(--fs-label);
     letter-spacing: 0.04em;
     color: var(--text-2);
   }
   .demo__title {
     font-size: var(--fs-h3);
-    font-weight: 600;
+    font-weight: var(--w-head);
     letter-spacing: -0.02em;
   }
   .demo__body {
@@ -142,7 +142,7 @@ const last = steps.length - 1;
       grid-template-columns: 4.5rem 1fr;
       padding: var(--s-2) var(--s-3);
       gap: var(--s-2);
-      font-size: var(--fs-xs);
+      font-size: var(--fs-label);
     }
     .demo__steps {
       gap: 0.15rem;
@@ -182,7 +182,7 @@ const last = steps.length - 1;
     background: var(--surface-2);
   }
   .demo__time {
-    font-size: var(--fs-xs);
+    font-size: var(--fs-label);
     color: var(--text-3);
     padding-top: 0.15em;
   }
@@ -204,11 +204,11 @@ const last = steps.length - 1;
     gap: var(--s-3);
     padding-bottom: var(--s-3);
     border-bottom: 1px solid var(--line);
-    font-weight: 600;
+    font-weight: var(--w-head);
   }
   .demo__bar .num {
-    font-size: var(--fs-xs);
-    font-weight: 400;
+    font-size: var(--fs-label);
+    font-weight: var(--w-body);
     color: var(--text-3);
   }
   .demo__state {
@@ -236,7 +236,7 @@ const last = steps.length - 1;
     gap: 0.15rem;
   }
   .demo__who small {
-    font-size: var(--fs-xs);
+    font-size: var(--fs-label);
     color: var(--text-3);
   }
   .demo__chip {
@@ -244,7 +244,7 @@ const last = steps.length - 1;
     padding: 0.15rem 0.55rem;
     border-radius: var(--r-pill);
     font-family: var(--font-mono);
-    font-size: 0.75rem;
+    font-size: var(--fs-label);
     border: 1px solid var(--line);
     color: var(--text-2);
   }
@@ -271,7 +271,7 @@ const last = steps.length - 1;
     color: var(--text);
   }
   .demo__msg small {
-    font-size: var(--fs-xs);
+    font-size: var(--fs-label);
     color: var(--text-3);
   }
   .demo__msg--out {

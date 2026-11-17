@@ -84,16 +84,16 @@ const ring = 'FREE CHECK · NO OBLIGATION · ';
   }
   .fc__label {
     font-family: var(--font-mono);
-    font-size: var(--fs-xs);
+    font-size: var(--fs-label);
     letter-spacing: var(--track-label);
     text-transform: uppercase;
-    font-weight: 600;
+    font-weight: var(--w-ui);
   }
   .fc__title {
-    font-size: clamp(2.2rem, 1.4rem + 3.6vw, 5rem);
-    font-weight: 600;
-    letter-spacing: -0.045em;
-    line-height: 0.96;
+    font-size: var(--fs-h2);
+    font-weight: var(--w-head);
+    letter-spacing: var(--track-head);
+    line-height: 1;
     max-width: 15ch;
   }
   /* Two-tone on lime: the product name steps back to a dark olive (5.9:1 on the lime). */
@@ -103,11 +103,11 @@ const ring = 'FREE CHECK · NO OBLIGATION · ';
   }
   .fc__alt {
     font-size: var(--fs-sm);
-    font-weight: 500;
+    font-weight: var(--w-ui);
   }
   .fc__alt a {
     color: var(--ink);
-    font-weight: 700;
+    font-weight: var(--w-head);
     text-decoration-thickness: 2px;
     text-underline-offset: 0.2em;
   }
@@ -115,7 +115,7 @@ const ring = 'FREE CHECK · NO OBLIGATION · ';
     max-width: 40ch;
     font-size: var(--fs-lead);
     line-height: 1.4;
-    font-weight: 500;
+    font-weight: var(--w-ui);
   }
   .fc__side {
     display: grid;
@@ -132,16 +132,16 @@ const ring = 'FREE CHECK · NO OBLIGATION · ';
     gap: var(--s-3);
     padding-block: var(--s-4);
     border-bottom: 1.5px solid rgb(11 11 12 / 0.25);
-    font-weight: 560;
+    font-weight: var(--w-ui);
     line-height: 1.45;
   }
   .fc__n {
-    font-size: var(--fs-xs);
+    font-size: var(--fs-label);
     padding-top: 0.25em;
   }
   .fc__small {
     font-size: var(--fs-sm);
-    font-weight: 500;
+    font-weight: var(--w-ui);
     opacity: 0.85;
   }
   .fc :global(.btn--ink:focus-visible) {
@@ -164,8 +164,8 @@ const ring = 'FREE CHECK · NO OBLIGATION · ';
     height: 100%;
     fill: var(--ink);
     font-family: var(--font-mono);
-    font-size: 12.5px;
-    font-weight: 600;
+    font-size: var(--fs-label);
+    font-weight: var(--w-ui);
   }
   .fc__badge svg {
     transform: rotate(calc(var(--p, 0) * 300deg));

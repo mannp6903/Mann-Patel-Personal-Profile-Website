@@ -24,7 +24,7 @@ const crumbs = breadcrumbJsonLd([
   <PageHead
     eyebrow="Work"
     compact
-    lines={['Website projects', '<span class="accent accent--signal">for Toronto service businesses</span>']}
+    lines={['Website projects', '<span class="accent">for Toronto service businesses</span>']}
     lead="Real projects, honest labels. Every project says whether it’s live or in progress and what I actually did. No invented results, no stock photos passed off as real work."
   />
 
@@ -131,12 +131,12 @@ const crumbs = breadcrumbJsonLd([
     display: flex;
     justify-content: space-between;
     align-items: center;
-    font-size: var(--fs-xs);
+    font-size: var(--fs-label);
   }
   .row__title {
-    font-size: clamp(2.2rem, 1.4rem + 3.4vw, 4.75rem);
-    font-weight: 600;
-    letter-spacing: -0.05em;
+    font-size: var(--fs-h2);
+    font-weight: var(--w-head);
+    letter-spacing: var(--track-head);
     line-height: 0.95;
     transition: letter-spacing 800ms var(--ease-out), color var(--t-base);
   }
@@ -158,7 +158,7 @@ const crumbs = breadcrumbJsonLd([
   }
   .row__facts dt {
     font-family: var(--font-mono);
-    font-size: var(--fs-xs);
+    font-size: var(--fs-label);
     letter-spacing: var(--track-label);
     text-transform: uppercase;
     color: var(--text-3);
@@ -171,7 +171,7 @@ const crumbs = breadcrumbJsonLd([
     display: inline-flex;
     align-items: center;
     gap: 0.4em;
-    font-weight: 600;
+    font-weight: var(--w-head);
     margin-top: var(--s-2);
   }
   .row__cta .icon {

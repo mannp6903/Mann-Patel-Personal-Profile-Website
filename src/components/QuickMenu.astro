@@ -270,7 +270,7 @@ const groups: { title: string; items: Item[] }[] = [
     min-height: 3.75rem;
     border: 0;
     background: transparent;
-    font-size: 1.0625rem;
+    font-size: var(--fs-base);
     color: var(--text);
   }
   .qm__input:focus {
@@ -284,7 +284,7 @@ const groups: { title: string; items: Item[] }[] = [
   .qm__title {
     padding: var(--s-3) var(--s-3) var(--s-2);
     font-family: var(--font-mono);
-    font-size: 0.75rem;
+    font-size: var(--fs-label);
     letter-spacing: var(--track-label);
     text-transform: uppercase;
     color: var(--text-3);
@@ -323,11 +323,11 @@ const groups: { title: string; items: Item[] }[] = [
     height: 1rem;
   }
   .qm__label {
-    font-weight: 560;
+    font-weight: var(--w-ui);
   }
   .qm__hint {
     font-family: var(--font-mono);
-    font-size: 0.75rem;
+    font-size: var(--fs-label);
     color: var(--text-3);
     white-space: nowrap;
     overflow: hidden;
@@ -344,7 +344,7 @@ const groups: { title: string; items: Item[] }[] = [
     gap: var(--s-5);
     padding: var(--s-3) var(--s-5);
     border-top: 1px solid var(--line);
-    font-size: 0.75rem;
+    font-size: var(--fs-label);
     color: var(--text-3);
   }
   .qm__foot kbd + kbd {
@@ -356,7 +356,7 @@ const groups: { title: string; items: Item[] }[] = [
   }
   kbd {
     font-family: var(--font-mono);
-    font-size: 0.7rem;
+    font-size: var(--fs-label);
     padding: 0.1rem 0.35rem;
     border: 1px solid var(--line);
     border-radius: 5px;
