@@ -18,9 +18,12 @@ Measured as in [Phase 0](phase-0-baseline.md); before = Phase 4 (live on mannpat
   `drop-shadow()`. It is used by the frames, the portrait core in the agent graph (it had its own shadow) and the
   free-check receipt (likewise). `DESIGN.md` → Shape and depth documents it as the single exception to "depth comes from
   surfaces".
-- **AVIF with a WebP fallback (5.2)**:
+- **AVIF with a WebP fallback (5.2)**, at quality 55 for the captures and the avatar, and 60 for the graph's portrait:
   - Captures and the portrait use `<Picture formats={['avif']} fallbackFormat="webp">`, so there's no extra PNG or JPG
     copy. This covers the frames, the graph core, About, the free-check photo and the avatar.
+  - Why 55: AVIF and WebP count quality differently. At 74, AVIF captures came out larger than WebP at 74 (800w: 35 KB
+    against 30 KB), and Home grew by 26–37 KB at 768 and 1440. At 55 they look the same side by side and are about a
+    fifth smaller than WebP.
   - Widths are finer at the small end (320, 400, 560…), so phones don't fetch a file twice as wide as they need.
   - Each image goes up to twice its widest shown size, or the full source when the file is narrower. The About portrait
     gained its full 1,254px size.
@@ -81,11 +84,39 @@ widest shown size.
 
 ## Quality gates
 
-QUALITY_GATES
+| Check | Result |
+| --- | --- |
+| `npm test` | 158/158 |
+| `npm run build` | ✓ |
+| `npx playwright test --trace off` | 220/220 |
+| `npm run build:cloudflare` | ✓ (0 errors, the same 2 warnings) |
+| Lighthouse CI assertions | ✓ |
+
+The AVIF quality was lowered from 74 to 55 after this run (see the numbers), a change to file size only. That commit
+passed CI (tests, build, browser suite, Cloudflare build), and Home's weight was measured again.
 
 ## Numbers, Phase 4 → Phase 5
 
-NUMBERS
+**Lighthouse** (mobile, medians of 3): every page scores 1.00 for performance, accessibility and SEO, with no
+image-format findings.
+
+- **LCP:** Home 806 → 799 ms; the case study 796 → 790 ms; the others 790–805 ms.
+- **`/pricing/`:** a median of 1,404 ms in the full run (runs of 794, 1,404 and 1,502 ms, all on the same text
+  element with under 150 ms of render delay). Five runs on their own: 795–801 ms. Simulated-timing noise; nothing on
+  that page changed.
+
+**Page weight at load** (AVIF at quality 55):
+
+| KB (images in brackets) | 375 | 768 | 1440 |
+| --- | --- | --- | --- |
+| Home | 309 (49) → 285 (23) | 334 (75) → 332 (70) | 345 (85) → 331 (69) |
+| Case study | 235 (42) → 224 (27) | 231 (38) → 234 (36) | 258 (66) → 251 (54) |
+| About | 192 (6) → 189 (4) | 205 (20) → 197 (12) | 197 (12) → 192 (7) |
+
+- **Home is under 300 KB on phones again** (285 KB; Phase 7's P2 target is 300).
+- **Before the quality fix:** at AVIF quality 74, Home was 372 and 370 KB at 768 and 1440 (see "What changed").
+- **Unchanged:** nothing runs after 15 s on any page; CLS stays 0–0.004 in the lab; Home has 1,212 → 1,223 DOM
+  elements (the `<picture>` wrappers).
 
 ## Notes for later phases
 
