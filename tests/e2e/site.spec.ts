@@ -337,14 +337,18 @@ test.describe('layout', () => {
       await expect(cta).toHaveAttribute('href', '/contact/?package=check-up#check');
       await expect(hero.getByRole('link', { name: 'See prices' })).toHaveAttribute('href', '/pricing/');
       await expect(hero.locator('.hero__price')).toContainText('$1,950 website');
-      // 14 Nov 2026 (founder profile): the hero names only the three core services.
-      await expect(hero.locator('.hero__services li')).toHaveCount(3);
-      for (const name of ['Local SEO & AI search', 'Enquiry follow-up & booking', 'Websites'])
-        await expect(hero.locator('.hero__services')).toContainText(name);
+      // D1 (design upgrade, 17 Nov 2026): no service chips in the hero; the services section right below links all three
+      // core services (was: three chips in the hero, 14 Nov 2026).
+      await expect(hero.locator('.hero__services')).toHaveCount(0);
+      for (const href of ['/services/local-visibility/', '/services/enquiry-follow-up/', '/services/web-design/'])
+        await expect(page.locator(`#what-i-do a[href="${href}"]`)).toHaveCount(1);
       await expect(hero.locator('.hero__price')).toBeInViewport();
-      // Dated examples of real work sit next to the buttons (Quickstart, 13 Nov 2026).
-      await expect(hero.locator('.hero__recent a[href="/work/samp-hair-spa/"]')).toContainText('Oct 2026');
-      await expect(hero.locator('.hero__recent a[href="/work/nest-and-rest-cleaning/"]')).toContainText('Oct 2026');
+      // D2 (design upgrade, 17 Nov 2026): no recent-work cards in the hero; Selected Work, with both projects, comes
+      // straight after it (was: dated cards next to the buttons, 13 Nov 2026).
+      await expect(hero.locator('.hero__recent')).toHaveCount(0);
+      expect(await page.evaluate(() => document.getElementById('hero')!.nextElementSibling?.id)).toBe('work');
+      await expect(page.locator('#work a[href="/work/samp-hair-spa/"]').first()).toBeAttached();
+      await expect(page.locator('#work a[href="/work/nest-and-rest-cleaning/"]').first()).toBeAttached();
       // The two actions sit side by side, in this order.
       const actions = await hero.locator('.hero__actions .btn-row a').evaluateAll((els) => els.map((e) => e.textContent!.replace(/\s+/g, ' ').trim()));
       expect(actions[0]).toContain('Get a free website and Google check');
@@ -358,11 +362,11 @@ test.describe('layout', () => {
   // 10 Nov 2026 (growth report): the hero gained the explained Found / Answered / Booked strip
   // and a "See the work" button, so the targets moved down by the strip's height.
   for (const [w, h, maxHeading, maxCard] of [
-    // 14 Nov 2026: the hero carries the photo graph and prices instead; same budgets on desktop,
-    // and on phones the large photo graph replaces the sculpture and the process strip.
-    [1440, 1000, 1150, 1500],
-    // 14 Nov 2026 (round 2): the phone hero now names every service, so it moved down about 100 px.
-    [390, 844, 1900, 2050],
+    // D9 (design upgrade, 17 Nov 2026): tighter targets. Desktop is measured at 1440×900 (Mann's choice, 17 Nov 2026:
+    // the full-height hero ends at the fold, so at 1440×1000 no heading could start by 1,000px). Was 1150 at 1440×1000.
+    [1440, 900, 1000, 1500],
+    // D9: the slimmer phone hero (no chips or recent-work cards) brings the heading up by 400px. Was 1900.
+    [390, 844, 1500, 2050],
   ]) {
     test(`selected work starts by y=${maxHeading} at ${w}x${h}`, async ({ page }) => {
       await page.setViewportSize({ width: w, height: h });
@@ -387,11 +391,13 @@ test.describe('navigation', () => {
     const sheet = page.locator('#site-menu');
     await expect(sheet).toBeVisible();
     await expect(btn).toHaveAttribute('aria-expanded', 'true');
-    // Home + Work, Services, Pricing, Guides, About, Vision (Guides joined in the Nov 2026 audit fixes).
-    await expect(sheet.getByRole('navigation', { name: 'Menu' }).getByRole('link')).toHaveCount(7);
+    // Home + Work, Services, Pricing, Guides, About (Guides joined in the Nov 2026 audit fixes). D3 (design upgrade,
+    // 17 Nov 2026): Vision moved from the menu to the footer (was 7 links).
+    await expect(sheet.getByRole('navigation', { name: 'Menu' }).getByRole('link')).toHaveCount(6);
     await expect(sheet.getByRole('link', { name: 'Guides', exact: true })).toHaveAttribute('href', '/guides/');
     await expect(sheet.getByRole('link', { name: 'Pricing', exact: true })).toHaveAttribute('href', '/pricing/');
-    await expect(sheet.getByRole('link', { name: 'Vision', exact: true })).toHaveAttribute('href', '/vision/');
+    await expect(sheet.getByRole('link', { name: 'Vision', exact: true })).toHaveCount(0);
+    await expect(page.locator('footer .ftr__col--pages a[href="/vision/"]')).toHaveText('Vision');
     await expect(sheet.locator('a[href="/contact/"]')).toHaveCount(1);
     await expect(sheet.getByRole('link', { name: /Email Mann/ })).toHaveAttribute('href', /^mailto:info@mannpatel\.me\?/);
     await expect(sheet.getByRole('link', { name: 'Services' })).toBeVisible();
@@ -600,7 +606,8 @@ test.describe('home interactions', () => {
       await page.waitForTimeout(700);
       const fit = await sheet.evaluate((d) => d.scrollHeight - d.clientHeight);
       expect(fit).toBeLessThanOrEqual(1);
-      for (const name of ['Home', 'Work', 'Services', 'Pricing', 'Guides', 'About', 'Vision', 'Contact', 'Privacy', 'Terms'])
+      // D3 (design upgrade, 17 Nov 2026): Vision is in the footer, not the menu.
+      for (const name of ['Home', 'Work', 'Services', 'Pricing', 'Guides', 'About', 'Contact', 'Privacy', 'Terms'])
         await expect(sheet.getByRole('link', { name, exact: true }).first()).toBeInViewport();
       await expect(sheet.getByRole('link', { name: /Email Mann/ })).toBeInViewport();
     });
@@ -1330,7 +1337,8 @@ test.describe('legal pages', () => {
 test.describe('direct contact', () => {
   test('email, call, WhatsApp and text buttons work', async ({ page }) => {
     await page.goto('/');
-    const hero = page.locator('.hero__reach');
+    // D4 (design upgrade, 17 Nov 2026): the "Or reach me directly" buttons left the hero; the footer's are the same set.
+    const hero = page.locator('.ftr__reach');
     await expect(hero.getByRole('link', { name: /Email Mann/ })).toHaveAttribute('href', /^mailto:info@mannpatel\.me\?subject=/);
     const call = hero.getByRole('link', { name: 'Call Mann' });
     test.skip((await call.count()) === 0, 'Build with PUBLIC_CONTACT_PHONE (e.g. +16475550142) to test the phone buttons.');
@@ -1407,7 +1415,8 @@ test.describe('direct contact', () => {
     const ctx = await browser.newContext({ javaScriptEnabled: false });
     const page = await ctx.newPage();
     await page.goto('/');
-    const call = page.locator('.hero__reach a[data-reach="call"]');
+    // D4: the footer carries the direct-contact buttons (they left the hero).
+    const call = page.locator('.ftr__reach a[data-reach="call"]');
     if ((await call.count()) > 0) await expect(call).toHaveAttribute('href', '/contact/#reach');
     await ctx.close();
   });
@@ -1888,9 +1897,10 @@ test.describe('audit of 11 Nov 2026', () => {
     await expect(page.locator('html')).not.toHaveAttribute('data-present', '');
   });
 
-  test('the vision page: founder story for partners, linked from the menu and the hero, with real shipped work', async ({ page }) => {
+  test('the vision page: founder story for partners, linked from the footer, with real shipped work', async ({ page }) => {
     await page.goto('/');
-    await expect(page.locator('.hero a.hero__vision')).toHaveAttribute('href', '/vision/');
+    // D3 (design upgrade, 17 Nov 2026): linked from the footer's Pages column (was the menu and the hero).
+    await expect(page.locator('footer .ftr__col--pages a[href="/vision/"]')).toHaveText('Vision');
     await page.goto('/vision/');
     await expect(page.locator('h1')).toContainText('Local businesses do the work.');
     for (const href of ['/work/nest-and-rest-cleaning/', '/work/samp-hair-spa/', '/services/']) await expect(page.locator(`main a[href="${href}"]`).first()).toBeVisible();
@@ -2260,18 +2270,22 @@ test.describe('Website Playbook, conversion tracking (16 Nov 2026)', () => {
 
     await page.goto('/?ga_debug=1');
     await clickWithoutLeaving('footer a[data-contact="email"]');
-    await clickWithoutLeaving('#hero a[data-contact="whatsapp"]');
+    // D4 (design upgrade, 17 Nov 2026): the contact icons left the hero, so WhatsApp is clicked in the footer, and the
+    // hero's free-check button now carries the "hero" placement (was the hero's WhatsApp icon).
+    await clickWithoutLeaving('footer a[data-contact="whatsapp"]');
+    await clickWithoutLeaving('#hero [data-hero-cta]');
     await page.goto('/contact/');
     await clickWithoutLeaving('main a[data-contact="phone"]');
-    await expect.poll(() => logged.length).toBeGreaterThanOrEqual(6);
+    await expect.poll(() => logged.length).toBeGreaterThanOrEqual(7);
     const events = await Promise.all(logged);
 
     const named = events.filter(([n]) => n.endsWith('_click') && n !== 'contact_click' && n !== 'cta_click');
     expect(named).toEqual([
       ['email_click', { location: 'footer' }],
-      ['whatsapp_click', { location: 'hero' }],
+      ['whatsapp_click', { location: 'footer' }],
       ['phone_click', { location: 'contact' }],
     ]);
+    expect(events.find(([n]) => n === 'cta_click')?.[1]).toMatchObject({ cta: 'free_check', location: 'hero' });
     // The older contact_click still goes out alongside.
     expect(events.filter(([n]) => n === 'contact_click').map(([, p]) => p.method)).toEqual(['email', 'whatsapp', 'phone']);
   });

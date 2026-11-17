@@ -184,6 +184,13 @@ export const nav = [
   // Nov 2026 audit fixes: the guides join the menu (they were linked from the footer only).
   { href: '/guides/', label: 'Guides' },
   { href: '/about/', label: 'About' },
+] as const;
+
+/**
+ * Footer-only pages (design upgrade Phase 2, decision D3, 17 Nov 2026): Vision moved out of the main menu and the phone
+ * menu so the menu holds five links; it stays one click away in the footer's Pages column.
+ */
+export const footerPages = [
   // 14 Nov 2026: what Mann is building, and an open door to professionals who want to build with him.
   { href: '/vision/', label: 'Vision' },
 ] as const;

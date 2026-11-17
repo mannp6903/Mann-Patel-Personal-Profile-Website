@@ -51,7 +51,9 @@ const sheetLinks = [{ href: '/', label: 'Home' }, ...nav];
         <span class="visually-hidden">Open quick menu</span>
         <kbd aria-hidden="true"><span data-mod>Ctrl</span> K</kbd>
       </button>
-      <Button href={primaryCta.href} size="sm" class="hdr__cta">{primaryCta.label}</Button>
+      {/* D5 (design upgrade Phase 2): on Home the button starts as an outline, so the hero's lime button is the only lime
+          one on the first screen; it turns lime once the hero button scrolls away (script below). */}
+      <Button href={primaryCta.href} size="sm" class:list={['hdr__cta', path === '/' && 'is-quiet']} data-hdr-cta>{primaryCta.label}</Button>
       <button class="menu-btn" type="button" data-menu-open aria-haspopup="dialog" aria-controls="site-menu" aria-expanded="false">
         <span class="menu-btn__lines" aria-hidden="true"><i></i><i></i></span>
         <span class="menu-btn__text">Menu</span>
@@ -143,6 +145,16 @@ const sheetLinks = [{ href: '/', label: 'Home' }, ...nav];
     sheet.querySelectorAll('a').forEach((a) => a.addEventListener('click', () => sheet.close()));
     // Wider than a phone? The sheet is not needed.
     matchMedia('(min-width: 64em)').addEventListener('change', (e) => e.matches && sheet.open && sheet.close());
+
+    // D5: on Home, the header button stays an outline while the hero's free-check button is on screen (below the
+    // header), then turns lime. Same box either way (both variants have a 1px border), so nothing moves.
+    const hdrCta = header.querySelector<HTMLElement>('[data-hdr-cta]');
+    const heroCta = document.querySelector<HTMLElement>('[data-hero-cta]');
+    if (hdrCta && heroCta && 'IntersectionObserver' in window) {
+      new IntersectionObserver(([e]) => hdrCta.classList.toggle('is-quiet', e.isIntersecting), {
+        rootMargin: `-${header.offsetHeight}px 0px 0px 0px`,
+      }).observe(heroCta);
+    }
 
     // Mac users see ⌘, everyone else Ctrl.
     if (/Mac|iPhone|iPad/.test(navigator.platform || navigator.userAgent)) {
@@ -353,6 +365,14 @@ const sheetLinks = [{ href: '/', label: 'Home' }, ...nav];
   }
   .hdr__cta {
     display: none;
+  }
+  /* D5: the outline state, the same as .btn--ghost (colours only; the size never changes). */
+  .hdr__cta:global(.is-quiet) {
+    --btn-bg: transparent;
+    --btn-fg: var(--text);
+    --btn-icon-bg: var(--surface-2);
+    --btn-icon-fg: var(--text);
+    border-color: var(--control);
   }
 
   .menu-btn {

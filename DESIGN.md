@@ -1,5 +1,17 @@
 # DESIGN.md · "Signal" (round 5, Nov 2026), compact editorial portfolio (round 7)
 
+> **Design upgrade, Phase 2 (17 Nov 2026): the hero, "Signal path".** The hero text holds five things: the greeting
+> (with a 40px photo under 64em, so Mann's face is on the first phone screen; "Taking new projects" as text), the H1 at
+> `--fs-hero` with a lime full stop, the subline, one lime button with a quiet "See prices →" link, and a mono price
+> line. The service chips, recent-work cards, Vision link and "reach me directly" icons left the hero (decisions D1, D2,
+> D3, D4; Vision is in the footer's Pages column). Two columns from 48em (graph about 44%), full height from 64em, a
+> static grain layer, and the graph's glow breathes once when the first pulse reaches Booking. On Home the header
+> button is an outline until the hero button scrolls away (D5). The consent prompt sits after the skip link, appears
+> after the first scroll or 4 s, and is one row along the bottom on every screen (≤72px on phones, where it shows the
+> first and last sentences; Mann's choices, 17 Nov 2026); while open it reserves its height for focus and the footer.
+> Gates H1–H7, R3, U2, U3, A2 and A3 in `tests/e2e/design-gates.spec.ts` (the prompt is checked against a preview built
+> with a stand-in GA4 ID, `scripts/build-consent.mjs`). Record: [`docs/27-design-upgrade/phase-2-hero.md`](docs/27-design-upgrade/phase-2-hero.md).
+>
 > **Design upgrade, Phase 1 (17 Nov 2026): tokens.** One type scale (`--fs-hero` to `--fs-label`, plus `--fs-ui` for
 > button and form labels) replaces about 90 one-off sizes, so section titles no longer outgrow page titles. Three
 > weights (400, 500, 600; mono always 500), a −0.035em tracking floor, a 13px floor for visible text, section padding
@@ -169,6 +181,12 @@ Content width `--container` 90rem with `--gutter` 1 → 3rem; text `--measure` 6
 desktop, one column on phones. Layouts alternate (split, full-bleed, sticky, list) so no two sections
 in a row look the same.
 
+**Hero (design upgrade Phase 2, 17 Nov 2026).** Text column, top to bottom: greeting row (photo under 64em), H1
+(`--fs-hero`, its full stop lime), subline (`--fs-lead`), button row (the lime free-check button and "See prices →"), price
+line (mono, `--text-3`). Graph beside it from 48em, below it on phones (at most 18rem wide there). The label stays on one
+line from 390px; on 320px phones and phones held sideways the button row moves up to follow the H1. Selected Work comes
+straight after the hero: its heading starts by y=1,000 at 1440×900 and y=1,500 at 390×844 (D9, tested).
+
 **Home order (round 7; hero changed in rounds 8–10 and on 10 Nov 2026).** Hero (the service-led H1
 "Web design and local SEO for Toronto service businesses", the free-check button and "See the work",
 Mann's clear portrait, then the **process strip**: Found. Answered. Booked., each with what it means) →
@@ -221,8 +239,14 @@ shadow only: `--shadow-pop` for floating layers (menu, ⌘K palette, toast).
   Focus: lime border + lime ring. Error: `--error` border, message with icon, `aria-invalid`.
 - **Choice chips** (checkbox/radio pills): outline pill; checked = lime wash + lime border + tick.
 - **Accordion** (`details`): hairline rows, a plus that turns into a minus, smooth height.
-- **Navigation**: sticky bar, wordmark + live status left, links centre-right, "Start a project"
-  right; phones get a full-screen sheet. ⌘K / Ctrl K opens a quick menu (pages and actions).
+- **Navigation**: sticky bar, wordmark + live status left, five links centre-right (Work, Services, Pricing, Guides,
+  About; Vision is in the footer since Phase 2, D3), "Contact" right; phones get a full-screen sheet. ⌘K / Ctrl K opens a
+  quick menu (pages and actions). On Home the header button is an outline while the hero button is on screen, then
+  lime (D5); same size either way.
+- **Consent prompt** (`components/Analytics.astro`, production builds only): one row along the bottom edge, text left,
+  "Allow" (white pill, so the page's lime button stays the only lime one) and "No thanks" right. After the skip link in
+  the page, so the skip link is the first Tab stop. Shows after the first scroll or 4 s; while open, the page reserves
+  its height (scroll padding and bottom padding), so nothing focused or at the very end of the page hides under it.
 - **Footer**: closing call to action, link columns, and the kinetic MΛNN PΛTEL wordmark (letters lift and turn lime near the cursor).
 
 ## Imagery and icons

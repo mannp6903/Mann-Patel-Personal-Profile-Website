@@ -85,9 +85,9 @@ const fmtDate = (iso: string) =>
     grid-template-columns: minmax(0, 1fr) auto;
     align-items: end;
     gap: var(--head-gap-2) var(--s-4);
-    padding-top: var(--s-4);
     margin-bottom: clamp(var(--s-6), 5vw, var(--s-9));
-    border-top: 1px solid var(--line);
+    /* D9 (design upgrade Phase 2): no hairline above the head; the paper band's own edge divides it from the hero, so
+       the heading starts by y=1,000 at 1440×900. */
   }
   .sw__head .eyebrow, .sw__intro { grid-column: 1 / -1; }
   .sw__head .eyebrow { margin-bottom: calc(var(--head-gap-1) - var(--head-gap-2)); }

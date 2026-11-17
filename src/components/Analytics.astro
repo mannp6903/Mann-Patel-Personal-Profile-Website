@@ -2,22 +2,29 @@
 /**
  * Renders nothing unless PUBLIC_GA4_ID is configured.
  * When configured: a small, non-blocking consent prompt; GA loads only after "Allow".
+ *
+ * Design upgrade Phase 2 (task 2.6, 17 Nov 2026): placed right after the skip link (BaseLayout), so the skip link is the
+ * first Tab stop. One row along the bottom edge on every screen (Mann's choice, 17 Nov 2026, instead of the plan's
+ * bottom-left card, which covered the hero button on 1024×768 and 1280×800): at most 72px tall on phones, where it
+ * shows the first and last sentences (Mann's choice, 17 Nov 2026; the full text is on wider screens and at
+ * /privacy/#analytics). It appears after the first scroll or after 4 seconds, and while it is open the page reserves
+ * its height at the bottom of the scroll area, so keyboard focus and in-page jumps never land underneath it.
  */
 import { PUBLIC_GA4_ID } from 'astro:env/client';
 ---
 
 {
   PUBLIC_GA4_ID && (
-    <div class="consent" data-consent hidden>
-      <p>
-        May I count visits? It shows me which pages are useful. No ads, and nothing you type into forms.{' '}
-        <a href="/privacy/#analytics">Details</a>
+    <div class="consent" data-consent role="region" aria-label="Visit counting" hidden>
+      <p class="consent__text">
+        May I count visits?<span class="consent__more"> It shows me which pages are useful.</span> No ads, and nothing you
+        type into forms. <a href="/privacy/#analytics">Details</a>
       </p>
-      <div class="btn-row">
-        <button class="btn btn--sm btn--plain" type="button" data-consent-allow>
+      <div class="consent__actions">
+        <button class="btn btn--sm btn--plain consent__btn consent__allow" type="button" data-consent-allow>
           Allow
         </button>
-        <button class="btn btn--sm btn--plain btn--ghost" type="button" data-consent-deny>
+        <button class="btn btn--sm btn--plain btn--ghost consent__btn" type="button" data-consent-deny>
           No thanks
         </button>
       </div>
@@ -33,40 +40,108 @@ import { PUBLIC_GA4_ID } from 'astro:env/client';
     const choice = getConsent();
     if (choice === 'granted') loadGa();
     if (box && choice === null) {
-      box.hidden = false;
-      box.querySelector('[data-consent-allow]')?.addEventListener('click', () => {
-        setConsent('granted');
+      const root = document.documentElement;
+      // While the prompt is open: focus and in-page jumps stop above it (scroll padding), and the page gets the same
+      // room at the bottom, so the last footer links can still scroll clear of it.
+      const reserve = () => {
+        root.style.scrollPaddingBottom = box.hidden ? '' : `${box.offsetHeight + 16}px`;
+        document.body.style.paddingBottom = box.hidden ? '' : `${box.offsetHeight}px`;
+      };
+      let timer: ReturnType<typeof setTimeout> | undefined;
+      const show = () => {
+        clearTimeout(timer);
+        removeEventListener('scroll', show);
+        if (!box.hidden || getConsent() !== null) return;
+        box.hidden = false;
+        reserve();
+      };
+      addEventListener('scroll', show, { passive: true, once: true });
+      timer = setTimeout(show, 4000);
+      addEventListener('resize', reserve, { passive: true });
+      const close = (value: 'granted' | 'denied') => {
+        setConsent(value);
         box.hidden = true;
-      });
-      box.querySelector('[data-consent-deny]')?.addEventListener('click', () => {
-        setConsent('denied');
-        box.hidden = true;
-      });
+        reserve();
+      };
+      box.querySelector('[data-consent-allow]')?.addEventListener('click', () => close('granted'));
+      box.querySelector('[data-consent-deny]')?.addEventListener('click', () => close('denied'));
     }
   }
 </script>
 
 <style>
+  /* One row along the bottom edge on every screen (Mann's choice, 17 Nov 2026: a corner card covered the hero button on
+     1024×768 and 1280×800). At most 72px tall on phones, about 60px on wider screens. */
   .consent {
     position: fixed;
     z-index: 60;
-    inset: auto var(--s-4) var(--s-4) auto;
-    max-width: 24rem;
-    padding: var(--s-5);
+    left: 0;
+    right: 0;
+    bottom: 0;
+    display: flex;
+    align-items: center;
+    gap: var(--s-3);
+    padding: var(--s-2) var(--gutter) calc(var(--s-2) + env(safe-area-inset-bottom));
     background: var(--surface);
-    color: var(--text);
-    border-radius: var(--r-md);
+    border-top: 1px solid var(--line);
     box-shadow: var(--shadow-pop);
-    font-size: var(--fs-sm);
-    display: grid;
-    gap: var(--s-4);
+    color: var(--text-2);
+    font-size: var(--fs-label);
+    line-height: 1.3;
+  }
+  .consent__text {
+    flex: 1;
+    min-width: 0;
+    max-width: 72ch;
+  }
+  .consent__more {
+    display: none;
   }
   .consent a {
     color: var(--text);
   }
-  @media (max-width: 30em) {
+  .consent__actions {
+    display: flex;
+    flex: none;
+    gap: var(--s-2);
+    margin-left: auto;
+  }
+  .consent__btn {
+    min-height: var(--tap);
+    padding-inline: var(--s-3);
+    font-size: var(--fs-label);
+  }
+  /* Lime budget: the hero's button stays the only lime one on screen, so "Allow" is a white pill. */
+  .consent__allow {
+    --btn-bg: var(--text);
+    --btn-fg: var(--ink);
+  }
+  @media (max-width: 22.5em) {
+    /* 320px phones: four short lines still fit in 72px. */
     .consent {
-      inset: auto var(--s-2) var(--s-2) var(--s-2);
+      gap: var(--s-2);
+      padding-block: var(--s-1) calc(var(--s-1) + env(safe-area-inset-bottom));
+      line-height: 1.2;
+    }
+    .consent__btn {
+      padding-inline: var(--s-2);
+    }
+  }
+  @media (min-width: 40em) {
+    .consent {
+      gap: var(--s-5);
+      font-size: var(--fs-sm);
+      line-height: 1.45;
+    }
+    .consent__btn {
+      font-size: var(--fs-sm);
+      padding-inline: var(--s-4);
+    }
+  }
+  /* Full text where it fits on one or two lines; short landscape phones keep the phone wording. */
+  @media (min-width: 40em) and (min-height: 30.01em) {
+    .consent__more {
+      display: inline;
     }
   }
 </style>

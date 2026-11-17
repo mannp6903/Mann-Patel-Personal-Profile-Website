@@ -4,7 +4,7 @@
  * MΛNN PΛTEL wordmark (letters lift and turn lime near the pointer) and the bottom bar with the
  * Toronto clock.
  */
-import { profile, businesses, gbp } from '../data/site';
+import { profile, businesses, gbp, footerPages } from '../data/site';
 import { groups } from '../data/services';
 import { moreServicePages, servicePageForGroup } from '../data/service-pages';
 import { pricesPublished } from '../data/packages';
@@ -67,7 +67,7 @@ const footerMore = moreServicePages.filter((sp) => sp.slug === 'website-care' ||
       <p class="ftr__h">Pages</p>
       <ul role="list">
         <li><a class="link-quiet" href="/">Home</a></li>
-        {nav.map((n) => <li><a class="link-quiet" href={n.href}>{n.label}</a></li>)}
+        {[...nav, ...footerPages].map((n) => <li><a class="link-quiet" href={n.href}>{n.label}</a></li>)}
         <li><a class="link-quiet" href="/contact/">Contact</a></li>
       </ul>
     </nav>
