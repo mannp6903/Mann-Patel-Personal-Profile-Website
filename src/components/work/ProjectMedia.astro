@@ -11,7 +11,8 @@ interface Props {
   scene: 'nest-and-rest' | 'samp';
   /**
    * The page's main image: the desktop capture gets Astro `priority` (eager, sync, fetchpriority high: the one per
-   * page, Website Playbook 16 Nov 2026) and the phone capture loads eagerly at low priority. Otherwise both lazy.
+   * page, Website Playbook 16 Nov 2026). The phone capture is always lazy: it sits below the first screen at 390 and
+   * 1440 (gate G1, Mann's rule of 17 Nov 2026: lazy below the first screen).
    */
   eager?: boolean;
   /**
@@ -51,8 +52,6 @@ const host = new URL(c.url).host;
     alt={c.mobile.altShort ?? c.mobile.alt}
     widths={[120, 160, 240, 320, 360, 480]}
     sizes={phoneSizes}
-    loading={eager ? 'eager' : 'lazy'}
-    fetchpriority={eager ? 'low' : undefined}
   />
 </div>
 

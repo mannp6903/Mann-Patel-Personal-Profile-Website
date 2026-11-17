@@ -231,7 +231,7 @@ const pt = pct(tall);
             src={portrait.src}
             alt={portrait.alt}
             widths={[240, 360, 480, 640]}
-            sizes="(min-width: 64em) 15rem, (min-width: 48em) 11rem, (min-width: 40em) 14rem, 52vw"
+            sizes="(min-width: 64em) 15rem, (min-width: 48em) 11rem, (min-width: 40em) 14rem, 48vw"
             formats={['avif']}
             fallbackFormat="webp"
             data-src-w={portrait.src.width}
@@ -706,7 +706,7 @@ const pt = pct(tall);
     border-radius: 50%;
     padding: 5px;
     background: conic-gradient(from 210deg, var(--signal), rgb(212 248 74 / 0.15) 40%, var(--signal) 70%, rgb(212 248 74 / 0.3));
-    box-shadow: 0 0 0 1px rgb(212 248 74 / 0.25), 0 24px 60px -18px rgb(0 0 0 / 0.9);
+    box-shadow: 0 0 0 1px rgb(212 248 74 / 0.25), var(--shadow-media);
   }
   .ag__photo {
     display: block;

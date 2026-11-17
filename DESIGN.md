@@ -1,5 +1,22 @@
 # DESIGN.md · "Signal" (round 5, Nov 2026), compact editorial portfolio (round 7)
 
+> **Design upgrade, Phase 5 (17 Nov 2026): imagery.**
+> - **One frame system** (`components/work/MediaFrame.astro`): browser frames for desktop captures, phone frames for
+>   phone captures, plain cards for close-ups. Backdrops come only from tokens; each project's own colour no longer
+>   tints its backdrop.
+> - **One shadow**, `--shadow-media`, for every mockup (the frames, the portrait core, the free-check receipt).
+> - **Formats:** captures and the portrait are AVIF with a WebP fallback, with `srcset` up to twice the shown width
+>   wherever the source file is wide enough.
+> - **Avatar:** the phone greeting row has its own head-and-shoulders crop.
+> - **Line weights:** the graph, the services scenes and the promise icons share four stroke tokens.
+> - **Mann's choices:**
+>   - Images are lazy below the first screen.
+>   - Image size is judged against the displayed size × the screen's density.
+>   - Files narrower than twice their shown width are served at full width and listed as needing a higher-resolution
+>     capture.
+> - **Gates:** G1–G4. G5 needs Mann: more real projects and photos.
+> - **Record:** [`docs/27-design-upgrade/phase-5-imagery.md`](docs/27-design-upgrade/phase-5-imagery.md).
+>
 > **Design upgrade, Phase 4 (17 Nov 2026): the motion system.** One token set (`--ease-out`, `--ease-in-out`, `--ease-in`,
 > `--ease-spring`, `--dur-1` to `--dur-5`, `--stagger`, `--dur-loop`, and `--dur-page-out` / `--dur-page-in` for page
 > transitions); every duration in the site comes from it, scripts included, and reduced motion sets it to 0. The hero
@@ -251,8 +268,16 @@ cards and table; it stays unlinked and `noindex` until a price is approved (`dat
 ## Shape and depth
 
 Radius: `--r-sm` 8px (chips, small controls), `--r-md` 14px (inputs, panels), `--r-lg` 28px (media,
-phone), `--r-pill` 999px (buttons). Depth comes from surface steps and hairlines, not shadows. One
-shadow only: `--shadow-pop` for floating layers (menu, ⌘K palette, toast).
+phone), `--r-pill` 999px (buttons). Depth comes from surface steps and hairlines, not shadows. Two shadow tokens only,
+each for one job:
+
+- `--shadow-pop` for floating layers (menu, ⌘K palette, toast, consent bar).
+- `--shadow-media` (design upgrade Phase 5) for mockups: the capture frames, the portrait core in the agent graph and the
+  free-check receipt. It is the single exception to "depth comes from surfaces". It is one plain shadow with no spread,
+  so it works as a `box-shadow` and in `filter: drop-shadow()`.
+
+Besides these, a component may draw only focus rings (`0 0 0 Npx`), the lime button glow (`--signal-glow`) and lime
+glows on live marks (gate G3).
 
 ## Components
 
@@ -280,13 +305,30 @@ shadow only: `--shadow-pop` for floating layers (menu, ⌘K palette, toast).
 
 - The only photo is Mann's real portrait: on Home it is the **Tune in** radio (below); the full street
   photo is also on About. Never generated or stock. The signal-line drawing now lives only on the 404 page.
-- Project images are real captures of real sites, shown in plain rounded frames, captioned with
-  dates.
+- **Project images** are real captures of real sites, captioned with dates, in **one frame system**
+  (`components/work/MediaFrame.astro`, design upgrade Phase 5):
+  - **Kinds:** `browser` (a desktop capture under a browser bar with the site's address), `phone` (a phone capture in a
+    bezel) and `plain` (a close-up on a white card with a hairline).
+  - **Backdrops:** `ProjectMedia` composes a browser frame and a phone frame on a backdrop. The backdrop is `--pm-bg`:
+    the dark surface by default, `--media-bg-1`/`--media-bg-2` (paper tints) in the Selected Work band. No project
+    colours.
+  - **Shadows:** browser and phone frames carry `--shadow-media`. Colours come from the `--frame-*` tokens.
+- **Formats:** captures and the portrait are AVIF with a WebP fallback (`<Picture formats={['avif']}
+  fallbackFormat="webp">`).
+  - `srcset` reaches twice the shown width wherever the source file is wide enough. Otherwise the full source width is
+    served, and gate G2 lists the image as needing a higher-resolution capture.
+  - Images are lazy below the first screen. At most one image per page has high priority.
+  - Each image's file is no larger than its shown size × the screen's density needs (gate G1).
+- **Avatar:** the phone greeting row uses its own head-and-shoulders crop of the portrait, `assets/mann-patel-avatar.jpg`
+  (`scripts/make-avatar.mjs`).
 - Example screens (phone mock-ups) are built in HTML, labelled "Example", and use fictional names.
 - Icons: one inline SVG set, 24px grid, 1.75px stroke, round caps. No emoji.
-- **Scenes and tile icons** (design upgrade Phase 3): the services scenes and the promise icons use the agent graph's
-  line style: 1.5px strokes, round caps and joins, the `--graph-*` greys for lines, `--text-2`/`--text` for the objects,
-  and lime only for the signal (the pin's dot, the read ticks). They are `aria-hidden`; the tile text carries the meaning.
+- **Line weights** (design upgrade Phase 5, task 5.4): the agent graph, the services scenes and the promise icons draw with
+  `--graph-stroke-fine` (1: mesh, outlines), `--graph-stroke` (1.5: nodes, spokes, drawings, the promise icons),
+  `--graph-stroke-bold` (2: one highlighted mark) and `--graph-stroke-signal` (3: a lit route), with round ends.
+  - Lines use the `--graph-*` greys, the objects `--text-2`/`--text`, and lime marks only the signal (the pin's dot, the
+    read ticks, lit routes).
+  - The scenes and icons are `aria-hidden`; the tile text carries the meaning (gate G4).
 - **Mockup backdrops**: `--media-bg-1` and `--media-bg-2`, tints of the paper band toward the surface colour.
 
 ## Motion

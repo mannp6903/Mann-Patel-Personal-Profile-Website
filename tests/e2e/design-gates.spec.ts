@@ -3,6 +3,7 @@
 // Phase 2 (17 Nov 2026): H1–H7 (hero), R3 (hero height), U2 (header button), U3, A2, A3 (consent prompt and focus).
 // Phase 3 (17 Nov 2026): S1–S4 (structure), L1, L3 (layout), U1, U4 (navigation and buttons).
 // Phase 4 (17 Nov 2026): M2, M3, M5, M6, M7 (motion); M1 and M4 are unit tests (tests/unit/design-tokens.test.ts).
+// Phase 5 (17 Nov 2026): G1, G2 (images); G3 and G4 are unit tests.
 import { expect, test, type Page } from '@playwright/test';
 import { readdirSync } from 'node:fs';
 
@@ -707,5 +708,131 @@ test.describe('design gates: motion (Phase 4)', () => {
       const median = [...worst].sort((a, b) => a - b)[1];
       expect(median, `${width}px: ${detail.join(' · ')}`).toBeLessThanOrEqual(50);
     }
+  });
+});
+
+/** Every image on the page once scrolled through (so lazy images have loaded), with what was chosen from its srcset. */
+async function imagesOn(page: Page) {
+  await page.evaluate(async () => {
+    for (let y = 0; y < document.documentElement.scrollHeight; y += innerHeight * 0.8) {
+      scrollTo(0, y);
+      await new Promise((r) => setTimeout(r, 60));
+    }
+    scrollTo(0, 0);
+  });
+  // Hidden images (the phone avatar on desktop) and those off to the side in a swipe rail never load lazily, so the
+  // wait is bounded; an image that hasn't loaded is still checked for its markup, just not for the file it chose.
+  await page.waitForFunction(() => [...document.images].filter((i) => i.getClientRects().length).every((i) => i.complete), null, { timeout: 4000 }).catch(() => {});
+  return page.evaluate(() =>
+    [...document.images].map((i) => {
+      const pic = i.parentElement?.tagName === 'PICTURE' ? i.parentElement : null;
+      const avif = pic?.querySelector('source[type="image/avif"]') as HTMLSourceElement | null;
+      const path = i.currentSrc ? new URL(i.currentSrc).pathname : '';
+      const sets = [avif?.srcset ?? '', i.srcset ?? ''];
+      const cands = sets.flatMap((set) =>
+        set
+          .split(',')
+          .map((c) => c.trim().split(/\s+/))
+          .filter((c) => c[1]?.endsWith('w'))
+          .map(([u, d]) => ({ path: new URL(u, location.href).pathname, w: parseInt(d) })),
+      );
+      const own = cands.filter((c) => (avif && avif.srcset.includes(c.path) ? avif.srcset.includes(path) : !avif || !avif.srcset.includes(path)));
+      return {
+        name: (i.alt || i.className || path.split('/').pop() || '').slice(0, 40),
+        alt: i.getAttribute('alt'),
+        width: i.getAttribute('width'),
+        height: i.getAttribute('height'),
+        loading: i.getAttribute('loading'),
+        decorative: Boolean(i.closest('[aria-hidden="true"]')) || i.getAttribute('role') === 'presentation',
+        raster: /\.(webp|avif|png|jpe?g)$/.test(path),
+        avif: Boolean(avif),
+        fallback: path ? (i.src.match(/\.(\w+)$/)?.[1] ?? '') : '',
+        shown: i.offsetWidth,
+        drawn: i.getClientRects().length > 0,
+        chosen: own.find((c) => c.path === path)?.w ?? null,
+        widths: [...new Set(own.map((c) => c.w))].sort((a, b) => a - b),
+        source: Number(i.dataset.srcW) || null,
+        top: i.getBoundingClientRect().top + scrollY,
+      };
+    }),
+  );
+}
+
+test.describe('design gates: imagery (Phase 5)', () => {
+  test('G1: every image has width, height and alt text, is lazy below the first screen, and is not oversized for the screen', async ({ browser }) => {
+    test.setTimeout(300_000);
+    // Decorative images with empty alt text, each with its reason (alt="" is right for them).
+    const DECORATIVE = ['hero__avatar', 'nf__img'];
+    // Mann's choices (17 Nov 2026): lazy below the first screen (images in it may load at once; at most one has high
+    // priority, the existing image test); size judged as Lighthouse's older "properly size images" did, the displayed
+    // size × the screen's density (Lighthouse 13's "Improve image delivery" ignores density).
+    const screens = [
+      { width: 412, height: 823, dpr: 1.75 }, // Lighthouse's phone
+      { width: 1440, height: 900, dpr: 1 },
+    ];
+    const problems: string[] = [];
+    // Where each image sits at each screen size: it must be lazy only if it is below the first screen at both.
+    const below = new Map<string, { below: boolean[]; lazy: boolean }>();
+    for (const { width, height, dpr } of screens) {
+      const ctx = await browser.newContext({ viewport: { width, height }, deviceScaleFactor: dpr, isMobile: dpr > 1, hasTouch: dpr > 1 });
+      const page = await ctx.newPage();
+      for (const path of builtPages()) {
+        await page.goto(path);
+        const seen = new Map<string, number>();
+        for (const img of await imagesOn(page)) {
+          const at = `${path} at ${width}px: ${img.name}`;
+          if (!img.width || !img.height) problems.push(`${at}: no width/height`);
+          if (img.alt === null) problems.push(`${at}: no alt attribute`);
+          if (img.alt === '' && !img.decorative && !DECORATIVE.some((c) => img.name.includes(c))) problems.push(`${at}: empty alt on a non-decorative image`);
+          const n = (seen.get(img.name) ?? 0) + 1;
+          seen.set(img.name, n);
+          const key = `${path} ${img.name} #${n}`;
+          const entry = below.get(key) ?? { below: [], lazy: img.loading === 'lazy' };
+          if (img.drawn) entry.below.push(img.top > height);
+          below.set(key, entry);
+          if (!img.drawn || !img.raster || !img.chosen || !img.shown) continue;
+          // Oversized: the file is over 1.3× what the screen needs and a smaller candidate would still have covered it.
+          const need = img.shown * dpr;
+          const smaller = img.widths.filter((w) => w < img.chosen! && w >= need);
+          if (img.chosen > need * 1.3 && smaller.length) problems.push(`${at}: ${img.chosen}w file for ${Math.round(need)}px (a ${smaller[0]}w file exists)`);
+        }
+      }
+      await ctx.close();
+    }
+    for (const [key, { below: b, lazy }] of below)
+      if (b.length && b.every(Boolean) && !lazy) problems.push(`${key}: below the first screen at 412 and 1440, but not lazy`);
+    expect(problems).toEqual([]);
+  });
+
+  test('G2: captures and the portrait are AVIF with a WebP fallback, and their srcset reaches 2× the shown width (or the full source)', async ({ browser }) => {
+    test.setTimeout(240_000);
+    const limited = new Set<string>();
+    const problems: string[] = [];
+    for (const [width, height] of [
+      [390, 844],
+      [1440, 900],
+    ]) {
+      const ctx = await browser.newContext({ viewport: { width, height } });
+      const page = await ctx.newPage();
+      for (const path of builtPages()) {
+        await page.goto(path);
+        for (const img of await imagesOn(page)) {
+          if (!img.raster) continue;
+          const at = `${path} at ${width}px: ${img.name}`;
+          if (!img.avif) problems.push(`${at}: no AVIF source`);
+          if (img.fallback !== 'webp') problems.push(`${at}: fallback is ${img.fallback}, not WebP`);
+          if (!img.source) problems.push(`${at}: no data-src-w (source width)`);
+          if (!img.drawn || !img.shown) continue;
+          const max = Math.max(0, ...img.widths);
+          if (max >= 2 * img.shown) continue;
+          // Mann's choice (17 Nov 2026): a file narrower than 2× its shown width is served at its full width and listed.
+          if (img.source && max >= img.source) limited.add(`${img.name} (source ${img.source}px, shown up to ${img.shown}px)`);
+          else problems.push(`${at}: srcset stops at ${max}w for ${img.shown}px shown (source ${img.source}px)`);
+        }
+      }
+      await ctx.close();
+    }
+    if (limited.size) test.info().annotations.push({ type: 'G2: needs a higher-resolution capture (owner)', description: [...limited].join(' · ') });
+    expect(problems).toEqual([]);
   });
 });
