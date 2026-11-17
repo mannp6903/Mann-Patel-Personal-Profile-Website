@@ -7,6 +7,9 @@
 // Phase 6 (17 Nov 2026): R1, R2, R4, R5, R6 (headings without one-word last lines); R3 is in Phase 2's tests.
 // Phase 7 (17 Nov 2026): P2 (page weight), P3 (elements); P4 is M2's check (the test is titled for both); P1 is the
 // Lighthouse assertions in lighthouserc.json.
+// Phase 8 (17 Nov 2026): A1 (axe everywhere, overlays open), A4 (text spacing), A5 (forced colours). A2 and A3 are in
+// Phase 2's tests, A6 is T4/T5 and R4, A7 is M5 and H7, A9 is lighthouserc.json.
+import AxeBuilder from '@axe-core/playwright';
 import { expect, test, type Page } from '@playwright/test';
 import { readdirSync } from 'node:fs';
 
@@ -1065,6 +1068,165 @@ test.describe('design gates: performance (Phase 7)', () => {
       await page.waitForTimeout(1000);
       const count = await page.evaluate(() => document.querySelectorAll('*').length);
       expect(count, `${width}px`).toBeLessThanOrEqual(950);
+      await ctx.close();
+    }
+  });
+});
+
+const AXE_TAGS = ['wcag2a', 'wcag2aa', 'wcag21a', 'wcag21aa', 'wcag22aa'];
+async function axeViolations(page: Page): Promise<string[]> {
+  // Cast: @axe-core/playwright 4.14 types target a newer Playwright than the 1.63 pinned to the preinstalled browsers.
+  const r = await new AxeBuilder({ page } as unknown as ConstructorParameters<typeof AxeBuilder>[0]).withTags(AXE_TAGS).analyze();
+  return r.violations.map((v) => `${v.id} (${v.impact}): ${v.nodes.length} × ${v.nodes[0]?.target.join(' ')}`);
+}
+
+test.describe('design gates: accessibility (Phase 8)', () => {
+  // A1, every page at three sizes. Reduced motion puts each page straight into its resting state: text that is still
+  // fading in reads as low contrast to axe. The site.spec.ts axe tests keep checking the pages with motion on.
+  for (const width of [375, 768, 1440]) {
+    test(`A1 at ${width}px: axe finds no WCAG 2.2 A/AA violation on any page`, async ({ browser }) => {
+      test.setTimeout(300_000);
+      const ctx = await browser.newContext({ viewport: { width, height: 900 }, reducedMotion: 'reduce' });
+      const page = await ctx.newPage();
+      const problems: string[] = [];
+      for (const path of builtPages()) {
+        await page.goto(path);
+        await page.waitForTimeout(150);
+        for (const v of await axeViolations(page)) problems.push(`${path}: ${v}`);
+      }
+      expect(problems, problems.join('\n')).toEqual([]);
+      await ctx.close();
+    });
+  }
+
+  test('A1 with overlays open: the phone menu, the quick menu, the consent prompt and a question, at 375, 768 and 1440', async ({ browser }) => {
+    test.setTimeout(180_000);
+    const problems: string[] = [];
+    for (const width of [375, 768, 1440]) {
+      const ctx = await browser.newContext({ viewport: { width, height: 900 }, reducedMotion: 'reduce' });
+      const page = await ctx.newPage();
+      const check = async (what: string) => {
+        for (const v of await axeViolations(page)) problems.push(`${width}px, ${what}: ${v}`);
+      };
+      // The phone menu (below 64em).
+      if (width < 1024) {
+        await page.goto('/');
+        await page.locator('[data-menu-open]').click();
+        await expect(page.locator('#site-menu')).toBeVisible();
+        await check('phone menu open');
+      }
+      // The quick menu, with a search typed.
+      await page.goto('/services/');
+      await page.keyboard.press('Control+k');
+      await expect(page.getByRole('dialog', { name: 'Quick menu' })).toBeVisible();
+      await page.getByRole('combobox').fill('price');
+      await check('quick menu open');
+      // A question open in the Home FAQ.
+      await page.keyboard.press('Escape');
+      await page.goto('/');
+      const question = page.locator('#faq details').first();
+      await question.locator('summary').click();
+      await expect(question).toHaveAttribute('open', '');
+      await check('a question open');
+      // The consent prompt, as a first visit sees it (the consent build).
+      await page.goto(`${CONSENT}/`);
+      await openConsent(page);
+      await check('consent prompt open');
+      await ctx.close();
+    }
+    expect(problems, problems.join('\n')).toEqual([]);
+  });
+
+  test('A4: with WCAG text spacing, no button label or heading clips, at 375, 768 and 1440 on every page', async ({ browser }) => {
+    test.setTimeout(300_000);
+    // WCAG 1.4.12's test styles.
+    const spacing =
+      '* { line-height: 1.5 !important; letter-spacing: 0.12em !important; word-spacing: 0.16em !important; } p { margin-bottom: 2em !important; }';
+    // Mann's decision (17 Nov 2026): measure the real text. The hover "roll" copies of button labels (and the ghost
+    // buttons' hover fill) sit outside their box on purpose, hidden until hover; they are set aside for the measure.
+    // A line mask may paint past its edge by its overflow-clip-margin (descenders), which is allowed for.
+    const decorative = '.btn__label > span::after, .btn--ghost::before, .btn--ink::before { content: none !important; }';
+    const problems = new Set<string>();
+    for (const width of [375, 768, 1440]) {
+      // At rest: reduced motion, so scroll-driven reveals are not caught half-way.
+      const ctx = await browser.newContext({ viewport: { width, height: 900 }, reducedMotion: 'reduce' });
+      const page = await ctx.newPage();
+      for (const path of builtPages()) {
+        await page.goto(path);
+        await page.addStyleTag({ content: decorative + spacing });
+        await page.waitForTimeout(100);
+        const clipped = await page.evaluate(() => {
+          const scope = 'a.btn, button, .btn, h1, h2, h3, h4, summary';
+          const out: string[] = [];
+          for (const el of document.querySelectorAll<HTMLElement>(`${scope}, :is(${scope}) *`)) {
+            if (!el.checkVisibility() || el.closest('.visually-hidden, [aria-hidden="true"]')) continue;
+            const cs = getComputedStyle(el);
+            if (cs.overflowX === 'visible' && cs.overflowY === 'visible') continue;
+            const box = el.getBoundingClientRect();
+            if (box.width <= 2 || box.height <= 2) continue;
+            const margin = cs.overflowX === 'clip' || cs.overflowY === 'clip' ? parseFloat(cs.overflowClipMargin) || 0 : 0;
+            if (el.scrollHeight > el.clientHeight + 1 + margin)
+              out.push(`${el.tagName.toLowerCase()}.${(el.getAttribute('class') ?? '').split(' ')[0]} "${(el.textContent ?? '').trim().slice(0, 30)}" ${el.scrollHeight}/${el.clientHeight}`);
+          }
+          return out;
+        });
+        clipped.forEach((c) => problems.add(`${width}px ${path}: ${c}`));
+      }
+      await ctx.close();
+    }
+    expect([...problems], [...problems].join('\n')).toEqual([]);
+  });
+
+  test('A5: in forced colours, buttons have a visible edge, the focus ring shows, and chosen or current marks survive', async ({ browser }) => {
+    for (const colorScheme of ['dark', 'light'] as const) {
+      const ctx = await browser.newContext({ viewport: { width: 390, height: 844 }, forcedColors: 'active', colorScheme, reducedMotion: 'reduce' });
+      const page = await ctx.newPage();
+      await page.goto('/');
+      // Every button: a solid border at least 1px wide in a colour that differs from its background.
+      const edgeless = await page.evaluate(() =>
+        [...document.querySelectorAll<HTMLElement>('.btn, button, .ca__btn')]
+          .filter((b) => b.checkVisibility())
+          .filter((b) => {
+            const cs = getComputedStyle(b);
+            return cs.borderTopStyle === 'none' || parseFloat(cs.borderTopWidth) < 1 || cs.borderTopColor === cs.backgroundColor;
+          })
+          .map((b) => (b.getAttribute('class') ?? b.tagName).split(' ')[0]),
+      );
+      expect.soft(edgeless, `${colorScheme}: buttons without a visible edge`).toEqual([]);
+      // The page's own background in this mode: a mark painted in it is invisible.
+      const canvas = await page.evaluate(() => getComputedStyle(document.body).backgroundColor);
+      const visible = (c: string) => !/rgba\(0, 0, 0, 0\)|transparent/.test(c) && c !== canvas;
+      // The Menu button's lines are drawn (the mode paints fills in the page background unless a component draws them
+      // in system colours).
+      const lines = await page.locator('.menu-btn__lines i').first().evaluate((i) => getComputedStyle(i).backgroundColor);
+      expect.soft(visible(lines), `${colorScheme}: Menu lines ${lines} on ${canvas}`).toBe(true);
+      // Display headings are set loosely enough that the mode's line backplates don't cut the line above.
+      const tight = await page.evaluate(() =>
+        [...document.querySelectorAll<HTMLElement>('h1, h2')]
+          .filter((h) => h.checkVisibility())
+          .filter((h) => parseFloat(getComputedStyle(h).lineHeight) < 1.15 * parseFloat(getComputedStyle(h).fontSize) - 0.5)
+          .map((h) => (h.textContent ?? '').trim().slice(0, 30)),
+      );
+      expect.soft(tight, `${colorScheme}: headings set tighter than 1.15`).toEqual([]);
+      // The focus ring: Tab to the first few stops; each shows a solid outline at least 2px wide.
+      for (let i = 0; i < 4; i++) {
+        await page.keyboard.press('Tab');
+        const ring = await page.evaluate(() => {
+          const cs = getComputedStyle(document.activeElement!);
+          return { style: cs.outlineStyle, width: parseFloat(cs.outlineWidth), color: cs.outlineColor };
+        });
+        expect.soft(ring.style, `${colorScheme}: focus ring ${i + 1}`).not.toBe('none');
+        expect.soft(ring.width, `${colorScheme}: focus ring ${i + 1} width`).toBeGreaterThanOrEqual(2);
+        expect.soft(visible(ring.color), `${colorScheme}: focus ring ${i + 1} colour ${ring.color}`).toBe(true);
+      }
+      // The contact form: the chosen card has a different edge from the other, and the progress bar is drawn.
+      await page.goto('/contact/');
+      const cards = await page.evaluate(() =>
+        [...document.querySelectorAll<HTMLElement>('.choose__opt')].map((c) => `${getComputedStyle(c).borderTopWidth} ${getComputedStyle(c).borderTopColor}`),
+      );
+      expect.soft(new Set(cards).size, `${colorScheme}: chosen card looks the same as the other: ${cards.join(' | ')}`).toBe(2);
+      const bar = await page.evaluate(() => [...document.querySelectorAll<HTMLElement>('.steps-nav__bar li')].map((li) => getComputedStyle(li).backgroundColor));
+      expect.soft(bar.length > 0 && bar.every(visible), `${colorScheme}: progress bar ${bar.join(' ')} on ${canvas}`).toBe(true);
       await ctx.close();
     }
   });

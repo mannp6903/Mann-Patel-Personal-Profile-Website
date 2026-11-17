@@ -1,5 +1,17 @@
 # DESIGN.md · "Signal" (round 5, Nov 2026), compact editorial portfolio (round 7)
 
+> **Design upgrade, Phase 8 (17 Nov 2026): accessibility.**
+> - **Forced colours** (Windows contrast themes): buttons keep a `ButtonText` edge, the focus ring is `Highlight`,
+>   display headings open up to 1.15 line height (the mode's line backplates were cutting the line above), and every
+>   mark drawn only as a fill or only in lime has a system-colour stand-in: the Menu lines, the chosen contact card, the
+>   chosen area and chips, the form's progress bar, the finder's bar, the quick menu's active option and the demo's
+>   active step. See Colour → Forced colours.
+> - **Checked everywhere:** axe at 375, 768 and 1440 on every page, and with the phone menu, the quick menu, the
+>   consent prompt and a question open (A1); WCAG text spacing on every page (A4); forced colours in dark and light
+>   (A5). Nothing failed axe; no button label or heading clips with the spacing applied.
+> - **Gates:** A1, A4, A5 new; A2, A3, A6, A7 and A9 were already green. A8 (a screen-reader pass) needs Mann.
+> - **Record:** [`docs/27-design-upgrade/phase-8-accessibility.md`](docs/27-design-upgrade/phase-8-accessibility.md).
+>
 > **Design upgrade, Phase 7 (17 Nov 2026): performance.**
 > - **One graph in the page:** the agent graph's tall layout is sent in the HTML and the wide one waits in a
 >   `<template>`; a small inline script after the figure swaps them before the first paint where the wide one is used
@@ -196,6 +208,14 @@ is never text: the live tag is a lime fill with ink text (16.2:1) and accents ar
 time at 375, 768 and 1440 (gate C1, `tests/e2e/design-gates.spec.ts`): at most one lime mark per screen, not counting
 the sticky header (its button follows gate U2), the wordmark and Λ's, the agent graph, the free-check band, headline
 full stops and live markers. Lime is never a background for long text. No gradients on text, no purple, no glass.
+
+**Forced colours (design upgrade Phase 8).** In a Windows contrast theme the browser swaps every colour for the
+visitor's system colours and drops background fills. So nothing may rely on a fill or on lime alone: buttons carry a
+1px edge (`ButtonText` in that mode), the focus ring is `Highlight`, and a chosen or current state that is only a lime
+edge or a wash gets a 2px `Highlight` edge or outline (`@media (forced-colors: active)` in `global.css` and in each
+component). A mark drawn as a fill (the Menu lines, progress bars) sets `forced-color-adjust: none` and paints itself in
+a system colour (`ButtonText`, `Highlight`, `GrayText`). Display headings open up to 1.15 line height there. The agent
+graph's SVG keeps its own colours (the mode leaves SVG paint alone) and reads on both. Gate A5 checks it.
 
 **The Λ as a system glyph.** Eyebrows start with a small Λ cut from the wordmark (`--lambda`, a mask painted
 `--eyebrow-mark`: lime on dark, ink on the paper band). The round dot is kept only where it means "live" (`.status__dot`).

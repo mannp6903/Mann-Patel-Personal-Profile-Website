@@ -296,6 +296,13 @@ const last = steps.length - 1;
       transform: translateY(6px);
     }
   }
+  /* Forced colours (design upgrade Phase 8): the active step is marked by a lime edge and a fill; give it a heavier
+     highlight edge. */
+  @media (forced-colors: active) {
+    .demo__step[aria-pressed='true'] {
+      border-left: 4px solid Highlight;
+    }
+  }
 </style>
 
 <script>

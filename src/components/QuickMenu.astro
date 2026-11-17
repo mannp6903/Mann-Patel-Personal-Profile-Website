@@ -386,4 +386,11 @@ const groups: { title: string; items: Item[] }[] = [
       display: none;
     }
   }
+  /* Forced colours (design upgrade Phase 8): the active option is marked only by its background; outline it. */
+  @media (forced-colors: active) {
+    .qm__item[aria-selected='true'] {
+      outline: 2px solid Highlight;
+      outline-offset: -2px;
+    }
+  }
 </style>

@@ -719,4 +719,12 @@ const sheetLinks = [{ href: '/', label: 'Home' }, ...nav];
       transform: translateX(0.75rem);
     }
   }
+  /* Forced colours (design upgrade Phase 8): the Menu lines are fills, which the mode drops; draw them in the button
+     text colour. */
+  @media (forced-colors: active) {
+    .menu-btn__lines i {
+      forced-color-adjust: none;
+      background: ButtonText;
+    }
+  }
 </style>

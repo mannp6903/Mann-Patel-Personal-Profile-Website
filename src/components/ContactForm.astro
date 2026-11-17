@@ -1048,4 +1048,18 @@ const tick = '<svg viewBox="0 0 16 16"><path d="m3.5 8.5 3 3 6-7" /></svg>';
     font-size: var(--fs-label);
     padding-top: 0.3em;
   }
+  /* Forced colours (design upgrade Phase 8): the progress bar and the chosen area are fills and lime, which the mode
+     drops; draw them in system colours. */
+  @media (forced-colors: active) {
+    .steps-nav__bar li {
+      forced-color-adjust: none;
+      background: GrayText;
+    }
+    .steps-nav__bar li::after {
+      background: Highlight;
+    }
+    .area:has(input:checked) {
+      border: 2px solid Highlight;
+    }
+  }
 </style>
