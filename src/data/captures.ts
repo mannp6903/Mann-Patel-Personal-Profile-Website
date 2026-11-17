@@ -33,8 +33,6 @@ export interface Detail {
 }
 export interface CaptureSet {
   url: string;
-  /** Accent used behind the captures (taken from the project's own palette). */
-  tint: string;
   desktop: Shot;
   mobile: Shot;
   earlier?: Shot;
@@ -44,7 +42,6 @@ export interface CaptureSet {
 export const captures: Record<'nest-and-rest' | 'samp', CaptureSet> = {
   'nest-and-rest': {
     url: 'https://nestnrestcleaning.com/',
-    tint: '#9cc7d8',
     desktop: {
       src: nrDesktop,
       alt: 'Nest & Rest Cleaning home page on desktop: an “Opening soon” notice above “We clean. You rest.” over a photo of the Toronto skyline and CN Tower at dawn, with a See prices button and a “Your price, in seconds” box showing $116 for a first regular clean.',
@@ -91,7 +88,6 @@ export const captures: Record<'nest-and-rest' | 'samp', CaptureSet> = {
   },
   samp: {
     url: 'https://samp-hair-spa.lovable.app/',
-    tint: '#c9a0b4',
     desktop: {
       src: sampDesktop,
       alt: 'Samp Hair & Spa preview on desktop: the headline “Where beauty meets calm.” in an elegant serif, with Book an appointment and phone buttons beside salon photography.',

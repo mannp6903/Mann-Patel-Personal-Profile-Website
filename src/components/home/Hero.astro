@@ -13,7 +13,8 @@
  * Earlier history: 14 Nov 2026 (SEO audit) the H1 became "Websites and local SEO for Toronto small businesses." (place
  * and customer, docs/seo/PLAN.md A7); AI search and automation stay in the subline.
  */
-import { Image } from 'astro:assets';
+import { Picture } from 'astro:assets';
+import avatar from '../../assets/mann-patel-avatar.jpg';
 import { profile } from '../../data/site';
 import { packageById, priceLabel } from '../../data/packages';
 import Button from '../ui/Button.astro';
@@ -31,7 +32,7 @@ const portrait = profile.portrait;
       <div class="hero__hello">
         {
           portrait && (
-            <Image src={portrait.src} alt="" widths={[80, 120]} sizes="40px" width={40} height={40} format="webp" quality={75} loading="lazy" decoding="async" class="hero__avatar" />
+            <Picture src={avatar} alt="" data-src-w={avatar.width} widths={[80, 120]} sizes="40px" width={40} height={40} formats={['avif']} fallbackFormat="webp" quality={55} loading="lazy" decoding="async" class="hero__avatar" />
           )
         }
         <p>
@@ -113,7 +114,7 @@ const portrait = profile.portrait;
     height: 2.5rem;
     border-radius: 50%;
     object-fit: cover;
-    object-position: 50% 30%;
+    object-position: 50% 50%;
     box-shadow: 0 0 0 1px var(--line);
   }
   .hero__hello p {

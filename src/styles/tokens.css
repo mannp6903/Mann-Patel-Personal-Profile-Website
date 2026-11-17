@@ -82,6 +82,10 @@
   --frame-dot: #c4c4ca;
   --frame-url: #5b5b63;
   --frame-bezel: #1c1c20;
+  /* The one shadow for mockups: project captures, the portrait core and the free-check receipt (design upgrade Phase
+     5, task 5.1). The single exception to "depth comes from surfaces" (DESIGN.md → Shape and depth); floating UI keeps
+     --shadow-pop. One plain shadow with no spread, so it works in box-shadow and in filter: drop-shadow() alike. */
+  --shadow-media: 0 24px 36px rgb(0 0 0 / 0.55);
   /* The wordmark's crossbar-less Λ (components/ui/Wordmark.astro), as a mask: eyebrows paint it lime. */
   --lambda: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='1102 0 628 710'%3E%3Cpath d='M1102 710 1358 0H1474L1730 710H1636L1416 75L1196 710Z'/%3E%3C/svg%3E");
   /* Agent graph strokes: lime-tinted greys for the network (components/home/AgentGraph.astro). */
@@ -90,6 +94,13 @@
   --graph-ring: #4a4f37;
   --graph-node: #8d9a4a;
   --graph-pill-line: #3d3f33;
+  /* Line weights shared by the agent graph, the services scenes and the promise icons (design upgrade Phase 5, task
+     5.4): hairline for the mesh and outlines, regular for nodes, spokes and drawings, bold for one highlighted mark, and
+     signal for a lit route. Ends are round; lime marks only the signal. */
+  --graph-stroke-fine: 1;
+  --graph-stroke: 1.5;
+  --graph-stroke-bold: 2;
+  --graph-stroke-signal: 3;
 
   /* ── Type ── */
   --font-sans: 'Geist', 'Geist Fallback', ui-sans-serif, system-ui, sans-serif;

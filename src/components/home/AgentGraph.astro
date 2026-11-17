@@ -17,7 +17,7 @@
  * Booking pill fades for its glow; and the pulses are short streaks the script moves along each route with
  * transform. Without JavaScript, or with reduced motion, two routes stay lit, as before.
  */
-import { Image } from 'astro:assets';
+import { Picture } from 'astro:assets';
 import { profile } from '../../data/site';
 
 interface Props {
@@ -227,13 +227,15 @@ const pt = pct(tall);
     {
       portrait && (
         <div class="ag__core">
-          <Image
+          <Picture
             src={portrait.src}
             alt={portrait.alt}
             widths={[240, 360, 480, 640]}
-            sizes="(min-width: 64em) 15rem, (min-width: 48em) 11rem, (min-width: 40em) 14rem, 52vw"
-            format="webp"
-            quality={80}
+            sizes="(min-width: 64em) 15rem, (min-width: 48em) 11rem, (min-width: 40em) 14rem, 48vw"
+            formats={['avif']}
+            fallbackFormat="webp"
+            data-src-w={portrait.src.width}
+            quality={60}
             priority
             decoding="async"
             class="ag__photo"
@@ -610,24 +612,26 @@ const pt = pct(tall);
   .ag__mesh path {
     fill: none;
     stroke: var(--graph-mesh);
-    stroke-width: 1;
+    stroke-width: var(--graph-stroke-fine);
+    stroke-linecap: round;
   }
   .ag__spokes path {
     fill: none;
     stroke: var(--graph-spoke);
-    stroke-width: 1.25;
+    stroke-width: var(--graph-stroke);
+    stroke-linecap: round;
   }
   .ag__ring {
     fill: none;
   }
   .ag__ring--dots {
     stroke: var(--graph-ring);
-    stroke-width: 1;
+    stroke-width: var(--graph-stroke-fine);
     stroke-dasharray: 1.5 7;
   }
   .ag__ring--scan {
     stroke: var(--signal);
-    stroke-width: 2;
+    stroke-width: var(--graph-stroke-bold);
     stroke-linecap: round;
     stroke-dasharray: 18 8 3 8 30 33;
     opacity: 0.9;
@@ -635,14 +639,14 @@ const pt = pct(tall);
   .ag__ping {
     fill: none;
     stroke: var(--signal);
-    stroke-width: 1.5;
+    stroke-width: var(--graph-stroke);
     opacity: 0;
   }
   /* Still: two routes lit, so the diagram reads as a flow (reduced motion, or no JavaScript). */
   .ag__pulse {
     fill: none;
     stroke: var(--signal);
-    stroke-width: 3;
+    stroke-width: var(--graph-stroke-signal);
     stroke-linecap: round;
     opacity: 0.55;
   }
@@ -658,7 +662,7 @@ const pt = pct(tall);
   .ag__lit circle {
     fill: var(--signal);
     stroke: var(--signal);
-    stroke-width: 1.5;
+    stroke-width: var(--graph-stroke);
     opacity: 0;
   }
   .ag__glow {
@@ -668,12 +672,12 @@ const pt = pct(tall);
   .ag__nodes circle {
     fill: var(--bg);
     stroke: var(--graph-node);
-    stroke-width: 1.5;
+    stroke-width: var(--graph-stroke);
   }
   .ag__pill rect {
     fill: var(--surface);
     stroke: var(--graph-pill-line);
-    stroke-width: 1;
+    stroke-width: var(--graph-stroke-fine);
   }
   .ag__pill text {
     fill: var(--text);
@@ -702,7 +706,7 @@ const pt = pct(tall);
     border-radius: 50%;
     padding: 5px;
     background: conic-gradient(from 210deg, var(--signal), rgb(212 248 74 / 0.15) 40%, var(--signal) 70%, rgb(212 248 74 / 0.3));
-    box-shadow: 0 0 0 1px rgb(212 248 74 / 0.25), 0 24px 60px -18px rgb(0 0 0 / 0.9);
+    box-shadow: 0 0 0 1px rgb(212 248 74 / 0.25), var(--shadow-media);
   }
   .ag__photo {
     display: block;

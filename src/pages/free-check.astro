@@ -10,7 +10,7 @@
  * search, and this page is only reached from campaign links (tag them with UTMs; GA4 records them).
  * scripts/prelaunch-check.mjs allows it as an unlisted, unlinked campaign page.
  */
-import { Image } from 'astro:assets';
+import { Picture } from 'astro:assets';
 import BaseLayout from '../layouts/BaseLayout.astro';
 import Heading from '../components/ui/Heading.astro';
 import Button from '../components/ui/Button.astro';
@@ -150,10 +150,13 @@ const faq = [
       <aside class="lp-me" aria-label="Who does the check">
         {
           profile.portrait && (
-            <Image
+            <Picture
               class="lp-me__photo"
               src={profile.portrait.src}
               alt={profile.portrait.alt}
+              formats={['avif']}
+              fallbackFormat="webp"
+              data-src-w={profile.portrait.src.width}
               widths={[96, 192, 288]}
               sizes="96px"
               loading="lazy"
@@ -558,7 +561,7 @@ const faq = [
     max-width: 44ch;
   }
   .rc {
-    filter: drop-shadow(0 24px 30px rgb(0 0 0 / 0.55));
+    filter: drop-shadow(var(--shadow-media));
   }
   .rc__paper {
     --z: 18px;

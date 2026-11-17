@@ -4,6 +4,9 @@
 // Phase 4 (17 Nov 2026):
 //   M1: one motion token set, and no literal durations in component CSS or in the options of script animations.
 //   M4: page transitions take at most 450ms.
+// Phase 5 (17 Nov 2026):
+//   G3: one frame system for captures (MediaFrame.astro), with backdrops and the one media shadow from tokens.
+//   G4: the agent graph, the services scenes and the promise icons share the graph's stroke tokens.
 // "CSS" here is every .css file and every <style> block and style="" attribute in .astro files under src/components,
 // src/pages and src/layouts, plus src/styles/global.css. Comments are ignored.
 import { describe, expect, it } from 'vitest';
@@ -191,5 +194,49 @@ describe('design tokens (DESIGN_UPGRADE_PLAN.md §5)', () => {
         expect(m[1].trim(), b[0].split('{')[0].trim()).toMatch(/^(var\(--dur-page-(out|in)\)|0s)$/);
     // No shorthand animation on the root transition, so every duration is one of the above.
     for (const b of blocks.filter((x) => /\(root\)/.test(x[0]))) expect(b[1]).not.toMatch(/(^|[\s;])animation\s*:/);
+  });
+
+  it('G3: every shadow is a token (media, pop-up, glow), a focus ring, or a lime glow on a live mark', () => {
+    const tokens = readFileSync(join(ROOT, 'src/styles/tokens.css'), 'utf8');
+    // One plain shadow, no spread, so it works in box-shadow and in drop-shadow() alike.
+    expect(tokens).toMatch(/--shadow-media:\s*0 \d+px \d+px rgb\([^)]*\);/);
+    const ring = /^(inset )?0 0 0 [\d.]+px [^,]+$/;
+    const tokenShadow = /^var\(--(shadow-media|shadow-pop|signal-glow)\)$/;
+    const parts = (v: string) => v.split(/,(?![^(]*\))/).map((x) => x.trim());
+    const boxOffenders = DECLS.filter((d) => d.prop === 'box-shadow' && d.value !== 'none')
+      .filter((d) => !parts(d.value).every((p) => tokenShadow.test(p) || ring.test(p)))
+      .map(where);
+    expect(boxOffenders).toEqual([]);
+    // drop-shadow(): the media shadow, or a glow (no offset) in lime, which marks something live (the graph's signal).
+    const dropOffenders = DECLS.filter((d) => d.prop === 'filter' && /drop-shadow/.test(d.value))
+      .filter((d) => !/^drop-shadow\(var\(--shadow-media\)\)$/.test(d.value) && !/^drop-shadow\(0 0 [\d.]+px rgb\(212 248 74 \/ [\d.]+\)\)$/.test(d.value))
+      .map(where);
+    expect(dropOffenders).toEqual([]);
+  });
+
+  it('G3: one frame system: captures are drawn only by MediaFrame.astro, on token backdrops', () => {
+    const frameFiles = ['src/components/work/MediaFrame.astro', 'src/components/work/ProjectMedia.astro'];
+    for (const f of frameFiles) {
+      const { css } = cssOf(f);
+      // Colours, backdrops and shadows come from tokens only.
+      expect(css, f).not.toMatch(/rgb\(|hsl\(|#[0-9a-f]{3,8}\b|color-mix\(/i);
+    }
+    expect(cssOf('src/components/work/MediaFrame.astro').css).toMatch(/box-shadow:\s*var\(--shadow-media\)/);
+    // Any page or component that reads the capture data hands the images to MediaFrame (no <Image>/<Picture> of its own).
+    const readers = SCANNED_DIRS.flatMap(walk).filter((f) => /from ['"][./]*data\/captures['"]/.test(readFileSync(join(ROOT, f), 'utf8')));
+    expect(readers.length).toBeGreaterThanOrEqual(2);
+    for (const f of readers) expect(readFileSync(join(ROOT, f), 'utf8'), f).not.toMatch(/<(Image|Picture)\b/);
+  });
+
+  it('G4: the graph, the services scenes and the promise icons draw with the graph’s stroke tokens', () => {
+    const tokens = readFileSync(join(ROOT, 'src/styles/tokens.css'), 'utf8');
+    for (const name of ['--graph-stroke-fine', '--graph-stroke', '--graph-stroke-bold', '--graph-stroke-signal']) expect(tokens, name).toMatch(new RegExp(`${name}:\\s*[\\d.]+;`));
+    const files = ['src/components/home/AgentGraph.astro', 'src/components/home/ServiceSummary.astro', 'src/components/home/HowIWork.astro'];
+    const widths = DECLS.filter((d) => files.includes(d.file) && d.prop === 'stroke-width');
+    expect(widths.length).toBeGreaterThan(10);
+    expect(widths.filter((d) => !/^var\(--graph-stroke(-fine|-bold|-signal)?\)$/.test(d.value)).map(where)).toEqual([]);
+    // Round ends, like the graph's lines.
+    for (const f of ['src/components/home/ServiceSummary.astro', 'src/components/home/HowIWork.astro'])
+      expect(DECLS.some((d) => d.file === f && d.prop === 'stroke-linecap' && d.value === 'round'), f).toBe(true);
   });
 });
