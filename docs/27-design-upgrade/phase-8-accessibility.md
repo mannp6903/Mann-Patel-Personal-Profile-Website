@@ -73,12 +73,40 @@ None of the existing tests changed. New in `tests/e2e/design-gates.spec.ts`:
 
 ## Gates
 
-GATES
+| Gate | Result | Evidence |
+| --- | --- | --- |
+| A1 | pass | › A1 at 375px, 768px and 1440px: 0 axe violations (WCAG 2.2 A/AA) on all 32 built pages. › A1 with overlays open: 0 with the phone menu, the quick menu, a question and the consent prompt open, at each width |
+| A2 | pass | Phase 2's › U3 and A2: the first Tab press focuses the skip link |
+| A3 | pass | Phase 2's › A3: tabbing through Home, no focused element's centre is under the sticky header or the consent prompt |
+| A4 | pass | › A4: with WCAG 1.4.12 spacing, no button label or heading clips on any page at 375, 768 or 1440 (measured as decided above) |
+| A5 | pass | › A5, dark and light: every button has a visible edge, the Menu lines show, H1/H2 are at 1.15, the focus ring is a solid 2px `Highlight`, the chosen card and the progress bar are visible. Fails on the code without the fixes |
+| A6 | pass | › T4 and T5 (13px floor) at 375, 768, 1440; › R4 (44px targets) |
+| A7 | pass | › M5 (reduced motion); › H7 (the pause button is never covered) |
+| A8 | needs owner | A pass with VoiceOver (iOS Safari) and NVDA through landmarks, headings, forms, menus and the consent prompt (§3.6). Mann |
+| A9 | pass | Lighthouse accessibility 1.00 on all eight CI pages (an error below 1.00 in `lighthouserc.json`) |
 
 ## Quality gates
 
-QUALITY_GATES
+| Check | Result |
+| --- | --- |
+| `npm test` | 158/158 |
+| `npm run build` | ✓ |
+| `npx playwright test --trace off` | 233/233 (227 before; six new: A1 ×3, A1 with overlays, A4, A5). The suite takes 11.8 min, from 9.6 |
+| `npm run build:cloudflare` | ✓ (0 errors, the same 2 warnings) |
+| Lighthouse CI assertions | ✓ |
 
 ## Numbers, Phase 7 → Phase 8
 
-NUMBERS
+Nothing on the page changes outside forced colours, so the numbers hold:
+
+- **Lighthouse** (mobile, medians of 3): every page 1.00 for performance, accessibility and SEO. LCP 785–804 ms (Home
+  810 → 800); CLS 0; TBT 7–68 ms (Home's moves between about 20 and 70 ms from run to run).
+- **Weight:** every page about 1 KB heavier (the forced-colours rules are inline CSS): Home 290 → 291 KB at 375.
+- **Unchanged:** elements (Home 923), page heights at all ten matrix sizes, CLS 0–0.004 in the lab, nothing running
+  after 15 s.
+
+## Notes for Phase 9
+
+- A8 needs Mann: a screen-reader pass (VoiceOver on iOS Safari, NVDA on Windows).
+- The forced-colours captures (Home and the contact form, dark and light, before and after) are in the report, not the
+  repository.
