@@ -103,11 +103,35 @@ system. Measured as in [Phase 0](phase-0-baseline.md); before = Phase 3 (live on
 
 ## Numbers, Phase 3 → Phase 4
 
-NUMBERS
+**Lighthouse** (mobile, medians of 3): every page scores 1.00 for performance, accessibility and SEO.
+
+- Home: LCP 799 → 806 ms, CLS 0, TBT 56 → 70 ms.
+- `/pricing/`: LCP 1,504 → 794 ms. Its package cards no longer wait for a reveal.
+- Case study: LCP 1,540 → 796 ms.
+- Every other page is within a few ms of 795.
+
+| | 375 | 768 | 1440 |
+| --- | --- | --- | --- |
+| Running after 15 s (infinite) | 37 (37) → 0 | 37 (37) → 0 | 37 (37) → 0 |
+| Home CLS (lab) | 0 → 0 | 0.004 → 0 | 0 → 0.0005 |
+| Home DOM elements | 1,192 → 1,212 | 1,192 → 1,212 | 1,192 → 1,212 |
+| Home decoded KB | 299 → 310 | 324 → 335 | 335 → 345 |
+| Home JS KB | 21 → 26 | 21 → 26 | 21 → 26 |
+| Home length (screens) | 11.38 | 10.46 | 10.07 |
+
+- **Other pages:** none had anything running after 15 s before or after.
+- **Home's LCP element:** it is now the H1's second line (a `span` inside the H1), which moves on its own in the entrance.
+- **Page weight:** Home is 11 KB heavier.
+  - About 5 KB of that is script (the graph's loop moved from CSS into a script that reads the tokens).
+  - The rest is the header wordmark's per-letter groups.
+  - Home is now 10 KB over Phase 7's 300 KB phone target (P2), so Phase 7 has to win that back.
+- **Layout:** page lengths and the Selected Work position are unchanged (D9 still met: 10.92 screens at 390×844, heading
+  at 997 at 1440×900).
 
 ## Notes for later phases
 
 - Phase 7: the browser's own paint after first paint at 1440 (54–107 ms at 4× in about half the loads) and Home's
   first render. A quick `content-visibility: auto` test on the sections below the screen made it worse, so it needs a
   closer look (painted layers, the hero's grain, the 197 KB HTML with 84 KB of inline CSS).
+- Phase 7: Home is 310 KB at 375 (P2's target is 300 KB).
 - The D7 Archivo trial is still to come.
