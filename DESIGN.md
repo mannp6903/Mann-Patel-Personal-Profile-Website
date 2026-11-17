@@ -1,5 +1,21 @@
 # DESIGN.md · "Signal" (round 5, Nov 2026), compact editorial portfolio (round 7)
 
+> **Design upgrade, Phase 7 (17 Nov 2026): performance.**
+> - **One graph in the page:** the agent graph's tall layout is sent in the HTML and the wide one waits in a
+>   `<template>`; a small inline script after the figure swaps them before the first paint where the wide one is used
+>   (from 64em, and on phones held sideways), and again if the window crosses over. Without JavaScript the tall layout
+>   shows at every width.
+> - **Closed menus are empty:** the quick menu's items and the phone menu's contents join the page on first open. Both
+>   need JavaScript to open anyway. Home went from 1,234 elements to about 915 (gate P3: at most 950).
+> - **CSS stays inline:** measured against `'auto'` (linked stylesheets), inline paints 0.26 s sooner on a first visit
+>   (`docs/stack.md` → CSS delivery).
+> - **Budgets:** `lighthouserc.json` now fails CI below 0.95 performance (0.97 on Home), above 1.8 s LCP or 0.02 CLS,
+>   and warns below 0.98 or above 100 ms TBT.
+> - **Type:** the Archivo trial (D7) was shown side by side with Geist; Geist stays unless Mann adopts Archivo.
+> - **Gates:** P1 (Lighthouse), P2 (weight), P3 (elements), P4 (= M2), P6 (CSS delivery documented). P5 (field data)
+>   needs Mann.
+> - **Record:** [`docs/27-design-upgrade/phase-7-performance.md`](docs/27-design-upgrade/phase-7-performance.md).
+>
 > **Design upgrade, Phase 6 (17 Nov 2026): responsive hardening.**
 > - **Container queries:** the services tiles, the promise tiles and the Selected Work cards are containers, so their
 >   inside follows the tile's width, not the screen's. A services tile under 20rem gets the smaller scene; a promise
@@ -505,5 +521,8 @@ Since the design upgrade (Phase 0, 17 Nov 2026), every design change is checked 
    from the same machine. `npm run qa:design -- --compare before,after` then puts the two runs side by side:
    `compare-375.jpg`, `compare-768.jpg`, `compare-1440.jpg` (first screens) and `compare.md` (the numbers, before → after)
    in `qa-output/design/compare-before-after/`.
-2. **The gates.** Each phase adds its pass/fail checks to `tests/e2e/design-gates.spec.ts` (in the browser) and
+2. **Performance.** Keep Home under 950 elements (gate P3): something the page doesn't show until a click (a closed
+   menu, the graph's other layout) waits in a `<template>` and joins the page when needed. Keep CSS inline unless a new
+   measurement says otherwise (`docs/stack.md`).
+3. **The gates.** Each phase adds its pass/fail checks to `tests/e2e/design-gates.spec.ts` (in the browser) and
    `tests/unit/design-tokens.test.ts` (in the source), as listed in [`DESIGN_UPGRADE_PLAN.md`](DESIGN_UPGRADE_PLAN.md) §5.
