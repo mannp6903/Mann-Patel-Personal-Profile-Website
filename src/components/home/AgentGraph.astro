@@ -354,19 +354,19 @@ const pt = pct(tall);
   /* Static drawing (also the reduced-motion and finished state). */
   .ag__mesh path {
     fill: none;
-    stroke: #3a3e2c;
+    stroke: var(--graph-mesh);
     stroke-width: 1;
   }
   .ag__spokes path {
     fill: none;
-    stroke: #5b6236;
+    stroke: var(--graph-spoke);
     stroke-width: 1.25;
   }
   .ag__ring {
     fill: none;
   }
   .ag__ring--dots {
-    stroke: #4a4f37;
+    stroke: var(--graph-ring);
     stroke-width: 1;
     stroke-dasharray: 1.5 7;
   }
@@ -412,18 +412,18 @@ const pt = pct(tall);
   }
   .ag__nodes circle {
     fill: var(--bg);
-    stroke: #8d9a4a;
+    stroke: var(--graph-node);
     stroke-width: 1.5;
   }
   .ag__pill rect {
     fill: var(--surface);
-    stroke: #3d3f33;
+    stroke: var(--graph-pill-line);
     stroke-width: 1;
   }
   .ag__pill text {
     fill: var(--text);
     font-family: var(--font-sans);
-    font-weight: 560;
+    font-weight: var(--w-ui);
     letter-spacing: -0.01em;
     text-anchor: middle;
   }
@@ -433,7 +433,7 @@ const pt = pct(tall);
   }
   .ag__pill--goal text {
     fill: var(--on-signal);
-    font-weight: 650;
+    font-weight: var(--w-head);
   }
 
   /* The portrait: a real photo as the core node. */
@@ -466,13 +466,13 @@ const pt = pct(tall);
     gap: var(--s-3);
     padding-top: var(--s-3);
     border-top: 1px solid var(--line);
-    font-size: var(--fs-xs);
+    font-size: var(--fs-label);
     color: var(--text-3);
     line-height: 1.45;
   }
   .ag__who b {
     color: var(--text);
-    font-weight: 600;
+    font-weight: var(--w-head);
   }
   .ag__toggle {
     flex: none;

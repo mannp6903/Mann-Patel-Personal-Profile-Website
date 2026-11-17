@@ -131,14 +131,14 @@ const anyApproved = packages.some((p) => priceLabel(p).approved);
     border-bottom: 0;
   }
   .cmp__table thead th {
-    font-weight: 600;
-    font-size: 1rem;
+    font-weight: var(--w-head);
+    font-size: var(--fs-ui);
     color: var(--text);
   }
   .cmp__table tbody th {
     font-family: var(--font-mono);
-    font-size: var(--fs-xs);
-    font-weight: 500;
+    font-size: var(--fs-label);
+    font-weight: var(--w-ui);
     letter-spacing: var(--track-label);
     text-transform: uppercase;
     color: var(--text-3);
@@ -159,8 +159,8 @@ const anyApproved = packages.some((p) => priceLabel(p).approved);
     vertical-align: middle;
   }
   .cmp__table .cmp__price td {
-    font-size: 1.15rem;
-    font-weight: 650;
+    font-size: var(--fs-lead);
+    font-weight: var(--w-head);
     letter-spacing: -0.02em;
     font-variant-numeric: tabular-nums;
     color: var(--text);

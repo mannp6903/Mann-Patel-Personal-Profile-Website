@@ -252,7 +252,7 @@ const sheetLinks = [{ href: '/', label: 'Home' }, ...nav];
   .hdr__clock {
     display: none;
     gap: 0.6em;
-    font-size: var(--fs-xs);
+    font-size: var(--fs-label);
     color: var(--text-3);
     letter-spacing: 0.06em;
     padding-left: var(--s-4);
@@ -274,8 +274,8 @@ const sheetLinks = [{ href: '/', label: 'Home' }, ...nav];
     min-height: var(--tap);
     padding-inline: var(--s-4);
     border-radius: var(--r-pill);
-    font-size: 0.9375rem;
-    font-weight: 560;
+    font-size: var(--fs-sm);
+    font-weight: var(--w-ui);
     text-decoration: none;
     color: var(--text-2);
     transition: color var(--t-fast);
@@ -329,8 +329,8 @@ const sheetLinks = [{ href: '/', label: 'Home' }, ...nav];
   }
   kbd {
     font-family: var(--font-mono);
-    font-size: 0.75rem;
-    padding: 0.15rem 0.4rem;
+    font-size: var(--fs-label);
+    padding: 0.1rem 0.4rem;
     border: 1px solid var(--line);
     border-radius: 6px;
     color: var(--text-3);
@@ -364,8 +364,8 @@ const sheetLinks = [{ href: '/', label: 'Home' }, ...nav];
     border: 1px solid var(--control);
     border-radius: var(--r-pill);
     background: transparent;
-    font-weight: 600;
-    font-size: 0.9375rem;
+    font-weight: var(--w-head);
+    font-size: var(--fs-sm);
   }
   .menu-btn__lines {
     display: grid;
@@ -525,9 +525,9 @@ const sheetLinks = [{ href: '/', label: 'Home' }, ...nav];
     }
   }
   .sheet__label {
-    font-size: clamp(1.75rem, min(10.5vw, 6.4dvh), 3.25rem);
-    font-weight: 600;
-    letter-spacing: -0.045em;
+    font-size: var(--fs-h2);
+    font-weight: var(--w-head);
+    letter-spacing: var(--track-head);
     line-height: 1.05;
     transition: letter-spacing var(--t-slow) var(--ease-out), color var(--t-fast);
   }
@@ -554,7 +554,7 @@ const sheetLinks = [{ href: '/', label: 'Home' }, ...nav];
     justify-content: center;
     min-height: var(--tap);
     color: var(--text-2);
-    font-size: 0.875rem;
+    font-size: var(--fs-sm);
     text-decoration: none;
     text-underline-offset: 0.3em;
   }

@@ -65,25 +65,27 @@ import Icon from '../ui/Icon.astro';
 
 <style>
   @media (max-width: 39.99em) {
-    .ss { padding-block: 2.25rem; }
+    .ss { padding-block: var(--section-tight); }
   }
   .ss__pkg {
     padding-top: var(--s-3);
     border-top: 1px dashed var(--line);
     font-family: var(--font-mono);
-    font-size: var(--fs-xs);
+    font-size: var(--fs-label);
+    font-weight: var(--w-ui);
     letter-spacing: 0.02em;
   }
   .ss__head {
     display: grid;
-    gap: var(--s-4);
+    row-gap: var(--head-gap-2);
     margin-bottom: clamp(var(--s-6), 4vw, var(--s-8));
   }
+  .ss__head .eyebrow { margin-bottom: calc(var(--head-gap-1) - var(--head-gap-2)); }
   .ss__title {
-    font-size: clamp(3rem, 6.6vw, 7.25rem);
-    letter-spacing: -0.075em;
-    line-height: 0.93;
-    max-width: 13ch;
+    font-size: var(--fs-h2);
+    letter-spacing: var(--track-head);
+    line-height: 1;
+    max-width: 16ch;
   }
   .ss__lead {
     font-size: var(--fs-lead);
@@ -136,15 +138,15 @@ import Icon from '../ui/Icon.astro';
     place-items: center;
     width: 2.25rem;
     height: 2.25rem;
-    border: 1px solid var(--signal);
+    border: 1px solid var(--control);
     border-radius: 50%;
-    color: var(--signal);
+    color: var(--text);
     font-size: var(--fs-sm);
   }
   .ss__name {
-    font-size: clamp(1.85rem, 3.2vw, 3.65rem);
-    letter-spacing: -0.06em;
-    line-height: 1.02;
+    font-size: var(--fs-h3);
+    letter-spacing: var(--track-head);
+    line-height: 1.1;
     text-wrap: initial;
   }
   .ss__extra {

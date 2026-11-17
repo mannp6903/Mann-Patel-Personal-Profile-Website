@@ -25,7 +25,7 @@ const svcHrefs = Object.fromEntries(services.map((s) => [s.id, serviceHref(s.id)
 <section class="finder section section--alt" id={id} aria-labelledby={`${id}-title`}>
   <div class="container">
     <div class="section-head section-head--split">
-      <div class="stack" style="--stack: var(--s-5)">
+      <div class="stack" style="--stack: var(--head-gap-2)">
         <p class="eyebrow">Find your starting point</p>
         <Heading id={`${id}-title`} lines={['Three questions.', '<span class="accent">One clear first step.</span>']} />
       </div>
@@ -183,15 +183,15 @@ const svcHrefs = Object.fromEntries(services.map((s) => [s.id, serviceHref(s.id)
     gap: var(--s-3);
     align-items: baseline;
     margin-bottom: var(--s-4);
-    font-size: clamp(1.2rem, 1.1rem + 0.5vw, 1.5rem);
-    font-weight: 600;
+    font-size: var(--fs-lead);
+    font-weight: var(--w-head);
     letter-spacing: -0.02em;
     line-height: 1.25;
   }
   .finder__qn {
-    font-size: var(--fs-xs);
+    font-size: var(--fs-label);
     color: var(--signal);
-    font-weight: 500;
+    font-weight: var(--w-ui);
   }
 
   .finder__result {
@@ -218,9 +218,9 @@ const svcHrefs = Object.fromEntries(services.map((s) => [s.id, serviceHref(s.id)
     display: none;
   }
   .fr__name {
-    font-size: clamp(1.6rem, 1.2rem + 1.6vw, 2.5rem);
-    font-weight: 600;
-    letter-spacing: -0.04em;
+    font-size: var(--fs-h3);
+    font-weight: var(--w-head);
+    letter-spacing: var(--track-head);
     line-height: 1.02;
   }
   .fr__full .fr__name {
@@ -230,7 +230,7 @@ const svcHrefs = Object.fromEntries(services.map((s) => [s.id, serviceHref(s.id)
     display: flex;
     align-items: center;
     gap: var(--s-3);
-    font-size: var(--fs-xs);
+    font-size: var(--fs-label);
     color: var(--text-3);
   }
   .fr__bar {
@@ -324,7 +324,7 @@ const svcHrefs = Object.fromEntries(services.map((s) => [s.id, serviceHref(s.id)
       gap: var(--s-5);
     }
     .finder__legend {
-      font-size: 1.125rem;
+      font-size: var(--fs-lead);
       margin-bottom: var(--s-3);
     }
   }

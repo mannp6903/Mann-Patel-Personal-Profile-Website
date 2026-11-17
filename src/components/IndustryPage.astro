@@ -6,6 +6,7 @@
  * Order (plan B3): the case study first, with the honest labels from src/content/work/, then the package that
  * fits, the questions, related pages and the free check. Prices come from src/data/packages.ts.
  */
+import { accentLine } from '../lib/headline';
 import { getEntry } from 'astro:content';
 import BaseLayout from '../layouts/BaseLayout.astro';
 import PageHead from './PageHead.astro';
@@ -39,7 +40,7 @@ const site = projectSite(w);
 const services = page.services.map((slug) => servicePageBySlug(slug)).filter(Boolean) as ServicePage[];
 const others = industryPages.filter((p) => p.slug !== page.slug);
 const scarborough = areaHref('scarborough');
-const lines = page.lines.map((l, i) => (i === page.lines.length - 1 ? `<span class="accent accent--signal">${l}</span>` : l));
+const lines = page.lines.map((l, i) => (i === page.lines.length - 1 ? accentLine(l) : l));
 
 // Structured data matches the page: the service, sold by the business, at the prices shown.
 const serviceLd = {
@@ -86,7 +87,7 @@ const crumbs = breadcrumbJsonLd([
 
   <section class="section section--rule" data-case-study aria-labelledby="case-title">
     <div class="container ip__case">
-      <div class="stack" style="--stack: var(--s-5)">
+      <div class="stack" style="--stack: var(--head-gap-2)">
         <p class="eyebrow">The case study</p>
         <h2 id="case-title" class="ip__h2">{w.title}</h2>
         <p class="ip__tags small">
@@ -233,7 +234,7 @@ const crumbs = breadcrumbJsonLd([
     border: 1px solid var(--line);
     border-radius: var(--r-pill);
     font-family: var(--font-mono);
-    font-size: 0.75rem;
+    font-size: var(--fs-label);
     color: var(--text-2);
   }
   .ip__shows-wrap {
@@ -263,11 +264,11 @@ const crumbs = breadcrumbJsonLd([
     border-top: 1px solid var(--line);
   }
   .ip__shows h3 {
-    font-size: 1.125rem;
-    font-weight: 600;
+    font-size: var(--fs-base);
+    font-weight: var(--w-head);
   }
   .ip__n {
-    font-size: var(--fs-xs);
+    font-size: var(--fs-label);
     color: var(--signal);
   }
   .ip__pkgs {
@@ -307,7 +308,7 @@ const crumbs = breadcrumbJsonLd([
   }
   .ip__more-link > span:first-child {
     font-size: var(--fs-h3);
-    font-weight: 600;
+    font-weight: var(--w-head);
     letter-spacing: -0.02em;
   }
   .ip__more-link > .small {

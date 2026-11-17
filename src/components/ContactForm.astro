@@ -649,8 +649,8 @@ const tick = '<svg viewBox="0 0 16 16"><path d="m3.5 8.5 3 3 6-7" /></svg>';
   .opt {
     margin-left: 0.35em;
     font-family: var(--font-mono);
-    font-size: 0.7rem;
-    font-weight: 500;
+    font-size: var(--fs-label);
+    font-weight: var(--w-ui);
     letter-spacing: 0.06em;
     text-transform: uppercase;
     color: var(--text-3);
@@ -669,11 +669,11 @@ const tick = '<svg viewBox="0 0 16 16"><path d="m3.5 8.5 3 3 6-7" /></svg>';
     justify-content: space-between;
     gap: var(--s-3);
     font-size: var(--fs-sm);
-    font-weight: 560;
+    font-weight: var(--w-ui);
   }
   .steps-nav__label .num {
     color: var(--signal);
-    font-size: var(--fs-xs);
+    font-size: var(--fs-label);
     letter-spacing: 0.06em;
     text-transform: uppercase;
   }
@@ -730,17 +730,17 @@ const tick = '<svg viewBox="0 0 16 16"><path d="m3.5 8.5 3 3 6-7" /></svg>';
     align-items: baseline;
     gap: var(--s-3);
     margin-bottom: var(--s-2);
-    font-size: clamp(1.6rem, 1.3rem + 1.2vw, 2.4rem);
-    font-weight: 600;
-    letter-spacing: -0.04em;
+    font-size: var(--fs-h3);
+    font-weight: var(--w-head);
+    letter-spacing: var(--track-head);
     line-height: 1.05;
   }
   .step__legend:focus {
     outline: none;
   }
   .step__n {
-    font-size: var(--fs-xs);
-    font-weight: 500;
+    font-size: var(--fs-label);
+    font-weight: var(--w-ui);
     letter-spacing: 0.04em;
     color: var(--signal);
   }
@@ -785,7 +785,7 @@ const tick = '<svg viewBox="0 0 16 16"><path d="m3.5 8.5 3 3 6-7" /></svg>';
     gap: var(--s-1);
   }
   .area__text strong {
-    font-weight: 600;
+    font-weight: var(--w-head);
   }
   .area__hint {
     font-size: var(--fs-sm);
@@ -834,7 +834,7 @@ const tick = '<svg viewBox="0 0 16 16"><path d="m3.5 8.5 3 3 6-7" /></svg>';
     min-height: var(--tap);
     cursor: pointer;
     list-style: none;
-    font-weight: 600;
+    font-weight: var(--w-head);
     font-size: var(--fs-sm);
   }
   .more > summary::-webkit-details-marker {
@@ -858,7 +858,7 @@ const tick = '<svg viewBox="0 0 16 16"><path d="m3.5 8.5 3 3 6-7" /></svg>';
   }
   .svc-title {
     font-family: var(--font-mono);
-    font-size: var(--fs-xs);
+    font-size: var(--fs-label);
     letter-spacing: var(--track-label);
     text-transform: uppercase;
     color: var(--text-3);
@@ -872,7 +872,7 @@ const tick = '<svg viewBox="0 0 16 16"><path d="m3.5 8.5 3 3 6-7" /></svg>';
   }
   .counter {
     flex: none;
-    font-size: 0.75rem;
+    font-size: var(--fs-label);
     text-align: right;
   }
   .counter:global(.is-ok) {
@@ -910,7 +910,7 @@ const tick = '<svg viewBox="0 0 16 16"><path d="m3.5 8.5 3 3 6-7" /></svg>';
     border: 1px solid var(--control);
     border-radius: var(--r-pill);
     background: transparent;
-    font-weight: 600;
+    font-weight: var(--w-head);
   }
   .back[hidden] {
     display: none;
@@ -952,7 +952,7 @@ const tick = '<svg viewBox="0 0 16 16"><path d="m3.5 8.5 3 3 6-7" /></svg>';
     background: none;
     color: var(--signal);
     font: inherit;
-    font-weight: 600;
+    font-weight: var(--w-head);
     cursor: pointer;
   }
   .error-summary {
@@ -966,8 +966,8 @@ const tick = '<svg viewBox="0 0 16 16"><path d="m3.5 8.5 3 3 6-7" /></svg>';
     outline-offset: 2px;
   }
   .es-title {
-    font-size: 1.125rem;
-    font-weight: 600;
+    font-size: var(--fs-base);
+    font-weight: var(--w-head);
     letter-spacing: var(--track-head);
     line-height: 1;
     color: var(--error);
@@ -978,7 +978,7 @@ const tick = '<svg viewBox="0 0 16 16"><path d="m3.5 8.5 3 3 6-7" /></svg>';
   }
   .error-summary :global(a) {
     color: var(--error);
-    font-weight: 600;
+    font-weight: var(--w-head);
   }
 
   .success {
@@ -993,8 +993,8 @@ const tick = '<svg viewBox="0 0 16 16"><path d="m3.5 8.5 3 3 6-7" /></svg>';
     outline: none;
   }
   .success__title {
-    font-size: clamp(1.8rem, 1.4rem + 1.8vw, 3rem);
-    font-weight: 600;
+    font-size: var(--fs-h2);
+    font-weight: var(--w-head);
     letter-spacing: var(--track-head);
     line-height: 1;
     text-wrap: balance;
@@ -1043,7 +1043,7 @@ const tick = '<svg viewBox="0 0 16 16"><path d="m3.5 8.5 3 3 6-7" /></svg>';
   }
   .next .num {
     color: var(--signal);
-    font-size: var(--fs-xs);
+    font-size: var(--fs-label);
     padding-top: 0.3em;
   }
 </style>

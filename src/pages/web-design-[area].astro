@@ -7,6 +7,7 @@
  * and `astro dev` with a "To confirm" note, never in production (src/lib/published.ts). It carries the full
  * business node (city-level address only), real local proof and the Google Business Profile link.
  */
+import { accentLine } from '../lib/headline';
 import { getCollection } from 'astro:content';
 import BaseLayout from '../layouts/BaseLayout.astro';
 import PageHead from '../components/PageHead.astro';
@@ -38,7 +39,7 @@ const draft = areaIsDraft(area);
 const path = areaPath(area);
 // Local proof: the projects in this area, with their honest labels.
 const work = (await getCollection('work')).sort((a, b) => a.data.order - b.data.order).filter((w) => w.data.location?.includes(area.name));
-const lines = area.lines.map((l, i) => (i === area.lines.length - 1 ? `<span class="accent accent--signal">${l}</span>` : l));
+const lines = area.lines.map((l, i) => (i === area.lines.length - 1 ? accentLine(l) : l));
 const faqLd = {
   '@context': 'https://schema.org',
   '@type': 'FAQPage',
@@ -299,7 +300,7 @@ const crumbs = breadcrumbJsonLd([
     border: 1px solid var(--line);
     border-radius: var(--r-pill);
     font-family: var(--font-mono);
-    font-size: 0.75rem;
+    font-size: var(--fs-label);
     color: var(--text-2);
   }
   .ar__example {
@@ -333,7 +334,7 @@ const crumbs = breadcrumbJsonLd([
   }
   .ar__more-link > span:first-child {
     font-size: var(--fs-h3);
-    font-weight: 600;
+    font-weight: var(--w-head);
     letter-spacing: -0.02em;
   }
   .ar__more-link > .small {

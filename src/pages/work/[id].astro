@@ -409,9 +409,9 @@ const industry = industryPageForWork(entry.id);
     align-items: center;
   }
   .cs-head__inner :global(.cs-title) {
-    font-size: clamp(3rem, 1.6rem + 6.4vw, 8.5rem);
-    font-weight: 600;
-    letter-spacing: -0.055em;
+    font-size: var(--fs-h1);
+    font-weight: var(--w-head);
+    letter-spacing: var(--track-hero);
     line-height: 0.9;
   }
   .cs-head .lead {
@@ -432,7 +432,7 @@ const industry = industryPageForWork(entry.id);
   .facts dt {
     margin-bottom: var(--s-2);
     font-family: var(--font-mono);
-    font-size: var(--fs-xs);
+    font-size: var(--fs-label);
     letter-spacing: var(--track-label);
     text-transform: uppercase;
     color: var(--text-3);
@@ -477,7 +477,7 @@ const industry = industryPageForWork(entry.id);
   .closer__img {
     border-radius: var(--r-md);
     overflow: hidden;
-    background: #fff;
+    background: var(--frame-screen);
     border: 1px solid var(--line);
   }
   .closer figcaption {
@@ -490,7 +490,7 @@ const industry = industryPageForWork(entry.id);
     color: var(--text);
   }
   .closer__n {
-    font-size: var(--fs-xs);
+    font-size: var(--fs-label);
     color: var(--signal);
     padding-top: 0.25em;
   }
@@ -513,20 +513,20 @@ const industry = industryPageForWork(entry.id);
   }
   .glance__grid dt {
     font-family: var(--font-mono);
-    font-size: var(--fs-xs);
+    font-size: var(--fs-label);
     letter-spacing: var(--track-label);
     text-transform: uppercase;
     color: var(--text-3);
     margin-bottom: 0.2rem;
   }
   .glance__grid dd {
-    font-weight: 560;
+    font-weight: var(--w-ui);
   }
   .glance__wide {
     grid-column: 1 / -1;
   }
   .glance__wide dd {
-    font-weight: 400;
+    font-weight: var(--w-body);
     color: var(--text-2);
     max-width: 60ch;
   }
@@ -575,15 +575,15 @@ const industry = industryPageForWork(entry.id);
   }
   .tests thead th {
     font-family: var(--font-mono);
-    font-size: var(--fs-xs);
-    font-weight: 500;
+    font-size: var(--fs-label);
+    font-weight: var(--w-ui);
     letter-spacing: var(--track-label);
     text-transform: uppercase;
     color: var(--text-3);
     background: var(--bg-2);
   }
   .tests tbody th {
-    font-weight: 600;
+    font-weight: var(--w-head);
     width: 22%;
   }
   .tests td {
@@ -622,7 +622,7 @@ const industry = industryPageForWork(entry.id);
     .tests td::before {
       content: attr(data-label) ': ';
       font-family: var(--font-mono);
-      font-size: var(--fs-xs);
+      font-size: var(--fs-label);
       letter-spacing: 0.04em;
       text-transform: uppercase;
       color: var(--text-3);
@@ -635,8 +635,8 @@ const industry = industryPageForWork(entry.id);
   }
   .tested__h {
     font-family: var(--font-mono);
-    font-size: var(--fs-xs);
-    font-weight: 500;
+    font-size: var(--fs-label);
+    font-weight: var(--w-ui);
     letter-spacing: var(--track-label);
     text-transform: uppercase;
     color: var(--text-3);
@@ -690,7 +690,7 @@ const industry = industryPageForWork(entry.id);
     border-radius: var(--r-md);
     overflow: hidden;
     border: 1px solid var(--line);
-    background: #fff;
+    background: var(--frame-screen);
   }
   .g--phone {
     max-width: 18rem;
@@ -698,7 +698,7 @@ const industry = industryPageForWork(entry.id);
   .g--phone .g__frame {
     --clip-r: 1.6rem;
     border-radius: 1.6rem;
-    border: 6px solid #1c1c20;
+    border: 6px solid var(--frame-bezel);
   }
   @media (min-width: 64em) {
     .gallery {
@@ -723,9 +723,9 @@ const industry = industryPageForWork(entry.id);
     display: inline-flex;
     align-items: center;
     gap: 0.25em;
-    font-size: clamp(2.2rem, 1.2rem + 4.4vw, 6rem);
-    font-weight: 600;
-    letter-spacing: -0.05em;
+    font-size: var(--fs-h2);
+    font-weight: var(--w-head);
+    letter-spacing: var(--track-head);
     line-height: 1;
     transition: letter-spacing 800ms var(--ease-out), color var(--t-base);
   }
@@ -783,8 +783,8 @@ const industry = industryPageForWork(entry.id);
     [data-fold]:global(.is-folded) {
       max-height: 34rem;
       overflow: hidden;
-      -webkit-mask-image: linear-gradient(#000 62%, transparent);
-      mask-image: linear-gradient(#000 62%, transparent);
+      -webkit-mask-image: linear-gradient(black 62%, transparent);
+      mask-image: linear-gradient(black 62%, transparent);
     }
     /* The evidence previews its first check; the button shows the rest. */
     .tested__body:global(.is-folded) {
@@ -802,7 +802,7 @@ const industry = industryPageForWork(entry.id);
       background: none;
       color: var(--text);
       font: inherit;
-      font-weight: 600;
+      font-weight: var(--w-head);
       cursor: pointer;
     }
     .fold-btn :global(.fold-btn__icon) {

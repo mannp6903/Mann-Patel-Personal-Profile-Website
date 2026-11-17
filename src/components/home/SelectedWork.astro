@@ -65,17 +65,18 @@ const fmtDate = (iso: string) =>
 </section>
 
 <style>
+  /* Paper band. Lime budget (design upgrade Phase 1): no lime or olive text here. Accents are ink; the live tag is a
+     lime fill with ink text. */
   .sw {
-    --text: #181a13;
-    --text-2: #43473b;
-    --text-3: #575a50;
-    --line: #c7c8ba;
-    --signal: #40541e;
+    --text: var(--paper-text);
+    --text-2: var(--paper-text-2);
+    --text-3: var(--paper-text-3);
+    --line: var(--paper-line);
     --focus: var(--focus-on-light);
-    padding-block: clamp(2.5rem, 6vw, 6rem);
+    --eyebrow-mark: var(--paper-text);
     /* Real work starts by y=1150 on a 1440px desktop (acceptance target, tests/e2e/site.spec.ts). */
-    padding-top: clamp(2.5rem, 4vw, 4rem);
-    background: #f0f0e8;
+    padding-block: var(--section-tight);
+    background: var(--paper-section);
     color: var(--text);
     color-scheme: light;
   }
@@ -83,19 +84,19 @@ const fmtDate = (iso: string) =>
     display: grid;
     grid-template-columns: minmax(0, 1fr) auto;
     align-items: end;
-    gap: var(--s-3) var(--s-4);
+    gap: var(--head-gap-2) var(--s-4);
     padding-top: var(--s-4);
     margin-bottom: clamp(var(--s-6), 5vw, var(--s-9));
     border-top: 1px solid var(--line);
   }
   .sw__head .eyebrow, .sw__intro { grid-column: 1 / -1; }
+  .sw__head .eyebrow { margin-bottom: calc(var(--head-gap-1) - var(--head-gap-2)); }
   .sw__title {
-    font-size: clamp(2.65rem, 8.5vw, 8.25rem);
-    letter-spacing: -0.085em;
-    line-height: 0.92;
-    font-weight: 650;
+    font-size: var(--fs-h2);
+    letter-spacing: var(--track-head);
+    line-height: 1;
+    font-weight: var(--w-head);
   }
-  .sw__title span { color: var(--signal); }
   .sw__intro { max-width: 58ch; color: var(--text-2); }
   .sw__all { white-space: nowrap; }
   .sw__list { display: grid; }
@@ -107,13 +108,13 @@ const fmtDate = (iso: string) =>
   }
   .sw__list > li:last-child { border-bottom: 1px solid var(--line); }
   .sw__media {
-    --bg-2: #bfc9c9;
+    --bg-2: var(--media-bg-1);
     position: relative;
     display: block;
     align-self: start;
     text-decoration: none;
   }
-  .sw__list > li:nth-child(even) .sw__media { --bg-2: #d5c4c9; }
+  .sw__list > li:nth-child(even) .sw__media { --bg-2: var(--media-bg-2); }
   .sw__media :global(.pm) { border-radius: 0; }
   .sw__body {
     display: grid;
@@ -124,37 +125,43 @@ const fmtDate = (iso: string) =>
   }
   .sw__index, .sw__date {
     color: var(--text-3);
-    font-size: var(--fs-xs);
+    font-size: var(--fs-label);
   }
   .sw__name {
-    font-size: clamp(2.05rem, 4.25vw, 4.8rem);
-    font-weight: 625;
-    letter-spacing: -0.065em;
-    line-height: 0.98;
+    font-size: var(--fs-h3);
+    font-weight: var(--w-head);
+    letter-spacing: var(--track-head);
+    line-height: 1.1;
     text-wrap: initial;
   }
   .sw__name a { text-decoration: none; }
-  .sw__name a:hover { color: var(--signal); }
+  .sw__name a:hover { text-decoration: underline; text-decoration-thickness: 2px; }
   .sw__labels {
     display: flex;
     flex-wrap: wrap;
     gap: 0.35em 0.7em;
     color: var(--text-3);
     font-family: var(--font-mono);
-    font-size: 0.73rem;
+    font-size: var(--fs-label);
+    font-weight: var(--w-ui);
   }
   .sw__labels > span {
     padding: 0.32em 0.7em;
     border: 1px solid var(--line);
     border-radius: var(--r-pill);
   }
-  .sw__state--live { color: var(--signal); }
+  .sw__labels > .sw__state--live {
+    background: var(--signal);
+    border-color: var(--signal);
+    color: var(--ink);
+  }
   .sw__business { color: var(--text-3); font-size: var(--fs-sm); }
   .sw__facts { display: grid; gap: var(--s-2); }
   .sw__facts dt {
     color: var(--text-3);
     font-family: var(--font-mono);
-    font-size: var(--fs-xs);
+    font-size: var(--fs-label);
+    font-weight: var(--w-ui);
     letter-spacing: var(--track-label);
     text-transform: uppercase;
   }
@@ -175,8 +182,7 @@ const fmtDate = (iso: string) =>
     .sw__list > li:nth-child(even) .sw__body { grid-column: 1; grid-row: 1; }
   }
   @media (max-width: 39.99em) {
-    .sw { padding-block: var(--s-6); }
-    .sw__head { grid-template-columns: 1fr; gap: var(--s-2); }
+    .sw__head { grid-template-columns: 1fr; }
     .sw__intro, .sw__facts dd { font-size: var(--fs-sm); }
     .sw__index { display: none; }
     .sw__body { gap: var(--s-2); }

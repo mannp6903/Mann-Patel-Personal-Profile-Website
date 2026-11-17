@@ -15,7 +15,7 @@ const { id = 'process' } = Astro.props;
 <section class="proc section" id={id} aria-labelledby={`${id}-title`}>
   <div class="container">
     <div class="section-head section-head--split">
-      <div class="stack" style="--stack: var(--s-5)">
+      <div class="stack" style="--stack: var(--head-gap-2)">
         <p class="eyebrow">How a project runs</p>
         <Heading id={`${id}-title`} lines={['Five steps.', '<span class="accent">Nothing hidden.</span>']} />
       </div>
@@ -100,11 +100,11 @@ const { id = 'process' } = Astro.props;
     background: var(--bg);
     border: 1px solid var(--signal);
     color: var(--signal);
-    font-size: 0.875rem;
+    font-size: var(--fs-sm);
   }
   .proc__title {
-    font-size: clamp(1.4rem, 1.2rem + 0.9vw, 2rem);
-    font-weight: 600;
+    font-size: var(--fs-h3);
+    font-weight: var(--w-head);
     letter-spacing: -0.03em;
     line-height: 1.1;
   }
@@ -120,7 +120,7 @@ const { id = 'process' } = Astro.props;
   }
   .proc__who dt {
     font-family: var(--font-mono);
-    font-size: var(--fs-xs);
+    font-size: var(--fs-label);
     letter-spacing: var(--track-label);
     text-transform: uppercase;
     color: var(--text-3);

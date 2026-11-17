@@ -101,16 +101,16 @@ h1,
 h2,
 h3,
 h4 {
-  font-weight: 600;
+  font-weight: var(--w-head);
   letter-spacing: var(--track-head);
   line-height: var(--lh-snug);
   text-wrap: balance;
 }
 h1 {
   font-size: var(--fs-h1);
-  font-weight: 600;
+  font-weight: var(--w-head);
   line-height: 0.95;
-  letter-spacing: -0.04em;
+  letter-spacing: var(--track-hero);
 }
 h2 {
   font-size: var(--fs-h2);
@@ -118,29 +118,37 @@ h2 {
 }
 h3 {
   font-size: var(--fs-h3);
-  font-weight: 560;
-  letter-spacing: -0.025em;
+  font-weight: var(--w-ui);
+  letter-spacing: var(--track-head);
 }
 h4 {
-  font-size: 1.125rem;
+  font-size: var(--fs-base);
   letter-spacing: -0.01em;
+}
+/* Three weights only (gate T3): bold text and table headings use the heading weight, not the browser's 700. */
+b,
+strong,
+th {
+  font-weight: var(--w-head);
+}
+/* Mono text is always medium (gate T3). */
+.mono,
+.num,
+code,
+kbd {
+  font-weight: var(--w-ui);
 }
 p {
   text-wrap: pretty;
 }
-/* Two-tone headlines: the second half of a heading steps back to grey (or lime with --signal),
-   same face and weight, the way tech product sites set them. Replaced the serif italic, Nov 2026. */
+/* Two-tone headlines: the second half of a heading steps back to grey, same face and weight, the way tech product sites
+   set them (replaced the serif italic, Nov 2026). Lime budget (design upgrade Phase 1): a heading's only lime mark is
+   its full stop, <span class="stop">.</span>; whole phrases are never lime. */
 .accent {
   color: var(--text-3);
 }
-.accent--signal {
+.stop {
   color: var(--signal);
-}
-.display {
-  font-size: var(--fs-display);
-  font-weight: 600;
-  line-height: var(--lh-display);
-  letter-spacing: var(--track-display);
 }
 .lead {
   font-size: var(--fs-lead);
@@ -169,20 +177,25 @@ p {
   align-items: center;
   gap: 0.6em;
   font-family: var(--font-mono);
-  font-size: var(--fs-xs);
-  font-weight: 500;
+  font-size: var(--fs-label);
+  font-weight: var(--w-ui);
   letter-spacing: var(--track-label);
   text-transform: uppercase;
   color: var(--text-3);
   line-height: 1.4;
 }
+/* The Λ from the wordmark marks every eyebrow (design upgrade Phase 1, task 1.8): the brand's own glyph instead of a
+   generic dot. The round dot stays only where it means "live" (.status__dot). */
 .eyebrow::before {
   content: '';
-  width: 0.5rem;
-  height: 0.5rem;
-  border-radius: 50%;
-  background: var(--signal);
+  width: 0.62em;
+  height: 0.7em;
   flex: none;
+  margin-top: -0.1em;
+  /* Lime on dark; light sections set --eyebrow-mark to ink, since lime on paper is about 1.2:1. */
+  background: var(--eyebrow-mark, var(--signal));
+  -webkit-mask: var(--lambda) center / contain no-repeat;
+  mask: var(--lambda) center / contain no-repeat;
 }
 .eyebrow--plain::before {
   content: none;
@@ -204,7 +217,7 @@ p {
   position: relative;
 }
 .section--tight {
-  padding-block: calc(var(--section) * 0.55);
+  padding-block: var(--section-tight);
 }
 .section--alt {
   background: var(--bg-2);
@@ -215,21 +228,27 @@ p {
 .stack > * + * {
   margin-top: var(--stack, var(--s-5));
 }
+/* An eyebrow sits --head-gap-1 above its heading wherever heads are stacked (design upgrade Phase 1, task 1.6). */
+.stack > .eyebrow + * {
+  margin-top: var(--head-gap-1);
+}
 .cluster {
   display: flex;
   flex-wrap: wrap;
   align-items: center;
   gap: var(--cluster, var(--s-3));
 }
+/* Section heads: eyebrow, heading, then a lead or intro, spaced by the two head gaps everywhere (design upgrade
+   Phase 1, task 1.6). Rows sit --head-gap-2 apart; the eyebrow pulls its heading up to --head-gap-1. */
 .section-head {
   display: grid;
-  gap: var(--s-4);
+  row-gap: var(--head-gap-2);
+  column-gap: var(--s-5);
   margin-bottom: clamp(var(--s-6), 5vw, var(--s-9));
 }
-@media (min-width: 48em) {
-  .section-head {
-    gap: var(--s-5);
-  }
+.section-head > .eyebrow,
+.head-eyebrow {
+  margin-bottom: calc(var(--head-gap-1) - var(--head-gap-2));
 }
 
 /* ═══════════════ Swipe rail (phones) ═══════════════ */
@@ -278,14 +297,14 @@ p {
   }
   .rail-dots i.is-on {
     width: 20px;
-    background: var(--signal);
+    background: var(--text);
   }
 }
 @media (min-width: 64em) {
   .section-head--split {
     grid-template-columns: minmax(0, 1.3fr) minmax(0, 1fr);
     align-items: end;
-    gap: var(--s-8);
+    column-gap: var(--s-8);
   }
 }
 .section-head h2 {
@@ -313,7 +332,7 @@ p {
   padding: var(--s-3) var(--s-4);
   background: var(--signal);
   color: var(--on-signal);
-  font-weight: 600;
+  font-weight: var(--w-head);
   border-radius: var(--r-pill);
   text-decoration: none;
   transform: translateY(-200%);
@@ -377,8 +396,8 @@ p {
   border-radius: var(--r-pill);
   background: var(--btn-bg);
   color: var(--btn-fg);
-  font-size: 1rem;
-  font-weight: 540;
+  font-size: var(--fs-ui);
+  font-weight: var(--w-ui);
   letter-spacing: -0.01em;
   line-height: 1.15;
   text-decoration: none;
@@ -493,7 +512,7 @@ p {
   min-height: 2.75rem;
   padding: 0.25rem 0.25rem 0.25rem 1.1rem;
   gap: var(--s-3);
-  font-size: 0.9375rem;
+  font-size: var(--fs-sm);
 }
 .btn--sm .btn__icon {
   width: 2.25rem;
@@ -532,7 +551,7 @@ p {
   position: relative;
   display: inline;
   color: var(--text);
-  font-weight: 560;
+  font-weight: var(--w-ui);
   text-decoration: none;
   background: linear-gradient(currentColor, currentColor) no-repeat 0 100% / 100% 1px;
   transition: color var(--t-fast) var(--ease-out);
@@ -569,7 +588,7 @@ p {
   display: inline-flex;
   align-items: center;
   gap: 0.4em;
-  font-weight: 600;
+  font-weight: var(--w-head);
   text-decoration: none;
   color: var(--text);
   min-height: var(--tap);
@@ -608,7 +627,8 @@ p {
   border: 1px solid var(--line);
   border-radius: var(--r-pill);
   font-family: var(--font-mono);
-  font-size: var(--fs-xs);
+  font-size: var(--fs-label);
+  font-weight: var(--w-ui);
   letter-spacing: 0.04em;
   color: var(--text-2);
   white-space: nowrap;
@@ -660,8 +680,8 @@ p {
 }
 .field > label,
 .legend {
-  font-weight: 600;
-  font-size: 1rem;
+  font-weight: var(--w-head);
+  font-size: var(--fs-ui);
   line-height: 1.35;
   color: var(--text);
 }
@@ -679,7 +699,7 @@ p {
   border: 1px solid var(--control);
   border-radius: var(--r-md);
   color: var(--text);
-  font-size: 1.0625rem;
+  font-size: var(--fs-base);
   line-height: 1.4;
   transition: border-color var(--t-fast) var(--ease-out), box-shadow var(--t-fast) var(--ease-out), background-color var(--t-fast);
 }
@@ -690,10 +710,11 @@ p {
 .select {
   appearance: none;
   padding-right: 2.75rem;
-  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='%23B3B2AB' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpath d='m6 9 6 6 6-6'/%3E%3C/svg%3E");
+  /* The chevron, drawn from two gradients in a token colour (no colour baked into an image). */
+  background-image: linear-gradient(45deg, transparent 50%, var(--text-2) 50%), linear-gradient(135deg, var(--text-2) 50%, transparent 50%);
   background-repeat: no-repeat;
-  background-position: right 1rem center;
-  background-size: 1.1rem;
+  background-position: right 1.35rem center, right 1rem center;
+  background-size: 0.35rem 0.35rem;
 }
 .input::placeholder,
 .textarea::placeholder {
@@ -727,7 +748,7 @@ p {
   gap: 0.4em;
   align-items: flex-start;
   font-size: var(--fs-sm);
-  font-weight: 560;
+  font-weight: var(--w-ui);
   color: var(--error);
 }
 .error-text:empty {
@@ -744,8 +765,8 @@ p {
   border-radius: 50%;
   background: var(--error);
   color: var(--ink);
-  font-size: 0.75rem;
-  font-weight: 800;
+  font-size: var(--fs-label);
+  font-weight: var(--w-head);
 }
 fieldset {
   border: 0;
@@ -777,8 +798,8 @@ fieldset > legend + * {
   padding: 0.55rem 1rem 0.55rem 0.8rem;
   border: 1px solid var(--control);
   border-radius: var(--r-pill);
-  font-size: 0.975rem;
-  font-weight: 540;
+  font-size: var(--fs-sm);
+  font-weight: var(--w-ui);
   line-height: 1.25;
   cursor: pointer;
   user-select: none;
@@ -841,7 +862,7 @@ fieldset > legend + * {
   padding: var(--s-4) var(--s-5);
   border-radius: var(--r-md);
   border: 1px solid currentColor;
-  font-weight: 520;
+  font-weight: var(--w-ui);
   line-height: 1.5;
 }
 .notice:focus {
@@ -850,7 +871,7 @@ fieldset > legend + * {
 }
 .notice a {
   color: inherit;
-  font-weight: 700;
+  font-weight: var(--w-head);
 }
 .notice--error {
   color: var(--error);
@@ -877,8 +898,8 @@ fieldset > legend + * {
   padding-block: var(--s-4);
   cursor: pointer;
   list-style: none;
-  font-weight: 600;
-  font-size: clamp(1.0625rem, 1rem + 0.35vw, 1.3rem);
+  font-weight: var(--w-head);
+  font-size: var(--fs-lead);
   letter-spacing: -0.01em;
   line-height: 1.3;
   transition: color var(--t-fast);
@@ -954,12 +975,12 @@ fieldset > legend + * {
   margin-top: 1.1em;
 }
 .prose h2 {
-  font-size: clamp(1.6rem, 1.3rem + 1.2vw, 2.3rem);
+  font-size: var(--fs-h3);
   color: var(--text);
   margin-top: 2.2em;
 }
 .prose h3 {
-  font-size: clamp(1.25rem, 1.15rem + 0.5vw, 1.5rem);
+  font-size: var(--fs-lead);
   color: var(--text);
   margin-top: 1.8em;
 }
@@ -969,7 +990,7 @@ fieldset > legend + * {
 }
 .prose strong {
   color: var(--text);
-  font-weight: 600;
+  font-weight: var(--w-head);
 }
 .prose ul,
 .prose ol {
@@ -983,7 +1004,7 @@ fieldset > legend + * {
 }
 .prose ol li::marker {
   font-family: var(--font-mono);
-  font-size: 0.9em;
+  font-size: var(--fs-sm);
 }
 
 /* ═══════════════ Toast (created by src/scripts/motion.ts) ═══════════════ */
@@ -997,8 +1018,8 @@ fieldset > legend + * {
   border-radius: var(--r-pill);
   background: var(--paper);
   color: var(--ink);
-  font-size: 0.9375rem;
-  font-weight: 600;
+  font-size: var(--fs-sm);
+  font-weight: var(--w-head);
   box-shadow: var(--shadow-pop);
   transform: translate(-50%, 160%);
   opacity: 0;
@@ -1020,8 +1041,8 @@ fieldset > legend + * {
   background: var(--warn-wash);
   color: var(--warn);
   font-family: var(--font-mono);
-  font-size: var(--fs-xs);
-  font-weight: 600;
+  font-size: var(--fs-label);
+  font-weight: var(--w-ui);
   letter-spacing: 0.02em;
   line-height: 1.4;
 }
@@ -1121,8 +1142,8 @@ fieldset > legend + * {
 
 @media print {
   body {
-    background: #fff;
-    color: #000;
+    background: white;
+    color: black;
   }
   header,
   footer,
@@ -1145,8 +1166,8 @@ fieldset > legend + * {
   z-index: -1;
   pointer-events: none;
   overflow: hidden;
-  -webkit-mask-image: radial-gradient(ellipse var(--fw, 72%) var(--fh, 80%) at var(--fx, 74%) var(--fy, 45%), #000 25%, transparent 78%);
-  mask-image: radial-gradient(ellipse var(--fw, 72%) var(--fh, 80%) at var(--fx, 74%) var(--fy, 45%), #000 25%, transparent 78%);
+  -webkit-mask-image: radial-gradient(ellipse var(--fw, 72%) var(--fh, 80%) at var(--fx, 74%) var(--fy, 45%), black 25%, transparent 78%);
+  mask-image: radial-gradient(ellipse var(--fw, 72%) var(--fh, 80%) at var(--fx, 74%) var(--fy, 45%), black 25%, transparent 78%);
 }
 .fx-field::before {
   content: '';
@@ -1219,9 +1240,9 @@ fieldset > legend + * {
   padding: 1px;
   border-radius: inherit;
   background: radial-gradient(22rem circle at var(--mx, 50%) var(--my, 0%), rgb(212 248 74 / 0.72), transparent 70%);
-  -webkit-mask: linear-gradient(rgb(0 0 0 / 0.86) 0 0) content-box, linear-gradient(#000 0 0);
+  -webkit-mask: linear-gradient(rgb(0 0 0 / 0.86) 0 0) content-box, linear-gradient(black 0 0);
   -webkit-mask-composite: xor;
-  mask: linear-gradient(rgb(0 0 0 / 0.86) 0 0) content-box exclude, linear-gradient(#000 0 0);
+  mask: linear-gradient(rgb(0 0 0 / 0.86) 0 0) content-box exclude, linear-gradient(black 0 0);
   opacity: 0;
   pointer-events: none;
   transition: opacity 500ms var(--ease-out);

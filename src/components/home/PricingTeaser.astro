@@ -50,7 +50,7 @@ import Icon from '../ui/Icon.astro';
 
 <style>
   @media (max-width: 39.99em) {
-    .pt { padding-block: 2.5rem; }
+    .pt { padding-block: var(--section-tight); }
   }
   .pt__grid {
     display: grid;
@@ -58,15 +58,16 @@ import Icon from '../ui/Icon.astro';
   }
   .pt__head {
     display: grid;
-    gap: var(--s-4);
+    row-gap: var(--head-gap-2);
     align-content: start;
     justify-items: start;
   }
+  .pt__head .eyebrow { margin-bottom: calc(var(--head-gap-1) - var(--head-gap-2)); }
   .pt__title {
-    font-size: clamp(2.5rem, 4.6vw, 5rem);
-    letter-spacing: -0.07em;
-    line-height: 0.96;
-    max-width: 12ch;
+    font-size: var(--fs-h2);
+    letter-spacing: var(--track-head);
+    line-height: 1;
+    max-width: 14ch;
   }
   .pt__lead {
     max-width: 44ch;
@@ -90,9 +91,9 @@ import Icon from '../ui/Icon.astro';
     background: linear-gradient(90deg, transparent, var(--surface));
   }
   .pt__name {
-    font-size: clamp(1.3rem, 1.1rem + 0.8vw, 1.9rem);
-    font-weight: 600;
-    letter-spacing: -0.035em;
+    font-size: var(--fs-h3);
+    font-weight: var(--w-head);
+    letter-spacing: var(--track-head);
     line-height: 1.1;
   }
   .pt__price {
@@ -101,21 +102,19 @@ import Icon from '../ui/Icon.astro';
     text-align: right;
     gap: 0.1rem;
   }
+  /* Lime budget: every price is white, in tabular figures. */
   .pt__price b {
-    font-size: clamp(1.3rem, 1.1rem + 0.8vw, 1.9rem);
-    font-weight: 650;
-    letter-spacing: -0.03em;
+    font-size: var(--fs-h3);
+    font-weight: var(--w-head);
+    letter-spacing: var(--track-head);
     line-height: 1.1;
     font-variant-numeric: tabular-nums;
     color: var(--text);
     white-space: nowrap;
   }
   .pt__price span {
-    font-size: var(--fs-xs);
+    font-size: var(--fs-label);
     color: var(--text-3);
-  }
-  .pt__row--lead .pt__price b {
-    color: var(--signal);
   }
   .pt__boundary {
     grid-column: 1 / -1;
@@ -145,7 +144,7 @@ import Icon from '../ui/Icon.astro';
       display: block;
       grid-area: icon;
       align-self: center;
-      color: var(--signal);
+      color: var(--text-3);
       transition: transform var(--t-base) var(--ease-out);
     }
     @media (prefers-reduced-motion: no-preference) {

@@ -1,5 +1,17 @@
 # DESIGN.md · "Signal" (round 5, Nov 2026), compact editorial portfolio (round 7)
 
+> **Design upgrade, Phase 1 (17 Nov 2026): tokens.** One type scale (`--fs-hero` to `--fs-label`, plus `--fs-ui` for
+> button and form labels) replaces about 90 one-off sizes, so section titles no longer outgrow page titles. Three
+> weights (400, 500, 600; mono always 500), a −0.035em tracking floor, a 13px floor for visible text, section padding
+> from `--section` and `--section-tight` only, and two head gaps for every eyebrow → heading → lead. The **lime budget**
+> applies everywhere: lime marks the Λ's, one primary button per screen, the graph's live signal, live markers, focus
+> rings and the free-check band. Prices are white, chips lost their dots, a heading's only lime is its full stop, and on
+> the paper band "Website live" is a lime tag with ink text. Eyebrows carry a small Λ from the wordmark instead of a
+> dot. Every hex colour now lives in `tokens.css`. The checks: `tests/unit/design-tokens.test.ts` (T1, C2) and
+> `tests/e2e/design-gates.spec.ts` (T3, T4, T5, C1, L2). The Home H1 stays near its old size (`--fs-h2`) until Phase 2
+> slims the hero and moves it to `--fs-hero`. Updated below: Colour, Typography, Spacing and layout. Record and
+> numbers: [`docs/27-design-upgrade/phase-1-tokens.md`](docs/27-design-upgrade/phase-1-tokens.md).
+>
 > **Design upgrade, Phase 0 (17 Nov 2026): baseline only, no design change.** The design upgrade in
 > [`DESIGN_UPGRADE_PLAN.md`](DESIGN_UPGRADE_PLAN.md) (from [`DESIGN_AUDIT.md`](DESIGN_AUDIT.md), 16 Nov 2026) runs one
 > phase at a time, each with pass/fail gates. Phase 0 adds `scripts/design-shots.mjs` (`npm run qa:design`), which
@@ -82,9 +94,27 @@ Dark only (`color-scheme: dark`). Text contrast measured against `--bg`.
 | `--error` | `#FF6B57` | Errors and destructive notices | 7.0:1 |
 | `--warn` | `#F5C451` | "Not connected" and preview notes | 12.1:1 |
 | `--paper` / `--ink` | `#F2F1EC` / `#0B0B0C` | Inverted moments (rare): prose code, toasts | 17.4:1 |
+| `--paper-section` | `#F0F0E8` | The light Selected Work band | — |
+| `--paper-text` / `-2` / `-3` | `#181A13` / `#43473B` / `#575A50` | Text on the paper band | measured on `--paper-section` |
+| `--paper-line` | `#C7C8BA` | Hairlines on the paper band | — |
+| `--media-bg-1` / `-2` | `#BFC9C9` / `#D5C4C9` | Backdrops behind project mockups (retuned in Phase 3) | — |
+| `--frame-*` | screen `#FFFFFF`, bar `#E9E9EC`, dots `#C4C4CA`, address `#5B5B63`, bezel `#1C1C20` | Browser and phone frames around captures | — |
+| `--graph-*` | mesh `#3A3E2C`, spokes `#5B6236`, ring `#4A4F37`, nodes `#8D9A4A`, pill line `#3D3F33` | The agent graph's lime-tinted greys | — |
 
-Rules: lime is never a background for long text; it marks *one* thing per view (the main button, the
-current state, the focus ring). No gradients on text, no purple, no glass.
+Every hex colour lives in `tokens.css`; components use the tokens (gate C2, `tests/unit/design-tokens.test.ts`).
+
+**Lime budget (design upgrade Phase 1, 17 Nov 2026).** Lime marks only: the Λ's (wordmark and eyebrows), the one
+primary button on screen, the agent graph's live signal, live markers (the status dot, "Website live"), focus rings and
+the free-check band. Everything else is white or grey: prices (white, tabular figures), chip dots (gone), step numbers,
+icons and arrows in lists, rail dots. A heading's only lime is its full stop (`<span class="stop">.</span>`, made by
+`accentLine()` in `src/lib/headline.ts` for data-driven headings); whole phrases are never lime. On the paper band lime
+is never text: the live tag is a lime fill with ink text (16.2:1) and accents are ink. Checked on Home one screen at a
+time at 375, 768 and 1440 (gate C1, `tests/e2e/design-gates.spec.ts`): at most one lime mark per screen, not counting
+the sticky header (its button follows gate U2), the wordmark and Λ's, the agent graph, the free-check band, headline
+full stops and live markers. Lime is never a background for long text. No gradients on text, no purple, no glass.
+
+**The Λ as a system glyph.** Eyebrows start with a small Λ cut from the wordmark (`--lambda`, a mask painted
+`--eyebrow-mark`: lime on dark, ink on the paper band). The round dot is kept only where it means "live" (`.status__dot`).
 
 ## Typography
 
@@ -99,30 +129,42 @@ with Mona Sans and Instrument Serif). New characters in the copy: add them to th
 `unicode-range` in `tokens.css`.
 
 **Two-tone headlines.** The second half of a heading steps back instead of changing typeface:
-`<span class="accent">` sets it in `--text-3` grey, `<span class="accent accent--signal">` in lime
-(one per view, as with every lime). Same face, same weight. On the lime free-check band the accent is
-a dark olive (5.9:1).
+`<span class="accent">` sets it in `--text-3` grey, same face and weight. Its full stop may be lime (see the lime
+budget). On the lime free-check band the accent is a dark olive (5.9:1).
 
 Self-hosted, SIL OFL 1.1, `font-display: swap`, metric-adjusted Arial fallback (`Geist Fallback`).
 
-| Token | Size (fluid) | Line height | Weight | Use |
-| --- | --- | --- | --- | --- |
-| `--fs-display` | 3.4 → 10.5rem | 0.86 | 600 | Hero words |
-| `--fs-h1` | 2.6 → 6rem | 0.95 | 600 | Page titles |
-| `--fs-h2` | 2 → 4rem | 1.0 | 600 | Section titles |
-| `--fs-h3` | 1.35 → 1.9rem | 1.15 | 560 | Item titles |
-| `--fs-lead` | 1.2 → 1.5rem | 1.45 | 400 | Intros |
-| `--fs-base` | 1.0625 → 1.125rem | 1.6 | 400 | Body (17–18 px) |
-| `--fs-sm` | 0.9375rem | 1.5 | 400 | Hints, captions |
-| `--fs-xs` | 0.8125rem | 1.4 | 500 mono, +0.08em, uppercase | Labels |
+**Type scale (design upgrade Phase 1, 17 Nov 2026).** A component picks one of these tokens and never a raw size (gate
+T1, `tests/unit/design-tokens.test.ts`). The one exception is the agent graph's SVG labels, sized in the graph's own
+units; the footer wordmark is an outline sized by width. The hierarchy holds at every width: hero ≥ h1 > h2 > h3 > lead.
 
-Buttons 540. Display tracking −0.045em; headings −0.03em; body 0. Geist has no width axis, so hover
-effects that used to widen a word now open its tracking instead (to −0.02em). Body line length 60–72 characters (`--measure`).
+| Token | Size, 375 → 1440px | Line height | Weight | Tracking | Use |
+| --- | --- | --- | --- | --- | --- |
+| `--fs-hero` | 41.6 → 96px | 0.92 | 600 | `--track-hero` −0.035em | The Home H1 (from Phase 2), the free-check landing page H1 |
+| `--fs-h1` | 38.4 → 80px | 0.95 | 600 | `--track-hero` | Page titles, case-study titles |
+| `--fs-h2` | 32 → 60px | 1.0 | 600 | `--track-head` −0.025em | Section titles; never above `--fs-h1` |
+| `--fs-h3` | 22 → 30px | 1.1–1.15 | 500 (600 for names and prices) | `--track-head` | Item titles, project names, prices |
+| `--fs-lead` | 18 → 22px | 1.45 | 400 | −0.01em | Intros, sublines, question titles |
+| `--fs-base` | 17 → 18px | 1.6 | 400 | 0 | Body |
+| `--fs-ui` | 16px | 1.15–1.35 | 500 | −0.01em | Button and form labels |
+| `--fs-sm` | 15px | 1.5 | 400–500 | 0 | Hints, captions, small UI, footer links |
+| `--fs-label` | 13px | 1.4 | mono 500 | `--track-label` +0.08em, uppercase | Eyebrows, metadata; the floor for visible text |
+
+**Weights:** `--w-body` 400, `--w-ui` 500, `--w-head` 600, and mono text is always 500. Bold text and table headings
+use 600, not the browser's 700 (gate T3: at most four weight and family pairs on Home). **Tracking** never goes
+below −0.035em (gate T4). **No visible text under 13px** outside `aria-hidden` decoration (gate T5). Geist has no width
+axis, so hover effects that used to widen a word now open its tracking instead (to −0.02em). Body line length 60–72
+characters (`--measure`).
 
 ## Spacing and layout
 
 4-px base: `--s-1` 0.25rem, `--s-2` 0.5rem, `--s-3` 0.75rem, `--s-4` 1rem, `--s-5` 1.5rem, `--s-6` 2rem,
-`--s-7` 3rem, `--s-8` 4rem, `--s-9` 6rem, `--s-10` 8rem. Sections: `--section` 3.5 → 10rem.
+`--s-7` 3rem, `--s-8` 4rem, `--s-9` 6rem, `--s-10` 8rem. Sections: `--section` 3.5 → 10rem, and
+`--section-tight` 2 → 4rem for the hero, the Selected Work band and compact sections (and every section on phones
+that used its own smaller padding). Section padding comes only from these two (gate L2,
+`tests/e2e/design-gates.spec.ts`). **Section heads** are spaced the same everywhere: eyebrow → heading
+`--head-gap-1` (12 → 20px), heading → lead or intro `--head-gap-2` (16 → 28px), whether the head is a grid
+(`.section-head`, the Home sections) or a `.stack`.
 Content width `--container` 90rem with `--gutter` 1 → 3rem; text `--measure` 68ch. 12-column grid on
 desktop, one column on phones. Layouts alternate (split, full-bleed, sticky, list) so no two sections
 in a row look the same.
@@ -156,7 +198,7 @@ cards and table; it stays unlinked and `noindex` until a price is approved (`dat
   Keyboard focus moving into folded text opens it, and without JavaScript everything is shown.
 - Smaller section padding, one line per service until it is opened, and a compact footer.
 - **The menu sheet fits one screen** at any phone height (tested at 320×568, 375×667 and 390×844):
-  link size and spacing scale with the screen height, and on short phones the contact buttons
+  the links use `--fs-h2` and their spacing scales with the screen height, and on short phones the contact buttons
   become round icons (each keeps its name) so every link down to Privacy and Terms is visible.
 - Budgets (in 390 × 844 screens) are tested in `tests/e2e/site.spec.ts`: Home 10.5, Services 12,
   case studies 7 (they carry the evidence section), About 6.5, Work 4.5, Contact 3.5.
@@ -299,6 +341,8 @@ Since the design upgrade (Phase 0, 17 Nov 2026), every design change is checked 
    `/contact/` at 320×568, 360×740, 375×812, 390×844, 768×1024, 1024×768, 1280×800, 1440×900, 1920×1080 and 844×390.
    It writes a first-screen and a full-page capture of each, a contact sheet per report width (375, 768, 1440),
    `summary.md` and `results.json` to `qa-output/design/<label>/`. Lab numbers depend on the machine, so compare runs
-   from the same machine.
+   from the same machine. `npm run qa:design -- --compare before,after` then puts the two runs side by side:
+   `compare-375.jpg`, `compare-768.jpg`, `compare-1440.jpg` (first screens) and `compare.md` (the numbers, before → after)
+   in `qa-output/design/compare-before-after/`.
 2. **The gates.** Each phase adds its pass/fail checks to `tests/e2e/design-gates.spec.ts` (in the browser) and
    `tests/unit/design-tokens.test.ts` (in the source), as listed in [`DESIGN_UPGRADE_PLAN.md`](DESIGN_UPGRADE_PLAN.md) §5.

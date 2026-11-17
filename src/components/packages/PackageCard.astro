@@ -66,16 +66,16 @@ const here = Astro.url.pathname === p.page;
     justify-content: space-between;
     align-items: center;
     gap: var(--s-3);
-    font-size: var(--fs-xs);
+    font-size: var(--fs-label);
   }
   .pkg__cost {
     display: grid;
     gap: 0.15rem;
   }
   .pkg__price {
-    font-size: clamp(2rem, 1.6rem + 1.4vw, 2.75rem);
-    font-weight: 650;
-    letter-spacing: -0.05em;
+    font-size: var(--fs-h3);
+    font-weight: var(--w-head);
+    letter-spacing: var(--track-head);
     line-height: 1;
     font-variant-numeric: tabular-nums;
     color: var(--signal);
@@ -86,18 +86,18 @@ const here = Astro.url.pathname === p.page;
     color: var(--text-2);
   }
   .pkg__terms {
-    font-size: var(--fs-xs);
+    font-size: var(--fs-label);
     color: var(--text-3);
   }
   .pkg__name {
-    font-size: clamp(1.5rem, 1.3rem + 0.8vw, 2rem);
-    font-weight: 600;
+    font-size: var(--fs-h3);
+    font-weight: var(--w-head);
     letter-spacing: -0.035em;
     line-height: 1.05;
   }
   .pkg__boundary {
     font-size: var(--fs-sm);
-    font-weight: 560;
+    font-weight: var(--w-ui);
     color: var(--text);
   }
   .pkg__for {
@@ -131,7 +131,7 @@ const here = Astro.url.pathname === p.page;
     display: flex;
     align-items: center;
     cursor: pointer;
-    font-weight: 560;
+    font-weight: var(--w-ui);
     color: var(--text);
     text-decoration: underline;
     text-decoration-color: var(--control);

@@ -49,8 +49,7 @@ const recent = [
 
       <!-- 14 Nov 2026 (SEO audit): the H1 names the place and the customer. The subline no longer repeats "Toronto". -->
       <h1 class="hero__title" id="hero-title">
-        <span class="hero__line">Websites and local SEO</span>
-        <span class="hero__line">for Toronto small businesses.</span>
+        <span class="hero__line">Websites and local SEO</span> <br /><span class="hero__line">for Toronto small businesses.</span>
       </h1>
       <p class="hero__place">Get found on Google and in AI answers, then turn searches into bookings.</p>
 
@@ -105,8 +104,7 @@ const recent = [
   .hero {
     position: relative;
     isolation: isolate;
-    padding-top: clamp(var(--s-4), 3vw, var(--s-7));
-    padding-bottom: clamp(var(--s-6), 4vw, var(--s-8));
+    padding-block: var(--section-tight);
     overflow: clip;
   }
   .hero::before {
@@ -117,7 +115,7 @@ const recent = [
     z-index: -1;
     background-image: radial-gradient(circle at 1px 1px, rgb(255 255 255 / 0.07) 1px, transparent 0);
     background-size: 28px 28px;
-    mask-image: radial-gradient(ellipse 70% 60% at 70% 45%, #000 20%, transparent 75%);
+    mask-image: radial-gradient(ellipse 70% 60% at 70% 45%, black 20%, transparent 75%);
   }
   .hero__inner {
     display: grid;
@@ -143,36 +141,39 @@ const recent = [
     line-height: 1.3;
   }
   .hero__hi {
-    font-weight: 600;
+    font-weight: var(--w-head);
     color: var(--text);
   }
   .hero__role {
-    font-size: var(--fs-xs);
+    font-size: var(--fs-label);
     color: var(--text-2);
   }
   .hero__status {
     margin-left: auto;
   }
 
+  /* Phase 1 (17 Nov 2026): the hero H1 keeps about its old size (--fs-h2, 32 → 60px) while the hero still carries the
+     chips, contact icons and recent-work cards; a larger H1 there pushes Selected Work below its tested position.
+     Phase 2 slims the hero (D1, D2, D4) and moves this H1 to --fs-hero (plan task 2.3). */
   .hero__title {
-    font-size: clamp(2.1rem, 9.4vw, 4.6rem);
-    font-weight: 650;
+    font-size: var(--fs-h2);
+    font-weight: var(--w-head);
     line-height: 0.95;
-    letter-spacing: -0.06em;
+    letter-spacing: var(--track-hero);
     text-wrap: balance;
   }
-  .hero__line {
-    display: block;
-  }
+  /* The two lines are inline, split by a <br>, so the H1 paints as one text block: it is the LCP element, not one of
+     its lines (a single line can lose to the consent prompt's paragraph; gate H6). The space before the <br> keeps the
+     text "…SEO for Toronto…" when copied or read. */
   .hero__place {
     display: block;
     margin-top: calc(-1 * var(--s-2));
     color: var(--text-2);
     max-width: 40ch;
-    font-size: clamp(1rem, 1.4vw, 1.3rem);
-    font-weight: 520;
-    letter-spacing: -0.025em;
-    line-height: 1.25;
+    font-size: var(--fs-lead);
+    font-weight: var(--w-body);
+    letter-spacing: -0.01em;
+    line-height: 1.35;
   }
   .hero__services {
     display: flex;
@@ -189,17 +190,10 @@ const recent = [
     border: 1px solid var(--line);
     border-radius: var(--r-pill);
     color: var(--text);
-    font-size: var(--fs-xs);
-    font-weight: 520;
+    font-size: var(--fs-label);
+    font-weight: var(--w-ui);
     text-decoration: none;
     transition: border-color var(--t-fast), background-color var(--t-fast);
-  }
-  .hero__services a::before {
-    content: '';
-    width: 0.4rem;
-    height: 0.4rem;
-    border-radius: 50%;
-    background: var(--signal);
   }
   .hero__services a:hover {
     border-color: var(--control);
@@ -223,9 +217,10 @@ const recent = [
     gap: var(--s-2) var(--s-4);
     margin-top: var(--s-2);
   }
+  /* Lime budget: prices are white, in tabular figures. */
   .hero__price b {
-    color: var(--signal);
-    font-weight: 650;
+    color: var(--text);
+    font-weight: var(--w-head);
     font-variant-numeric: tabular-nums;
   }
 
@@ -236,7 +231,7 @@ const recent = [
     border-top: 1px solid var(--line);
   }
   .hero__recent-h {
-    font-size: var(--fs-xs);
+    font-size: var(--fs-label);
     color: var(--text-3);
   }
   .hero__recent ul {
@@ -261,12 +256,12 @@ const recent = [
     background: var(--surface);
   }
   .hero__recent-name {
-    font-weight: 600;
+    font-weight: var(--w-head);
     font-size: var(--fs-sm);
   }
   .hero__recent-note {
     grid-column: 1;
-    font-size: var(--fs-xs);
+    font-size: var(--fs-label);
     color: var(--text-3);
   }
   .hero__vision {
@@ -277,7 +272,7 @@ const recent = [
   .hero__recent li a :global(.icon) {
     grid-column: 2;
     grid-row: 1 / span 2;
-    color: var(--signal);
+    color: var(--text-2);
   }
 
   @media (prefers-reduced-motion: no-preference) {
@@ -298,9 +293,8 @@ const recent = [
     .hero__text { gap: var(--s-4); }
     .hero__services { gap: 0.4rem; order: 1; }
     /* Phones: the buttons come straight after the lead so they fit on the first screen; the service list follows them. */
-    .hero__place { font-size: 0.98rem; margin-top: 0.45em; }
-    .hero__role { font-size: 0.72rem; }
-    .hero__services a { font-size: 0.74rem; min-height: 1.9rem; padding-inline: 0.6rem; }
+    .hero__place { margin-top: 0.45em; }
+    .hero__services a { min-height: 1.9rem; padding-inline: 0.6rem; }
     .hero__status, .hero__actions :global(.hero__reach) { display: none; }
     .hero__actions :global(.btn-row) {
       display: grid;
@@ -311,7 +305,7 @@ const recent = [
     .hero__actions :global(.btn) {
       min-height: 3.1rem;
       padding-inline: var(--s-3);
-      font-size: 0.82rem;
+      font-size: var(--fs-label);
     }
     .hero__actions :global(.btn__icon) { width: 1.7rem; height: 1.7rem; }
     .hero__actions :global(.hero__price-link) {
@@ -320,8 +314,7 @@ const recent = [
     .hero__actions :global(.hero__price-link .btn__icon) { display: none; }
   }
   @media (max-width: 22.5em) {
-    /* The smallest phones (320 px): smaller type so the buttons still fit on the first screen. */
-    .hero__title { font-size: 2.1rem; }
+    /* The smallest phones (320 px): tighter spacing so the buttons still fit on the first screen. */
     .hero__text { gap: var(--s-3); }
   }
   @media (min-width: 40em) and (max-width: 63.99em) {
@@ -355,8 +348,5 @@ const recent = [
     .hero__text { grid-area: text; }
     .hero :global(.hero__graph) { grid-area: graph; }
     .hero__recent { grid-area: recent; align-self: start; }
-    .hero__title {
-      font-size: clamp(3.1rem, 4.1vw, 4.6rem);
-    }
   }
 </style>

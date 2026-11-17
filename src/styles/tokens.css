@@ -62,26 +62,60 @@
   --focus-on-light: var(--ink);
   --accent-on-light: #637b05;
 
+  /* The light Selected Work band (paper). Lime never sits on paper as text: tags take a lime fill with ink text
+     (16.2:1) and accents are ink (design upgrade Phase 1). */
+  --paper-section: #f0f0e8;
+  --paper-text: #181a13;
+  --paper-text-2: #43473b;
+  --paper-text-3: #575a50;
+  --paper-line: #c7c8ba;
+  /* Backdrops behind project mockups (retuned in Phase 3, task 3.5). */
+  --media-bg-1: #bfc9c9;
+  --media-bg-2: #d5c4c9;
+  /* Browser and phone frames around project captures. */
+  --frame-screen: #ffffff;
+  --frame-bar: #e9e9ec;
+  --frame-dot: #c4c4ca;
+  --frame-url: #5b5b63;
+  --frame-bezel: #1c1c20;
+  /* The wordmark's crossbar-less Λ (components/ui/Wordmark.astro), as a mask: eyebrows paint it lime. */
+  --lambda: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='1102 0 628 710'%3E%3Cpath d='M1102 710 1358 0H1474L1730 710H1636L1416 75L1196 710Z'/%3E%3C/svg%3E");
+  /* Agent graph strokes: lime-tinted greys for the network (components/home/AgentGraph.astro). */
+  --graph-mesh: #3a3e2c;
+  --graph-spoke: #5b6236;
+  --graph-ring: #4a4f37;
+  --graph-node: #8d9a4a;
+  --graph-pill-line: #3d3f33;
+
   /* ── Type ── */
   --font-sans: 'Geist', 'Geist Fallback', ui-sans-serif, system-ui, sans-serif;
   --font-mono: 'Geist Mono', ui-monospace, 'SFMono-Regular', Menlo, Consolas, monospace;
 
-  --fs-xs: 0.8125rem;
-  --fs-sm: 0.9375rem;
-  --fs-base: clamp(1.0625rem, 1.03rem + 0.12vw, 1.125rem);
-  --fs-lead: clamp(1.2rem, 1.1rem + 0.45vw, 1.5rem);
-  --fs-h3: clamp(1.35rem, 1.2rem + 0.6vw, 1.9rem);
-  --fs-h2: clamp(2rem, 1.45rem + 2.4vw, 4rem);
-  --fs-h1: clamp(2.6rem, 1.75rem + 3.8vw, 6rem);
-  --fs-display: clamp(3.4rem, 1.2rem + 9.4vw, 10.5rem);
+  /* Type scale (design upgrade Phase 1, 17 Nov 2026; DESIGN_AUDIT.md → Typography). Fluid from 375 to 1440px.
+     A component picks one of these, never a raw size (tests/unit/design-tokens.test.ts, gate T1). The hierarchy holds at
+     every width: hero ≥ h1 > h2 > h3 > lead > base > ui > sm > label. */
+  --fs-hero: clamp(2.6rem, 1.4rem + 5.11vw, 6rem); /* 41.6 → 96px: the Home H1 (from Phase 2) */
+  --fs-h1: clamp(2.4rem, 1.48rem + 3.91vw, 5rem); /* 38.4 → 80px: page titles */
+  --fs-h2: clamp(2rem, 1.38rem + 2.63vw, 3.75rem); /* 32 → 60px: section titles, never above --fs-h1 */
+  --fs-h3: clamp(1.375rem, 1.2rem + 0.75vw, 1.875rem); /* 22 → 30px: item titles, project names, prices */
+  --fs-lead: clamp(1.125rem, 1.04rem + 0.38vw, 1.375rem); /* 18 → 22px: intros, sublines */
+  --fs-base: clamp(1.0625rem, 1.03rem + 0.12vw, 1.125rem); /* 17 → 18px: body */
+  --fs-ui: 1rem; /* 16px: button labels and form labels */
+  --fs-sm: 0.9375rem; /* 15px: hints, captions, small UI */
+  --fs-label: 0.8125rem; /* 13px: mono labels and metadata; the floor for any visible text (gate T5) */
 
-  --lh-display: 0.86;
+  --lh-display: 0.92;
   --lh-tight: 0.98;
   --lh-snug: 1.15;
   --lh-body: 1.6;
-  --track-display: -0.045em;
-  --track-head: -0.03em;
-  --track-label: 0.08em;
+  /* Tracking never goes below -0.035em (gate T4). */
+  --track-hero: -0.035em; /* H1s */
+  --track-head: -0.025em; /* H2, H3 */
+  --track-label: 0.08em; /* mono uppercase labels */
+  /* Three weights (gate T3): body, UI and emphasis, headings. Mono text is always --w-ui. */
+  --w-body: 400;
+  --w-ui: 500;
+  --w-head: 600;
   --measure: 68ch;
 
   /* ── Space (4px base) ── */
@@ -95,8 +129,13 @@
   --s-8: 4rem;
   --s-9: 6rem;
   --s-10: 8rem;
-  /* Tighter on phones (3.5rem), unchanged on desktop. */
+  /* Section padding comes only from these two (gate L2). --section: tighter on phones (3.5rem). --section-tight: the
+     hero, the Selected Work band and compact sections (32 → 64px). */
   --section: clamp(3.5rem, 1.4rem + 8.6vw, 10rem);
+  --section-tight: clamp(2rem, 0.75rem + 3.5vw, 4rem);
+  /* Section heads: eyebrow → heading, then heading → lead or intro. The same everywhere. */
+  --head-gap-1: clamp(0.75rem, 0.6rem + 0.5vw, 1.25rem);
+  --head-gap-2: clamp(1rem, 0.75rem + 0.9vw, 1.75rem);
   --container: 90rem;
   --gutter: clamp(1rem, 0.35rem + 2.8vw, 3rem);
   --header-h: 4.25rem;

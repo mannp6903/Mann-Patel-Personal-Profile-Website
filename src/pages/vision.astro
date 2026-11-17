@@ -64,7 +64,7 @@ const jsonLd = { '@context': 'https://schema.org', '@type': 'ProfilePage', mainE
 >
   <PageHead
     eyebrow="Vision"
-    lines={['Local businesses do the work.', '<span class="accent accent--signal">Software should run the rest.</span>']}
+    lines={['Local businesses do the work.', '<span class="accent">Software should run the rest</span><span class="stop">.</span>']}
     lead="Most owner-run businesses lose customers between the search and the booking: details out of date on Google, missed calls, slow replies, paperwork at night. I build the systems that close that gap, and I test them on my own business first."
   >
     <div class="vi-head__actions" data-reveal="load" style="--d:300">
@@ -165,7 +165,7 @@ const jsonLd = { '@context': 'https://schema.org', '@type': 'ProfilePage', mainE
     <div class="container vi-split">
       <div class="stack" style="--stack: var(--s-4)">
         <p class="eyebrow">05 / Let’s talk</p>
-        <Heading id="talk-title" lines={['Want to build', '<span class="accent accent--signal">something together?</span>']} />
+        <Heading id="talk-title" lines={['Want to build', '<span class="accent">something together?</span>']} />
       </div>
       <div class="stack" style="--stack: var(--s-5)">
         <p class="lead">If you’re a professional with an idea, a skill or a project, and you’d like to connect and build something together, I’m open to it. I answer every message myself.</p>
@@ -213,13 +213,13 @@ const jsonLd = { '@context': 'https://schema.org', '@type': 'ProfilePage', mainE
     border: 1px solid var(--signal);
     border-radius: 50%;
     color: var(--signal);
-    font-size: var(--fs-xs);
+    font-size: var(--fs-label);
   }
   .vi-venture h3 {
     font-size: var(--fs-h3);
   }
   .vi-venture__status {
-    font-size: var(--fs-xs);
+    font-size: var(--fs-label);
     text-transform: uppercase;
     letter-spacing: 0.08em;
     color: var(--text-3);
@@ -245,14 +245,14 @@ const jsonLd = { '@context': 'https://schema.org', '@type': 'ProfilePage', mainE
   }
   .vi-list time,
   .vi-list__when {
-    font-size: var(--fs-xs);
+    font-size: var(--fs-label);
     text-transform: uppercase;
     letter-spacing: 0.08em;
     color: var(--signal);
     padding-top: 0.3em;
   }
   .vi-list__title {
-    font-weight: 600;
+    font-weight: var(--w-head);
     color: var(--text);
   }
   .vi-why {

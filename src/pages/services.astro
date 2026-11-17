@@ -49,7 +49,7 @@ for (const g of groups) {
   <PageHead
     eyebrow="Services"
     compact
-    lines={['Website, local SEO', '<span class="accent accent--signal">and enquiry services</span>']}
+    lines={['Website, local SEO', '<span class="accent">and enquiry services</span>']}
     lead="Three services follow your customer’s path in Toronto and the GTA: they find you, they contact you, they book. Each page says who it’s for, what happens and what it costs. Based in Scarborough."
   />
 
@@ -233,7 +233,7 @@ for (const g of groups) {
     padding-top: var(--s-3);
     border-top: 1px dashed var(--line);
     font-family: var(--font-mono);
-    font-size: var(--fs-xs);
+    font-size: var(--fs-label);
     letter-spacing: 0.02em;
   }
   @media (min-width: 56em) {
@@ -254,7 +254,7 @@ for (const g of groups) {
     display: block;
     margin-bottom: var(--s-1);
     font-family: var(--font-mono);
-    font-size: var(--fs-xs);
+    font-size: var(--fs-label);
     letter-spacing: var(--track-label);
     text-transform: uppercase;
     color: var(--signal);
@@ -287,14 +287,14 @@ for (const g of groups) {
     border-top: 1px solid var(--line);
   }
   .ov__name {
-    font-size: clamp(1.15rem, 1.05rem + 0.5vw, 1.45rem);
-    font-weight: 600;
+    font-size: var(--fs-lead);
+    font-weight: var(--w-head);
     letter-spacing: -0.02em;
   }
   .sprint__tag {
     display: block;
     font-family: var(--font-mono);
-    font-size: var(--fs-xs);
+    font-size: var(--fs-label);
     letter-spacing: var(--track-label);
     text-transform: uppercase;
     color: var(--signal);

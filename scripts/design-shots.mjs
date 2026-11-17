@@ -20,6 +20,9 @@
 //   --no-consent           store a "No thanks" first, so the consent prompt stays closed
 //   --reduced-motion       emulate prefers-reduced-motion: reduce
 //   --scale <n>            device scale factor for the screenshots (default 1)
+//   --compare <a>,<b>      no capture: compare two earlier runs (labels a and b under --out). Writes compare-<W>.jpg
+//                          (first screens side by side, a on the left) and compare.md (numbers, a → b) to
+//                          <out>/compare-<a>-<b>/. Added in Phase 1 for each phase's before/after report.
 //
 // Screenshots: for every size and page the script loads the page, records its headings and length, scrolls through
 // it once (so scroll reveals and lazy images fire), returns to the top, waits for motion to settle, then saves
@@ -56,7 +59,7 @@ const opt = (name, fallback) => {
   const i = argv.indexOf(name);
   return i >= 0 && argv[i + 1] && !argv[i + 1].startsWith('--') ? argv[i + 1] : fallback;
 };
-const valued = new Set(['--label', '--out', '--pages', '--sizes', '--metric-sizes', '--idle', '--serve', '--scale']);
+const valued = new Set(['--label', '--out', '--pages', '--sizes', '--metric-sizes', '--idle', '--serve', '--scale', '--compare']);
 const positional = argv.filter((a, i) => !a.startsWith('--') && !valued.has(argv[i - 1]));
 
 const parseSizes = (s) =>
@@ -325,6 +328,63 @@ async function settle(page) {
     .catch(() => {});
   await page.evaluate(() => document.fonts.ready).catch(() => {});
   await page.waitForTimeout(1500);
+}
+
+/* ── Compare two runs (--compare a,b) ───────────────────── */
+const compareLabels = opt('--compare', null);
+if (compareLabels) {
+  await compareRuns(...compareLabels.split(',').map((x) => x.trim()));
+  process.exit(0);
+}
+
+async function compareRuns(a, b) {
+  const { readFile } = await import('node:fs/promises');
+  const root = opt('--out', 'qa-output/design');
+  const load = async (l) => JSON.parse(await readFile(join(root, l, 'results.json'), 'utf8'));
+  const [ra, rb] = [await load(a), await load(b)];
+  const dir = join(root, `compare-${a}-${b}`);
+  await mkdir(dir, { recursive: true });
+  const kb = (n) => (n == null ? '–' : `${Math.round(n / 1024)}`);
+  const pair = (x, y) => (String(x) === String(y) ? `${x}` : `${x} → ${y}`);
+  const lines = [`# Design numbers: ${a} → ${b}`, '', `${a}: ${ra.createdAt} (${ra.base}) · ${b}: ${rb.createdAt} (${rb.base})`, ''];
+  const metricRows = rb.metrics.map((m) => [ra.metrics.find((x) => x.path === m.path && x.size === m.size), m]).filter(([x]) => x);
+  if (metricRows.length) {
+    lines.push('| Page | Size | LCP ms | LCP element | CLS | DOM elements | KB at load | JS KB | Fonts KB | Running after idle (infinite) |', '| --- | --- | --- | --- | --- | --- | --- | --- | --- | --- |');
+    for (const [x, y] of metricRows)
+      lines.push(
+        `| ${y.path} | ${y.size} | ${pair(x.lcpMs, y.lcpMs)} | ${pair(x.lcpElement, y.lcpElement).replace(/\|/g, '/')} | ${pair(x.cls, y.cls)} | ${pair(x.domElements, y.domElements)} | ${pair(kb(x.bytesAtLoad.total), kb(y.bytesAtLoad.total))} | ${pair(kb(x.bytesAtLoad.js), kb(y.bytesAtLoad.js))} | ${pair(kb(x.bytesAtLoad.font), kb(y.bytesAtLoad.font))} | ${pair(`${x.animationsAfterIdle.onDocumentTimeline} (${x.animationsAfterIdle.infinite})`, `${y.animationsAfterIdle.onDocumentTimeline} (${y.animationsAfterIdle.infinite})`)} |`,
+      );
+    lines.push('');
+  }
+  const typeRows = rb.type.map((t) => [ra.type.find((x) => x.path === t.path && x.size === t.size), t]).filter(([x]) => x);
+  if (typeRows.length) {
+    lines.push('| Page | Size | H1 px | Largest H2 px | H1 ÷ H2 | Screens | Hero screens | Work heading y |', '| --- | --- | --- | --- | --- | --- | --- | --- |');
+    for (const [x, y] of typeRows)
+      lines.push(`| ${y.path} | ${y.size} | ${pair(x.h1Px, y.h1Px)} | ${pair(x.maxH2Px, y.maxH2Px)} | ${pair(x.h1OverMaxH2, y.h1OverMaxH2)} | ${pair(x.screens, y.screens)} | ${pair(x.heroScreens ?? '–', y.heroScreens ?? '–')} | ${pair(x.workTitleTop ?? '–', y.workTitleTop ?? '–')} |`);
+    lines.push('');
+  }
+  await writeFile(join(dir, 'compare.md'), lines.join('\n'));
+  const browser = await chromium.launch();
+  for (const width of [375, 768, 1440]) {
+    const shots = rb.shots.filter((s) => s.size.startsWith(`${width}x`)).map((s) => [ra.shots.find((x) => x.path === s.path && x.size === s.size), s]).filter(([x]) => x);
+    if (!shots.length) continue;
+    const src = (l, f) => pathToFileURL(resolve(root, l, f)).href;
+    const html = `<!doctype html><meta charset="utf-8"><style>
+body{margin:0;padding:24px;background:#1a1a1a;color:#ddd;font:600 18px/1.3 system-ui,sans-serif;width:max-content}
+.row{display:grid;grid-template-columns:repeat(2,${width}px);gap:24px;margin-bottom:28px}figure{margin:0}
+figcaption{margin:0 0 8px}img{display:block;width:${width}px;outline:1px solid #444}h1{font-size:22px;margin:0 0 20px}
+</style><h1>First screens at ${width}px · ${a} (left) → ${b} (right)</h1>${shots
+      .map(([x, y]) => `<div class="row"><figure><figcaption>${y.path} · ${a}</figcaption><img src="${src(a, x.first)}"></figure><figure><figcaption>${y.path} · ${b}</figcaption><img src="${src(b, y.first)}"></figure></div>`)
+      .join('')}`;
+    const file = join(dir, `.compare-${width}.html`);
+    await writeFile(file, html);
+    const page = await (await browser.newContext({ viewport: { width: 400, height: 400 } })).newPage();
+    await page.goto(pathToFileURL(resolve(file)).href, { waitUntil: 'load' });
+    await page.screenshot({ path: join(dir, `compare-${width}.jpg`), fullPage: true, type: 'jpeg', quality: 80 });
+    await page.context().close();
+  }
+  await browser.close();
+  console.log(`Saved to ${dir}/ (compare.md and compare-*.jpg)`);
 }
 
 /* ── Run ────────────────────────────────────────────────── */
