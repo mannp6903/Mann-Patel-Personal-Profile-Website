@@ -1380,6 +1380,29 @@ fieldset > legend + * {
   }
 }
 
+/* Forced colours (Windows contrast themes; design upgrade Phase 8, task 8.2, gate A5). The mode swaps the palette for
+   the visitor's system colours and drops background fills, so anything drawn only with a fill, or marked only in lime,
+   gets an edge or an outline here. Components add their own rules for their own marks (the Menu lines, selected
+   cards, progress bars). */
+@media (forced-colors: active) {
+  .btn {
+    border-color: ButtonText;
+  }
+  :focus-visible {
+    outline-color: Highlight;
+  }
+  /* Display headings set their lines closer than the type's height; the mode paints a backplate behind each line,
+     which would cut the foot of the line above ("local SEO"). Important: the hero and page heads set their own. */
+  h1,
+  h2 {
+    line-height: 1.15 !important;
+  }
+  /* A chosen chip: its lime fill is gone, so a heavier border in the highlight colour marks it. */
+  .chip:has(input:checked) {
+    border: 2px solid Highlight;
+  }
+}
+
 /* Presenter mode (?present=1, src/scripts/present.ts): larger type for a projector, steady visuals. */
 html[data-present] {
   font-size: 112.5%;

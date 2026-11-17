@@ -271,4 +271,11 @@ const description = contact.phone
       align-self: start;
     }
   }
+  /* Forced colours (design upgrade Phase 8): the chosen card is marked only in colour; a heavier highlight border
+     marks it instead. */
+  @media (forced-colors: active) {
+    .choose__opt[aria-current='true'] {
+      border: 2px solid Highlight;
+    }
+  }
 </style>

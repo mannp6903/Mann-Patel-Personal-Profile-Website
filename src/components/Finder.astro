@@ -329,4 +329,14 @@ const svcHrefs = Object.fromEntries(services.map((s) => [s.id, serviceHref(s.id)
       margin-bottom: var(--s-3);
     }
   }
+  /* Forced colours (design upgrade Phase 8): the answered bar is a fill, which the mode drops. */
+  @media (forced-colors: active) {
+    .fr__bar {
+      border: 1px solid CanvasText;
+    }
+    .fr__bar i {
+      forced-color-adjust: none;
+      background: Highlight;
+    }
+  }
 </style>
