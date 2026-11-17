@@ -33,7 +33,6 @@ body {
   overflow-x: clip;
 }
 img,
-picture,
 svg,
 video,
 canvas {
@@ -42,6 +41,11 @@ canvas {
 }
 img {
   height: auto;
+}
+/* A <picture> (AVIF with a WebP fallback, design upgrade Phase 5) stays out of the layout: its image is sized and placed
+   exactly as a bare <img> would be. */
+picture {
+  display: contents;
 }
 input,
 button,

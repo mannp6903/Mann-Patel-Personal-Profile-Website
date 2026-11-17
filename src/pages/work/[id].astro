@@ -1,12 +1,12 @@
 ---
 import { getCollection, render, type CollectionEntry } from 'astro:content';
-import { Image } from 'astro:assets';
 import BaseLayout from '../../layouts/BaseLayout.astro';
 import Heading from '../../components/ui/Heading.astro';
 import Button from '../../components/ui/Button.astro';
 import Icon from '../../components/ui/Icon.astro';
 import Status from '../../components/work/Status.astro';
 import ProjectMedia from '../../components/work/ProjectMedia.astro';
+import MediaFrame from '../../components/work/MediaFrame.astro';
 import Confirm from '../../components/Confirm.astro';
 import { serviceById } from '../../data/services';
 import { captures } from '../../data/captures';
@@ -35,6 +35,7 @@ const crumbs = breadcrumbJsonLd([
   { name: d.title, path: `/work/${entry.id}/` },
 ]);
 const gallery = [c.desktop, c.mobile, ...(c.earlier ? [c.earlier] : [])];
+const host = new URL(c.url).host;
 // How wide each capture is drawn (measured 320–1920 px, Nov 2026 audit fixes), so phones never download desktop files.
 // Phones: a sideways rail. From 64em: the main capture beside an 18rem phone column; the earlier one at most 40rem.
 const railSizes = '(min-width: 48em) 93vw, (min-width: 28em) 352px, 78vw';
@@ -213,9 +214,14 @@ const industry = industryPageForWork(entry.id);
             c.details.map((x, i) => (
               <li>
                 <figure>
-                  <div class="closer__img reveal-clip">
-                    <Image src={x.src} alt={x.alt} widths={[360, 480, 560, 660, 760]} sizes="(min-width: 90em) 660px, (min-width: 56em) 46vw, 90vw" loading="lazy" decoding="async" />
-                  </div>
+                  <MediaFrame
+                    kind="plain"
+                    class="closer__img reveal-clip"
+                    src={x.src}
+                    alt={x.alt}
+                    widths={[320, 400, 480, 640, 800, 960, 1320]}
+                    sizes="(min-width: 90em) 660px, (min-width: 56em) 46vw, 90vw"
+                  />
                   <figcaption>
                     <span class="num closer__n">{String(i + 1).padStart(2, '0')}</span>
                     <span>
@@ -298,16 +304,15 @@ const industry = industryPageForWork(entry.id);
           {
             gallery.map((g, i) => (
               <figure class:list={['g', i === 1 && 'g--phone', i === 2 && 'g--earlier']} data-reveal="media">
-                <div class="g__frame reveal-clip">
-                  <Image
-                    src={g.src}
-                    alt={g.alt}
-                    widths={i === 1 ? [200, 300, 460] : [480, 640, 960, 1400]}
-                    sizes={gallerySizes[i === 1 ? 'phone' : i === 2 ? 'earlier' : 'main']}
-                    loading="lazy"
-                    decoding="async"
-                  />
-                </div>
+                <MediaFrame
+                  kind={i === 1 ? 'phone' : 'browser'}
+                  class="g__frame reveal-clip"
+                  src={g.src}
+                  alt={g.alt}
+                  host={i === 1 ? undefined : host}
+                  widths={i === 1 ? [160, 240, 320, 460, 560, 720] : [400, 560, 720, 960, 1280, 1440, 2060]}
+                  sizes={gallerySizes[i === 1 ? 'phone' : i === 2 ? 'earlier' : 'main']}
+                />
                 <figcaption class="small subtle">{g.caption}</figcaption>
               </figure>
             ))
@@ -471,12 +476,6 @@ const industry = industryPageForWork(entry.id);
   .closer figure {
     display: grid;
     gap: var(--s-4);
-  }
-  .closer__img {
-    border-radius: var(--r-md);
-    overflow: hidden;
-    background: var(--frame-screen);
-    border: 1px solid var(--line);
   }
   .closer figcaption {
     display: grid;
@@ -684,19 +683,12 @@ const industry = industryPageForWork(entry.id);
     display: grid;
     gap: var(--s-3);
   }
-  .g__frame {
-    border-radius: var(--r-md);
-    overflow: hidden;
-    border: 1px solid var(--line);
-    background: var(--frame-screen);
-  }
+  /* The frames are MediaFrame.astro (design upgrade Phase 5): browser frames for the desktop captures, a phone frame
+     for the phone capture, plain cards for the close-ups. The gallery's phone is larger, so its bezel is too. */
   .g--phone {
     max-width: 18rem;
-  }
-  .g--phone .g__frame {
-    --clip-r: 1.6rem;
-    border-radius: 1.6rem;
-    border: 6px solid var(--frame-bezel);
+    --frame-phone-r: 1.6rem;
+    --frame-phone-bezel: 6px;
   }
   @media (min-width: 64em) {
     .gallery {
@@ -810,7 +802,7 @@ const industry = industryPageForWork(entry.id);
       color: var(--signal);
     }
     /* Keep each close-up's own shape (wide crops would lose their sides in a fixed box); cap tall ones. */
-    .closer__img :global(img) {
+    .closer :global(.closer__img img) {
       width: 100%;
       max-height: 18rem;
       object-fit: cover;

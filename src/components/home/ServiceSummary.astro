@@ -248,14 +248,14 @@ const packageFor: Record<string, ReturnType<typeof packageById>> = {
     margin-top: var(--s-5);
   }
 
-  /* ── Scenes: the agent graph's line style (1.5px, round ends); lime marks only the signal (task 5.4). ── */
+  /* ── Scenes: the agent graph's line style (its stroke tokens, round ends); lime marks only the signal (task 5.4). ── */
   .scene {
     display: block;
     width: 100%;
     height: auto;
     overflow: visible;
     fill: none;
-    stroke-width: 1.5;
+    stroke-width: var(--graph-stroke);
     stroke-linecap: round;
     stroke-linejoin: round;
   }
@@ -293,7 +293,7 @@ const packageFor: Record<string, ReturnType<typeof packageById>> = {
   }
   .scene__ticks {
     stroke: var(--signal);
-    stroke-width: 2;
+    stroke-width: var(--graph-stroke-bold);
   }
   .scene__day--on {
     fill: var(--surface-2);
@@ -301,7 +301,7 @@ const packageFor: Record<string, ReturnType<typeof packageById>> = {
   }
   .scene__circle {
     stroke: var(--text);
-    stroke-width: 2;
+    stroke-width: var(--graph-stroke-bold);
   }
   .scene__pin,
   .scene__ripple,
