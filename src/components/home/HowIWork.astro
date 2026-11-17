@@ -62,7 +62,7 @@ const quote = reviews[0];
                   <span class="rules__icon" aria-hidden="true">
                     <Icon name={r.icon} />
                   </span>
-                  <span>
+                  <span class="rules__text">
                     <b>{r.t}.</b> {r.d}
                   </span>
                 </div>
@@ -171,6 +171,11 @@ const quote = reviews[0];
       align-items: start;
       column-gap: var(--s-4);
     }
+  }
+  /* Beside the icon the text column is narrower, and "name." or "down." could end a line alone; pretty keeps two words
+     on the last line. */
+  .rules__text {
+    text-wrap: pretty;
   }
   .rules__tile--quote {
     grid-column: 1 / -1;

@@ -139,7 +139,6 @@ const packageFor: Record<string, ReturnType<typeof packageById>> = {
 <style>
   @media (max-width: 39.99em) {
     .ss { padding-block: var(--section-tight); }
-    .ss .ss__scene { max-width: 11rem; }
   }
   @media (max-width: 47.99em) {
     /* The rail's side padding (the list reset for role="list" would otherwise remove it). */
@@ -198,16 +197,10 @@ const packageFor: Record<string, ReturnType<typeof packageById>> = {
     align-content: start;
     gap: var(--s-3);
   }
-  /* A wide small tile: the scene sits beside the words instead of above them. */
-  @container ss-tile (min-width: 30rem) {
-    .ss__tile:not(.ss__tile--found) .ss__in {
-      grid-template-columns: minmax(0, 13rem) minmax(0, 1fr);
-      align-items: center;
-      column-gap: var(--s-6);
-    }
-    .ss__tile:not(.ss__tile--found) .ss__scene {
-      margin-bottom: 0;
-    }
+  /* A narrow tile (the phone rail, the two-column bento on small tablets) gets a smaller scene, so the words stay near
+     the top. This used to follow the screen (under 40em), which gave a 302px tile two different scene sizes. */
+  @container ss-tile (max-width: 19.99rem) {
+    .ss__tile .ss__scene { max-width: 11rem; }
   }
   @media (min-width: 48em) {
     .ss__bento {

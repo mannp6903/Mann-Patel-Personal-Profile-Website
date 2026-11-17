@@ -2,10 +2,10 @@
 
 > **Design upgrade, Phase 6 (17 Nov 2026): responsive hardening.**
 > - **Container queries:** the services tiles, the promise tiles and the Selected Work cards are containers, so their
->   inside follows the tile's width, not the screen's. A wide small services tile puts its scene beside the words; a
->   wide promise puts its icon beside the text; a work card goes side by side from 58rem of its own width.
+>   inside follows the tile's width, not the screen's. A services tile under 20rem gets the smaller scene; a promise
+>   24rem or wider puts its icon beside the text; a work card goes side by side from 58rem of its own width.
 > - **Phones held sideways:** the agent graph uses its wide layout, at most about one screen tall. The hero drops from
->   about 3 screens to 2.2, with the button straight under the H1.
+>   about 3 screens to 2.3, with the button straight under the H1.
 > - **Tap targets:** standalone text links (the contact phone and email, the comparison table's "Request a quote", the
 >   case studies' service links) are 44px targets (`.link--tap`).
 > - **Line breaks:** a project name such as "Hair & Spa" doesn't break inside itself.
@@ -235,8 +235,10 @@ that used its own smaller padding). Section padding comes only from these two (g
 (`.section-head`, the Home sections) or a `.stack`.
 **Containers** (design upgrade Phase 6): a card or tile whose inside changes with its width is a container
 (`container: <name> / inline-size`), with one inner wrapper laid out by `@container`. Examples: the services tiles
-(`ss-tile`, 30rem), the promise tiles (`rule`, 24rem) and the Selected Work cards (`sw-card`, 58rem). The screen-level
-grids that place them still use media queries.
+(`ss-tile`, the smaller scene under 20rem), the promise tiles (`rule`, icon beside the text from 24rem) and the
+Selected Work cards (`sw-card`, side by side from 58rem). The screen-level grids that place them still use media
+queries. Put something beside a tile's words only if they keep about 20rem (40 characters) at the threshold, as the
+promises do: a services scene beside the words was tried at 30rem and left them 15rem, so it was dropped.
 
 **Touch targets**: every link and button outside running text is at least 44 × 44px on touch screens (gate R4). A
 standalone text link uses `.link--tap`; a link inside a sentence is exempt (WCAG 2.5.8).
