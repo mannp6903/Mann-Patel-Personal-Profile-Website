@@ -1,4 +1,5 @@
 ---
+import Button from '../../components/ui/Button.astro';
 import { getCollection } from 'astro:content';
 import BaseLayout from '../../layouts/BaseLayout.astro';
 import PageHead from '../../components/PageHead.astro';
@@ -26,7 +27,11 @@ const crumbs = breadcrumbJsonLd([
     compact
     lines={['Website projects', '<span class="accent">for Toronto service businesses</span>']}
     lead="Real projects, honest labels. Every project says whether it’s live or in progress and what I actually did. No invented results, no stock photos passed off as real work."
-  />
+
+  >
+    {/* U4 (design upgrade Phase 3): a main button within the first two phone screens. */}
+    <div class="btn-row" data-reveal="load" style="--d:280"><Button href="/contact/?package=check-up#check">Get a free website and Google check</Button></div>
+  </PageHead>
 
   <section class="section section--tight" aria-label="Projects">
     <div class="container">

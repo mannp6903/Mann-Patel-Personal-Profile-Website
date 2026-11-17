@@ -37,7 +37,7 @@ const otherAreas = visibleAreas().filter((a) => a.name !== profile.location);
 const footerMore = moreServicePages.filter((sp) => sp.slug === 'website-care' || sp.slug === 'ai-search-optimization');
 ---
 
-<footer class="ftr">
+<footer class="ftr rule-signal">
   {
     cta && (
       <section class="ftr__cta container" aria-labelledby="ftr-cta-title">
@@ -180,7 +180,6 @@ const footerMore = moreServicePages.filter((sp) => sp.slug === 'website-care' ||
   .ftr {
     position: relative;
     margin-top: auto;
-    border-top: 1px solid var(--line);
     overflow: clip;
   }
   .ftr__cta {

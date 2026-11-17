@@ -1,6 +1,7 @@
 // Design upgrade gates checked in the browser (DESIGN_UPGRADE_PLAN.md §5). Each phase adds the gates it turns green.
 // Phase 1 (17 Nov 2026): T3, T4, T5 (typography), C1 (lime budget), L2 (section padding).
 // Phase 2 (17 Nov 2026): H1–H7 (hero), R3 (hero height), U2 (header button), U3, A2, A3 (consent prompt and focus).
+// Phase 3 (17 Nov 2026): S1–S4 (structure), L1, L3 (layout), U1, U4 (navigation and buttons).
 import { expect, test, type Page } from '@playwright/test';
 import { readdirSync } from 'node:fs';
 
@@ -400,6 +401,125 @@ test.describe('design gates: header and consent (Phase 2)', () => {
         if (r.under) hidden.push(`${r.what} under the ${r.under}`);
       }
       expect(hidden, `${width}x${height}`).toEqual([]);
+    }
+  });
+});
+
+// ── Phase 3 (17 Nov 2026): sections and flow ──────────────────────────────────────────────────────────────────────
+test.describe('design gates: structure and layout (Phase 3)', () => {
+  test('S1: Home runs hero, work, (reviews), services, prices, free check, how I work, questions; at most three lime-tipped rules', async ({ page }) => {
+    await page.goto('/');
+    const ids = await page.locator('main > section[id]').evaluateAll((els) => els.map((e) => e.id));
+    const expected = ['hero', 'work', 'what-i-do', 'prices', 'check', 'how-i-work', 'faq'];
+    // Real reviews only (src/data/reviews.ts): the strip sits right after Selected Work once there are some.
+    expect(ids.filter((id) => id !== 'reviews')).toEqual(expected);
+    if (ids.includes('reviews')) expect(ids[ids.indexOf('work') + 1]).toBe('reviews');
+    expect(await page.locator('.rule-signal').count()).toBeLessThanOrEqual(3);
+  });
+
+  test('S2: no project is linked from two different Home sections above the questions', async ({ page }) => {
+    await page.goto('/');
+    const bySection = await page.evaluate(() => {
+      const out: Record<string, string[]> = {};
+      for (const s of document.querySelectorAll('main > section[id]')) {
+        if (s.id === 'faq') break;
+        out[s.id] = [...new Set([...s.querySelectorAll('a[href^="/work/"]')].map((a) => a.getAttribute('href')!).filter((h) => h !== '/work/'))];
+      }
+      return out;
+    });
+    const seen = new Map<string, string>();
+    for (const [section, hrefs] of Object.entries(bySection))
+      for (const href of hrefs) {
+        expect(seen.get(href), `${href} is linked from ${seen.get(href)} and ${section}`).toBeUndefined();
+        seen.set(href, section);
+      }
+  });
+
+  for (const [width, height] of [MATRIX[2], MATRIX[4], MATRIX[7]]) {
+    test(`S3 at ${width}px: lime buttons on Home lead to the free check or /contact/, one on screen at a time`, async ({ page }) => {
+      await page.setViewportSize({ width, height });
+      await page.goto('/');
+      const all = await page.locator('main a, main button, footer a, footer button').evaluateAll(
+        (els, lime) => els.filter((e) => getComputedStyle(e).backgroundColor === lime).map((e) => e.getAttribute('href')),
+        LIME,
+      );
+      for (const href of all) expect(['/contact/?package=check-up#check', '/contact/']).toContain(href);
+      const screens = await page.evaluate(() => Math.ceil(document.documentElement.scrollHeight / innerHeight));
+      const report: string[] = [];
+      for (let i = 0; i < screens; i++) {
+        await page.evaluate((y) => window.scrollTo({ top: y, behavior: 'instant' }), i * height);
+        // The sticky header's button follows gate U2 (D5), as in C1.
+        const shown = await page.locator('main a.btn, main button.btn, footer a.btn, footer button.btn').evaluateAll(
+          (els, lime) =>
+            els
+              .filter((e) => {
+                const r = e.getBoundingClientRect();
+                return getComputedStyle(e).backgroundColor === lime && r.bottom > 0 && r.top < innerHeight && r.width > 0;
+              })
+              .map((e) => (e.textContent || '').replace(/\s+/g, ' ').trim()),
+          LIME,
+        );
+        if (shown.length > 1) report.push(`screen ${i + 1}: ${shown.join(' + ')}`);
+      }
+      expect(report).toEqual([]);
+    });
+  }
+
+  test('S4: Home is at most 11 screens at 390×844 (D9)', async ({ page }) => {
+    await page.setViewportSize({ width: 390, height: 844 });
+    await page.goto('/');
+    expect(await page.evaluate(() => document.documentElement.scrollHeight / innerHeight)).toBeLessThanOrEqual(11);
+  });
+
+  test('L1: from 1440 the heads of How I work, Prices and the questions stay in view (sticky)', async ({ page }) => {
+    await page.setViewportSize({ width: 1440, height: 900 });
+    await page.goto('/');
+    for (const head of ['#how-i-work .about__head', '#prices .pt__head', '#faq .faq__head'])
+      expect(await page.locator(head).evaluate((e) => getComputedStyle(e).position), head).toBe('sticky');
+  });
+
+  test('L3: at 1440 every section’s eyebrow and heading start at the container’s content edge', async ({ page }) => {
+    await page.setViewportSize({ width: 1440, height: 900 });
+    await page.goto('/');
+    const off = await page.evaluate(() => {
+      const out: string[] = [];
+      for (const s of document.querySelectorAll('main > section[id], footer .ftr__cta')) {
+        const c = s.querySelector('.container') ?? s;
+        const edge = c.getBoundingClientRect().left + parseFloat(getComputedStyle(c).paddingLeft);
+        for (const el of [s.querySelector('.eyebrow, .fc__label'), s.querySelector('h1, h2')]) {
+          if (!el) continue;
+          const left = el.getBoundingClientRect().left;
+          if (Math.abs(left - edge) > 1) out.push(`${s.id || s.className.split(' ')[0]} ${el.tagName.toLowerCase()}: ${Math.round(left)} vs ${Math.round(edge)}`);
+        }
+      }
+      return out;
+    });
+    expect(off).toEqual([]);
+  });
+});
+
+test.describe('design gates: navigation and buttons (Phase 3)', () => {
+  test('U1: the main menu has at most five links plus the Contact button', async ({ page }) => {
+    await page.setViewportSize({ width: 1440, height: 900 });
+    await page.goto('/');
+    expect(await page.locator('.hdr__nav a').count()).toBeLessThanOrEqual(5);
+    await expect(page.locator('[data-hdr-cta]')).toHaveAttribute('href', '/contact/');
+  });
+
+  test('U4: every public page shows a lime main button within its first two screens at 390×844', async ({ page }) => {
+    test.setTimeout(120_000);
+    await page.setViewportSize({ width: 390, height: 844 });
+    // Mann's choice (17 Nov 2026): the legal pages are exempt; the 404 page is not a destination.
+    const EXEMPT = ['/privacy/', '/terms/'];
+    for (const path of builtPages().filter((p) => !EXEMPT.includes(p))) {
+      await page.goto(path);
+      const top = await page.evaluate((lime) => {
+        const ys = [...document.querySelectorAll('main a, main button, header a')]
+          .filter((e) => getComputedStyle(e).backgroundColor === lime && e.getClientRects().length && !e.closest('dialog'))
+          .map((e) => e.getBoundingClientRect().bottom + scrollY);
+        return ys.length ? Math.min(...ys) : Infinity;
+      }, LIME);
+      expect(top, path).toBeLessThanOrEqual(2 * 844);
     }
   });
 });

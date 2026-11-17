@@ -4,6 +4,7 @@
  * and only while at least one guide is visible (published, or any guide in previews): with every guide still
  * a draft, production has no /guides/ page and nothing links to it.
  */
+import Button from '../../components/ui/Button.astro';
 import BaseLayout from '../../layouts/BaseLayout.astro';
 import PageHead from '../../components/PageHead.astro';
 import Crumbs from '../../components/Crumbs.astro';
@@ -36,7 +37,11 @@ const crumbs = breadcrumbJsonLd([
     compact
     lines={['Guides for small', '<span class="accent">business owners</span>']}
     lead="Plain answers to what owners in Toronto and the GTA ask me most about websites, Google Maps and being found. Each one ends with the free check."
-  />
+
+  >
+    {/* U4 (design upgrade Phase 3): a main button within the first two phone screens. */}
+    <div class="btn-row" data-reveal="load" style="--d:280"><Button href="/contact/?package=check-up#check">Get a free website and Google check</Button></div>
+  </PageHead>
 
   <section class="section section--tight" aria-label="Guides">
     <div class="container">

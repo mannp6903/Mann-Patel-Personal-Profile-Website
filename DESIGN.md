@@ -1,5 +1,17 @@
 # DESIGN.md · "Signal" (round 5, Nov 2026), compact editorial portfolio (round 7)
 
+> **Design upgrade, Phase 3 (17 Nov 2026): sections and flow.** Home runs hero → Selected Work (reviews strip once real
+> reviews exist) → services → prices → free check → how I work → questions → closing call to action. The services are a
+> **bento** of three tiles (A Found, B Answered, C Booked), each with a small scene in the agent graph's line style that
+> plays once on arrival and again on hover or focus (still under reduced motion): a pin drops onto a full stop, typing
+> dots turn into read ticks, a date is circled. The four promises are icon tiles, with a testimonial tile reserved for
+> when a real review exists. Both bentos are swipe rails on phones (Mann's choice), so Home is 10.9 phone screens (D9,
+> gate S4: at most 11). The heads of How I work, Prices and the questions are sticky from 64em; a lime-tipped hairline
+> (`.rule-signal`) separates the three dark-to-dark sections; mockup backdrops are tints of the paper and surface colours;
+> the About photo starts level with its heading. Every page except Privacy and Terms shows a lime button within its
+> first two phone screens (U4, Mann's choice: under each intro). Gates S1–S4, L1, L3, U1, U4. Record:
+> [`docs/27-design-upgrade/phase-3-sections.md`](docs/27-design-upgrade/phase-3-sections.md).
+>
 > **Design upgrade, Phase 2 (17 Nov 2026): the hero, "Signal path".** The hero text holds five things: the greeting
 > (with a 40px photo under 64em, so Mann's face is on the first phone screen; "Taking new projects" as text), the H1 at
 > `--fs-hero` with a lime full stop, the subline, one lime button with a quiet "See prices →" link, and a mono price
@@ -209,7 +221,9 @@ cards and table; it stays unlinked and `noindex` until a price is approved (`dat
 - **Both projects are always in the normal reading order** (stacked cards, never a sideways rail),
   so neither can be missed. The tuner follows the hero buttons and starts when it scrolls into view.
 - **Swipe rails** (`.rail` + `data-rail`) for secondary groups: house rules, packages, the five
-  project steps, About chapters, and the close-ups and captures on case studies. Snap points, the
+  project steps, About chapters, the close-ups and captures on case studies, and (since the design upgrade's Phase 3)
+  the services and promises bentos on Home. A rail that is also a `role="list"` list sets its own side padding, since
+  the list reset removes it. Snap points, the
   next card peeking, dots underneath. A rail with no links gets a tab stop only while it scrolls.
 - **Folds**: long question lists show five questions and a "Show all" button; case-study write-ups
   show their opening and "Read the full case study"; case-study evidence previews its first check.
@@ -257,6 +271,10 @@ shadow only: `--shadow-pop` for floating layers (menu, ⌘K palette, toast).
   dates.
 - Example screens (phone mock-ups) are built in HTML, labelled "Example", and use fictional names.
 - Icons: one inline SVG set, 24px grid, 1.75px stroke, round caps. No emoji.
+- **Scenes and tile icons** (design upgrade Phase 3): the services scenes and the promise icons use the agent graph's
+  line style: 1.5px strokes, round caps and joins, the `--graph-*` greys for lines, `--text-2`/`--text` for the objects,
+  and lime only for the signal (the pin's dot, the read ticks). They are `aria-hidden`; the tile text carries the meaning.
+- **Mockup backdrops**: `--media-bg-1` and `--media-bg-2`, tints of the paper band toward the surface colour.
 
 ## Motion
 

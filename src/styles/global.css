@@ -225,6 +225,20 @@ p {
 .section--rule {
   border-top: 1px solid var(--line);
 }
+/* A hairline with a lime tip between two dark sections (design upgrade task 3.8): at most three on Home (prices,
+   questions, footer). It spans the container's content width. */
+.rule-signal {
+  position: relative;
+}
+.rule-signal::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  inset-inline: max(var(--gutter), calc((100% - var(--container)) / 2 + var(--gutter)));
+  height: 1px;
+  background: linear-gradient(90deg, rgb(212 248 74 / 0.6), var(--line) 18%, var(--line));
+  pointer-events: none;
+}
 .stack > * + * {
   margin-top: var(--stack, var(--s-5));
 }

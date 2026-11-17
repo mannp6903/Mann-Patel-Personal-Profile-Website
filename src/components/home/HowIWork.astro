@@ -7,17 +7,22 @@
  * The full story lives on About.
  */
 import { process } from '../../data/services';
-import Icon from '../ui/Icon.astro';
+import { reviews } from '../../data/reviews';
+import Icon, { type IconName } from '../ui/Icon.astro';
+import Testimonial from '../Testimonial.astro';
 
-const rules = [
-  { t: 'You own every account', d: 'Domains, Google profiles and logins are created in your name.' },
-  { t: 'A handover you can use', d: 'Access, what changed and what’s left to do, written down.' },
-  { t: 'Real reviews only', d: 'No bought, swapped or incentivised reviews. Ever.' },
-  { t: 'No promised rankings', d: 'Google decides rankings. I improve what you control.' },
+// Design upgrade Phase 3 (task 3.3): the four promises are a bento of tiles with icons (a swipe rail on phones). A
+// testimonial tile joins them only once a real review exists (src/data/reviews.ts); never a placeholder.
+const rules: { t: string; d: string; icon: IconName }[] = [
+  { t: 'You own every account', d: 'Domains, Google profiles and logins are created in your name.', icon: 'user' },
+  { t: 'A handover you can use', d: 'Access, what changed and what’s left to do, written down.', icon: 'layers' },
+  { t: 'Real reviews only', d: 'No bought, swapped or incentivised reviews. Ever.', icon: 'check' },
+  { t: 'No promised rankings', d: 'Google decides rankings. I improve what you control.', icon: 'shield' },
 ];
+const quote = reviews[0];
 ---
 
-<section class="about section section--rule" id="how-i-work" aria-labelledby="about-title">
+<section class="about section" id="how-i-work" aria-labelledby="about-title">
   <div class="container about__grid">
     <div class="about__head">
       <!-- 16 Nov 2026: a descriptive heading people search for; the slogan is the eyebrow. -->
@@ -49,16 +54,25 @@ const rules = [
       </div>
       <div>
         <h3 class="about__h">What you can count on</h3>
-        <ul class="rules" role="list">
+        <ul class="rules rail" role="list" data-rail>
           {
             rules.map((r) => (
-              <li>
-                <Icon name="check" />
+              <li class="rules__tile">
+                <span class="rules__icon" aria-hidden="true">
+                  <Icon name={r.icon} />
+                </span>
                 <span>
                   <b>{r.t}.</b> {r.d}
                 </span>
               </li>
             ))
+          }
+          {
+            quote && (
+              <li class="rules__tile rules__tile--quote">
+                <Testimonial quote={quote.quote} name={quote.name} business={quote.business} reviewUrl={quote.url} />
+              </li>
+            )
           }
         </ul>
       </div>
@@ -69,9 +83,19 @@ const rules = [
 <style>
   @media (max-width: 39.99em) {
     .about { padding-block: var(--section-tight); }
+    /* Phones: tighter, so Home stays within 11 screens (gate S4). */
+    .about__grid,
+    .about__side { gap: var(--s-6); }
+    .about .steps li { font-size: var(--fs-sm); padding-block: var(--s-2); }
+  }
+  @media (max-width: 47.99em) {
+    /* The rail's side padding (the list reset for role="list" would otherwise remove it). */
+    .rules { padding-inline: var(--gutter); }
   }
   .about__grid {
     display: grid;
+    /* minmax(0, 1fr): the promises rail scrolls inside the column instead of widening the page on phones. */
+    grid-template-columns: minmax(0, 1fr);
     gap: var(--s-7);
   }
   .about__head {
@@ -92,6 +116,7 @@ const rules = [
   }
   .about__side {
     display: grid;
+    grid-template-columns: minmax(0, 1fr);
     gap: var(--s-7);
   }
   .about__h {
@@ -103,13 +128,11 @@ const rules = [
     color: var(--text-3);
     margin-bottom: var(--s-3);
   }
-  .steps,
-  .rules {
+  .steps {
     display: grid;
     border-top: 1px solid var(--line);
   }
-  .steps li,
-  .rules li {
+  .steps li {
     display: flex;
     gap: var(--s-3);
     align-items: baseline;
@@ -121,33 +144,59 @@ const rules = [
     color: var(--text);
     font-weight: var(--w-head);
   }
+  /* The promises bento: tiles in the graph's line style (the icons share its 1.5px stroke). */
+  .rules {
+    display: grid;
+    gap: var(--s-3);
+  }
+  .rules__tile {
+    display: grid;
+    align-content: start;
+    gap: var(--s-3);
+    padding: var(--s-5);
+    background: var(--bg-2);
+    border: 1px solid var(--line);
+    border-radius: var(--r-lg);
+    color: var(--text-2);
+  }
+  .rules__tile--quote {
+    grid-column: 1 / -1;
+  }
+  .rules__icon {
+    display: grid;
+    place-items: center;
+    width: 2.5rem;
+    height: 2.5rem;
+    border: 1px solid var(--graph-spoke);
+    border-radius: 50%;
+    color: var(--text);
+  }
+  .rules__icon :global(.icon) {
+    width: 1.15rem;
+    height: 1.15rem;
+    stroke-width: 1.5;
+  }
   .steps__n {
     flex: none;
     width: 2ch;
     font-size: var(--fs-label);
     color: var(--text-3);
   }
-  .rules li {
-    align-items: flex-start;
-    color: var(--text-2);
-  }
-  .rules :global(.icon) {
-    margin-top: 0.2em;
-    color: var(--text-2);
-  }
   @media (min-width: 64em) {
     .about__grid {
       grid-template-columns: minmax(0, 0.8fr) minmax(0, 1.2fr);
       gap: var(--s-9);
     }
+    /* Sticky head (task 3.4): the heading stays beside the steps and promises instead of leaving a blank column. */
     .about__head {
       align-self: start;
+      position: sticky;
+      top: calc(var(--header-h) + var(--s-6));
     }
   }
   @media (min-width: 48em) {
     .rules {
       grid-template-columns: 1fr 1fr;
-      column-gap: var(--s-6);
     }
   }
 </style>

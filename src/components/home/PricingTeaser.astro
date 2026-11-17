@@ -9,7 +9,7 @@ import Button from '../ui/Button.astro';
 import Icon from '../ui/Icon.astro';
 ---
 
-<section class="pt section section--rule" id="prices" aria-labelledby="pt-title">
+<section class="pt section rule-signal" id="prices" aria-labelledby="pt-title">
   <div class="container pt__grid">
     <div class="pt__head">
       <!-- 16 Nov 2026: a descriptive heading people search for; the slogan is the eyebrow. -->
@@ -51,6 +51,8 @@ import Icon from '../ui/Icon.astro';
 <style>
   @media (max-width: 39.99em) {
     .pt { padding-block: var(--section-tight); }
+    /* Phones: tighter rows, so Home stays within 11 screens (gate S4). */
+    .pt .pt__row a { padding-block: var(--s-4); }
   }
   .pt__grid {
     display: grid;
@@ -157,6 +159,12 @@ import Icon from '../ui/Icon.astro';
     .pt__grid {
       grid-template-columns: minmax(0, 0.7fr) minmax(0, 1.3fr);
       gap: var(--s-8);
+    }
+    /* Sticky head (design upgrade task 3.4). */
+    .pt__head {
+      position: sticky;
+      top: calc(var(--header-h) + var(--s-6));
+      align-self: start;
     }
   }
 </style>
