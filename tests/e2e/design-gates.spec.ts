@@ -4,6 +4,7 @@
 // Phase 3 (17 Nov 2026): S1–S4 (structure), L1, L3 (layout), U1, U4 (navigation and buttons).
 // Phase 4 (17 Nov 2026): M2, M3, M5, M6, M7 (motion); M1 and M4 are unit tests (tests/unit/design-tokens.test.ts).
 // Phase 5 (17 Nov 2026): G1, G2 (images); G3 and G4 are unit tests.
+// Phase 6 (17 Nov 2026): R1, R2, R4, R5, R6 (headings without one-word last lines); R3 is in Phase 2's tests.
 import { expect, test, type Page } from '@playwright/test';
 import { readdirSync } from 'node:fs';
 
@@ -834,5 +835,190 @@ test.describe('design gates: imagery (Phase 5)', () => {
     }
     if (limited.size) test.info().annotations.push({ type: 'G2: needs a higher-resolution capture (owner)', description: [...limited].join(' · ') });
     expect(problems).toEqual([]);
+  });
+});
+
+/** Interactive elements a visitor can see (outside decoration, closed menus and screen-reader-only text). */
+const INTERACTIVE = 'a[href], button, summary, select, textarea, input:not([type="hidden"]), [role="button"], [tabindex="0"]';
+
+test.describe('design gates: responsiveness (Phase 6)', () => {
+  test('R1: no page scrolls sideways at any of the ten matrix sizes', async ({ browser }) => {
+    test.setTimeout(600_000);
+    const problems: string[] = [];
+    for (const [width, height] of MATRIX) {
+      const ctx = await browser.newContext({ viewport: { width, height } });
+      const page = await ctx.newPage();
+      for (const path of [...builtPages(), '/this-does-not-exist/']) {
+        await page.goto(path);
+        const over = await page.evaluate(() => document.documentElement.scrollWidth - document.documentElement.clientWidth);
+        if (over > 0) problems.push(`${path} at ${width}×${height}: ${over}px sideways`);
+      }
+      await ctx.close();
+    }
+    expect(problems).toEqual([]);
+  });
+
+  test('R2: on every page the H1 never gets smaller as the screen widens (320 to 1920)', async ({ page }) => {
+    test.setTimeout(300_000);
+    const widths = [320, 360, 375, 390, 414, 480, 600, 768, 900, 1024, 1280, 1440, 1680, 1920];
+    const problems: string[] = [];
+    for (const path of builtPages()) {
+      await page.setViewportSize({ width: widths[0], height: 900 });
+      await page.goto(path);
+      let last = 0;
+      for (const width of widths) {
+        await page.setViewportSize({ width, height: 900 });
+        const size = await page.evaluate(() => parseFloat(getComputedStyle(document.querySelector('h1')!).fontSize));
+        if (size < last - 0.01) problems.push(`${path}: ${last}px → ${size}px at ${width}px`);
+        last = size;
+      }
+    }
+    expect(problems).toEqual([]);
+  });
+
+  test('R4: on touch screens every link and button outside running text is at least 44×44px', async ({ browser }) => {
+    test.setTimeout(400_000);
+    const problems: string[] = [];
+    for (const width of [320, 390, 768]) {
+      const ctx = await browser.newContext({ viewport: { width, height: 900 }, hasTouch: true, isMobile: width < 600 });
+      const page = await ctx.newPage();
+      for (const path of builtPages()) {
+        await page.goto(path);
+        const small = await page.evaluate((sel) => {
+          const out: string[] = [];
+          for (const el of document.querySelectorAll<HTMLElement>(sel)) {
+            if (el.closest('[aria-hidden="true"], dialog:not([open]), .visually-hidden, .sr-only, details:not([open]) > :not(summary)')) continue;
+            // Drawn at all: not hidden, and not inside a closed accordion (whose content Chrome keeps laid out, unseen).
+            if (!el.checkVisibility({ contentVisibilityAuto: true, visibilityProperty: true }) || !el.offsetWidth || !el.offsetHeight) continue;
+            // Running text: a link inside a sentence (WCAG 2.5.8's inline exception).
+            const block = el.closest('p, li, dd, td, figcaption, blockquote, label');
+            const own = (el.textContent || '').trim().length;
+            if (block && block !== el && (block.textContent || '').trim().length > own + 2 && el.tagName === 'A' && getComputedStyle(el).display === 'inline') continue;
+            // Form fields' own boxes (the checkbox inside a big label is checked through the label).
+            if (el.matches('input[type="checkbox"], input[type="radio"]') && el.closest('label')) continue;
+            const w = el.offsetWidth;
+            const h = el.offsetHeight;
+            if (w < 43.5 || h < 43.5)
+              out.push(`${el.tagName.toLowerCase()}.${(el.getAttribute('class') || '').split(' ')[0]} "${(el.textContent || el.getAttribute('aria-label') || '').trim().replace(/\s+/g, ' ').slice(0, 30)}" ${w}×${h}`);
+          }
+          return out;
+        }, INTERACTIVE);
+        for (const x of small) problems.push(`${path} at ${width}px: ${x}`);
+      }
+      await ctx.close();
+    }
+    expect([...new Set(problems)]).toEqual([]);
+  });
+
+  test('R5: at 320px and at 640px (1280 at 200% zoom) nothing scrolls sideways and no two controls overlap', async ({ browser }) => {
+    test.setTimeout(400_000);
+    const problems: string[] = [];
+    for (const { width, height, dpr } of [
+      { width: 320, height: 568, dpr: 2 },
+      { width: 640, height: 450, dpr: 2 }, // 1280×900 at 200% zoom
+    ]) {
+      const ctx = await browser.newContext({ viewport: { width, height }, deviceScaleFactor: dpr });
+      const page = await ctx.newPage();
+      for (const path of builtPages()) {
+        await page.goto(path);
+        const r = await page.evaluate((sel) => {
+          const over = document.documentElement.scrollWidth - document.documentElement.clientWidth;
+          // A bar fixed or stuck to the screen (the header, a page's "Ask about this" bar) has content scroll under it by
+          // design; covering focus is gate A3's job. Everything in normal flow is compared.
+          const pinned = (e: Element) => {
+            for (let a: Element | null = e; a && a !== document.body; a = a.parentElement)
+              if (/fixed|sticky/.test(getComputedStyle(a).position)) return true;
+            return false;
+          };
+          const els = [...document.querySelectorAll<HTMLElement>(sel)].filter(
+            (e) =>
+              !e.closest('[aria-hidden="true"], dialog:not([open]), .visually-hidden, .sr-only, .skip-link') &&
+              // Drawn at all: not inside a closed accordion, whose content Chrome keeps laid out but unseen.
+              e.checkVisibility({ contentVisibilityAuto: true, visibilityProperty: true }) &&
+              e.offsetWidth > 1 &&
+              e.offsetHeight > 1 &&
+              getComputedStyle(e).visibility !== 'hidden' &&
+              !pinned(e),
+          );
+          // One box per line: a link that wraps is two boxes, not one rectangle across both lines.
+          const boxes = els.flatMap((e) =>
+            [...e.getClientRects()].filter((b) => b.width > 1 && b.height > 1).map((b) => ({ e, x1: b.left + scrollX, y1: b.top + scrollY, x2: b.right + scrollX, y2: b.bottom + scrollY })),
+          );
+          const hits = new Set<string>();
+          const name = (e: HTMLElement) => `${e.tagName.toLowerCase()} "${(e.textContent || e.getAttribute('aria-label') || '').trim().replace(/\s+/g, ' ').slice(0, 24)}"`;
+          for (let i = 0; i < boxes.length; i++)
+            for (let j = i + 1; j < boxes.length; j++) {
+              const a = boxes[i];
+              const b = boxes[j];
+              if (a.e === b.e || a.e.contains(b.e) || b.e.contains(a.e)) continue;
+              const w = Math.min(a.x2, b.x2) - Math.max(a.x1, b.x1);
+              const h = Math.min(a.y2, b.y2) - Math.max(a.y1, b.y1);
+              if (w > 2 && h > 2) hits.add(`${name(a.e)} overlaps ${name(b.e)} (${Math.round(w)}×${Math.round(h)})`);
+            }
+          return { over, hits: [...hits] };
+        }, INTERACTIVE);
+        if (r.over > 0) problems.push(`${path} at ${width}px: ${r.over}px sideways`);
+        for (const h of r.hits) problems.push(`${path} at ${width}px: ${h}`);
+      }
+      await ctx.close();
+    }
+    expect(problems).toEqual([]);
+  });
+
+  test('R6: display headings (H1, H2) never end on a one-word line, at any matrix size', async ({ browser }) => {
+    test.setTimeout(600_000);
+    const problems = new Set<string>();
+    for (const [width, height] of MATRIX) {
+      const ctx = await browser.newContext({ viewport: { width, height } });
+      const page = await ctx.newPage();
+      for (const path of builtPages()) {
+        await page.goto(path);
+        const found = await page.evaluate(() => {
+          const out: string[] = [];
+          for (const h of document.querySelectorAll<HTMLElement>('main h1, main h2')) {
+            if (!h.offsetWidth || h.closest('[aria-hidden="true"], .visually-hidden, .sr-only')) continue;
+            // A heading may be written in lines (ui/Heading.astro: each .line-mask is one authored line, e.g. "Asked before" /
+            // "buying."); a short authored line is a design choice, not an orphan. An orphan is a word that wrapping pushes
+            // onto a line of its own at the end of an authored line.
+            const masks = [...h.querySelectorAll<HTMLElement>(':scope .line-mask, :scope .hero__line')];
+            const authored = masks.length ? masks : [h];
+            for (const block of authored) {
+              const words: { text: string; top: number; left: number; right: number }[] = [];
+              const walker = document.createTreeWalker(block, NodeFilter.SHOW_TEXT);
+              for (let n = walker.nextNode(); n; n = walker.nextNode()) {
+                const text = n.textContent || '';
+                for (const m of text.matchAll(/\S+/g)) {
+                  const range = document.createRange();
+                  range.setStart(n, m.index!);
+                  range.setEnd(n, m.index! + m[0].length);
+                  const rect = range.getClientRects()[0];
+                  if (rect) words.push({ text: m[0], top: Math.round(rect.top), left: rect.left, right: rect.right });
+                }
+              }
+              const lines: (typeof words)[] = [];
+              let top = -1e9;
+              for (const w of words) {
+                if (Math.abs(w.top - top) > 4) {
+                  lines.push([w]);
+                  top = w.top;
+                } else lines[lines.length - 1].push(w);
+              }
+              // A full stop in its own span belongs to the word before it.
+              const real = lines.map((l) => l.filter((w) => /[A-Za-z0-9]/.test(w.text))).filter((l) => l.length);
+              const width = (l: typeof words) => Math.max(...l.map((w) => w.right)) - Math.min(...l.map((w) => w.left));
+              const last = real[real.length - 1];
+              // An orphan is a short word left alone (under 40% of the widest line). A long word that fills its own line
+              // ("businesses." at 320px, where "small businesses." can't fit) is not one.
+              if (real.length > 1 && last.length === 1 && width(last) < 0.4 * Math.max(...real.map(width)))
+                out.push(`"${h.textContent!.trim().replace(/\s+/g, ' ').slice(0, 60)}" leaves "${last[0].text}" alone`);
+            }
+          }
+          return out;
+        });
+        for (const f of found) problems.add(`${path} at ${width}×${height}: ${f}`);
+      }
+      await ctx.close();
+    }
+    expect([...problems]).toEqual([]);
   });
 });

@@ -77,7 +77,7 @@ const anyApproved = packages.some((p) => priceLabel(p).approved);
           {
             packages.map((p) => (
               <td>
-                <a class="link" href={`/contact/?package=${p.id}#brief`}>
+                <a class="link link--tap" href={`/contact/?package=${p.id}#brief`}>
                   Request a quote<span class="visually-hidden"> for {p.name}</span>
                 </a>
               </td>

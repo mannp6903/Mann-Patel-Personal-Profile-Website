@@ -35,6 +35,7 @@ const packageFor: Record<string, ReturnType<typeof packageById>> = {
       {
         groups.map((g) => (
           <li class:list={['ss__tile', `ss__tile--${g.id}`]} id={g.id} data-scene-tile>
+            <div class="ss__in">
             <div class="ss__scene" aria-hidden="true">
               {g.id === 'found' && (
                 <svg class="scene" viewBox="0 0 240 120" focusable="false">
@@ -74,6 +75,7 @@ const packageFor: Record<string, ReturnType<typeof packageById>> = {
                 </svg>
               )}
             </div>
+            <div class="ss__copy">
             <p class="ss__step">
               <span class="ss__letter num" aria-hidden="true">
                 {g.letter}
@@ -91,6 +93,8 @@ const packageFor: Record<string, ReturnType<typeof packageById>> = {
               {servicePageForGroup(g.id)?.short ?? g.title}: who it’s for and what’s included
               <Icon name="arrow-ne" />
             </a>
+            </div>
+            </div>
           </li>
         ))
       }
@@ -135,7 +139,6 @@ const packageFor: Record<string, ReturnType<typeof packageById>> = {
 <style>
   @media (max-width: 39.99em) {
     .ss { padding-block: var(--section-tight); }
-    .ss .ss__scene { max-width: 11rem; }
   }
   @media (max-width: 47.99em) {
     /* The rail's side padding (the list reset for role="list" would otherwise remove it). */
@@ -180,22 +183,35 @@ const packageFor: Record<string, ReturnType<typeof packageById>> = {
     display: grid;
     gap: var(--s-4);
   }
+  /* Each tile is a container (design upgrade Phase 6, task 6.2): its inside follows the tile's width, not the screen's. */
   .ss__tile {
-    display: grid;
-    align-content: start;
-    gap: var(--s-3);
+    container: ss-tile / inline-size;
     padding: clamp(var(--s-5), 2.6vw, var(--s-7));
     background: var(--bg-2);
     border: 1px solid var(--line);
     border-radius: var(--r-lg);
   }
+  .ss__in,
+  .ss__copy {
+    display: grid;
+    align-content: start;
+    gap: var(--s-3);
+  }
+  /* A narrow tile (the phone rail, the two-column bento on small tablets) gets a smaller scene, so the words stay near
+     the top. This used to follow the screen (under 40em), which gave a 302px tile two different scene sizes. */
+  @container ss-tile (max-width: 19.99rem) {
+    .ss__tile .ss__scene { max-width: 11rem; }
+  }
   @media (min-width: 48em) {
     .ss__bento {
       grid-template-columns: minmax(0, 1.15fr) minmax(0, 1fr);
     }
-    /* The large tile: its scene fills the space above, the text settles at the bottom. */
+    /* The large tile spans both rows; its scene fills the space above and the words settle at the bottom. */
     .ss__tile--found {
       grid-row: span 2;
+    }
+    .ss__tile--found .ss__in {
+      height: 100%;
       grid-template-rows: 1fr auto;
       align-content: stretch;
     }

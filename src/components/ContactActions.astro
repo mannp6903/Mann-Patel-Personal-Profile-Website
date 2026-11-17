@@ -65,7 +65,7 @@ const channels = [
           {contact.email && <span>{contact.email}</span>}
           {phone && (
             <span class="ca__phone">
-              <a href={phone.tel} data-contact="phone" data-phone-text>
+              <a class="link--tap" href={phone.tel} data-contact="phone" data-phone-text>
                 <span class="visually-hidden">Call </span>
                 {phone.display}
               </a>

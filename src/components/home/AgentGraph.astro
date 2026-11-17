@@ -318,7 +318,7 @@ const pt = pct(tall);
     type Leg = { spark: SVGElement; second: boolean; frames: Keyframe[] };
     const legs = new Map<SVGSVGElement, Leg[]>();
     // Only the layout on screen is animated (wide from 64em, tall below); the other is built if the window crosses over.
-    const wideMQ = matchMedia('(min-width: 64em)');
+    const wideMQ = matchMedia('(min-width: 64em), (orientation: landscape) and (max-height: 30em) and (min-width: 40em)');
     const svgFor = () => root.querySelector<SVGSVGElement>(wideMQ.matches ? '.ag__svg--wide' : '.ag__svg--tall');
     let svg = svgFor();
     const STEPS = 16;
@@ -594,7 +594,9 @@ const pt = pct(tall);
   .ag__svg--wide {
     display: none;
   }
-  @media (min-width: 64em) {
+  /* The wide, left-to-right layout from 64em, and on phones held sideways (design upgrade Phase 6, task 6.3), where the
+     tall layout would be about two screens high. Keep in step with wideMQ in the script. */
+  @media (min-width: 64em), (orientation: landscape) and (max-height: 30em) and (min-width: 40em) {
     .ag__stage {
       --cx: var(--cx-w);
       --cy: var(--cy-w);

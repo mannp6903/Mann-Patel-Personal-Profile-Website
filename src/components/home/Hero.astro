@@ -269,6 +269,7 @@ const portrait = profile.portrait;
     .hero__actions { order: 1; }
     .hero__place { order: 2; }
     .hero__price { order: 3; }
-    .hero :global(.hero__graph) { justify-self: center; max-width: 30rem; }
+    /* The graph's wide layout here (AgentGraph.astro), no taller than about one screen. */
+    .hero :global(.hero__graph) { justify-self: center; width: 100%; max-width: min(36rem, 115vh); }
   }
 </style>

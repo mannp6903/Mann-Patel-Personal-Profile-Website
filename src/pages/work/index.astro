@@ -45,7 +45,8 @@ const crumbs = breadcrumbJsonLd([
                     <span class="num subtle">{String(i + 1).padStart(2, '0')}</span>
                     <Status status={w.data.status} paused={projectSite(w.data).paused} />
                   </div>
-                  <h2 class="row__title">{w.data.title}</h2>
+                  {/* "Hair & Spa" stays together, so a name never leaves one short word on a line (gate R6). */}
+                  <h2 class="row__title">{w.data.title.replace(/ & /g, '\u00a0&\u00a0')}</h2>
                   <p class="subtle small">
                     {w.data.kind} · {w.data.year}
                   </p>

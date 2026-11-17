@@ -1,5 +1,19 @@
 # DESIGN.md · "Signal" (round 5, Nov 2026), compact editorial portfolio (round 7)
 
+> **Design upgrade, Phase 6 (17 Nov 2026): responsive hardening.**
+> - **Container queries:** the services tiles, the promise tiles and the Selected Work cards are containers, so their
+>   inside follows the tile's width, not the screen's. A services tile under 20rem gets the smaller scene; a promise
+>   24rem or wider puts its icon beside the text; a work card goes side by side from 58rem of its own width.
+> - **Phones held sideways:** the agent graph uses its wide layout, at most about one screen tall. The hero drops from
+>   about 3 screens to 2.3, with the button straight under the H1.
+> - **Tap targets:** standalone text links (the contact phone and email, the comparison table's "Request a quote", the
+>   case studies' service links) are 44px targets (`.link--tap`).
+> - **Line breaks:** a project name such as "Hair & Spa" doesn't break inside itself.
+> - **Gates:** R1 (no sideways scrolling at any of the ten matrix sizes on any page), R2, R4, R5 (320px and 1280 at
+>   200% zoom) and R6's automated check (no short word left alone at the end of an H1 or H2 line), across every built
+>   page. R3 has passed since Phase 2.
+> - **Record:** [`docs/27-design-upgrade/phase-6-responsive.md`](docs/27-design-upgrade/phase-6-responsive.md).
+>
 > **Design upgrade, Phase 5 (17 Nov 2026): imagery.**
 > - **One frame system** (`components/work/MediaFrame.astro`): browser frames for desktop captures, phone frames for
 >   phone captures, plain cards for close-ups. Backdrops come only from tokens; each project's own colour no longer
@@ -219,6 +233,19 @@ that used its own smaller padding). Section padding comes only from these two (g
 `tests/e2e/design-gates.spec.ts`). **Section heads** are spaced the same everywhere: eyebrow → heading
 `--head-gap-1` (12 → 20px), heading → lead or intro `--head-gap-2` (16 → 28px), whether the head is a grid
 (`.section-head`, the Home sections) or a `.stack`.
+**Containers** (design upgrade Phase 6): a card or tile whose inside changes with its width is a container
+(`container: <name> / inline-size`), with one inner wrapper laid out by `@container`. Examples: the services tiles
+(`ss-tile`, the smaller scene under 20rem), the promise tiles (`rule`, icon beside the text from 24rem) and the
+Selected Work cards (`sw-card`, side by side from 58rem). The screen-level grids that place them still use media
+queries. Put something beside a tile's words only if they keep about 20rem (40 characters) at the threshold, as the
+promises do: a services scene beside the words was tried at 30rem and left them 15rem, so it was dropped.
+
+**Touch targets**: every link and button outside running text is at least 44 × 44px on touch screens (gate R4). A
+standalone text link uses `.link--tap`; a link inside a sentence is exempt (WCAG 2.5.8).
+
+**Display headings** wrap with `text-wrap: balance` and never leave a short word alone on their last line (R6). A long
+word that fills its own line is fine; a project name is kept together with non-breaking spaces.
+
 Content width `--container` 90rem with `--gutter` 1 → 3rem; text `--measure` 68ch. 12-column grid on
 desktop, one column on phones. Layouts alternate (split, full-bleed, sticky, list) so no two sections
 in a row look the same.

@@ -110,6 +110,7 @@ h4 {
   line-height: var(--lh-snug);
   text-wrap: balance;
 }
+
 h1 {
   font-size: var(--fs-h1);
   font-weight: var(--w-head);
@@ -604,6 +605,14 @@ p {
   background: linear-gradient(currentColor, currentColor) no-repeat 0 100% / 100% 1px;
   transition: color var(--dur-1) var(--ease-out);
   padding-bottom: 2px;
+}
+/* A text link that stands on its own (not inside a sentence): a 44px target on touch screens (design upgrade Phase 6,
+   gate R4). */
+.link--tap {
+  display: inline-flex;
+  align-items: center;
+  min-height: var(--tap);
+  background-position: 0 calc(50% + 0.7em);
 }
 /* The underline leaves to the right, then draws back in from the left. */
 @media (hover: hover) and (prefers-reduced-motion: no-preference) {
