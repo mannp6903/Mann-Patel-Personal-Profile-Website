@@ -62,6 +62,8 @@ const sheetLinks = [{ href: '/', label: 'Home' }, ...nav];
   </div>
 
   <dialog class="sheet" id="site-menu" aria-label="Site menu" data-menu>
+    {/* The menu's contents join the page on first open (design upgrade Phase 7, gate P3); it needs JavaScript anyway. */}
+    <template data-menu-content>
     <div class="sheet__inner">
       <div class="sheet__top">
         <p class="eyebrow">Explore</p>
@@ -96,6 +98,7 @@ const sheetLinks = [{ href: '/', label: 'Home' }, ...nav];
         </p>
       </div>
     </div>
+    </template>
   </dialog>
 </header>
 
@@ -126,6 +129,8 @@ const sheetLinks = [{ href: '/', label: 'Home' }, ...nav];
       else exit.finished.then(done, done);
     };
     openBtn.addEventListener('click', () => {
+      const content = sheet.querySelector<HTMLTemplateElement>('template[data-menu-content]');
+      if (content) content.replaceWith(content.content);
       sheet.showModal();
       openBtn.setAttribute('aria-expanded', 'true');
     });
@@ -138,14 +143,16 @@ const sheetLinks = [{ href: '/', label: 'Home' }, ...nav];
       e.preventDefault();
       closeSheet();
     });
-    sheet.querySelector('[data-menu-close]')?.addEventListener('click', closeSheet);
+    // Clicks are handled here, on the dialog, so they work for the contents added on first open.
     sheet.addEventListener('click', (event) => {
+      const target = event.target as Element;
+      if (target.closest('[data-menu-close]')) return closeSheet();
+      if (target.closest('a')) return sheet.close();
       if (event.target !== sheet) return;
       const bounds = sheet.getBoundingClientRect();
       if (event.clientX < bounds.left || event.clientX > bounds.right || event.clientY < bounds.top || event.clientY > bounds.bottom)
         closeSheet();
     });
-    sheet.querySelectorAll('a').forEach((a) => a.addEventListener('click', () => sheet.close()));
     // Wider than a phone? The sheet is not needed.
     matchMedia('(min-width: 64em)').addEventListener('change', (e) => e.matches && sheet.open && sheet.close());
 

@@ -11,6 +11,10 @@
  * finished, still diagram. A pause button stops the pulses (WCAG 2.2.2); the small script also
  * pauses them while the graph is off screen.
  *
+ * One graph in the page (design upgrade Phase 7, task 7.2): the tall layout is sent in the HTML and the wide one waits
+ * in a <template>; the small inline script after the figure swaps them before the first paint where the wide one is
+ * used (from 64em, and on phones held sideways). That keeps Home under 950 elements (gate P3).
+ *
  * Speed (SEO audit Phase 4, 14 Nov 2026): every animation moves only transform or opacity, which browsers
  * can run cheaply (Lighthouse had found 63 that redrew stroke-dashoffset, stroke, fill or filter). Lines fade
  * in instead of drawing; a lime copy of each node fades in and out for the twinkle; a glowing copy of the
@@ -127,10 +131,14 @@ function build(L: Layout) {
 /** Pill width for a label at the layout's text size (Geist, about 0.56em per character). */
 const pillW = (t: string, fs: number) => Math.round(t.length * fs * 0.56 + fs * 2.2);
 // Larger type on the wide layout: it is drawn smaller per unit on laptop-width screens.
+// Design upgrade Phase 7 (task 7.2): only the tall layout is in the page as sent; the wide one waits in a <template>
+// (Wrap) and the script after the figure swaps them before the first paint, so Home carries one graph, not two.
 const layouts = [
-  { id: 'wide', L: wide, g: build(wide), fs: 16 },
-  { id: 'tall', L: tall, g: build(tall), fs: 13.5 },
+  { id: 'tall', L: tall, g: build(tall), fs: 13.5, Wrap: 'div' },
+  { id: 'wide', L: wide, g: build(wide), fs: 16, Wrap: 'template' },
 ];
+/** Where the wide layout is used: from 64em, and on phones held sideways (design upgrade Phase 6, task 6.3). */
+const WIDE = '(min-width: 64em), (orientation: landscape) and (max-height: 30em) and (min-width: 40em)';
 const pct = (L: Layout) => ({
   x: (L.core.x / L.w) * 100,
   y: (L.core.y / L.h) * 100,
@@ -147,7 +155,8 @@ const pt = pct(tall);
 >
   <div class="ag__stage">
     {
-      layouts.map(({ id, L, g, fs }) => (
+      layouts.map(({ id, L, g, fs, Wrap }) => (
+        <Wrap class={Wrap === 'div' ? 'ag__layout' : undefined} data-ag-alt={Wrap === 'template' ? '' : undefined}>
         <svg class={`ag__svg ag__svg--${id}`} viewBox={`0 0 ${L.w} ${L.h}`} aria-hidden="true" focusable="false">
           <g class="ag__orbit" style={`transform-origin:${L.core.x}px ${L.core.y}px`}>
             <circle cx={L.core.x} cy={L.core.y} r={L.core.r + 34} class="ag__ring ag__ring--dots" />
@@ -221,6 +230,7 @@ const pt = pct(tall);
             })}
           </g>
         </svg>
+        </Wrap>
       ))
     }
 
@@ -256,6 +266,32 @@ const pt = pct(tall);
     </button>
   </figcaption>
 </figure>
+{/*
+  Design upgrade Phase 7 (task 7.2): swap in the wide layout where it is used, before the first paint (this runs as
+  the page is read, straight after the figure, so nothing shifts), and again if the window crosses over. Without
+  JavaScript every width shows the tall one. The animation script (below) follows the 'ag:layout' event. The script
+  is inline on purpose (the build allows it by its hash in the Content Security Policy); comments stay out of it.
+*/}
+<script is:inline define:vars={{ WIDE }}>
+  (function (root) {
+    var tpl = root && root.querySelector('template[data-ag-alt]');
+    if (!tpl) return;
+    var mq = matchMedia(WIDE);
+    var swap = function () {
+      var want = mq.matches ? 'wide' : 'tall';
+      if ((root.dataset.layout || 'tall') === want) return;
+      var live = root.querySelector('.ag__svg');
+      var next = tpl.content.querySelector('.ag__svg');
+      if (!live || !next) return;
+      live.replaceWith(next);
+      tpl.content.append(live);
+      root.dataset.layout = want;
+      root.dispatchEvent(new Event('ag:layout'));
+    };
+    swap();
+    mq.addEventListener('change', swap);
+  })(document.currentScript && document.currentScript.previousElementSibling);
+</script>
 
 <script>
   /*
@@ -317,9 +353,9 @@ const pt = pct(tall);
     /* One streak per leg, moved along the leg's own curve with transform (no stroke-dashoffset). */
     type Leg = { spark: SVGElement; second: boolean; frames: Keyframe[] };
     const legs = new Map<SVGSVGElement, Leg[]>();
-    // Only the layout on screen is animated (wide from 64em, tall below); the other is built if the window crosses over.
-    const wideMQ = matchMedia('(min-width: 64em), (orientation: landscape) and (max-height: 30em) and (min-width: 40em)');
-    const svgFor = () => root.querySelector<SVGSVGElement>(wideMQ.matches ? '.ag__svg--wide' : '.ag__svg--tall');
+    // Only the layout in the page is animated (the swap script after the figure puts the right one in); the other is
+    // built if the window crosses over.
+    const svgFor = () => root.querySelector<SVGSVGElement>('.ag__svg');
     let svg = svgFor();
     const STEPS = 16;
     const buildLeg = (path: SVGPathElement, into: Leg[]) => {
@@ -469,15 +505,22 @@ const pt = pct(tall);
       if (i === null) delete root.dataset.focus;
       else root.dataset.focus = i;
     };
-    root.querySelectorAll<SVGElement>('.ag__pill[data-in]').forEach((pill) => {
-      pill.addEventListener('pointerenter', (e) => {
-        if ((e as PointerEvent).pointerType === 'mouse' || (e as PointerEvent).pointerType === 'pen') focusPill(pill.dataset.in ?? null);
+    // Each layout's pills are bound once, when that layout is first in the page.
+    const bound = new WeakSet<SVGSVGElement>();
+    const bindPills = (target: SVGSVGElement | null) => {
+      if (!target || bound.has(target)) return;
+      bound.add(target);
+      target.querySelectorAll<SVGElement>('.ag__pill[data-in]').forEach((pill) => {
+        pill.addEventListener('pointerenter', (e) => {
+          if ((e as PointerEvent).pointerType === 'mouse' || (e as PointerEvent).pointerType === 'pen') focusPill(pill.dataset.in ?? null);
+        });
+        pill.addEventListener('pointerleave', (e) => {
+          if ((e as PointerEvent).pointerType === 'mouse' || (e as PointerEvent).pointerType === 'pen') focusPill(null);
+        });
+        pill.addEventListener('click', () => focusPill(root.dataset.focus === pill.dataset.in ? null : (pill.dataset.in ?? null)));
       });
-      pill.addEventListener('pointerleave', (e) => {
-        if ((e as PointerEvent).pointerType === 'mouse' || (e as PointerEvent).pointerType === 'pen') focusPill(null);
-      });
-      pill.addEventListener('click', () => focusPill(root.dataset.focus === pill.dataset.in ? null : (pill.dataset.in ?? null)));
-    });
+    };
+    bindPills(svg);
     // A tap anywhere else in the graph clears it.
     root.addEventListener('click', (e) => {
       if (!(e.target as Element).closest('.ag__pill[data-in]')) focusPill(null);
@@ -520,11 +563,14 @@ const pt = pct(tall);
         if (early.paused) pauseNow();
         early.toggle = toggle;
       });
-    // Crossing 64em swaps the layouts: carry on in the new one if it was moving.
-    wideMQ.addEventListener('change', () => {
+    // The swap script changed the layout (the window crossed 64em, or a phone turned): carry on in the new one if it
+    // was moving.
+    root.addEventListener('ag:layout', () => {
       const was = state;
       anims.forEach((a) => a.cancel());
       svg = svgFor();
+      focusPill(null);
+      bindPills(svg);
       if (svg)
         build(svg, () => {
           if (was === 'running') return start(WAKE);
@@ -591,23 +637,17 @@ const pt = pct(tall);
     height: auto;
     overflow: visible;
   }
-  .ag__svg--wide {
-    display: none;
+  /* Holds whichever layout is in the page (design upgrade Phase 7): it adds no box of its own. */
+  .ag__layout {
+    display: contents;
   }
-  /* The wide, left-to-right layout from 64em, and on phones held sideways (design upgrade Phase 6, task 6.3), where the
-     tall layout would be about two screens high. Keep in step with wideMQ in the script. */
-  @media (min-width: 64em), (orientation: landscape) and (max-height: 30em) and (min-width: 40em) {
-    .ag__stage {
-      --cx: var(--cx-w);
-      --cy: var(--cy-w);
-      --cd: var(--cd-w);
-    }
-    .ag__svg--wide {
-      display: block;
-    }
-    .ag__svg--tall {
-      display: none;
-    }
+  /* The wide, left-to-right layout (from 64em, and on phones held sideways, where the tall one would be about two
+     screens high): the swap script after the figure puts it in and marks the figure. Only one layout is ever in the
+     page, so there is nothing to hide; without JavaScript the tall layout shows at every width. */
+  .ag[data-layout='wide'] .ag__stage {
+    --cx: var(--cx-w);
+    --cy: var(--cy-w);
+    --cd: var(--cd-w);
   }
 
   /* Static drawing (also the reduced-motion and finished state). */

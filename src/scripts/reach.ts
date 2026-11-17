@@ -7,13 +7,17 @@ import { channelHref, decodePhone, type Channel } from '../lib/phone';
 import { clickEventName, clickLocation } from '../lib/click-events';
 import { track } from './analytics';
 
-document.querySelectorAll<HTMLAnchorElement>('a[data-reach][data-k]').forEach((a) => {
-  try {
-    a.href = channelHref(a.dataset.reach as Channel, decodePhone(a.dataset.k!));
-  } catch {
-    /* leave the contact-page fallback */
-  }
-});
+/** Fills in the links under `scope`. Also called for links added later (the quick menu adds its items on first open). */
+export function fillReach(scope: ParentNode = document) {
+  scope.querySelectorAll<HTMLAnchorElement>('a[data-reach][data-k]').forEach((a) => {
+    try {
+      a.href = channelHref(a.dataset.reach as Channel, decodePhone(a.dataset.k!));
+    } catch {
+      /* leave the contact-page fallback */
+    }
+  });
+}
+fillReach();
 
 // The "Show number" button is gone: since 14 Nov 2026 the full number is on the page (SEO audit).
 

@@ -5,6 +5,8 @@
 // Phase 4 (17 Nov 2026): M2, M3, M5, M6, M7 (motion); M1 and M4 are unit tests (tests/unit/design-tokens.test.ts).
 // Phase 5 (17 Nov 2026): G1, G2 (images); G3 and G4 are unit tests.
 // Phase 6 (17 Nov 2026): R1, R2, R4, R5, R6 (headings without one-word last lines); R3 is in Phase 2's tests.
+// Phase 7 (17 Nov 2026): P2 (page weight), P3 (elements); P4 is M2's check (the test is titled for both); P1 is the
+// Lighthouse assertions in lighthouserc.json.
 import { expect, test, type Page } from '@playwright/test';
 import { readdirSync } from 'node:fs';
 
@@ -567,7 +569,8 @@ const runningOnClock = (page: Page) =>
   );
 
 test.describe('design gates: motion (Phase 4)', () => {
-  test('M2: 15 s after load, with no input, nothing animates on the page’s own clock (scroll-driven reveals excluded)', async ({ browser }) => {
+  // P4 (Phase 7) is the same check as M2, so the one test covers both.
+  test('M2 and P4: 15 s after load, with no input, nothing animates on the page’s own clock (scroll-driven reveals excluded)', async ({ browser }) => {
     test.setTimeout(120_000);
     // All loaded at once, then one 15 s wait: Home at both graph layouts, and the other pages at laptop size.
     const runs = [
@@ -1020,5 +1023,49 @@ test.describe('design gates: responsiveness (Phase 6)', () => {
       await ctx.close();
     }
     expect([...problems]).toEqual([]);
+  });
+});
+
+test.describe('design gates: performance (Phase 7)', () => {
+  test('P2: Home at 375 loads at most 300 KB decoded, of which at most 60 KB is script and 70 KB fonts', async ({ browser }) => {
+    // Measured as Phase 0 set out (docs/27-design-upgrade/phase-0-baseline.md): decoded bytes at load, at 1× density,
+    // on the consent build (as on the live site, the prompt is part of a first visit). A 2× phone also loads sharper
+    // captures; the Phase 7 record gives that figure too.
+    const ctx = await browser.newContext({ viewport: { width: 375, height: 812 }, deviceScaleFactor: 1 });
+    const page = await ctx.newPage();
+    await page.goto(`${CONSENT}/`, { waitUntil: 'load' });
+    await page.waitForTimeout(1500);
+    const kb = await page.evaluate(() => {
+      const nav = performance.getEntriesByType('navigation')[0] as PerformanceNavigationTiming;
+      const out = { total: nav.decodedBodySize, script: 0, font: 0 };
+      for (const r of performance.getEntriesByType('resource') as PerformanceResourceTiming[]) {
+        const size = r.decodedBodySize || 0;
+        out.total += size;
+        const path = new URL(r.name).pathname;
+        if (r.initiatorType === 'script' || /\.m?js$/.test(path)) out.script += size;
+        else if (/\.(woff2?|ttf|otf)$/.test(path)) out.font += size;
+      }
+      return { total: out.total / 1024, script: out.script / 1024, font: out.font / 1024 };
+    });
+    const shown = Object.fromEntries(Object.entries(kb).map(([k, v]) => [k, Math.round(v)]));
+    expect(kb.total, JSON.stringify(shown)).toBeLessThanOrEqual(300);
+    expect(kb.script, JSON.stringify(shown)).toBeLessThanOrEqual(60);
+    expect(kb.font, JSON.stringify(shown)).toBeLessThanOrEqual(70);
+    await ctx.close();
+  });
+
+  test('P3: Home has at most 950 elements, on a phone and on a laptop (one graph layout, closed menus empty)', async ({ browser }) => {
+    for (const [width, height] of [
+      [375, 812],
+      [1440, 900],
+    ]) {
+      const ctx = await browser.newContext({ viewport: { width, height } });
+      const page = await ctx.newPage();
+      await page.goto(`${CONSENT}/`);
+      await page.waitForTimeout(1000);
+      const count = await page.evaluate(() => document.querySelectorAll('*').length);
+      expect(count, `${width}px`).toBeLessThanOrEqual(950);
+      await ctx.close();
+    }
   });
 });
