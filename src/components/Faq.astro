@@ -9,15 +9,17 @@ interface Props {
   id?: string;
   limit?: number;
   more?: boolean;
+  /** A lime-tipped hairline above the section (design upgrade task 3.8; Home sets it). */
+  rule?: boolean;
 }
-const { id = 'faq', limit, more = false } = Astro.props;
+const { id = 'faq', limit, more = false, rule = false } = Astro.props;
 const items = typeof limit === 'number' ? faqs.slice(0, limit) : faqs;
 // On phones a long list starts with the first few questions and a button for the rest.
 const SHORT = 5;
 const folds = items.length > SHORT + 1;
 ---
 
-<section class="faq section" id={id} aria-labelledby={`${id}-title`}>
+<section class:list={['faq section', rule && 'rule-signal']} id={id} aria-labelledby={`${id}-title`}>
   <div class="container faq__grid">
     <div class="faq__head stack" style="--stack: var(--head-gap-2)">
       <!-- 16 Nov 2026: a descriptive heading people search for; the slogan is the eyebrow. -->
@@ -89,6 +91,15 @@ const folds = items.length > SHORT + 1;
     display: grid;
     gap: var(--s-7);
   }
+  /* Phones: tight section padding, so Home stays within 11 screens (gate S4). */
+  @media (max-width: 39.99em) {
+    .faq {
+      padding-block: var(--section-tight);
+    }
+    .faq__grid {
+      gap: var(--s-6);
+    }
+  }
   .faq__head h2 {
     max-width: 10ch;
   }
@@ -122,7 +133,7 @@ const folds = items.length > SHORT + 1;
     }
     .faq__head {
       position: sticky;
-      top: calc(var(--header-h) + 2rem);
+      top: calc(var(--header-h) + var(--s-6));
       align-self: start;
     }
   }

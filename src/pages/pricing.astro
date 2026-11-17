@@ -107,7 +107,11 @@ const faqLd = {
     eyebrow="Pricing"
     lines={['What it costs,', '<span class="accent">and what it covers</span><span class="stop">.</span>']}
     lead="Five offers for small businesses in Toronto and the GTA, each with a published price and a clear boundary, plus a free check if you’re not sure where to start. All prices in Canadian dollars, plus applicable tax."
-  />
+
+  >
+    {/* U4 (design upgrade Phase 3): a main button within the first two phone screens. */}
+    <div class="btn-row" data-reveal="load" style="--d:280"><Button href="/contact/">Start a project</Button></div>
+  </PageHead>
 
   <section class="section section--rule" aria-labelledby="pr-packages">
     <div class="container stack" style="--stack: var(--s-6)">

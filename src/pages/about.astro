@@ -117,6 +117,10 @@ const jsonLd = { '@context': 'https://schema.org', '@type': 'ProfilePage', mainE
           {nest.area}, which opens for bookings in summer 2027.
         </p>
         <div class="ab-reach" data-reveal="load" style="--d:300">
+          {/* U4 (design upgrade Phase 3): a main button within the first two phone screens (after the photo on phones). */}
+          <div class="btn-row">
+            <Button href="/contact/?package=check-up#check">Get a free website and Google check</Button>
+          </div>
           <a class="link-arrow" href="#glance">What I deliver and how I work <Icon name="arrow-down" /></a>
           <a class="link-arrow" href="#story">My story, from Palana to Toronto <Icon name="arrow-down" /></a>
           <ContactActions label="Say hello" />
@@ -344,10 +348,14 @@ const jsonLd = { '@context': 'https://schema.org', '@type': 'ProfilePage', mainE
     color: var(--text-3);
   }
   @media (min-width: 64em) {
+    /* Design upgrade task 3.7: the photo starts level with the heading (it used to sit about 260px lower). */
     .ab-head__grid {
       grid-template-columns: minmax(0, 1.3fr) minmax(0, 0.9fr);
       gap: var(--s-9);
-      align-items: end;
+      align-items: start;
+    }
+    .ab-head__grid > .ab-photo {
+      margin-top: calc(var(--fs-label) * 1.4 + var(--head-gap-1));
     }
   }
 

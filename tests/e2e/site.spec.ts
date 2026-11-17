@@ -681,7 +681,9 @@ test.describe('phones: short pages', () => {
     // with a sample test log, and "Offered as" links on case studies each add part of a screen.
     // 14 Nov 2026: Home swaps the walkthrough for the price list; Pricing gains a fifth offer
     // (Website Fix) and a worked salon example.
-    '/': 13.5, // agent graph, every service named in the hero (round 2), real work, prices, and how I work (no second photo since 14 Nov 2026)
+    // D9 (design upgrade, 17 Nov 2026; applied in Phase 3 with gate S4, Mann's choice): 11 screens, was 13.5. The slimmer
+    // hero (Phase 2) and the service and promise bentos as swipe rails on phones (Phase 3) make the room.
+    '/': 11,
     // 14 Nov 2026 (SEO audit Phase 2): /services/ is a short overview now; each service's details moved
     // to its service page as closed "Service by service" accordions (plus the redesign section on web design).
     '/services/': 9,

@@ -78,17 +78,15 @@ const industry = industryPageForWork(entry.id);
         <Heading as="h1" lines={[d.title]} class="cs-title" load />
         <p class="lead" data-reveal="load" style="--d:150">{d.summary}</p>
         {site.note && <p class="cs-paused small" data-reveal="load" style="--d:200">{site.note}</p>}
-        {
-          site.links.length > 0 && (
-            <div class="btn-row" data-reveal="load" style="--d:250">
-              {site.links.map((l) => (
-                <Button href={l.url} variant="ghost" icon="arrow-ne" rel="noopener">
-                  {l.label}
-                </Button>
-              ))}
-            </div>
-          )
-        }
+        {/* U4 (design upgrade Phase 3): the free check is the main button, beside the link to the live site. */}
+        <div class="btn-row" data-reveal="load" style="--d:250">
+          <Button href="/contact/?package=check-up#check">Get a free website and Google check</Button>
+          {site.links.map((l) => (
+            <Button href={l.url} variant="ghost" icon="arrow-ne" rel="noopener">
+              {l.label}
+            </Button>
+          ))}
+        </div>
       </div>
     </header>
 
