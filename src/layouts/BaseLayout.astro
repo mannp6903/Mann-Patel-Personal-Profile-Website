@@ -95,10 +95,11 @@ const ld = jsonLd ? (Array.isArray(jsonLd) ? jsonLd : [jsonLd]) : [];
       })();
     </script>
     {ld.map((item) => <script type="application/ld+json" set:html={JSON.stringify(item)} />)}
-    <Analytics />
   </head>
   <body>
     <a class="skip-link" href="#main">Skip to content</a>
+    <!-- The consent prompt comes after the skip link, so the skip link is the first Tab stop (design upgrade task 2.6). -->
+    <Analytics />
     <Header />
     <main id="main" tabindex="-1">
       <slot />

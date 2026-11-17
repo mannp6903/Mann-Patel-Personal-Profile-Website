@@ -3,7 +3,8 @@ import { defineConfig } from '@playwright/test';
 /**
  * E2E tests run against the built site (npm run build first).
  * Port 4321: normal preview (local file delivery). Port 4322: delivery set to "none"
- * to test the honest "not connected" path.
+ * to test the honest "not connected" path. Port 4323: the same preview built with a stand-in GA4 ID, so the consent
+ * prompt is on the page (scripts/build-consent.mjs builds dist-consent/ when it is missing or older than dist/).
  */
 export default defineConfig({
   testDir: 'tests/e2e',
@@ -24,6 +25,13 @@ export default defineConfig({
       url: 'http://127.0.0.1:4322/',
       reuseExistingServer: true,
       env: { PORT: '4322', HOST: '127.0.0.1', ENQUIRY_DELIVERY: 'none' },
+    },
+    {
+      command: 'node scripts/build-consent.mjs --serve',
+      url: 'http://127.0.0.1:4323/',
+      reuseExistingServer: true,
+      timeout: 180_000,
+      env: { PORT: '4323', HOST: '127.0.0.1', ENQUIRY_DELIVERY: 'file' },
     },
   ],
 });

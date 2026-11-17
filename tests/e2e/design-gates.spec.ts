@@ -1,6 +1,8 @@
 // Design upgrade gates checked in the browser (DESIGN_UPGRADE_PLAN.md §5). Each phase adds the gates it turns green.
 // Phase 1 (17 Nov 2026): T3, T4, T5 (typography), C1 (lime budget), L2 (section padding).
+// Phase 2 (17 Nov 2026): H1–H7 (hero), R3 (hero height), U2 (header button), U3, A2, A3 (consent prompt and focus).
 import { expect, test, type Page } from '@playwright/test';
+import { readdirSync } from 'node:fs';
 
 /** The pages the design upgrade is judged on (scripts/design-shots.mjs captures the same five). */
 const PAGES = ['/', '/services/', '/work/nest-and-rest-cleaning/', '/about/', '/contact/'];
@@ -140,6 +142,264 @@ test.describe('design gates: layout (Phase 1)', () => {
         });
         expect(offenders, `${path} at ${width}px`).toEqual([]);
       }
+    }
+  });
+});
+
+// ── Phase 2 (17 Nov 2026): the hero, the header button and the consent prompt ─────────────────────────────────────
+/** The device matrix from the plan (§5): phones, tablet, laptops, a large desktop and a phone held sideways. */
+const MATRIX = [
+  [320, 568],
+  [360, 740],
+  [375, 812],
+  [390, 844],
+  [768, 1024],
+  [1024, 768],
+  [1280, 800],
+  [1440, 900],
+  [1920, 1080],
+  [844, 390],
+] as const;
+/** The preview built with a stand-in GA4 ID, so the consent prompt is on the page (scripts/build-consent.mjs). */
+const CONSENT = 'http://127.0.0.1:4323';
+const LIME = 'rgb(212, 248, 74)';
+
+/** Opens the consent prompt the way a visitor does (it appears on the first scroll), then returns to the top. */
+async function openConsent(page: Page) {
+  await page.mouse.wheel(0, 40);
+  await expect(page.locator('[data-consent]')).toBeVisible();
+  await page.evaluate(() => window.scrollTo({ top: 0, behavior: 'instant' }));
+  await page.waitForTimeout(100);
+}
+
+/** Every public page, from the build (the same list the sitemap and link checks use). */
+function builtPages(): string[] {
+  const out: string[] = [];
+  const walk = (dir: string, url: string) => {
+    for (const e of readdirSync(dir, { withFileTypes: true })) {
+      if (e.isDirectory() && !['og', '_astro', 'fonts', 'brand'].includes(e.name)) walk(`${dir}/${e.name}`, `${url}${e.name}/`);
+      else if (e.name === 'index.html') out.push(url);
+    }
+  };
+  walk('dist/client', '/');
+  return out.sort();
+}
+
+test.describe('design gates: hero (Phase 2)', () => {
+  test('H1: the Home H1 is the largest text (1.4× the largest H2 from 1024px, 1.25× below); on every page the H1 ≥ every H2', async ({ page }) => {
+    for (const [width, height] of MATRIX) {
+      await page.setViewportSize({ width, height });
+      await page.goto('/');
+      const { h1, h2 } = await page.evaluate(() => {
+        const px = (el: Element) => parseFloat(getComputedStyle(el).fontSize);
+        const shown = [...document.querySelectorAll('main h2')].filter((e) => e.getClientRects().length && e.getBoundingClientRect().width > 1);
+        return { h1: px(document.querySelector('h1')!), h2: Math.max(...shown.map(px)) };
+      });
+      expect(h1 / h2, `${width}x${height}: H1 ${h1}px, largest H2 ${h2}px`).toBeGreaterThanOrEqual(width >= 1024 ? 1.4 : 1.25);
+    }
+    for (const width of [375, 1440]) {
+      await page.setViewportSize({ width, height: 900 });
+      for (const path of builtPages()) {
+        await page.goto(path);
+        const bad = await page.evaluate(() => {
+          const px = (el: Element) => parseFloat(getComputedStyle(el).fontSize);
+          const h1 = document.querySelector('h1');
+          if (!h1) return [];
+          return [...document.querySelectorAll('h2')]
+            .filter((e) => e.getClientRects().length && e.getBoundingClientRect().width > 1 && px(e) > px(h1) + 0.01)
+            .map((e) => `${(e.textContent || '').trim().slice(0, 40)} ${px(e)}px > H1 ${px(h1)}px`);
+        });
+        expect(bad, `${path} at ${width}px`).toEqual([]);
+      }
+    }
+  });
+
+  test('H2 and H3: the hero text holds five things, and only the free-check button is lime', async ({ page }) => {
+    for (const [width, height] of [MATRIX[2], MATRIX[7]]) {
+      await page.setViewportSize({ width, height });
+      await page.goto('/');
+      const kids = await page.locator('.hero__text > *').evaluateAll((els) => els.map((e) => e.className.split(' ')[0]));
+      expect(kids).toEqual(['hero__hello', 'hero__title', 'hero__place', 'hero__actions', 'hero__price']);
+      const lime = await page.locator('.hero__text, .hero__text *').evaluateAll(
+        (els, lime) => els.filter((e) => getComputedStyle(e).backgroundColor === lime).map((e) => (e.hasAttribute('data-hero-cta') ? 'cta' : e.className)),
+        LIME,
+      );
+      expect(lime, `${width}px`).toEqual(['cta']);
+    }
+  });
+
+  test('H4: the H1 and the button are on the first screen at every size; from 375×812 up, the prices and Mann’s photo too', async ({ page }) => {
+    for (const [width, height] of MATRIX) {
+      await page.setViewportSize({ width, height });
+      await page.goto('/');
+      await expect(page.locator('h1'), `${width}x${height}`).toBeInViewport({ ratio: 1 });
+      await expect(page.locator('[data-hero-cta]'), `${width}x${height}`).toBeInViewport({ ratio: 1 });
+      // "From 375×812 up": every size except the two small phones and the phone held sideways.
+      if (width < 375 || height < 500) continue;
+      await expect(page.locator('.hero__price'), `${width}x${height}`).toBeInViewport({ ratio: 1 });
+      const photo = await page.evaluate(() => {
+        const visible = (el: Element | null) => {
+          if (!el || !el.getClientRects().length || getComputedStyle(el).display === 'none') return 0;
+          const r = el.getBoundingClientRect();
+          const h = Math.max(0, Math.min(r.bottom, innerHeight) - Math.max(r.top, 0));
+          return r.height ? h / r.height : 0;
+        };
+        return { avatar: visible(document.querySelector('.hero__avatar')), core: visible(document.querySelector('.ag__core')) };
+      });
+      expect(photo.avatar === 1 || photo.core >= 0.5, `${width}x${height}: avatar ${photo.avatar}, graph core ${photo.core}`).toBe(true);
+    }
+  });
+
+  test('H5: the button label sits on one line from 390px (D6 declined: the label is unchanged)', async ({ page }) => {
+    for (const [width, height] of MATRIX.filter(([w]) => w >= 390)) {
+      await page.setViewportSize({ width, height });
+      await page.goto('/');
+      const lines = await page.locator('[data-hero-cta] .btn__label > span').evaluate((el) => {
+        const cs = getComputedStyle(el);
+        return Math.round(el.getBoundingClientRect().height / (parseFloat(cs.lineHeight) || parseFloat(cs.fontSize) * 1.15));
+      });
+      expect(lines, `${width}x${height}`).toBe(1);
+    }
+  });
+
+  test('H6: the H1 is the LCP element, nothing shifts, and the hero entrance has finished by 1.7 s', async ({ browser }) => {
+    for (const [width, height] of [MATRIX[2], MATRIX[7]]) {
+      const ctx = await browser.newContext({ viewport: { width, height } });
+      await ctx.addInitScript(() => {
+        const m = ((window as unknown as { __h6: { lcp: Element | null; cls: number } }).__h6 = { lcp: null, cls: 0 });
+        new PerformanceObserver((l) => l.getEntries().forEach((e) => (m.lcp = (e as PerformanceEntry & { element: Element }).element))).observe({ type: 'largest-contentful-paint', buffered: true });
+        new PerformanceObserver((l) => l.getEntries().forEach((e) => (m.cls += (e as PerformanceEntry & { value: number }).value))).observe({ type: 'layout-shift', buffered: true });
+      });
+      const page = await ctx.newPage();
+      await page.goto('/');
+      await page.waitForFunction(() => performance.now() >= 1700);
+      const running = await page.evaluate(
+        () => document.getAnimations().filter((a) => a.playState === 'running' && (a.effect as KeyframeEffect)?.target?.closest?.('.hero__text')).length,
+      );
+      expect(running, `${width}px: hero entrance still running at 1.7 s`).toBe(0);
+      await page.waitForTimeout(1200);
+      const r = await page.evaluate(() => {
+        const m = (window as unknown as { __h6: { lcp: Element | null; cls: number } }).__h6;
+        return { inH1: Boolean(m.lcp && m.lcp.closest('h1')), cls: m.cls };
+      });
+      expect(r.inH1, `${width}px: LCP element`).toBe(true);
+      expect(r.cls, `${width}px: CLS`).toBeLessThan(0.01);
+      await ctx.close();
+    }
+  });
+
+  test('H7: the consent prompt never covers the hero buttons or the pause button, open or closed', async ({ page }) => {
+    for (const [width, height] of MATRIX) {
+      await page.setViewportSize({ width, height });
+      for (const open of [false, true]) {
+        await page.goto(`${CONSENT}/`);
+        await page.evaluate(() => localStorage.removeItem('mp-analytics'));
+        await page.goto(`${CONSENT}/`);
+        // The steady state: after the hero's entrance (finished by 1.7 s, gate H6).
+        await page.waitForFunction(() => performance.now() >= 1800);
+        if (open) await openConsent(page);
+        for (const target of ['[data-hero-cta]', '.hero__price-link', '[data-ag-toggle]']) {
+          const hit = await page.locator(target).evaluate((el) => {
+            const inView = () => {
+              const r = el.getBoundingClientRect();
+              return r.top + r.height / 2 >= 0 && r.top + r.height / 2 <= innerHeight;
+            };
+            // Off the first screen: brought into view the way focus or a scroll does (the nearest edge).
+            if (!inView()) el.scrollIntoView({ block: 'nearest', behavior: 'instant' });
+            const r = el.getBoundingClientRect();
+            const top = document.elementFromPoint(r.left + r.width / 2, r.top + r.height / 2);
+            return top && (top === el || el.contains(top)) ? 'ok' : `covered by ${top?.className || top?.tagName}`;
+          });
+          expect(hit, `${target} at ${width}x${height}, prompt ${open ? 'open' : 'closed'}`).toBe('ok');
+        }
+      }
+    }
+  });
+
+  test('R3: the hero is at most 1.35 screens tall at 375×812 and 1.1 at 768×1024', async ({ page }) => {
+    for (const [width, height, max] of [
+      [375, 812, 1.35],
+      [768, 1024, 1.1],
+    ]) {
+      await page.setViewportSize({ width, height });
+      await page.goto('/');
+      const screens = await page.evaluate(() => document.getElementById('hero')!.getBoundingClientRect().height / innerHeight);
+      expect(screens, `${width}x${height}`).toBeLessThanOrEqual(max);
+    }
+  });
+});
+
+test.describe('design gates: header and consent (Phase 2)', () => {
+  test('U2 (D5): on Home the header button is an outline while the hero button is on screen, lime after, and never moves', async ({ page }) => {
+    await page.setViewportSize({ width: 1440, height: 900 });
+    await page.goto('/');
+    const header = page.locator('[data-hdr-cta]');
+    const state = () => header.evaluate((el) => ({ bg: getComputedStyle(el).backgroundColor, box: JSON.stringify(el.getBoundingClientRect()) }));
+    const atTop = await state();
+    expect(atTop.bg).not.toBe(LIME);
+    await page.evaluate(() => window.scrollTo({ top: document.getElementById('work')!.offsetTop, behavior: 'instant' }));
+    await expect.poll(async () => (await state()).bg).toBe(LIME);
+    const scrolled = await state();
+    expect(JSON.parse(scrolled.box).width).toBe(JSON.parse(atTop.box).width);
+    expect(JSON.parse(scrolled.box).height).toBe(JSON.parse(atTop.box).height);
+    // Other pages: the header button is lime from the start.
+    await page.goto('/services/');
+    expect((await state()).bg).toBe(LIME);
+  });
+
+  test('U3 and A2: the skip link is the first Tab stop, before the consent prompt, which is at most 72px tall on phones', async ({ page }) => {
+    for (const [width, height] of MATRIX.slice(0, 4)) {
+      await page.setViewportSize({ width, height });
+      await page.goto(`${CONSENT}/`);
+      await page.evaluate(() => localStorage.removeItem('mp-analytics'));
+      await page.goto(`${CONSENT}/`);
+      await openConsent(page);
+      const box = await page.locator('[data-consent]').boundingBox();
+      expect(box!.height, `${width}x${height}`).toBeLessThanOrEqual(72);
+      expect(
+        await page.evaluate(() => Boolean(document.querySelector('.skip-link')!.compareDocumentPosition(document.querySelector('[data-consent]')!) & Node.DOCUMENT_POSITION_FOLLOWING)),
+      ).toBe(true);
+      await page.keyboard.press('Tab');
+      await expect(page.locator('.skip-link')).toBeFocused();
+    }
+    // The preview without the prompt: the skip link still comes first (A2).
+    await page.goto('/');
+    await page.keyboard.press('Tab');
+    await expect(page.locator('.skip-link')).toBeFocused();
+  });
+
+  test('A3: tabbing through Home, no focused element is hidden under the sticky header or the consent prompt', async ({ page }) => {
+    test.setTimeout(120_000);
+    for (const [width, height] of [MATRIX[3], MATRIX[7]]) {
+      await page.setViewportSize({ width, height });
+      await page.goto(`${CONSENT}/`);
+      await page.evaluate(() => localStorage.removeItem('mp-analytics'));
+      await page.goto(`${CONSENT}/`);
+      await openConsent(page);
+      const hidden: string[] = [];
+      for (let i = 0; i < 300; i++) {
+        await page.keyboard.press('Tab');
+        const r = await page.evaluate(() => {
+          const el = document.activeElement as HTMLElement | null;
+          if (!el || el === document.body) return { done: true };
+          if (el.closest('.hdr, [data-consent], .skip-link')) return { skip: true };
+          const b = el.getBoundingClientRect();
+          const x = b.left + b.width / 2;
+          const y = b.top + b.height / 2;
+          const inside = (s: string) => {
+            const o = document.querySelector(s);
+            if (!o || !o.getClientRects().length || (o as HTMLElement).hidden) return false;
+            const c = o.getBoundingClientRect();
+            return x >= c.left && x <= c.right && y >= c.top && y <= c.bottom;
+          };
+          const what = `${el.tagName.toLowerCase()}.${(el.getAttribute('class') || '').split(' ')[0]} "${(el.textContent || '').trim().slice(0, 30)}"`;
+          return { what, under: inside('.hdr') ? 'header' : inside('[data-consent]') ? 'consent prompt' : '' };
+        });
+        if ('done' in r) break;
+        if ('skip' in r) continue;
+        if (r.under) hidden.push(`${r.what} under the ${r.under}`);
+      }
+      expect(hidden, `${width}x${height}`).toEqual([]);
     }
   });
 });

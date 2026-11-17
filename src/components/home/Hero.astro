@@ -1,102 +1,64 @@
 ---
 /**
- * Home hero (14 Nov 2026, round 3). Who you're dealing with first (Mann's name; his photo is the graph's core),
- * then the outcome he sells across every service, not only websites: found on Google, Maps and AI
- * answers, then enquiries answered and booked. The H1 and lead carry the search words (local SEO,
- * Google Business Profile, GEO/AEO, AI automation, web design, Toronto) in plain sentences. A short
- * list names every service, then one free first step and real prices. The visual is the agent
- * graph (AgentGraph.astro), with Mann's photo as the core node. Kept short on purpose: one H1, one
- * subline, a service list, two buttons. Websites are one service among several.
+ * Home hero, "Signal path" (design upgrade Phase 2, 17 Nov 2026; DESIGN_AUDIT.md → Hero redesign). One story: a search
+ * comes in, passes through Mann, and comes out as a booking. The text column holds five things only: the greeting (with
+ * a small photo on screens under 64em, so his face is on the first screen), the H1, the subline, one lime button with a
+ * quiet "See prices" link, and the price line. The visual is the agent graph (AgentGraph.astro), with Mann's photo as
+ * the core node.
  *
- * 14 Nov 2026 (profile update): the H1 is the two service lines only; the outcome line moved out of
- * the H1 into a short subline, the repeated lead paragraph was dropped, and a quiet link under the
- * recent work leads to /vision/.
+ * Moved out of the hero (approved decisions): the service chips (D1; the services section names them), the recent-work
+ * cards (D2; Selected Work follows directly), the Vision link (D3; footer) and the "Or reach me directly" icons (D4;
+ * footer and /contact/). The copy is unchanged.
  *
- * 14 Nov 2026 (SEO audit): the H1 is "Websites and local SEO for Toronto small businesses." (place and
- * customer, docs/seo/PLAN.md A7); AI search and automation stay in the subline and the service list.
+ * Earlier history: 14 Nov 2026 (SEO audit) the H1 became "Websites and local SEO for Toronto small businesses." (place
+ * and customer, docs/seo/PLAN.md A7); AI search and automation stay in the subline.
  */
+import { Image } from 'astro:assets';
 import { profile } from '../../data/site';
 import { packageById, priceLabel } from '../../data/packages';
 import Button from '../ui/Button.astro';
 import Icon from '../ui/Icon.astro';
-import ContactActions from '../ContactActions.astro';
 import AgentGraph from './AgentGraph.astro';
 
 const launch = packageById('website-launch')!;
 const local = packageById('local-visibility')!;
-// 14 Nov 2026: only the three core services (Mann's call); the rest live on /services/.
-const services = [
-  { href: '/services/local-visibility/', name: 'Local SEO & AI search' },
-  { href: '/services/enquiry-follow-up/', name: 'Enquiry follow-up & booking' },
-  { href: '/services/web-design/', name: 'Websites' },
-];
-const recent = [
-  { href: '/work/samp-hair-spa/', name: 'Samp Hair & Spa', note: 'Salon website, client preview', date: 'Oct 2026' },
-  { href: '/work/nest-and-rest-cleaning/', name: 'Nest & Rest Cleaning', note: 'My own business, launched', date: 'Oct 2026' },
-];
+const portrait = profile.portrait;
 ---
 
 <section class="hero" id="hero" aria-labelledby="hero-title">
   <div class="hero__inner container">
     <div class="hero__text">
       <div class="hero__hello">
+        {
+          portrait && (
+            <Image src={portrait.src} alt="" widths={[80, 120]} sizes="40px" width={40} height={40} format="webp" quality={75} loading="lazy" decoding="async" class="hero__avatar" />
+          )
+        }
         <p>
           <span class="hero__hi">Hi, I’m {profile.name}.</span>
-          <span class="hero__role">Web designer in Toronto · local SEO and AI automation</span>
+          <span class="hero__role">Web designer in Toronto · local SEO and AI automation<span class="hero__status"> · Taking new projects</span></span>
         </p>
-        <p class="status status--live hero__status"><span class="status__dot" aria-hidden="true"></span>Taking new projects</p>
       </div>
 
-      <!-- 14 Nov 2026 (SEO audit): the H1 names the place and the customer. The subline no longer repeats "Toronto". -->
+      <!-- 14 Nov 2026 (SEO audit): the H1 names the place and the customer. Phase 2: its full stop is the one lime mark. -->
       <h1 class="hero__title" id="hero-title">
-        <span class="hero__line">Websites and local SEO</span> <br /><span class="hero__line">for Toronto small businesses.</span>
+        <span class="hero__line">Websites and local SEO</span> <br /><span class="hero__line">for Toronto small businesses<span class="stop">.</span></span>
       </h1>
       <p class="hero__place">Get found on Google and in AI answers, then turn searches into bookings.</p>
 
-      <ul class="hero__services" role="list" aria-label="Services">
-        {
-          services.map((sv) => (
-            <li>
-              <a href={sv.href}>{sv.name}</a>
-            </li>
-          ))
-        }
-      </ul>
-
       <div class="hero__actions">
         <div class="btn-row">
-          <Button href="/contact/?package=check-up#check">Get a free website and Google check</Button>
-          <Button href="/pricing/" variant="ghost" class="hero__price-link">See prices</Button>
+          <Button href="/contact/?package=check-up#check" class="hero__cta" data-hero-cta>Get a free website and Google check</Button>
+          <a class="link-arrow hero__price-link" href="/pricing/">See prices <Icon name="arrow" /></a>
         </div>
-        <p class="hero__price">
-          <span><b>{priceLabel(local).text}</b> Google and AI visibility setup · <b>{priceLabel(launch).text}</b> website · <span class="subtle">CAD, plus tax.</span></span>
-        </p>
-        <ContactActions compact label="Or reach me directly" class="hero__reach" />
       </div>
 
+      <p class="hero__price">
+        <span class="hero__n">{priceLabel(local).text}</span> Google and AI visibility setup · <span class="hero__n">{priceLabel(launch).text}</span> website · CAD, plus tax.
+      </p>
     </div>
 
     <AgentGraph class="hero__graph" />
-
-    <div class="hero__recent">
-      <p class="hero__recent-h">Recent work</p>
-      <ul role="list">
-        {
-          recent.map((r) => (
-            <li>
-              <a href={r.href}>
-                <span class="hero__recent-name">{r.name}</span>
-                <span class="hero__recent-note">
-                  {r.note}, <time>{r.date}</time>
-                </span>
-                <Icon name="arrow-ne" />
-              </a>
-            </li>
-          ))
-        }
-      </ul>
-      <a class="hero__vision link-arrow" href="/vision/">What I’m building, and how to build with me <Icon name="arrow" /></a>
-    </div>
   </div>
 </section>
 
@@ -117,6 +79,16 @@ const recent = [
     background-size: 28px 28px;
     mask-image: radial-gradient(ellipse 70% 60% at 70% 45%, black 20%, transparent 75%);
   }
+  .hero::after {
+    /* Grain (task 2.4): a static 3.5% noise layer, so the large dark areas don't read as flat. It never moves. */
+    content: '';
+    position: absolute;
+    inset: 0;
+    z-index: -1;
+    pointer-events: none;
+    opacity: 0.035;
+    background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='160' height='160'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='.9' numOctaves='2' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)'/%3E%3C/svg%3E");
+  }
   .hero__inner {
     display: grid;
     gap: clamp(var(--s-6), 4vw, var(--s-7));
@@ -125,20 +97,29 @@ const recent = [
     display: grid;
     gap: var(--s-5);
     align-content: start;
+    justify-items: start;
     min-width: 0;
   }
 
   .hero__hello {
     display: flex;
-    flex-wrap: wrap;
     align-items: center;
     gap: var(--s-3);
+    font-size: var(--fs-sm);
   }
-  .hero__hello p:not(.status) {
-    flex: 1 1 0;
-    min-width: 0;
+  .hero__avatar {
+    flex: none;
+    width: 2.5rem;
+    height: 2.5rem;
+    border-radius: 50%;
+    object-fit: cover;
+    object-position: 50% 30%;
+    box-shadow: 0 0 0 1px var(--line);
+  }
+  .hero__hello p {
     display: grid;
     line-height: 1.3;
+    min-width: 0;
   }
   .hero__hi {
     font-weight: var(--w-head);
@@ -148,131 +129,38 @@ const recent = [
     font-size: var(--fs-label);
     color: var(--text-2);
   }
-  .hero__status {
-    margin-left: auto;
-  }
 
-  /* Phase 1 (17 Nov 2026): the hero H1 keeps about its old size (--fs-h2, 32 → 60px) while the hero still carries the
-     chips, contact icons and recent-work cards; a larger H1 there pushes Selected Work below its tested position.
-     Phase 2 slims the hero (D1, D2, D4) and moves this H1 to --fs-hero (plan task 2.3). */
   .hero__title {
-    font-size: var(--fs-h2);
+    max-width: 14ch;
+    font-size: var(--fs-hero);
     font-weight: var(--w-head);
-    line-height: 0.95;
+    line-height: 0.92;
     letter-spacing: var(--track-hero);
     text-wrap: balance;
   }
   /* The two lines are inline, split by a <br>, so the H1 paints as one text block: it is the LCP element, not one of
-     its lines (a single line can lose to the consent prompt's paragraph; gate H6). The space before the <br> keeps the
-     text "…SEO for Toronto…" when copied or read. */
+     its lines (gate H6). The space before the <br> keeps the text "…SEO for Toronto…" when copied or read. */
   .hero__place {
-    display: block;
-    margin-top: calc(-1 * var(--s-2));
-    color: var(--text-2);
     max-width: 40ch;
+    color: var(--text-2);
     font-size: var(--fs-lead);
-    font-weight: var(--w-body);
+    line-height: 1.4;
     letter-spacing: -0.01em;
-    line-height: 1.35;
+    text-wrap: balance;
   }
-  .hero__services {
-    display: flex;
-    flex-wrap: wrap;
-    gap: var(--s-2);
-    max-width: 40rem;
-  }
-  .hero__services a {
-    display: inline-flex;
-    align-items: center;
-    gap: 0.45em;
-    min-height: 2rem;
-    padding: 0.25rem 0.7rem;
-    border: 1px solid var(--line);
-    border-radius: var(--r-pill);
-    color: var(--text);
-    font-size: var(--fs-label);
-    font-weight: var(--w-ui);
-    text-decoration: none;
-    transition: border-color var(--t-fast), background-color var(--t-fast);
-  }
-  .hero__services a:hover {
-    border-color: var(--control);
-    background: var(--surface);
-  }
-  .hero__actions {
-    display: grid;
-    gap: var(--s-3);
+  .hero__actions :global(.btn-row) {
+    gap: var(--s-3) var(--s-5);
   }
   .hero__price {
-    display: grid;
-    gap: 0.15rem;
-    max-width: 52ch;
-    font-size: var(--fs-sm);
+    font-family: var(--font-mono);
+    font-size: var(--fs-label);
+    font-weight: var(--w-ui);
+    line-height: 1.5;
+    color: var(--text-3);
+  }
+  .hero__n {
     color: var(--text-2);
-  }
-  .hero__actions :global(.hero__reach) {
-    display: flex;
-    flex-wrap: wrap;
-    align-items: center;
-    gap: var(--s-2) var(--s-4);
-    margin-top: var(--s-2);
-  }
-  /* Lime budget: prices are white, in tabular figures. */
-  .hero__price b {
-    color: var(--text);
-    font-weight: var(--w-head);
     font-variant-numeric: tabular-nums;
-  }
-
-  .hero__recent {
-    display: grid;
-    gap: var(--s-2);
-    padding-top: var(--s-4);
-    border-top: 1px solid var(--line);
-  }
-  .hero__recent-h {
-    font-size: var(--fs-label);
-    color: var(--text-3);
-  }
-  .hero__recent ul {
-    display: grid;
-    gap: var(--s-2);
-  }
-  .hero__recent li a {
-    display: grid;
-    grid-template-columns: minmax(0, 1fr) auto;
-    align-items: center;
-    column-gap: var(--s-3);
-    padding: var(--s-2) var(--s-3);
-    min-height: var(--tap);
-    border: 1px solid var(--line);
-    border-radius: var(--r-md);
-    color: var(--text);
-    text-decoration: none;
-    transition: border-color var(--t-fast), background-color var(--t-fast);
-  }
-  .hero__recent li a:hover {
-    border-color: var(--control);
-    background: var(--surface);
-  }
-  .hero__recent-name {
-    font-weight: var(--w-head);
-    font-size: var(--fs-sm);
-  }
-  .hero__recent-note {
-    grid-column: 1;
-    font-size: var(--fs-label);
-    color: var(--text-3);
-  }
-  .hero__vision {
-    justify-self: start;
-    margin-top: var(--s-1);
-    font-size: var(--fs-sm);
-  }
-  .hero__recent li a :global(.icon) {
-    grid-column: 2;
-    grid-row: 1 / span 2;
-    color: var(--text-2);
   }
 
   @media (prefers-reduced-motion: no-preference) {
@@ -289,64 +177,69 @@ const recent = [
     }
   }
 
-  @media (max-width: 39.99em) {
-    .hero__text { gap: var(--s-4); }
-    .hero__services { gap: 0.4rem; order: 1; }
-    /* Phones: the buttons come straight after the lead so they fit on the first screen; the service list follows them. */
-    .hero__place { margin-top: 0.45em; }
-    .hero__services a { min-height: 1.9rem; padding-inline: 0.6rem; }
-    .hero__status, .hero__actions :global(.hero__reach) { display: none; }
-    .hero__actions :global(.btn-row) {
-      display: grid;
-      grid-template-columns: minmax(0, 1fr) auto;
-      align-items: center;
+  @media (max-width: 47.99em) {
+    /* Phones and small tablets: tighter steps, so the hero stays within 1.35 screens at 375×812 (gate R3). */
+    .hero__inner { gap: var(--s-5); }
+    .hero__text { gap: var(--s-3); }
+    /* Phones: the button label stays on one line from 390px (gate H5): a compact button, the same label. */
+    .hero__actions :global(.hero__cta) {
       gap: var(--s-3);
+      padding-left: var(--s-4);
+      font-size: var(--fs-sm);
     }
-    .hero__actions :global(.btn) {
-      min-height: 3.1rem;
-      padding-inline: var(--s-3);
-      font-size: var(--fs-label);
-    }
-    .hero__actions :global(.btn__icon) { width: 1.7rem; height: 1.7rem; }
-    .hero__actions :global(.hero__price-link) {
-      padding-inline: var(--s-2);
-    }
-    .hero__actions :global(.hero__price-link .btn__icon) { display: none; }
+    .hero__actions :global(.hero__cta .btn__icon) { width: 2.25rem; height: 2.25rem; }
   }
   @media (max-width: 22.5em) {
-    /* The smallest phones (320 px): tighter spacing so the buttons still fit on the first screen. */
+    /* The smallest phones (320 px): tighter spacing, and both links straight after the H1, so they sit on the first
+       screen above the consent bar (gates H4, H7). */
     .hero__text { gap: var(--s-3); }
+    .hero__status { display: none; }
+    .hero__actions { order: 1; }
+    .hero__place { order: 2; }
+    .hero__price { order: 3; }
   }
-  @media (min-width: 40em) and (max-width: 63.99em) {
+  @media (min-width: 40em) and (max-width: 47.99em) {
     .hero :global(.hero__graph) {
       justify-self: center;
       max-width: 30rem;
     }
   }
-  @media (min-width: 40em) {
-    .hero__recent ul {
-      grid-template-columns: 1fr 1fr;
+  /* Two columns from 48em (task 2.3): the graph takes about 44% of the width. */
+  @media (min-width: 48em) {
+    .hero__inner {
+      grid-template-columns: minmax(0, 1.27fr) minmax(0, 1fr);
+      align-items: center;
+      column-gap: clamp(var(--s-5), 4vw, var(--s-9));
     }
   }
   @media (min-width: 64em) {
-    /* 14 Nov 2026: on desktop the hero fills the first screen, so the light "Selected work" section
-       no longer shows as a cut-off strip at the bottom of the first view. The content sits in the
-       middle of the extra height on tall screens. */
+    /* 14 Nov 2026: on desktop the hero fills the first screen, so the light "Selected work" section never shows as a
+       cut-off strip at the bottom of the first view. The content sits in the middle of the extra height. */
     .hero {
       display: grid;
       align-content: center;
       min-height: calc(100vh - var(--header-h));
       min-height: calc(100svh - var(--header-h));
     }
-    .hero__inner {
-      grid-template-columns: minmax(0, 1.05fr) minmax(0, 1fr);
-      grid-template-areas: 'text graph' 'recent graph';
-      align-items: center;
-      column-gap: clamp(var(--s-6), 4vw, var(--s-9));
-      row-gap: var(--s-6);
-    }
-    .hero__text { grid-area: text; }
-    .hero :global(.hero__graph) { grid-area: graph; }
-    .hero__recent { grid-area: recent; align-self: start; }
+    .hero__avatar { display: none; }
+  }
+  @media (min-width: 64em) and (max-height: 56em) {
+    /* Laptop screens up to about 900px tall: a little less space between the five parts, so the button and prices sit
+       clear of the consent bar (gate H7). */
+    .hero__text { gap: var(--s-4); }
+  }
+  /* Phones held sideways (844×390 and similar): one column, no greeting row, and the button straight after the H1, so
+     the headline and the button share the first screen above the consent bar (gate H4; plan task 6.3). */
+  @media (orientation: landscape) and (max-height: 30em) {
+    /* No top padding here: the header's own height is the gap, and the button clears the consent bar. */
+    .hero { padding-top: 0; }
+    .hero__inner { grid-template-columns: minmax(0, 1fr); }
+    .hero__text { gap: var(--s-3); }
+    .hero__hello { display: none; }
+    .hero__title { max-width: none; }
+    .hero__actions { order: 1; }
+    .hero__place { order: 2; }
+    .hero__price { order: 3; }
+    .hero :global(.hero__graph) { justify-self: center; max-width: 30rem; }
   }
 </style>
