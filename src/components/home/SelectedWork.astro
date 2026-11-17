@@ -173,7 +173,11 @@ const fmtDate = (iso: string) =>
     align-items: center;
     gap: var(--s-2) var(--s-5);
   }
-  @media (min-width: 64em) {
+  /* Each card follows its own width (design upgrade Phase 6, task 6.2): picture beside the words from 58rem. */
+  .sw__list > li {
+    container: sw-card / inline-size;
+  }
+  @container sw-card (min-width: 58rem) {
     .sw__card {
       grid-template-columns: minmax(0, 1.52fr) minmax(0, 1fr);
       gap: clamp(var(--s-6), 5vw, var(--s-9));
