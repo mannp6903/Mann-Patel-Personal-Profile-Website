@@ -1,6 +1,9 @@
 // Design upgrade gates that read the source (DESIGN_UPGRADE_PLAN.md §5). Added in Phase 1 (17 Nov 2026).
 //   T1: every font size is a --fs-* token (or inherit), apart from the allow-listed exceptions.
 //   C2: no hex colours in CSS outside src/styles/tokens.css.
+// Phase 4 (17 Nov 2026):
+//   M1: one motion token set, and no literal durations in component CSS or in the options of script animations.
+//   M4: page transitions take at most 450ms.
 // "CSS" here is every .css file and every <style> block and style="" attribute in .astro files under src/components,
 // src/pages and src/layouts, plus src/styles/global.css. Comments are ignored.
 import { describe, expect, it } from 'vitest';
@@ -107,5 +110,86 @@ describe('design tokens (DESIGN_UPGRADE_PLAN.md §5)', () => {
       .filter((d) => !/^(var\(--w-(body|ui|head)\)|inherit|normal|400|500|600|100 900)$/.test(d.value))
       .map(where);
     expect(offenders).toEqual([]);
+  });
+
+  it('M1: one motion token set in tokens.css, with the plan’s values, all 0 under reduced motion', () => {
+    const tokens = readFileSync(join(ROOT, 'src/styles/tokens.css'), 'utf8');
+    const want: Record<string, string> = {
+      '--ease-out': 'cubic-bezier(0.16, 1, 0.3, 1)',
+      '--ease-in-out': 'cubic-bezier(0.65, 0, 0.35, 1)',
+      '--ease-in': 'cubic-bezier(0.7, 0, 0.84, 0)',
+      '--ease-spring': 'cubic-bezier(0.34, 1.56, 0.64, 1)',
+      '--dur-1': '120ms',
+      '--dur-2': '200ms',
+      '--dur-3': '320ms',
+      '--dur-4': '560ms',
+      '--dur-5': '800ms',
+      '--stagger': '60ms',
+      '--dur-loop': '4200ms',
+      '--dur-page-out': '220ms',
+      '--dur-page-in': '420ms',
+    };
+    for (const [name, value] of Object.entries(want)) expect(tokens, name).toContain(`${name}: ${value};`);
+    // Every duration token, and only those, is in the set above.
+    const durations = [...new Set([...tokens.matchAll(/(--[a-z0-9-]+):\s*\d+m?s;/g)].map((m) => m[1]))].sort();
+    expect(durations).toEqual(Object.keys(want).filter((k) => !k.startsWith('--ease')).sort());
+    // Reduced motion sets every one of them to 0.
+    const reduced = tokens.slice(tokens.indexOf('@media (prefers-reduced-motion: reduce)'));
+    for (const name of durations) expect(reduced, name).toMatch(new RegExp(`${name}:\\s*0ms;`));
+    // The old sets are gone everywhere.
+    const old = /--(?:t-(?:fast|base|slow|reveal)|dur-(?:instant|fast|base|slow|hero)|ease-standard)\b/;
+    const files = [...SCANNED_DIRS.flatMap(walk), ...EXTRA_FILES, 'src/styles/tokens.css'];
+    expect(files.filter((f) => old.test(readFileSync(join(ROOT, f), 'utf8')))).toEqual([]);
+  });
+
+  it('M1: no literal durations in component CSS (animation and transition timing comes from the tokens)', () => {
+    const timing = /^(animation|animation-duration|animation-delay|transition|transition-duration|transition-delay)$/;
+    // A non-zero time: 0s and 0ms (switching something off) are not durations.
+    const literal = /(?<![\w.-])(?!0*\.?0+m?s\b)\d*\.?\d+m?s\b/;
+    const offenders = DECLS.filter((d) => timing.test(d.prop) && literal.test(d.value)).map(where);
+    expect(offenders).toEqual([]);
+  });
+
+  it('M1: no literal durations in script animations (element.animate options read the tokens)', () => {
+    const scripts: { file: string; code: string }[] = [];
+    const walkTs = (dir: string): string[] =>
+      readdirSync(join(ROOT, dir), { withFileTypes: true }).flatMap((e) => {
+        const path = join(dir, e.name);
+        return e.isDirectory() ? walkTs(path) : /\.ts$/.test(e.name) ? [path] : [];
+      });
+    for (const file of walkTs('src/scripts')) scripts.push({ file, code: readFileSync(join(ROOT, file), 'utf8') });
+    for (const file of SCANNED_DIRS.flatMap(walk).filter((f) => f.endsWith('.astro')))
+      for (const m of readFileSync(join(ROOT, file), 'utf8').matchAll(/<script\b[^>]*>([\s\S]*?)<\/script>/g)) scripts.push({ file, code: m[1] });
+    const offenders: string[] = [];
+    for (const { file, code } of scripts) {
+      // The options object of every .animate(keyframes, { ... }) call.
+      for (const m of code.matchAll(/\.animate\(([\s\S]*?)\)\s*[;),]/g)) {
+        const call = m[1];
+        for (const opt of call.matchAll(/\b(duration|delay|endDelay)\s*:\s*([^,}\n]+)/g))
+          if (/^\s*\d/.test(opt[2])) offenders.push(`${file}: ${opt[1]}: ${opt[2].trim()}`);
+      }
+      // Durations written into inline styles from scripts.
+      for (const m of code.matchAll(/style\.(?:transition|animation)\w*\s*=\s*[`'"][^`'"]*?\d+m?s/g)) offenders.push(`${file}: ${m[0]}`);
+    }
+    expect(offenders).toEqual([]);
+    // Sanity: the agent graph's loop is in scope.
+    expect(scripts.some((s) => s.file.endsWith('AgentGraph.astro') && /\.animate\(/.test(s.code))).toBe(true);
+  });
+
+  it('M4: page transitions take at most 450ms and read only the page-transition tokens', () => {
+    const tokens = readFileSync(join(ROOT, 'src/styles/tokens.css'), 'utf8');
+    for (const name of ['--dur-page-out', '--dur-page-in']) {
+      const ms = Number(tokens.match(new RegExp(`${name}:\\s*(\\d+)ms;`))?.[1]);
+      expect(ms, name).toBeGreaterThan(0);
+      expect(ms, name).toBeLessThanOrEqual(450);
+    }
+    const { css } = cssOf('src/styles/global.css');
+    const blocks = [...css.matchAll(/::view-transition-[\w-]+\([^)]*\)\s*\{([^}]*)\}/g)];
+    expect(blocks.length).toBeGreaterThan(3);
+    for (const b of blocks)
+      for (const m of b[1].matchAll(/animation-duration\s*:\s*([^;]+);/g))
+        expect(m[1].trim(), b[0].split('{')[0].trim()).toMatch(/^(var\(--dur-page-(out|in)\)|0s)$/);
+    // No shorthand animation on the root transition, so every duration is one of the above.
+    for (const b of blocks.filter((x) => /\(root\)/.test(x[0]))) expect(b[1]).not.toMatch(/(^|[\s;])animation\s*:/);
   });
 });

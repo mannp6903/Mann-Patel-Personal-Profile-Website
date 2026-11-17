@@ -148,7 +148,7 @@ const description = contact.phone
     border: 1px solid var(--control);
     border-radius: var(--r-md);
     text-decoration: none;
-    transition: border-color var(--t-fast), background-color var(--t-fast);
+    transition: border-color var(--dur-1), background-color var(--dur-1);
   }
   .choose__opt b {
     font-weight: var(--w-head);
@@ -158,7 +158,8 @@ const description = contact.phone
     color: var(--text-2);
     line-height: 1.4;
   }
-  .choose__opt:hover {
+  .choose__opt:hover,
+  .choose__opt:focus-visible {
     border-color: var(--text-3);
     background: var(--surface);
   }
@@ -229,9 +230,10 @@ const description = contact.phone
     background: transparent;
     font-size: var(--fs-sm);
     font-weight: var(--w-head);
-    transition: background-color var(--t-fast), color var(--t-fast), border-color var(--t-fast);
+    transition: background-color var(--dur-1), color var(--dur-1), border-color var(--dur-1);
   }
-  .copy:hover {
+  .copy:hover,
+  .copy:focus-visible {
     background: var(--surface-2);
   }
   .copy:global(.is-copied) {

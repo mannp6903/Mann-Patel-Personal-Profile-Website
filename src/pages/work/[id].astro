@@ -76,10 +76,10 @@ const industry = industryPageForWork(entry.id);
         </div>
         {d.statusConfirm && <Confirm note={d.statusConfirm} />}
         <Heading as="h1" lines={[d.title]} class="cs-title" load />
-        <p class="lead" data-reveal="load" style="--d:150">{d.summary}</p>
-        {site.note && <p class="cs-paused small" data-reveal="load" style="--d:200">{site.note}</p>}
+        <p class="lead" data-reveal="load" style="--d:2">{d.summary}</p>
+        {site.note && <p class="cs-paused small" data-reveal="load" style="--d:3">{site.note}</p>}
         {/* U4 (design upgrade Phase 3): the free check is the main button, beside the link to the live site. */}
-        <div class="btn-row" data-reveal="load" style="--d:250">
+        <div class="btn-row" data-reveal="load" style="--d:4">
           <Button href="/contact/?package=check-up#check">Get a free website and Google check</Button>
           {site.links.map((l) => (
             <Button href={l.url} variant="ghost" icon="arrow-ne" rel="noopener">
@@ -90,7 +90,7 @@ const industry = industryPageForWork(entry.id);
       </div>
     </header>
 
-    <div class="container cs-hero" data-reveal="load-media" style="--d:120">
+    <div class="container cs-hero" data-reveal="load-media" style="--d:2">
       <ProjectMedia scene={d.scene} eager sizes="(min-width: 80em) 1130px, 86vw" phoneSizes="(min-width: 64em) 168px, 22vw" />
     </div>
 
@@ -211,7 +211,7 @@ const industry = industryPageForWork(entry.id);
         <ol class="closer rail rail--wide" role="list" aria-label="Design decisions" data-rail>
           {
             c.details.map((x, i) => (
-              <li data-reveal style={`--d:${i * 100}`}>
+              <li>
                 <figure>
                   <div class="closer__img reveal-clip">
                     <Image src={x.src} alt={x.alt} widths={[360, 480, 560, 660, 760]} sizes="(min-width: 90em) 660px, (min-width: 56em) 46vw, 90vw" loading="lazy" decoding="async" />
@@ -297,7 +297,7 @@ const industry = industryPageForWork(entry.id);
         <div class="gallery rail" role="group" aria-label="Screen captures" data-rail>
           {
             gallery.map((g, i) => (
-              <figure class:list={['g', i === 1 && 'g--phone', i === 2 && 'g--earlier']} data-reveal style={`--d:${i * 80}`}>
+              <figure class:list={['g', i === 1 && 'g--phone', i === 2 && 'g--earlier']} data-reveal="media">
                 <div class="g__frame reveal-clip">
                   <Image
                     src={g.src}
@@ -725,20 +725,22 @@ const industry = industryPageForWork(entry.id);
     font-weight: var(--w-head);
     letter-spacing: var(--track-head);
     line-height: 1;
-    transition: letter-spacing 800ms var(--ease-out), color var(--t-base);
+    transition: letter-spacing var(--dur-4) var(--ease-out), color var(--dur-3);
   }
   .next__title .icon {
     width: 0.7em;
     height: 0.7em;
     stroke-width: 1.5;
-    transition: transform var(--t-slow) var(--ease-out);
+    transition: transform var(--dur-4) var(--ease-out);
   }
-  .next__link:hover .next__title {
+  .next__link:hover .next__title,
+  .next__link:focus-visible .next__title {
     letter-spacing: -0.02em;
     color: var(--signal);
   }
   @media (prefers-reduced-motion: no-preference) {
-    .next__link:hover .next__title .icon {
+    .next__link:hover .next__title .icon,
+    .next__link:focus-visible .next__title .icon {
       transform: translateX(0.15em);
     }
   }

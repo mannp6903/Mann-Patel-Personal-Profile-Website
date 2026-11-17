@@ -2,6 +2,7 @@
 // Phase 1 (17 Nov 2026): T3, T4, T5 (typography), C1 (lime budget), L2 (section padding).
 // Phase 2 (17 Nov 2026): H1–H7 (hero), R3 (hero height), U2 (header button), U3, A2, A3 (consent prompt and focus).
 // Phase 3 (17 Nov 2026): S1–S4 (structure), L1, L3 (layout), U1, U4 (navigation and buttons).
+// Phase 4 (17 Nov 2026): M2, M3, M5, M6, M7 (motion); M1 and M4 are unit tests (tests/unit/design-tokens.test.ts).
 import { expect, test, type Page } from '@playwright/test';
 import { readdirSync } from 'node:fs';
 
@@ -520,6 +521,191 @@ test.describe('design gates: navigation and buttons (Phase 3)', () => {
         return ys.length ? Math.min(...ys) : Infinity;
       }, LIME);
       expect(top, path).toBeLessThanOrEqual(2 * 844);
+    }
+  });
+});
+
+/**
+ * Content a visitor reads or sees: every drawn element with its own text, plus images and buttons, outside decoration
+ * (aria-hidden), closed menus and screen-reader-only text. Returns those that are hidden (an ancestor or the element at
+ * opacity 0) or still have an animation on them.
+ */
+async function hiddenContent(page: Page): Promise<string[]> {
+  return page.evaluate(() => {
+    const out: string[] = [];
+    for (const el of document.querySelectorAll('body *')) {
+      const own = [...el.childNodes].some((n) => n.nodeType === 3 && n.textContent!.trim());
+      if (!own && !el.matches('img, picture, video, button, a[href], [role="img"]')) continue;
+      if (el.closest('script, style, noscript, template, dialog:not([open]), [aria-hidden="true"], .visually-hidden, .sr-only')) continue;
+      if (!el.getClientRects().length || getComputedStyle(el).visibility === 'hidden') continue;
+      const r = el.getBoundingClientRect();
+      if (r.width <= 1 || r.height <= 1) continue;
+      let opacity = 1;
+      for (let a: Element | null = el; a; a = a.parentElement) opacity *= Number(getComputedStyle(a).opacity);
+      const name = `${el.tagName.toLowerCase()}${el.className && typeof el.className === 'string' ? '.' + el.className.trim().split(/\s+/)[0] : ''} "${(el.textContent || '').trim().slice(0, 30)}"`;
+      if (opacity === 0) out.push(`${name}: opacity 0`);
+      if (el.getAnimations().some((a) => a.playState === 'running')) out.push(`${name}: still animating`);
+    }
+    return out;
+  });
+}
+
+/** Animations running on the page's own clock (scroll-driven reveals, which move only with the scroll, are left out). */
+const runningOnClock = (page: Page) =>
+  page.evaluate(() =>
+    document
+      .getAnimations()
+      .filter((a) => a.playState === 'running' && a.timeline === document.timeline)
+      .map((a) => {
+        const effect = a.effect as KeyframeEffect | null;
+        const el = effect?.target as Element | null;
+        const cls = el && typeof el.className === 'string' ? el.className : (el?.getAttribute?.('class') ?? '');
+        return `${(a as CSSAnimation).animationName || 'script'} on ${el?.tagName.toLowerCase()}.${cls.split(' ')[0]}${effect?.pseudoElement ?? ''}`;
+      }),
+  );
+
+test.describe('design gates: motion (Phase 4)', () => {
+  test('M2: 15 s after load, with no input, nothing animates on the page’s own clock (scroll-driven reveals excluded)', async ({ browser }) => {
+    test.setTimeout(120_000);
+    // All loaded at once, then one 15 s wait: Home at both graph layouts, and the other pages at laptop size.
+    const runs = [
+      { path: '/', size: [1440, 900] },
+      { path: '/', size: [390, 844] },
+      ...[...PAGES.slice(1), '/pricing/', '/free-check/', '/contact/received/'].map((path) => ({ path, size: [1440, 900] })),
+    ];
+    const pages = await Promise.all(
+      runs.map(async ({ path, size: [width, height] }) => {
+        const ctx = await browser.newContext({ viewport: { width, height } });
+        const page = await ctx.newPage();
+        await page.goto(path);
+        return { path, width, page, ctx };
+      }),
+    );
+    await new Promise((r) => setTimeout(r, 15_500));
+    for (const { path, width, page, ctx } of pages) {
+      expect(await runningOnClock(page), `${path} at ${width}px`).toEqual([]);
+      await ctx.close();
+    }
+  });
+
+  test('M3: the hero entrance (text, graph and the wordmark’s first-visit lock-on) has finished by 1.7 s', async ({ browser }) => {
+    for (const [width, height] of [MATRIX[2], MATRIX[7]]) {
+      // A new context is a new visit, so the wordmark's once-per-visit lock-on plays too.
+      const ctx = await browser.newContext({ viewport: { width, height } });
+      const page = await ctx.newPage();
+      await page.goto('/');
+      expect(await page.evaluate(() => document.documentElement.classList.contains('wm-intro')), `${width}px: first visit`).toBe(true);
+      await page.waitForTimeout(Math.max(0, 1700 - (await page.evaluate(() => performance.now()))));
+      const entrance = await page.evaluate(() =>
+        document
+          .getAnimations()
+          .filter((a) => a.playState === 'running' && a.timeline === document.timeline && 'animationName' in a)
+          .map((a) => ({ name: (a as CSSAnimation).animationName, el: (a.effect as KeyframeEffect).target as Element }))
+          .filter(({ el }) => el.closest('.hero, .wordmark'))
+          .map(({ name, el }) => `${name} on ${el.tagName.toLowerCase()}.${(el.getAttribute('class') ?? '').split(' ')[0]}`),
+      );
+      expect(entrance, `${width}px at 1.7 s`).toEqual([]);
+      // The second page of the visit doesn't replay it.
+      await page.goto('/services/');
+      expect(await page.evaluate(() => document.documentElement.classList.contains('wm-intro')), `${width}px: second page`).toBe(false);
+      await ctx.close();
+    }
+  });
+
+  test('M5: with reduced motion nothing animates, all content shows, and the graph is still with its two routes lit', async ({ browser }) => {
+    test.setTimeout(90_000);
+    for (const [width, height] of [
+      [390, 844],
+      [1440, 900],
+    ]) {
+      const ctx = await browser.newContext({ reducedMotion: 'reduce', viewport: { width, height } });
+      const page = await ctx.newPage();
+      for (const path of PAGES) {
+        await page.goto(path);
+        await page.waitForTimeout(300);
+        // Scrolled through, so scroll-driven effects would show up too.
+        await page.evaluate(async () => {
+          for (let y = 0; y < document.documentElement.scrollHeight; y += innerHeight * 0.8) {
+            scrollTo(0, y);
+            await new Promise((r) => setTimeout(r, 30));
+          }
+        });
+        const running = await page.evaluate(() => document.getAnimations().filter((a) => a.playState === 'running').length);
+        expect(running, `${path} at ${width}px: running animations`).toBe(0);
+        expect(await hiddenContent(page), `${path} at ${width}px`).toEqual([]);
+      }
+      await page.goto('/');
+      const layout = width >= 1024 ? 'wide' : 'tall';
+      const lit = page.locator(`.ag__svg--${layout} .ag__pulse:visible`);
+      await expect(lit).toHaveCount(4);
+      for (const o of await lit.evaluateAll((els) => els.map((e) => getComputedStyle(e).opacity))) expect(Number(o)).toBeGreaterThan(0.4);
+      await expect(page.locator('.ag__spark')).toHaveCount(0);
+      await ctx.close();
+    }
+  });
+
+  test('M6: with JavaScript off, every page shows all its content, with nothing moved or animating', async ({ browser }) => {
+    test.setTimeout(180_000);
+    const ctx = await browser.newContext({ javaScriptEnabled: false, viewport: { width: 390, height: 844 } });
+    const page = await ctx.newPage();
+    for (const path of builtPages()) {
+      await page.goto(path);
+      await page.evaluate(() => scrollTo(0, document.documentElement.scrollHeight / 2));
+      // Nothing in the motion system runs without the script's opt-in (html.js / js-motion), not even on scroll.
+      const animations = await page.evaluate(() =>
+        document.getAnimations().map((a) => `${(a as CSSAnimation).animationName || (a as CSSTransition).transitionProperty} on ${((a.effect as KeyframeEffect).target as Element)?.tagName}`),
+      );
+      expect(animations, path).toEqual([]);
+      expect(await hiddenContent(page), path).toEqual([]);
+    }
+    await ctx.close();
+  });
+
+  test('M7: at 4× CPU slowdown, no frame our scripts run in is over 50ms on Home, from first paint to 3 s', async ({ browser }) => {
+    test.setTimeout(120_000);
+    // Mann's choices (17 Nov 2026): counted from the first contentful paint, and only frames in which the site's own
+    // scripts run. Frames that are only the browser painting the page (its first render, Phase 7's) are listed in the
+    // test's annotations, not failed. Median of three loads, as Lighthouse does.
+    type Frame = { start: number; dur: number; scripts: string[] };
+    for (const [width, height] of [
+      [390, 844],
+      [1440, 900],
+    ]) {
+      const worst: number[] = [];
+      const detail: string[] = [];
+      const paintOnly: string[] = [];
+      for (let run = 0; run < 3; run++) {
+        const ctx = await browser.newContext({ viewport: { width, height } });
+        await ctx.addInitScript(() => {
+          const w = window as unknown as { __m7: { fcp: number; frames: Frame[] } };
+          w.__m7 = { fcp: Infinity, frames: [] };
+          new PerformanceObserver((l) => l.getEntries().forEach((e) => e.name === 'first-contentful-paint' && (w.__m7.fcp = e.startTime))).observe({ type: 'paint', buffered: true });
+          new PerformanceObserver((l) =>
+            l.getEntries().forEach((e) => {
+              const scripts = ((e as PerformanceEntry & { scripts?: { sourceURL: string; invokerType: string; duration: number }[] }).scripts ?? [])
+                .filter((x) => x.sourceURL.startsWith(location.origin) || x.invokerType === 'classic-script' || x.invokerType === 'module-script')
+                .map((x) => `${x.invokerType} ${x.sourceURL.replace(/^.*\//, '') || '(inline)'} ${Math.round(x.duration)}ms`);
+              w.__m7.frames.push({ start: e.startTime, dur: e.duration, scripts });
+            }),
+          ).observe({ type: 'long-animation-frame', buffered: true });
+        });
+        const page = await ctx.newPage();
+        const cdp = await ctx.newCDPSession(page);
+        await cdp.send('Emulation.setCPUThrottlingRate', { rate: 4 });
+        await page.goto('/');
+        // Waited for outside the page: polling from the test would itself add work to the page's frames.
+        await new Promise((r) => setTimeout(r, 3400));
+        const { fcp, frames } = await page.evaluate(() => (window as unknown as { __m7: { fcp: number; frames: Frame[] } }).__m7);
+        const after = frames.filter((f) => f.start >= fcp && f.start < 3000);
+        const ours = after.filter((f) => f.scripts.length);
+        worst.push(Math.max(0, ...ours.map((f) => f.dur)));
+        detail.push(`run ${run + 1}: ${ours.map((f) => `${Math.round(f.start)}ms +${Math.round(f.dur)} [${f.scripts.join(', ')}]`).join('; ') || 'none'}`);
+        for (const f of after.filter((x) => !x.scripts.length)) paintOnly.push(`run ${run + 1}: ${Math.round(f.start)}ms +${Math.round(f.dur)}`);
+        await ctx.close();
+      }
+      if (paintOnly.length) test.info().annotations.push({ type: `M7 ${width}px, browser-only frames (Phase 7)`, description: paintOnly.join(' · ') });
+      const median = [...worst].sort((a, b) => a - b)[1];
+      expect(median, `${width}px: ${detail.join(' · ')}`).toBeLessThanOrEqual(50);
     }
   });
 });

@@ -1,15 +1,17 @@
 /**
  * Pointer-driven surfaces (mouse and trackpad only, off under reduced motion):
  *
- * - Magnetic: buttons and round icon buttons lean toward the pointer, their arrow a little more,
- *   and spring back when it leaves. Uses the CSS `translate` property, so it composes with the
- *   buttons' own hover and press transforms.
+ * - Magnetic: the hero and footer buttons ([data-magnetic], design upgrade Phase 4) lean toward the pointer by
+ *   at most 6px, their arrow a little more, and spring back when it leaves. Uses the CSS `translate` property, so it
+ *   composes with the buttons' own hover and press transforms.
  * - Spotlight: `[data-spotlight]` panels get --mx / --my (pointer position inside them), which the
  *   CSS turns into a soft lime light and a lit border that follow the pointer.
  *
  * One delegated listener each; nothing runs while the pointer is still.
  */
-const MAGNETIC = '.btn, .icon-btn, .qm-trigger, .menu-btn, [data-magnetic]';
+const MAGNETIC = '[data-magnetic]';
+/** The largest pull, in px (DESIGN_AUDIT.md → Hover and cursor micro-interactions). */
+const MAX_PULL = 6;
 
 export function initPointer() {
   if (!matchMedia('(hover: hover) and (pointer: fine)').matches) return;
@@ -39,10 +41,10 @@ export function initPointer() {
       const cy = r.top - (cur[1] ?? 0) + r.height / 2;
       const dx = (e.clientX - cx) / (r.width / 2);
       const dy = (e.clientY - cy) / (r.height / 2);
-      const k = Math.min(10, r.width * 0.06);
+      const k = Math.min(MAX_PULL, r.width * 0.06);
       el.classList.add('is-pulled');
       el.style.translate = `${(dx * k).toFixed(2)}px ${(dy * k * 0.8).toFixed(2)}px`;
-      el.querySelector<HTMLElement>('.btn__icon')?.style.setProperty('translate', `${(dx * 4).toFixed(2)}px ${(dy * 4).toFixed(2)}px`);
+      el.querySelector<HTMLElement>('.btn__icon')?.style.setProperty('translate', `${(dx * 3).toFixed(2)}px ${(dy * 3).toFixed(2)}px`);
     },
     { passive: true },
   );

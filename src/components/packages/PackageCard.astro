@@ -9,18 +9,17 @@ import { priceLabel, priceTerms, type Package } from '../../data/packages';
 
 interface Props {
   pkg: Package;
-  index: number;
   /** Heading level for the package name (h3 on Services, h2 on Pricing). */
   level?: 2 | 3;
 }
-const { pkg: p, index, level = 3 } = Astro.props;
+const { pkg: p, level = 3 } = Astro.props;
 const H = level === 2 ? 'h2' : 'h3';
 const price = priceLabel(p);
 // No "How it works" link on the page it would point to.
 const here = Astro.url.pathname === p.page;
 ---
 
-<li class="pkg" id={`pkg-${p.id}`} data-reveal style={`--d:${index * 80}`} data-spotlight>
+<li class="pkg" id={`pkg-${p.id}`} data-spotlight>
   <H class="pkg__name">{p.name}</H>
   <p class="pkg__cost">
     <span class:list={['pkg__price', { 'pkg__price--tbc': !price.approved }]} data-price>{price.text}</span>

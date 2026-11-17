@@ -1,5 +1,18 @@
 # DESIGN.md · "Signal" (round 5, Nov 2026), compact editorial portfolio (round 7)
 
+> **Design upgrade, Phase 4 (17 Nov 2026): the motion system.** One token set (`--ease-out`, `--ease-in-out`, `--ease-in`,
+> `--ease-spring`, `--dur-1` to `--dur-5`, `--stagger`, `--dur-loop`, and `--dur-page-out` / `--dur-page-in` for page
+> transitions); every duration in the site comes from it, scripts included, and reduced motion sets it to 0. The hero
+> enters in about 1.6 s, everything visible from the first frame (Mann's choice): parts rise into place, the graph's
+> lines fade in by group. The agent graph's first pulse runs Google → core → Booking at 1.2 s; two routes play three
+> cycles, then everything rests by about 13 s (D8). Pointer, focus or a tap wakes it; hovering or tapping an input pill
+> lights its routes. Reveals are scroll-driven CSS for section heads and media only; paragraphs, lists and buttons never
+> start hidden, and with JavaScript off nothing moves. Page transitions take 220 / 420 ms, opacity and transform only.
+> The magnetic pull is on the hero and footer buttons only (6px at most). The header wordmark settles in once per visit,
+> becomes "MΛ" after the hero and sweeps lime on hover or focus. Lime buttons glow on hover or focus, and every hover
+> state has a matching keyboard-focus state. Gates M1–M8. Record:
+> [`docs/27-design-upgrade/phase-4-motion.md`](docs/27-design-upgrade/phase-4-motion.md).
+>
 > **Design upgrade, Phase 3 (17 Nov 2026): sections and flow.** Home runs hero → Selected Work (reviews strip once real
 > reviews exist) → services → prices → free check → how I work → questions → closing call to action. The services are a
 > **bento** of three tiles (A Found, B Answered, C Booked), each with a small scene in the agent graph's line style that
@@ -278,11 +291,48 @@ shadow only: `--shadow-pop` for floating layers (menu, ⌘K palette, toast).
 
 ## Motion
 
-| Token | Value |
-| --- | --- |
-| `--ease-out` | `cubic-bezier(0.16, 1, 0.3, 1)` |
-| `--ease-in-out` | `cubic-bezier(0.65, 0, 0.35, 1)` |
-| `--t-fast` / `--t-base` / `--t-slow` / `--t-reveal` | 160 / 320 / 700 / 1100 ms |
+Design upgrade Phase 4 (17 Nov 2026; `DESIGN_AUDIT.md` → Motion system). One story per screen (the hero's signal path),
+nothing loops forever, entrances ease out and exits ease in at about 70% of the entrance. Transform and opacity only,
+CSS first, longhand `animation-*` properties wherever `animation-timeline` is used.
+
+| Token | Value | Use |
+| --- | --- | --- |
+| `--ease-out` | `cubic-bezier(0.16, 1, 0.3, 1)` | Entrances, reveals, the hero |
+| `--ease-in-out` | `cubic-bezier(0.65, 0, 0.35, 1)` | State changes, accordions, the graph's orbit |
+| `--ease-in` | `cubic-bezier(0.7, 0, 0.84, 0)` | Exits: the phone menu closing, the old page |
+| `--ease-spring` | `cubic-bezier(0.34, 1.56, 0.64, 1)` | Magnetic return, small pops |
+| `--dur-1` / `--dur-2` / `--dur-3` | 120 / 200 / 320 ms | Colour and press / small UI and exits / menus, accordions, toasts |
+| `--dur-4` / `--dur-5` | 560 / 800 ms | Element reveals and the label roll / hero headline lines |
+| `--stagger` | 60 ms | Lists and lines (`--d` on a load reveal counts steps of it) |
+| `--dur-loop` | 4200 ms | One agent-graph cycle |
+| `--dur-page-out` / `--dur-page-in` | 220 / 420 ms | Page transitions (gate M4: at most 450) |
+
+All are 0 under `prefers-reduced-motion`. No component writes a raw duration, and scripts read these tokens (gate M1).
+
+- **Hero entrance** (about 1.6 s): wordmark lock-on (first visit) at 0, greeting at 60 ms, the H1's two lines from 120 ms
+  (60 ms apart), the graph's core at 320 ms (scale 0.92 → 1, orbit fading in), the subline, buttons and price line from
+  380 ms, the graph's lines and pills by about 1.1 s. Everything is painted from the first frame and only rises into
+  place (Mann's choice), so the H1 stays the LCP element.
+- **Agent graph** (D8): the first pulse runs Google → core → Booking at about 1.2 s and the core's glow breathes once
+  when it arrives; route 0 and route 4 (Maps → Reply) then alternate every 2.1 s for three cycles each, with the core
+  pinging, the Booking pill glowing, nodes twinkling and the orbit turning a third of a turn, and everything rests by
+  about 13 s (the two routes stay lit). Pointer, focus or a tap wakes it for three more cycles; the pause button pauses
+  it, or plays it again once it rests. Hovering or tapping an input pill lights that pill's two routes and the pills they
+  reach, and dims the rest to 30%. Only the layout on screen animates.
+- **Reveals**: section heads (headings split into lines) and media (`data-reveal="media"`, `.reveal-clip`) on a CSS view
+  timeline inside `@supports`; first-screen content on load (`data-reveal="load"`, `Heading load`), rising only.
+  Paragraphs, lists and buttons are never hidden. Without JavaScript nothing moves (gate M6).
+- **Page transitions**: the old page fades and shrinks a little (220 ms, `--ease-in`), the new one rises in (420 ms,
+  `--ease-out`); the header holds still.
+- **Wordmark**: per-letter groups in the header. Once per visit (`sessionStorage`), the letters settle in from wider
+  spacing while the two Λ's rise from the baseline; after the hero (or a page's first section) it condenses to "MΛ" (the
+  other letters fade in place); hover or keyboard focus runs one lime sweep across the letters.
+- **Hover and focus**: lime buttons glow (an opacity-only layer), labels roll and arrows turn; every hover state has a
+  matching `:focus-visible` (or `:focus-within` for a label around a control) state (M8). The magnetic pull is on
+  `[data-magnetic]` only: the hero and footer buttons, at most 6px.
+- **Start-up cost** (gate M7): work that reads the layout (rails, progress lines, the header's watchers, the graph's
+  setup) waits for an idle moment, and the header clock works out Toronto time itself instead of building a time-zone
+  formatter.
 
 Signature moments: **Tune in** (below), the **headline that acts out its words** (below), kinetic
 hero words (weight and tracking settle in, and flash lime when the signal locks), headings revealed line by line, the process line that draws itself on
@@ -350,13 +400,13 @@ only for a mouse or trackpad. Round 7 kept one effect per job, after the audit a
 | Kept | Where | Behaviour |
 | --- | --- | --- |
 | **Signal field** (`Field.astro`, `field.ts`) | Home hero, 404 | WebGL dot map with a faint aurora toward the portrait; dots swell near the pointer; a click or tap sends a radar ping, and so does the tuner when it locks (`signal:ping`). Static CSS dots without a GPU or with reduced motion. Time stops a few seconds after the last interaction. |
-| **Magnetic buttons** (`pointer.ts`) | `.btn`, `.icon-btn`, menu buttons | Lean toward the pointer and spring back (CSS `translate`). |
+| **Magnetic buttons** (`pointer.ts`) | `[data-magnetic]`: the hero and footer buttons (design upgrade Phase 4) | Lean toward the pointer by at most 6px and spring back (CSS `translate`). |
 | **Spotlight** | `[data-spotlight]`: project cards, work rows, packages, contact panels | A soft light and a lit border follow the pointer. |
 | **Decoding** (`text.ts`) | `[data-scramble]` only: the coordinates on the tuner | Glyphs lock in left to right; screen readers get the real text. |
 | **Reading line** | Header | 2 px lime scroll progress (CSS scroll timeline). |
-| **Page transitions** | Between pages | Old page recedes, new one wipes up, header holds still. |
+| **Page transitions** | Between pages | Old page fades out (220 ms), new one rises in (420 ms), header holds still (Phase 4). |
 | **Image reveals** | Case-study close-ups and captures | Frames open as they scroll in (CSS view timeline). |
-| **Load-time intros** | First screen of every page | CSS from first paint (`data-reveal="load"`, `Heading load`), never waiting for a script. |
+| **Load-time intros** | First screen of every page | CSS from first paint (`data-reveal="load"`, `Heading load`), never waiting for a script; text and buttons rise only, never hidden (Phase 4). |
 
 **Removed in round 7:** the scroll marquee, the cursor follower, 3D tilt, word-by-word scroll
 lighting, decoding on every label, and the dot field behind page titles and the footer.

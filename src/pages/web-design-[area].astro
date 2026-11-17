@@ -67,7 +67,7 @@ const crumbs = breadcrumbJsonLd([
   }
 
   <PageHead eyebrow={area.eyebrow} lines={lines} lead={area.lead} compact>
-    <div class="ar__actions" data-reveal="load" style="--d:300">
+    <div class="ar__actions" data-reveal="load" style="--d:5">
       <div class="btn-row">
         <Button href="/contact/#brief">Request a quote</Button>
         <Button href="/contact/?package=check-up#check" variant="ghost">Start with the free check</Button>
@@ -287,7 +287,8 @@ const crumbs = breadcrumbJsonLd([
   .ar__work h3 a {
     text-decoration: none;
   }
-  .ar__work h3 a:hover {
+  .ar__work h3 a:hover,
+  .ar__work h3 a:focus-visible {
     text-decoration: underline;
   }
   .ar__tags {
@@ -344,10 +345,11 @@ const crumbs = breadcrumbJsonLd([
     grid-row: 1 / span 2;
     grid-column: 2;
     color: var(--signal);
-    transition: transform var(--t-fast) var(--ease-out);
+    transition: transform var(--dur-1) var(--ease-out);
   }
   @media (prefers-reduced-motion: no-preference) {
-    .ar__more-link:hover :global(.icon) {
+    .ar__more-link:hover :global(.icon),
+    .ar__more-link:focus-visible :global(.icon) {
       transform: translateX(4px);
     }
   }

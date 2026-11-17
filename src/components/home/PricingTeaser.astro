@@ -87,9 +87,10 @@ import Icon from '../ui/Icon.astro';
     border-bottom: 1px solid var(--line);
     color: inherit;
     text-decoration: none;
-    transition: background-color var(--t-fast), padding var(--t-base) var(--ease-out);
+    transition: background-color var(--dur-1), padding var(--dur-3) var(--ease-out);
   }
-  .pt__row a:hover {
+  .pt__row a:hover,
+  .pt__row a:focus-visible {
     background: linear-gradient(90deg, transparent, var(--surface));
   }
   .pt__name {
@@ -147,10 +148,11 @@ import Icon from '../ui/Icon.astro';
       grid-area: icon;
       align-self: center;
       color: var(--text-3);
-      transition: transform var(--t-base) var(--ease-out);
+      transition: transform var(--dur-3) var(--ease-out);
     }
     @media (prefers-reduced-motion: no-preference) {
-      .pt__row a:hover :global(.icon) {
+      .pt__row a:hover :global(.icon),
+      .pt__row a:focus-visible :global(.icon) {
         transform: translateX(4px);
       }
     }

@@ -48,7 +48,7 @@ const portrait = profile.portrait;
 
       <div class="hero__actions">
         <div class="btn-row">
-          <Button href="/contact/?package=check-up#check" class="hero__cta" data-hero-cta>Get a free website and Google check</Button>
+          <Button href="/contact/?package=check-up#check" class="hero__cta" data-hero-cta data-magnetic>Get a free website and Google check</Button>
           <a class="link-arrow hero__price-link" href="/pricing/">See prices <Icon name="arrow" /></a>
         </div>
       </div>
@@ -163,17 +163,45 @@ const portrait = profile.portrait;
     font-variant-numeric: tabular-nums;
   }
 
+  /* The two H1 lines move separately in the entrance; inline blocks, so they can (a transform needs a box). */
+  .hero__line {
+    display: inline-block;
+  }
+
+  /* Entrance (design upgrade Phase 4; DESIGN_AUDIT.md → Entrance sequence, about 1.6 s with the graph). Everything is
+     painted from the first frame and only rises into place (Mann's choice, 17 Nov 2026), so the H1 stays the LCP
+     element: the greeting at 60ms, the H1's lines from 120ms, 60ms apart, then the subline, buttons and price line from
+     380ms. The graph's core arrives at 320ms and its first pulse leaves at about 1.2 s (AgentGraph.astro). */
   @media (prefers-reduced-motion: no-preference) {
-    :global(.js-motion) .hero__text > * {
-      animation: hero-in 800ms var(--ease-out) both;
+    :global(.js-motion) .hero__hello,
+    :global(.js-motion) .hero__place,
+    :global(.js-motion) .hero__actions,
+    :global(.js-motion) .hero__price {
+      animation: hero-in var(--dur-4) var(--ease-out) both;
     }
-    :global(.js-motion) .hero__text > :nth-child(2) { animation-delay: 60ms; }
-    :global(.js-motion) .hero__text > :nth-child(3) { animation-delay: 120ms; }
-    :global(.js-motion) .hero__text > :nth-child(n + 4) { animation-delay: 180ms; }
+    :global(.js-motion) .hero__hello {
+      animation-delay: var(--stagger);
+    }
+    :global(.js-motion) .hero__line {
+      animation: hero-in var(--dur-5) var(--ease-out) both;
+      animation-delay: var(--dur-1);
+    }
+    :global(.js-motion) .hero__line + br + .hero__line {
+      animation-delay: calc(var(--dur-1) + var(--stagger));
+    }
+    :global(.js-motion) .hero__place {
+      animation-delay: calc(var(--dur-3) + var(--stagger));
+    }
+    :global(.js-motion) .hero__actions {
+      animation-delay: calc(var(--dur-3) + var(--stagger) * 2);
+    }
+    :global(.js-motion) .hero__price {
+      animation-delay: calc(var(--dur-3) + var(--stagger) * 3);
+    }
   }
   @keyframes hero-in {
     from {
-      transform: translateY(14px);
+      transform: translateY(12px);
     }
   }
 

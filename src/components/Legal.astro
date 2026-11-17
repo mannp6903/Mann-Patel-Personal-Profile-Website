@@ -123,7 +123,8 @@ const { title, lead, updated, see } = Astro.props;
       text-decoration: none;
       /* No colour transition: the site animates transform and opacity only (tests/e2e "motion"). */
     }
-    .toc :global(a:hover) {
+    .toc :global(a:hover),
+    .toc :global(a:focus-visible) {
       color: var(--text);
     }
     .toc :global(a[aria-current]) {

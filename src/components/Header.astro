@@ -21,7 +21,7 @@ const sheetLinks = [{ href: '/', label: 'Home' }, ...nav];
 <header class="hdr" data-header>
   <div class="hdr__bar container">
     <a class="wordmark" href="/" aria-label={`${profile.name}, home`}>
-      <Wordmark class="wordmark__logo" />
+      <Wordmark class="wordmark__logo" kinetic />
     </a>
 
     <p class="hdr__clock num" aria-hidden="true">
@@ -104,13 +104,15 @@ const sheetLinks = [{ href: '/', label: 'Home' }, ...nav];
   if (header) {
     // Solid background once the page scrolls.
     const onScroll = () => header.classList.toggle('is-scrolled', window.scrollY > 8);
-    onScroll();
+    // The first check waits for an idle moment: reading scrollY at start-up forces a layout here (gate M7). A page
+    // opened part-way down (a link to a section) gets its solid background then, or on its first scroll.
+    if ('requestIdleCallback' in window) requestIdleCallback(onScroll, { timeout: 1000 });
+    else setTimeout(onScroll, 1);
     addEventListener('scroll', onScroll, { passive: true });
 
     // Mobile sheet.
     const sheet = header.querySelector<HTMLDialogElement>('[data-menu]')!;
     const openBtn = header.querySelector<HTMLButtonElement>('[data-menu-open]')!;
-    let closingTimer: ReturnType<typeof setTimeout> | undefined;
     const closeSheet = () => {
       if (!sheet.open || sheet.classList.contains('is-closing')) return;
       sheet.classList.add('is-closing');
@@ -118,15 +120,16 @@ const sheetLinks = [{ href: '/', label: 'Home' }, ...nav];
         sheet.classList.remove('is-closing');
         sheet.close();
       };
-      if (matchMedia('(prefers-reduced-motion: reduce)').matches) done();
-      else closingTimer = setTimeout(done, 240);
+      // Close once the exit animation has played (no animation under reduced motion: close straight away).
+      const exit = sheet.getAnimations().find((a) => (a as CSSAnimation).animationName === 'sheet-out');
+      if (!exit) done();
+      else exit.finished.then(done, done);
     };
     openBtn.addEventListener('click', () => {
       sheet.showModal();
       openBtn.setAttribute('aria-expanded', 'true');
     });
     sheet.addEventListener('close', () => {
-      clearTimeout(closingTimer);
       sheet.classList.remove('is-closing');
       openBtn.setAttribute('aria-expanded', 'false');
       openBtn.focus();
@@ -150,11 +153,20 @@ const sheetLinks = [{ href: '/', label: 'Home' }, ...nav];
     // header), then turns lime. Same box either way (both variants have a 1px border), so nothing moves.
     const hdrCta = header.querySelector<HTMLElement>('[data-hdr-cta]');
     const heroCta = document.querySelector<HTMLElement>('[data-hero-cta]');
-    if (hdrCta && heroCta && 'IntersectionObserver' in window) {
-      new IntersectionObserver(([e]) => hdrCta.classList.toggle('is-quiet', e.isIntersecting), {
-        rootMargin: `-${header.offsetHeight}px 0px 0px 0px`,
-      }).observe(heroCta);
-    }
+    // Design upgrade Phase 4: the wordmark condenses to "MΛ" once the hero (or the page's first section) has scrolled
+    // up under the header, and expands again near the top.
+    const lead = document.querySelector<HTMLElement>('#hero') ?? document.querySelector<HTMLElement>('main > :first-child');
+    // Both watch the area below the header, whose height is read in an idle moment, once the page is laid out (reading it
+    // at start-up would force that layout here: gate M7). Until then the button keeps its server-rendered state.
+    const watch = () => {
+      if (!('IntersectionObserver' in window)) return;
+      const below = { rootMargin: `-${header.offsetHeight}px 0px 0px 0px` };
+      if (hdrCta && heroCta) new IntersectionObserver(([e]) => hdrCta.classList.toggle('is-quiet', e.isIntersecting), below).observe(heroCta);
+      if (lead)
+        new IntersectionObserver(([e]) => header.classList.toggle('is-condensed', !e.isIntersecting && e.boundingClientRect.top < 0), below).observe(lead);
+    };
+    if ('requestIdleCallback' in window) requestIdleCallback(watch, { timeout: 1000 });
+    else setTimeout(watch, 1);
 
     // Mac users see ⌘, everyone else Ctrl.
     if (/Mac|iPhone|iPad/.test(navigator.platform || navigator.userAgent)) {
@@ -187,7 +199,7 @@ const sheetLinks = [{ href: '/', label: 'Home' }, ...nav];
     backdrop-filter: blur(14px) saturate(140%);
     border-bottom: 1px solid var(--line);
     opacity: 0;
-    transition: opacity var(--t-base) var(--ease-out);
+    transition: opacity var(--dur-3) var(--ease-out);
     pointer-events: none;
   }
   .hdr.is-scrolled::before {
@@ -205,14 +217,15 @@ const sheetLinks = [{ href: '/', label: 'Home' }, ...nav];
     transform-origin: left;
     transform: scaleX(0);
     opacity: 0;
-    transition: opacity var(--t-base) var(--ease-out);
+    transition: opacity var(--dur-3) var(--ease-out);
     pointer-events: none;
   }
   @supports (animation-timeline: scroll()) {
     @media (prefers-reduced-motion: no-preference) {
       /* Written out on purpose: the minifier folds a separate animation-timeline into the `animation` shorthand,
-         which browsers reject, and the line never showed (found 15 Nov 2026). */
-      .hdr::after {
+         which browsers reject, and the line never showed (found 15 Nov 2026). Only with JavaScript (html.js): without
+         it the line never shows (it needs .is-scrolled), so nothing runs for it either (gate M6). */
+      :global(.js) .hdr::after {
         animation-name: read-progress;
         animation-timing-function: linear;
         animation-fill-mode: both;
@@ -250,10 +263,57 @@ const sheetLinks = [{ href: '/', label: 'Home' }, ...nav];
     /* 11 px at 320 px wide (so the header fits beside Contact and Menu), 13 px from about 390 px. */
     height: clamp(0.6875rem, 3.4vw, 0.8125rem);
     width: auto;
-    transition: opacity var(--t-fast) var(--ease-out);
   }
-  .wordmark:hover :global(.wordmark__logo) {
-    opacity: 0.72;
+  /* Design upgrade Phase 4 (task 4.8; DESIGN.md → Motion → Wordmark). Each letter is a group (data-k-ch) with a lime
+     copy on top (.wm__lit). */
+  .wordmark :global([data-k-ch]) {
+    transform-box: fill-box;
+  }
+  .wordmark :global(.wm__lit) {
+    fill: var(--signal);
+    opacity: 0;
+  }
+  /* Scroll condense: once the hero (or a page's first section) has scrolled away, the wordmark becomes "MΛ". The other
+     letters fade out in place, so nothing in the bar moves; at the top of the page they come back. */
+  .wordmark :global([data-k-ch]:nth-child(n + 3)) {
+    transition: opacity var(--dur-3) var(--ease-out);
+  }
+  .hdr.is-condensed .wordmark :global([data-k-ch]:nth-child(n + 3)) {
+    opacity: 0;
+  }
+  @media (prefers-reduced-motion: no-preference) {
+    /* Hover or keyboard focus: one lime sweep runs left to right across the letters (replaces the fade to 0.72). */
+    .wordmark:hover :global(.wm__lit),
+    .wordmark:focus-visible :global(.wm__lit) {
+      animation: wm-sweep var(--dur-4) var(--ease-in-out) both;
+      animation-delay: calc(var(--n) * var(--stagger) / 2);
+    }
+    /* "Lock-on", once per visit (html.wm-intro, set in <head> with a sessionStorage flag): the letters settle in from
+       wider spacing while the two Λ's rise from the baseline, a step behind. */
+    :global(html.wm-intro) .wordmark :global([data-k-ch]) {
+      animation: wm-settle var(--dur-5) var(--ease-out) both;
+      animation-delay: calc(var(--n) * var(--stagger) / 4);
+    }
+    :global(html.wm-intro) .wordmark :global([data-k-ch][data-lam]) {
+      transform-origin: 50% 100%;
+      animation: wm-rise var(--dur-4) var(--ease-out) var(--dur-1) both;
+    }
+  }
+  @keyframes wm-sweep {
+    50% {
+      opacity: 1;
+    }
+  }
+  @keyframes wm-settle {
+    from {
+      opacity: 0;
+      translate: calc(var(--dx) * 1px) 0;
+    }
+  }
+  @keyframes wm-rise {
+    from {
+      transform: scaleY(0);
+    }
   }
   @media (min-width: 64em) {
     .wordmark :global(.wordmark__logo) {
@@ -290,10 +350,11 @@ const sheetLinks = [{ href: '/', label: 'Home' }, ...nav];
     font-weight: var(--w-ui);
     text-decoration: none;
     color: var(--text-2);
-    transition: color var(--t-fast);
+    transition: color var(--dur-1);
   }
   @media (hover: hover) {
-    .hdr__nav a:hover {
+    .hdr__nav a:hover,
+    .hdr__nav a:focus-visible {
       color: var(--text);
     }
   }
@@ -328,9 +389,10 @@ const sheetLinks = [{ href: '/', label: 'Home' }, ...nav];
     border-radius: var(--r-pill);
     background: transparent;
     color: var(--text-2);
-    transition: border-color var(--t-fast), color var(--t-fast), background-color var(--t-fast);
+    transition: border-color var(--dur-1), color var(--dur-1), background-color var(--dur-1);
   }
-  .qm-trigger:hover {
+  .qm-trigger:hover,
+  .qm-trigger:focus-visible {
     border-color: var(--control);
     color: var(--text);
     background: var(--surface);
@@ -396,10 +458,11 @@ const sheetLinks = [{ href: '/', label: 'Home' }, ...nav];
     width: 16px;
     height: 1.5px;
     background: currentColor;
-    transition: transform var(--t-base) var(--ease-out);
+    transition: transform var(--dur-3) var(--ease-out);
   }
   @media (prefers-reduced-motion: no-preference) {
-    .menu-btn:hover .menu-btn__lines i:last-child {
+    .menu-btn:hover .menu-btn__lines i:last-child,
+    .menu-btn:focus-visible .menu-btn__lines i:last-child {
       transform: scaleX(0.6);
       transform-origin: left;
     }
@@ -526,7 +589,7 @@ const sheetLinks = [{ href: '/', label: 'Home' }, ...nav];
     border-radius: 50%;
     background: var(--signal);
     opacity: 0;
-    transition: opacity var(--t-fast), transform var(--t-base) var(--ease-out);
+    transition: opacity var(--dur-1), transform var(--dur-3) var(--ease-out);
   }
   .sheet__links a[aria-current='page'] .sheet__indicator,
   .sheet__links a:hover .sheet__indicator,
@@ -549,7 +612,7 @@ const sheetLinks = [{ href: '/', label: 'Home' }, ...nav];
     font-weight: var(--w-head);
     letter-spacing: var(--track-head);
     line-height: 1.05;
-    transition: letter-spacing var(--t-slow) var(--ease-out), color var(--t-fast);
+    transition: letter-spacing var(--dur-4) var(--ease-out), color var(--dur-1);
   }
   .sheet__links a:hover .sheet__label,
   .sheet__links a:focus-visible .sheet__label {
@@ -578,7 +641,8 @@ const sheetLinks = [{ href: '/', label: 'Home' }, ...nav];
     text-decoration: none;
     text-underline-offset: 0.3em;
   }
-  .sheet__email:hover {
+  .sheet__email:hover,
+  .sheet__email:focus-visible {
     color: var(--text);
     text-decoration: underline;
   }
@@ -600,7 +664,8 @@ const sheetLinks = [{ href: '/', label: 'Home' }, ...nav];
     color: inherit;
     text-decoration: none;
   }
-  .sheet__legal a:hover {
+  .sheet__legal a:hover,
+  .sheet__legal a:focus-visible {
     color: var(--text);
   }
   /* Seven since Guides joined (Nov 2026 audit fixes): on the shortest phones (320 × 568) the spacing between the
@@ -620,14 +685,15 @@ const sheetLinks = [{ href: '/', label: 'Home' }, ...nav];
   }
   @media (prefers-reduced-motion: no-preference) {
     .sheet[open] {
-      animation: sheet-in 380ms var(--ease-out);
+      animation: sheet-in var(--dur-3) var(--ease-out);
     }
     .sheet[open] .sheet__links li {
-      animation: link-in 420ms var(--ease-out) both;
-      animation-delay: calc(60ms + var(--i) * 35ms);
+      animation: link-in var(--dur-3) var(--ease-out) both;
+      animation-delay: calc(var(--stagger) * (1 + var(--i)) / 2);
     }
     .sheet.is-closing {
-      animation: sheet-out 240ms var(--ease-in-out) forwards;
+      /* Exits ease in at about 70% of the entrance (DESIGN.md → Motion). */
+      animation: sheet-out var(--dur-2) var(--ease-in) forwards;
     }
   }
   @keyframes sheet-in {

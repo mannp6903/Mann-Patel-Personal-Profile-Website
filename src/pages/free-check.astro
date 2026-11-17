@@ -62,18 +62,18 @@ const faq = [
       <div class="lp-hero__copy">
         <p class="eyebrow">Free website &amp; Google check · Toronto &amp; GTA</p>
         <Heading as="h1" lines={['Don’t miss', '<span class="accent">the next call.</span>']} class="lp-hero__title" load />
-        <p class="lead lp-hero__lead" data-reveal="load" style="--d:220">
+        <p class="lead lp-hero__lead" data-reveal="load" style="--d:4">
           I look your business up the way a customer would, test what happens when someone calls or writes, and send you a
           short list of fixes, most important first.
         </p>
-        <div class="btn-row" data-reveal="load" style="--d:320">
+        <div class="btn-row" data-reveal="load" style="--d:5">
           <Button href="#check">Get my free check</Button>
           <Button href="#what" variant="ghost" icon="arrow-down">What I check</Button>
         </div>
-        <p class="lp-hero__meta num" data-reveal="load" style="--d:420">Free · No obligation · About a minute</p>
+        <p class="lp-hero__meta num" data-reveal="load" style="--d:7">Free · No obligation · About a minute</p>
       </div>
 
-      <figure class="mc" aria-labelledby="mc-cap" data-reveal="load" style="--d:260">
+      <figure class="mc" aria-labelledby="mc-cap" data-reveal="load-media" style="--d:4">
         <figcaption class="mc__cap" id="mc-cap">
           <span class="mc__tag num">Example · Missed-call text-back</span>
           <span class="mc__title">The same call, answered</span>
@@ -124,7 +124,7 @@ const faq = [
       <ol class="lp-checks" role="list">
         {
           checkUp.includes.map((item, i) => (
-            <li data-reveal style={`--d:${i * 90}`}>
+            <li>
               <span class="lp-checks__icon">
                 <Icon name={checkIcons[i] ?? 'check'} />
               </span>
@@ -191,7 +191,7 @@ const faq = [
         </p>
         <a class="link-arrow" href="/pricing/">See every package in full <Icon name="arrow" /></a>
       </div>
-      <div class="rc" data-reveal>
+      <div class="rc">
         <div class="rc__paper">
           <p class="rc__head num"><span>Mann Patel</span><span>Price list</span></p>
           <ul class="rc__list" role="list">
@@ -401,8 +401,8 @@ const faq = [
      site's entrance budget (about 1.2 s), like every other first-screen reveal. */
   @media (prefers-reduced-motion: no-preference) {
     :global(.js) .mc__row {
-      animation: lp-step 500ms var(--ease-out) both;
-      animation-delay: calc(250ms + var(--n) * 160ms);
+      animation: lp-step var(--dur-4) var(--ease-out) both;
+      animation-delay: calc(var(--dur-2) + var(--n) * var(--stagger) * 2.5);
     }
   }
   @keyframes lp-step {
@@ -660,7 +660,7 @@ const faq = [
   }
   .lp-faq__item summary :global(svg) {
     flex: none;
-    transition: transform var(--t-base) var(--ease-out);
+    transition: transform var(--dur-3) var(--ease-out);
   }
   .lp-faq__item[open] summary :global(svg) {
     transform: rotate(45deg);

@@ -111,12 +111,12 @@ const jsonLd = { '@context': 'https://schema.org', '@type': 'ProfilePage', mainE
           lines={['I’m Mann Patel.', 'I build websites and enquiry follow-up', '<span class="accent">for Toronto service businesses</span><span class="stop">.</span>']}
           load
         />
-        <p class="lead" data-reveal="load" style="--d:200">
+        <p class="lead" data-reveal="load" style="--d:3">
           I’m a freelance web designer in Toronto, based in Scarborough: clear websites, Google and Maps listings, and
           enquiry follow-up for owner-run small businesses across Toronto and the GTA, with a focus on Scarborough and North York. I’m also starting {nest.name}, my own home-cleaning business in
           {nest.area}, which opens for bookings in summer 2027.
         </p>
-        <div class="ab-reach" data-reveal="load" style="--d:300">
+        <div class="ab-reach" data-reveal="load" style="--d:5">
           {/* U4 (design upgrade Phase 3): a main button within the first two phone screens (after the photo on phones). */}
           <div class="btn-row">
             <Button href="/contact/?package=check-up#check">Get a free website and Google check</Button>
@@ -129,7 +129,7 @@ const jsonLd = { '@context': 'https://schema.org', '@type': 'ProfilePage', mainE
       </div>
       {
         profile.portrait && (
-          <figure class="ab-photo" data-reveal="load-media" style="--d:150">
+          <figure class="ab-photo" data-reveal="load-media" style="--d:2">
             <Image
               src={profile.portrait.src}
               alt={profile.portrait.alt}
@@ -189,7 +189,7 @@ const jsonLd = { '@context': 'https://schema.org', '@type': 'ProfilePage', mainE
       <ol class="rules rail" role="list" aria-label="House rules" data-rail>
         {
           principles.map((p, i) => (
-            <li data-reveal style={`--d:${i * 80}`}>
+            <li>
               <span class="rules__n" aria-hidden="true">
                 {String(i + 1).padStart(2, '0')}
               </span>
@@ -206,7 +206,7 @@ const jsonLd = { '@context': 'https://schema.org', '@type': 'ProfilePage', mainE
     <div class="container vision">
       <p class="eyebrow">Where I’m going</p>
       <Heading id="vision-title" lines={['Foundations done properly,', '<span class="accent">explained clearly.</span>']} />
-      <p class="lead vision__lead" data-reveal>
+      <p class="lead vision__lead">
         My aim is to be the person Toronto’s small-business owners call when they want their Google presence, website and
         follow-up set up properly and explained in plain language, while I grow {nest.name} into a business that proves those
         foundations work.
@@ -223,7 +223,7 @@ const jsonLd = { '@context': 'https://schema.org', '@type': 'ProfilePage', mainE
       <ol class="chapters rail" role="list" aria-label="My story, in six chapters" data-rail>
         {
           chapters.map((c, i) => (
-            <li class="chapter" data-reveal>
+            <li class="chapter">
               <p class="chapter__place num">
                 <span class="chapter__n">{String(i + 1).padStart(2, '0')}</span>
                 {c.place}
@@ -232,7 +232,7 @@ const jsonLd = { '@context': 'https://schema.org', '@type': 'ProfilePage', mainE
             </li>
           ))
         }
-        <li class="chapter chapter--now" data-reveal>
+        <li class="chapter chapter--now">
           <p class="chapter__place num">
             <span class="chapter__n">06</span>
             {nest.name}
@@ -249,7 +249,7 @@ const jsonLd = { '@context': 'https://schema.org', '@type': 'ProfilePage', mainE
         </li>
       </ol>
 
-      <div class="why" data-reveal>
+      <div class="why">
         <h3 class="why__title">Why I do this</h3>
         <p>
           Building {nest.name} showed me how much the basics matter: a clear offer, a website people understand on their phone, a
