@@ -93,7 +93,13 @@ system. Measured as in [Phase 0](phase-0-baseline.md); before = Phase 3 (live on
 
 ## Quality gates
 
-QUALITY_GATES
+| Check | Result |
+| --- | --- |
+| `npm test` | 155/155 |
+| `npm run build` | ✓ |
+| `npx playwright test --trace off` | 218/218 |
+| `npm run build:cloudflare` | ✓ (0 errors, the same 2 warnings) |
+| Lighthouse CI assertions | ✓ |
 
 ## Numbers, Phase 3 → Phase 4
 
