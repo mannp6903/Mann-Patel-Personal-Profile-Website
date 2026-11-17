@@ -888,7 +888,8 @@ test.describe('design gates: responsiveness (Phase 6)', () => {
           const out: string[] = [];
           for (const el of document.querySelectorAll<HTMLElement>(sel)) {
             if (el.closest('[aria-hidden="true"], dialog:not([open]), .visually-hidden, .sr-only, details:not([open]) > :not(summary)')) continue;
-            if (!el.offsetWidth || !el.offsetHeight || getComputedStyle(el).visibility === 'hidden') continue;
+            // Drawn at all: not hidden, and not inside a closed accordion (whose content Chrome keeps laid out, unseen).
+            if (!el.checkVisibility({ contentVisibilityAuto: true, visibilityProperty: true }) || !el.offsetWidth || !el.offsetHeight) continue;
             // Running text: a link inside a sentence (WCAG 2.5.8's inline exception).
             const block = el.closest('p, li, dd, td, figcaption, blockquote, label');
             const own = (el.textContent || '').trim().length;
@@ -922,29 +923,39 @@ test.describe('design gates: responsiveness (Phase 6)', () => {
         await page.goto(path);
         const r = await page.evaluate((sel) => {
           const over = document.documentElement.scrollWidth - document.documentElement.clientWidth;
+          // A bar fixed or stuck to the screen (the header, a page's "Ask about this" bar) has content scroll under it by
+          // design; covering focus is gate A3's job. Everything in normal flow is compared.
+          const pinned = (e: Element) => {
+            for (let a: Element | null = e; a && a !== document.body; a = a.parentElement)
+              if (/fixed|sticky/.test(getComputedStyle(a).position)) return true;
+            return false;
+          };
           const els = [...document.querySelectorAll<HTMLElement>(sel)].filter(
             (e) =>
               !e.closest('[aria-hidden="true"], dialog:not([open]), .visually-hidden, .sr-only, .skip-link') &&
+              // Drawn at all: not inside a closed accordion, whose content Chrome keeps laid out but unseen.
+              e.checkVisibility({ contentVisibilityAuto: true, visibilityProperty: true }) &&
               e.offsetWidth > 1 &&
               e.offsetHeight > 1 &&
-              getComputedStyle(e).visibility !== 'hidden',
+              getComputedStyle(e).visibility !== 'hidden' &&
+              !pinned(e),
           );
-          const boxes = els.map((e) => {
-            const b = e.getBoundingClientRect();
-            return { e, x1: b.left + scrollX, y1: b.top + scrollY, x2: b.right + scrollX, y2: b.bottom + scrollY };
-          });
-          const hits: string[] = [];
+          // One box per line: a link that wraps is two boxes, not one rectangle across both lines.
+          const boxes = els.flatMap((e) =>
+            [...e.getClientRects()].filter((b) => b.width > 1 && b.height > 1).map((b) => ({ e, x1: b.left + scrollX, y1: b.top + scrollY, x2: b.right + scrollX, y2: b.bottom + scrollY })),
+          );
+          const hits = new Set<string>();
           const name = (e: HTMLElement) => `${e.tagName.toLowerCase()} "${(e.textContent || e.getAttribute('aria-label') || '').trim().replace(/\s+/g, ' ').slice(0, 24)}"`;
           for (let i = 0; i < boxes.length; i++)
             for (let j = i + 1; j < boxes.length; j++) {
               const a = boxes[i];
               const b = boxes[j];
-              if (a.e.contains(b.e) || b.e.contains(a.e)) continue;
+              if (a.e === b.e || a.e.contains(b.e) || b.e.contains(a.e)) continue;
               const w = Math.min(a.x2, b.x2) - Math.max(a.x1, b.x1);
               const h = Math.min(a.y2, b.y2) - Math.max(a.y1, b.y1);
-              if (w > 2 && h > 2) hits.push(`${name(a.e)} overlaps ${name(b.e)} (${Math.round(w)}×${Math.round(h)})`);
+              if (w > 2 && h > 2) hits.add(`${name(a.e)} overlaps ${name(b.e)} (${Math.round(w)}×${Math.round(h)})`);
             }
-          return { over, hits };
+          return { over, hits: [...hits] };
         }, INTERACTIVE);
         if (r.over > 0) problems.push(`${path} at ${width}px: ${r.over}px sideways`);
         for (const h of r.hits) problems.push(`${path} at ${width}px: ${h}`);
@@ -966,31 +977,41 @@ test.describe('design gates: responsiveness (Phase 6)', () => {
           const out: string[] = [];
           for (const h of document.querySelectorAll<HTMLElement>('main h1, main h2')) {
             if (!h.offsetWidth || h.closest('[aria-hidden="true"], .visually-hidden, .sr-only')) continue;
-            // Every word's line, from its rectangle (line masks and spans don't matter).
-            const words: { text: string; top: number }[] = [];
-            const walker = document.createTreeWalker(h, NodeFilter.SHOW_TEXT);
-            for (let n = walker.nextNode(); n; n = walker.nextNode()) {
-              const text = n.textContent || '';
-              for (const m of text.matchAll(/\S+/g)) {
-                const range = document.createRange();
-                range.setStart(n, m.index!);
-                range.setEnd(n, m.index! + m[0].length);
-                const rect = range.getClientRects()[0];
-                if (rect) words.push({ text: m[0], top: Math.round(rect.top) });
+            // A heading may be written in lines (ui/Heading.astro: each .line-mask is one authored line, e.g. "Asked before" /
+            // "buying."); a short authored line is a design choice, not an orphan. An orphan is a word that wrapping pushes
+            // onto a line of its own at the end of an authored line.
+            const masks = [...h.querySelectorAll<HTMLElement>(':scope .line-mask, :scope .hero__line')];
+            const authored = masks.length ? masks : [h];
+            for (const block of authored) {
+              const words: { text: string; top: number; left: number; right: number }[] = [];
+              const walker = document.createTreeWalker(block, NodeFilter.SHOW_TEXT);
+              for (let n = walker.nextNode(); n; n = walker.nextNode()) {
+                const text = n.textContent || '';
+                for (const m of text.matchAll(/\S+/g)) {
+                  const range = document.createRange();
+                  range.setStart(n, m.index!);
+                  range.setEnd(n, m.index! + m[0].length);
+                  const rect = range.getClientRects()[0];
+                  if (rect) words.push({ text: m[0], top: Math.round(rect.top), left: rect.left, right: rect.right });
+                }
               }
+              const lines: (typeof words)[] = [];
+              let top = -1e9;
+              for (const w of words) {
+                if (Math.abs(w.top - top) > 4) {
+                  lines.push([w]);
+                  top = w.top;
+                } else lines[lines.length - 1].push(w);
+              }
+              // A full stop in its own span belongs to the word before it.
+              const real = lines.map((l) => l.filter((w) => /[A-Za-z0-9]/.test(w.text))).filter((l) => l.length);
+              const width = (l: typeof words) => Math.max(...l.map((w) => w.right)) - Math.min(...l.map((w) => w.left));
+              const last = real[real.length - 1];
+              // An orphan is a short word left alone (under 40% of the widest line). A long word that fills its own line
+              // ("businesses." at 320px, where "small businesses." can't fit) is not one.
+              if (real.length > 1 && last.length === 1 && width(last) < 0.4 * Math.max(...real.map(width)))
+                out.push(`"${h.textContent!.trim().replace(/\s+/g, ' ').slice(0, 60)}" leaves "${last[0].text}" alone`);
             }
-            // A word glued to the previous one (a full stop in its own span) belongs to it.
-            const lines: string[][] = [];
-            let top = -1e9;
-            for (const w of words) {
-              if (Math.abs(w.top - top) > 4) {
-                lines.push([w.text]);
-                top = w.top;
-              } else lines[lines.length - 1].push(w.text);
-            }
-            const real = lines.map((l) => l.filter((t) => /[A-Za-z0-9]/.test(t)));
-            const last = real[real.length - 1];
-            if (real.length > 1 && last && last.length === 1) out.push(`"${h.textContent!.trim().replace(/\s+/g, ' ').slice(0, 60)}" ends on "${last[0]}"`);
           }
           return out;
         });
