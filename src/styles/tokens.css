@@ -57,6 +57,9 @@
   --paper: #f2f1ec;
   --ink: #0b0b0c;
   --focus: var(--signal);
+  /* The lime glow behind a lime button on hover or focus (design upgrade Phase 4, task 4.9): live things and the
+     primary action only. */
+  --signal-glow: 0 0 0 1px rgb(212 248 74 / 0.45), 0 12px 40px -12px rgb(212 248 74 / 0.55);
   /* Website Playbook (16 Nov 2026): on light surfaces the lime fails (1.21:1 on white). Focus rings there are
      near-black; lime text or icons there use the darker accent (4.81:1 on white). */
   --focus-on-light: var(--ink);
@@ -149,39 +152,36 @@
   --r-pill: 999px;
   --shadow-pop: 0 1px 0 rgb(255 255 255 / 0.04) inset, 0 30px 60px -20px rgb(0 0 0 / 0.75), 0 0 0 1px rgb(255 255 255 / 0.06);
 
-  /* ── Motion ── */
-  --ease-out: cubic-bezier(0.16, 1, 0.3, 1);
-  --ease-in-out: cubic-bezier(0.65, 0, 0.35, 1);
-  --ease-spring: cubic-bezier(0.34, 1.56, 0.64, 1);
-  --t-fast: 160ms;
-  --t-base: 320ms;
-  --t-slow: 700ms;
-  --t-reveal: 1100ms;
-
-  /* Motion tokens (Website Playbook, 16 Nov 2026) for new work; the --t-* and --ease-* above stay as they are.
-     --ease-out keeps its existing curve, cubic-bezier(0.16, 1, 0.3, 1): the playbook's
-     cubic-bezier(0.05, 0.7, 0.1, 1) would change every existing animation, so it waits for a decision. */
-  --dur-instant: 100ms;
-  --dur-fast: 150ms;
-  --dur-base: 250ms;
-  --dur-slow: 400ms;
-  --dur-hero: 600ms;
-  --stagger: 50ms;
-  --ease-standard: cubic-bezier(0.2, 0, 0, 1);
-  --ease-in: cubic-bezier(0.3, 0, 0.8, 0.15);
+  /* ── Motion (design upgrade Phase 4, 17 Nov 2026; DESIGN_AUDIT.md → Motion system → Tokens) ──
+     One set, used everywhere: a component picks one of these, never a raw duration (tests/unit/design-tokens.test.ts,
+     gate M1). Entrances ease out, exits ease in at about 70% of the entrance, and nothing loops forever. */
+  --ease-out: cubic-bezier(0.16, 1, 0.3, 1); /* entrances, reveals, the hero */
+  --ease-in-out: cubic-bezier(0.65, 0, 0.35, 1); /* state changes, accordions */
+  --ease-in: cubic-bezier(0.7, 0, 0.84, 0); /* exits: menu close, toast out, the old page */
+  --ease-spring: cubic-bezier(0.34, 1.56, 0.64, 1); /* magnetic return, small pops */
+  --dur-1: 120ms; /* colour, press */
+  --dur-2: 200ms; /* small UI: chips, icon buttons; exits */
+  --dur-3: 320ms; /* menus, accordions, toasts */
+  --dur-4: 560ms; /* element reveals, the label roll */
+  --dur-5: 800ms; /* hero headline lines */
+  --stagger: 60ms; /* lists and lines */
+  --dur-loop: 4200ms; /* one agent-graph cycle; it plays three, then rests (D8) */
+  /* Page transitions: the old page leaves in 220ms (--ease-in), the new one arrives in 420ms (--ease-out); gate M4
+     keeps both at or under 450ms. */
+  --dur-page-out: 220ms;
+  --dur-page-in: 420ms;
 }
 
 @media (prefers-reduced-motion: reduce) {
   :root {
-    --t-fast: 0ms;
-    --t-base: 0ms;
-    --t-slow: 0ms;
-    --t-reveal: 0ms;
-    --dur-instant: 0ms;
-    --dur-fast: 0ms;
-    --dur-base: 0ms;
-    --dur-slow: 0ms;
-    --dur-hero: 0ms;
+    --dur-1: 0ms;
+    --dur-2: 0ms;
+    --dur-3: 0ms;
+    --dur-4: 0ms;
+    --dur-5: 0ms;
     --stagger: 0ms;
+    --dur-loop: 0ms;
+    --dur-page-out: 0ms;
+    --dur-page-in: 0ms;
   }
 }

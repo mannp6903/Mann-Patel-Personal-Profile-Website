@@ -161,7 +161,8 @@ const list = servicesInGroup(group);
     letter-spacing: 0;
     max-width: 60ch;
   }
-  .svc > summary:hover .svc__one {
+  .svc > summary:hover .svc__one,
+  .svc > summary:focus-visible .svc__one {
     color: var(--text-2);
   }
   .svc__body {

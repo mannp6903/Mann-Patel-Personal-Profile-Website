@@ -307,7 +307,7 @@ p {
     height: 6px;
     border-radius: var(--r-pill);
     background: var(--control);
-    transition: width var(--t-base) var(--ease-out), background-color var(--t-base);
+    transition: width var(--dur-3) var(--ease-out), background-color var(--dur-3);
   }
   .rail-dots i.is-on {
     width: 20px;
@@ -376,7 +376,7 @@ p {
 }
 .roll > span {
   display: block;
-  transition: transform 520ms var(--ease-out);
+  transition: transform var(--dur-4) var(--ease-out);
 }
 .roll > span::after {
   content: attr(data-text);
@@ -388,7 +388,8 @@ p {
 /* Hover and press movement only when the visitor allows it (Website Playbook, 16 Nov 2026). Under reduced motion
    the links and buttons keep their instant colour feedback. */
 @media (hover: hover) and (prefers-reduced-motion: no-preference) {
-  :hover > .roll > span {
+  :hover > .roll > span,
+  :focus-visible > .roll > span {
     transform: translateY(-100%);
   }
 }
@@ -422,10 +423,10 @@ p {
   isolation: isolate;
   overflow: hidden;
   transition:
-    transform var(--t-fast) var(--ease-out),
-    background-color var(--t-base) var(--ease-out),
-    color var(--t-base) var(--ease-out),
-    border-color var(--t-base) var(--ease-out);
+    transform var(--dur-1) var(--ease-out),
+    background-color var(--dur-3) var(--ease-out),
+    color var(--dur-3) var(--ease-out),
+    border-color var(--dur-3) var(--ease-out);
   -webkit-tap-highlight-color: transparent;
 }
 @media (prefers-reduced-motion: no-preference) {
@@ -442,6 +443,30 @@ p {
   opacity: 0.45;
   pointer-events: none;
 }
+/* Lime buttons: a lime glow fades in on hover and keyboard focus (opacity only; design upgrade Phase 4, task 4.9). They
+   may draw outside their box for it; the outline button keeps its clip for the fill that rises on hover. */
+.btn:not(.btn--ghost, .btn--ink) {
+  overflow: visible;
+}
+.btn:not(.btn--ghost, .btn--ink)::after {
+  content: '';
+  position: absolute;
+  inset: 0;
+  z-index: -1;
+  border-radius: inherit;
+  box-shadow: var(--signal-glow);
+  opacity: 0;
+  pointer-events: none;
+  transition: opacity var(--dur-3) var(--ease-out);
+}
+@media (hover: hover) {
+  .btn:not(.btn--ghost, .btn--ink, .is-quiet):hover::after {
+    opacity: 1;
+  }
+}
+.btn:not(.btn--ghost, .btn--ink, .is-quiet):focus-visible::after {
+  opacity: 1;
+}
 /* Label roll: the visible label slides up, an identical copy follows from below. */
 .btn__label {
   position: relative;
@@ -451,7 +476,7 @@ p {
 }
 .btn__label > span {
   display: block;
-  transition: transform 520ms var(--ease-out);
+  transition: transform var(--dur-4) var(--ease-out);
 }
 .btn__label > span::after {
   /* The copy is decorative: empty alt text keeps the accessible name single. */
@@ -471,19 +496,21 @@ p {
   border-radius: 50%;
   background: var(--btn-icon-bg);
   color: var(--btn-icon-fg);
-  transition: transform 520ms var(--ease-out), background-color var(--t-base) var(--ease-out), color var(--t-base) var(--ease-out);
+  transition: transform var(--dur-4) var(--ease-out), background-color var(--dur-3) var(--ease-out), color var(--dur-3) var(--ease-out);
 }
 .btn__icon .icon {
   width: 1.15rem;
   height: 1.15rem;
   stroke-width: 2;
-  transition: transform 520ms var(--ease-out);
+  transition: transform var(--dur-4) var(--ease-out);
 }
 @media (hover: hover) and (prefers-reduced-motion: no-preference) {
-  .btn:hover .btn__label > span {
+  .btn:hover .btn__label > span,
+  .btn:focus-visible .btn__label > span {
     transform: translateY(-100%);
   }
-  .btn:hover .btn__icon {
+  .btn:hover .btn__icon,
+  .btn:focus-visible .btn__icon {
     transform: rotate(-45deg) scale(1.04);
   }
 }
@@ -503,16 +530,18 @@ p {
   background: var(--text);
   border-radius: inherit;
   transform: translateY(101%);
-  transition: transform 520ms var(--ease-out);
+  transition: transform var(--dur-4) var(--ease-out);
 }
 @media (hover: hover) {
-  .btn--ghost:hover {
+  .btn--ghost:hover,
+  .btn--ghost:focus-visible {
     --btn-fg: var(--ink);
     --btn-icon-bg: var(--ink);
     --btn-icon-fg: var(--text);
     border-color: var(--text);
   }
-  .btn--ghost:hover::before {
+  .btn--ghost:hover::before,
+  .btn--ghost:focus-visible::before {
     transform: none;
   }
 }
@@ -553,9 +582,10 @@ p {
   border: 1px solid var(--control);
   background: transparent;
   color: var(--text);
-  transition: background-color var(--t-fast) var(--ease-out), border-color var(--t-fast) var(--ease-out);
+  transition: background-color var(--dur-1) var(--ease-out), border-color var(--dur-1) var(--ease-out);
 }
-.icon-btn:hover {
+.icon-btn:hover,
+.icon-btn:focus-visible {
   background: var(--surface-2);
   border-color: var(--text-3);
 }
@@ -568,13 +598,14 @@ p {
   font-weight: var(--w-ui);
   text-decoration: none;
   background: linear-gradient(currentColor, currentColor) no-repeat 0 100% / 100% 1px;
-  transition: color var(--t-fast) var(--ease-out);
+  transition: color var(--dur-1) var(--ease-out);
   padding-bottom: 2px;
 }
 /* The underline leaves to the right, then draws back in from the left. */
 @media (hover: hover) and (prefers-reduced-motion: no-preference) {
-  .link:hover {
-    animation: link-swipe 820ms var(--ease-in-out);
+  .link:hover,
+  .link:focus-visible {
+    animation: link-swipe var(--dur-5) var(--ease-in-out);
   }
 }
 @keyframes link-swipe {
@@ -608,13 +639,15 @@ p {
   min-height: var(--tap);
 }
 .link-arrow .icon {
-  transition: transform var(--t-base) var(--ease-out);
+  transition: transform var(--dur-3) var(--ease-out);
 }
 @media (prefers-reduced-motion: no-preference) {
-  .link-arrow:hover .icon {
+  .link-arrow:hover .icon,
+  .link-arrow:focus-visible .icon {
     transform: translateX(4px);
   }
-  .link-arrow:hover .icon--ne {
+  .link-arrow:hover .icon--ne,
+  .link-arrow:focus-visible .icon--ne {
     transform: translate(3px, -3px);
   }
 }
@@ -625,10 +658,12 @@ p {
   text-decoration-color: var(--signal);
   text-decoration-thickness: 2px;
   text-underline-offset: 0.22em;
-  transition: text-decoration-color var(--t-fast);
+  transition: text-decoration-color var(--dur-1);
 }
 .prose a:not([class]):hover,
-.text-links a:not([class]):hover {
+.text-links a:not([class]):hover,
+.prose a:not([class]):focus-visible,
+.text-links a:not([class]):focus-visible {
   text-decoration-color: var(--text);
 }
 
@@ -663,9 +698,9 @@ p {
   opacity: 0;
 }
 @media (prefers-reduced-motion: no-preference) {
-  .status--live .status__dot::after {
-    /* A few pulses, then still: nothing on the page moves forever. */
-    animation: ping 2.4s var(--ease-out) 4;
+  .js .status--live .status__dot::after {
+    /* A few pulses, then still: nothing on the page moves forever. With JavaScript only, like every entrance (M6). */
+    animation: ping calc(var(--dur-loop) / 2) var(--ease-out) 4;
   }
 }
 @keyframes ping {
@@ -715,7 +750,7 @@ p {
   color: var(--text);
   font-size: var(--fs-base);
   line-height: 1.4;
-  transition: border-color var(--t-fast) var(--ease-out), box-shadow var(--t-fast) var(--ease-out), background-color var(--t-fast);
+  transition: border-color var(--dur-1) var(--ease-out), box-shadow var(--dur-1) var(--ease-out), background-color var(--dur-1);
 }
 .textarea {
   min-height: 9rem;
@@ -817,7 +852,7 @@ fieldset > legend + * {
   line-height: 1.25;
   cursor: pointer;
   user-select: none;
-  transition: background-color var(--t-fast) var(--ease-out), border-color var(--t-fast) var(--ease-out), color var(--t-fast);
+  transition: background-color var(--dur-1) var(--ease-out), border-color var(--dur-1) var(--ease-out), color var(--dur-1);
 }
 .chip input {
   position: absolute;
@@ -833,7 +868,7 @@ fieldset > legend + * {
   height: 1.15rem;
   border: 1.5px solid var(--control);
   border-radius: 6px;
-  transition: background-color var(--t-fast), border-color var(--t-fast);
+  transition: background-color var(--dur-1), border-color var(--dur-1);
 }
 .chip--radio .chip__box {
   border-radius: 50%;
@@ -846,9 +881,10 @@ fieldset > legend + * {
   fill: none;
   stroke-dasharray: 20;
   stroke-dashoffset: 20;
-  transition: stroke-dashoffset var(--t-base) var(--ease-out);
+  transition: stroke-dashoffset var(--dur-3) var(--ease-out);
 }
-.chip:hover {
+.chip:hover,
+.chip:focus-within {
   border-color: var(--text-3);
   background: var(--surface);
 }
@@ -916,7 +952,7 @@ fieldset > legend + * {
   font-size: var(--fs-lead);
   letter-spacing: -0.01em;
   line-height: 1.3;
-  transition: color var(--t-fast);
+  transition: color var(--dur-1);
 }
 /* The question is a real heading (16 Nov 2026), set exactly like the summary text around it. */
 .acc__q {
@@ -930,7 +966,8 @@ fieldset > legend + * {
 .acc > summary::-webkit-details-marker {
   display: none;
 }
-.acc > summary:hover {
+.acc > summary:hover,
+.acc > summary:focus-visible {
   color: var(--signal);
 }
 .acc__plus {
@@ -940,7 +977,7 @@ fieldset > legend + * {
   height: 2.25rem;
   border: 1px solid var(--control);
   border-radius: 50%;
-  transition: transform var(--t-base) var(--ease-out), background-color var(--t-base), border-color var(--t-base);
+  transition: transform var(--dur-3) var(--ease-out), background-color var(--dur-3), border-color var(--dur-3);
 }
 .acc__plus::before,
 .acc__plus::after {
@@ -952,7 +989,7 @@ fieldset > legend + * {
   height: 1.5px;
   background: currentColor;
   transform: translate(-50%, -50%);
-  transition: transform var(--t-base) var(--ease-out);
+  transition: transform var(--dur-3) var(--ease-out);
 }
 .acc__plus::after {
   transform: translate(-50%, -50%) rotate(90deg);
@@ -974,7 +1011,7 @@ fieldset > legend + * {
 .acc::details-content {
   block-size: 0;
   overflow: clip;
-  transition: block-size var(--t-slow) var(--ease-out), content-visibility var(--t-slow) allow-discrete;
+  transition: block-size var(--dur-4) var(--ease-out), content-visibility var(--dur-4) allow-discrete;
 }
 .acc[open]::details-content {
   block-size: auto;
@@ -1037,7 +1074,7 @@ fieldset > legend + * {
   box-shadow: var(--shadow-pop);
   transform: translate(-50%, 160%);
   opacity: 0;
-  transition: transform 520ms var(--ease-out), opacity 300ms var(--ease-out);
+  transition: transform var(--dur-3) var(--ease-out), opacity var(--dur-3) var(--ease-out);
   pointer-events: none;
 }
 .toast.is-on {
@@ -1062,26 +1099,13 @@ fieldset > legend + * {
 }
 
 /* ═══════════════ Motion ═══════════════ */
-/* Reveal on scroll. Content is visible by default; html.js-motion opts in to the animation. */
-.js-motion [data-reveal]:not([data-reveal^='load']) {
-  opacity: 0;
-  transform: translateY(28px);
-  transition:
-    opacity var(--t-reveal) var(--ease-out),
-    transform var(--t-reveal) var(--ease-out);
-  transition-delay: calc(var(--d, 0) * 1ms);
-}
-.js-motion [data-reveal='fade'] {
-  transform: none;
-}
-.js-motion [data-reveal='scale'] {
-  transform: scale(0.94);
-}
-.js-motion [data-reveal].is-in {
-  opacity: 1;
-  transform: none;
-}
-/* Headings split into lines (src/scripts/motion.ts): each line rises out of a mask. */
+/* Design upgrade Phase 4 (17 Nov 2026; DESIGN.md → Motion). Reveals are for section heads and media only, and they are
+   scroll-driven CSS (no script), inside @supports so browsers without scroll timelines show everything at once.
+   Paragraphs, lists and buttons never start hidden. html.js-motion (set in <head> when motion is allowed) opts in, so
+   with JavaScript off nothing is hidden or moved (gate M6).
+   Every property is written out on purpose: given the `animation` shorthand plus `animation-timeline`, the CSS minifier
+   folds the timeline into the shorthand, which browsers reject (found 15 Nov 2026). */
+/* Headings split into lines (ui/Heading.astro): each line rises out of a mask. */
 .line-mask {
   display: block;
   overflow: clip;
@@ -1092,30 +1116,52 @@ fieldset > legend + * {
 .line-mask > span {
   display: block;
 }
-.js-motion [data-split]:not([data-split='load']) .line-mask > span {
-  transform: translateY(105%);
-  transition: transform var(--t-reveal) var(--ease-out);
-  transition-delay: calc(var(--i, 0) * 90ms + var(--d, 0) * 1ms);
+@supports (animation-timeline: view()) {
+  @media (prefers-reduced-motion: no-preference) {
+    .js-motion [data-split]:not([data-split='load']) .line-mask > span {
+      animation-name: line-up;
+      animation-timing-function: linear;
+      animation-fill-mode: both;
+      animation-timeline: view();
+      animation-range: entry 5% entry 55%;
+    }
+    .js-motion [data-reveal='media'] {
+      animation-name: reveal-media;
+      animation-timing-function: linear;
+      animation-fill-mode: both;
+      animation-timeline: view();
+      animation-range: entry 5% entry 55%;
+    }
+  }
 }
-.js-motion [data-split].is-in .line-mask > span {
-  transform: none;
+@keyframes reveal-media {
+  from {
+    opacity: 0;
+    translate: 0 16px;
+  }
 }
 
-/* Page transitions between pages (supporting browsers): the old page recedes into the dark
-   while the new one wipes up over it; the header holds still across the change. */
+/* Page transitions between pages (supporting browsers): the old page leaves fast and eases in (220ms), the new one
+   rises into place (420ms); opacity and transform only. The header holds still across the change. */
 @media (prefers-reduced-motion: no-preference) {
   @view-transition {
     navigation: auto;
   }
 }
 ::view-transition-group(root) {
-  animation-duration: 900ms;
+  animation-duration: var(--dur-page-in);
 }
 ::view-transition-old(root) {
-  animation: vt-out 700ms var(--ease-in-out) both;
+  animation-name: vt-out;
+  animation-duration: var(--dur-page-out);
+  animation-timing-function: var(--ease-in);
+  animation-fill-mode: both;
 }
 ::view-transition-new(root) {
-  animation: vt-in 900ms var(--ease-out) both;
+  animation-name: vt-in;
+  animation-duration: var(--dur-page-in);
+  animation-timing-function: var(--ease-out);
+  animation-fill-mode: both;
 }
 ::view-transition-group(site-header) {
   animation-duration: 0s;
@@ -1128,18 +1174,14 @@ fieldset > legend + * {
 }
 @keyframes vt-out {
   to {
-    opacity: 0.25;
-    transform: scale(0.94) translateY(-3%);
-    filter: blur(3px) brightness(0.6);
+    opacity: 0;
+    transform: scale(0.985);
   }
 }
 @keyframes vt-in {
   from {
-    clip-path: inset(100% 0 0 0 round 2rem 2rem 0 0);
-    transform: translateY(8%);
-  }
-  to {
-    clip-path: inset(0 0 0 0 round 0);
+    opacity: 0;
+    transform: translateY(16px);
   }
 }
 
@@ -1147,9 +1189,9 @@ fieldset > legend + * {
   *,
   *::before,
   *::after {
-    animation-duration: 0.01ms !important;
+    animation-duration: 0s !important;
     animation-iteration-count: 1 !important;
-    transition-duration: 0.01ms !important;
+    transition-duration: 0s !important;
     scroll-behavior: auto !important;
   }
 }
@@ -1189,7 +1231,7 @@ fieldset > legend + * {
   inset: 0;
   background-image: radial-gradient(circle at center, rgb(242 241 236 / 0.13) 0 1px, transparent 1.6px);
   background-size: 22px 22px;
-  transition: opacity 1200ms var(--ease-out);
+  transition: opacity var(--dur-5) var(--ease-out);
 }
 .fx-field__gl {
   position: absolute;
@@ -1197,7 +1239,7 @@ fieldset > legend + * {
   width: 100%;
   height: 100%;
   opacity: 0;
-  transition: opacity 1200ms var(--ease-out);
+  transition: opacity var(--dur-5) var(--ease-out);
 }
 .fx-field.is-gl::before {
   opacity: 0;
@@ -1206,37 +1248,26 @@ fieldset > legend + * {
   opacity: 1;
 }
 
-/* Magnetic pull (fx/pointer.ts sets `translate`; it composes with hover and press transforms). */
-.btn,
-.icon-btn,
-.qm-trigger,
-.menu-btn,
+/* Magnetic pull (fx/pointer.ts sets `translate`; it composes with hover and press transforms). Design upgrade Phase 4:
+   only the hero and footer buttons ([data-magnetic]), at most 6px. */
 [data-magnetic] {
   translate: 0 0;
 }
-.btn,
-.icon-btn,
-.qm-trigger,
-.menu-btn,
 [data-magnetic],
-.btn__icon {
+[data-magnetic] .btn__icon {
   transition-property: transform, background-color, color, border-color, translate;
 }
-.btn,
-.icon-btn,
-.qm-trigger,
-.menu-btn,
 [data-magnetic] {
-  transition-duration: var(--t-fast), var(--t-base), var(--t-base), var(--t-base), 700ms;
+  transition-duration: var(--dur-1), var(--dur-3), var(--dur-3), var(--dur-3), var(--dur-4);
   transition-timing-function: var(--ease-out), var(--ease-out), var(--ease-out), var(--ease-out), var(--ease-spring);
 }
-.btn__icon {
-  transition-duration: 520ms, var(--t-base), var(--t-base), var(--t-base), 700ms;
+[data-magnetic] .btn__icon {
+  transition-duration: var(--dur-4), var(--dur-3), var(--dur-3), var(--dur-3), var(--dur-4);
   transition-timing-function: var(--ease-out), var(--ease-out), var(--ease-out), var(--ease-out), var(--ease-spring);
 }
 .is-pulled,
 .is-pulled .btn__icon {
-  transition-duration: var(--t-fast), var(--t-base), var(--t-base), var(--t-base), 180ms;
+  transition-duration: var(--dur-1), var(--dur-3), var(--dur-3), var(--dur-3), var(--dur-2);
   transition-timing-function: var(--ease-out);
 }
 
@@ -1259,7 +1290,7 @@ fieldset > legend + * {
   mask: linear-gradient(rgb(0 0 0 / 0.86) 0 0) content-box exclude, linear-gradient(black 0 0);
   opacity: 0;
   pointer-events: none;
-  transition: opacity 500ms var(--ease-out);
+  transition: opacity var(--dur-4) var(--ease-out);
 }
 @media (hover: hover) and (pointer: fine) and (prefers-reduced-motion: no-preference) {
   [data-spotlight]:hover::after {
@@ -1269,12 +1300,13 @@ fieldset > legend + * {
 
 /* Images that open from a frame as they scroll into view (CSS scroll-driven, no JavaScript). Transform only (SEO
    audit Phase 4): the frame grows from 86% while the screenshot inside settles from 116% to 100% (1.349 = 1.16 / 0.86),
-   both on the frame's own view timeline so they move together.
+   both on the frame's own view timeline so they move together. Design upgrade Phase 4: only with html.js-motion, so
+   with JavaScript off nothing is moved (gate M6).
    Every property is written out on purpose: given the `animation` shorthand plus `animation-timeline`, the CSS
    minifier folds the timeline into the shorthand, which browsers reject, and the effect never ran (found 15 Nov 2026). */
 @supports (animation-timeline: view()) {
   @media (prefers-reduced-motion: no-preference) {
-    .reveal-clip {
+    .js-motion .reveal-clip {
       view-timeline-name: --reveal-clip;
       animation-name: clip-open;
       animation-timing-function: linear;
@@ -1282,7 +1314,7 @@ fieldset > legend + * {
       animation-timeline: --reveal-clip;
       animation-range: entry 0% cover 40%;
     }
-    .reveal-clip img {
+    .js-motion .reveal-clip img {
       animation-name: clip-settle;
       animation-timing-function: linear;
       animation-fill-mode: both;
@@ -1302,25 +1334,26 @@ fieldset > legend + * {
   }
 }
 
-/* First-screen content animates on load in CSS, so it never waits for a script (fast LCP). */
+/* First-screen content animates on load in CSS, so it never waits for a script (fast LCP). Design upgrade Phase 4
+   (Mann's choice, 17 Nov 2026): page-head text and buttons are visible from the first frame and only rise into place;
+   the H1's lines rise out of their mask, and media settles. --d is a step count of --stagger. */
 @media (prefers-reduced-motion: no-preference) {
   .js [data-reveal='load'] {
-    animation: rise-in 1000ms var(--ease-out) both;
-    animation-delay: calc(var(--d, 0) * 1ms);
+    animation: rise-in var(--dur-4) var(--ease-out) both;
+    animation-delay: calc(var(--d, 0) * var(--stagger));
   }
   .js [data-split='load'] .line-mask > span {
-    animation: line-up 1000ms var(--ease-out) both;
-    animation-delay: calc(var(--i, 0) * 90ms + var(--d, 0) * 1ms);
+    animation: line-up var(--dur-5) var(--ease-out) both;
+    animation-delay: calc((var(--i, 0) + var(--d, 0)) * var(--stagger));
   }
   .js [data-reveal='load-media'] {
-    animation: media-in 1300ms var(--ease-out) both;
-    animation-delay: calc(var(--d, 0) * 1ms);
+    animation: media-in var(--dur-5) var(--ease-out) both;
+    animation-delay: calc(var(--d, 0) * var(--stagger));
   }
 }
 @keyframes rise-in {
   from {
-    opacity: 0;
-    transform: translateY(22px);
+    transform: translateY(12px);
   }
 }
 @keyframes line-up {
@@ -1330,7 +1363,7 @@ fieldset > legend + * {
 }
 @keyframes media-in {
   from {
-    transform: translateY(40px) scale(0.965);
+    transform: translateY(24px) scale(0.98);
   }
 }
 

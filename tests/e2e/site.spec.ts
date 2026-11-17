@@ -493,10 +493,11 @@ test.describe('home interactions', () => {
     await page.goto('/');
     const svg = page.locator('.ag__svg--wide');
     for (const label of ['Google', 'Maps', 'AI answers', 'Enquiry', 'Reply', 'Booking']) await expect(svg).toContainText(label);
-    // SEO audit Phase 4 (speed): the pulses are streaks moved along each route with transform (Web Animations),
-    // one per route and layout: 12 routes × 2 layouts.
+    // SEO audit Phase 4 (speed): the pulses are streaks moved along each route with transform (Web Animations).
+    // D8 (design upgrade Phase 4, 17 Nov 2026): two routes loop for three cycles, then rest, so there is one streak per
+    // leg of those two routes (4, was 12), in the layout on screen only.
     const sparks = page.locator('.ag__svg--wide .ag__spark');
-    await expect(sparks).toHaveCount(12);
+    await expect(sparks).toHaveCount(4);
     const states = () => page.evaluate(() => [...document.querySelectorAll('.ag__spark')].flatMap((e) => e.getAnimations().map((a) => a.playState)));
     expect(new Set(await states())).toEqual(new Set(['running']));
     const toggle = page.locator('[data-ag-toggle]');
@@ -591,8 +592,11 @@ test.describe('home interactions', () => {
     await page.goto('/');
     expect(await page.locator('.hero__title').evaluate((e) => getComputedStyle(e).animationName)).toBe('none');
     expect(await page.evaluate(() => document.documentElement.classList.contains('js-motion'))).toBe(false);
-    const op = await page.locator('[data-reveal]:not([data-reveal^="load"])').first().evaluate((e) => getComputedStyle(e).opacity);
-    expect(op).toBe('1');
+    // Design upgrade Phase 4 (plan task 4.5): only section heads and media reveal on scroll now (paragraphs, lists and
+    // buttons never start hidden), so the check is a scroll-revealed heading line, which must be in place.
+    const line = page.locator('[data-split]:not([data-split="load"]) .line-mask > span').first();
+    expect(await line.evaluate((e) => getComputedStyle(e).opacity)).toBe('1');
+    expect(await line.evaluate((e) => getComputedStyle(e).transform)).toMatch(/none|matrix\(1, 0, 0, 1, 0, 0\)/);
     await ctx.close();
   });
 

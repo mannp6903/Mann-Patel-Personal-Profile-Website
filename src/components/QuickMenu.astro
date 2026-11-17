@@ -244,7 +244,7 @@ const groups: { title: string; items: Item[] }[] = [
     backdrop-filter: blur(4px);
   }
   .qm[open] {
-    animation: qm-in 380ms var(--ease-out);
+    animation: qm-in var(--dur-3) var(--ease-out);
   }
   @keyframes qm-in {
     from {
@@ -316,7 +316,7 @@ const groups: { title: string; items: Item[] }[] = [
     height: 2rem;
     border-radius: 8px;
     border: 1px solid var(--line);
-    transition: background-color var(--t-fast), color var(--t-fast);
+    transition: background-color var(--dur-1), color var(--dur-1);
   }
   .qm__icon .icon {
     width: 1rem;

@@ -30,7 +30,7 @@ const crumbs = breadcrumbJsonLd([
 
   >
     {/* U4 (design upgrade Phase 3): a main button within the first two phone screens. */}
-    <div class="btn-row" data-reveal="load" style="--d:280"><Button href="/contact/?package=check-up#check">Get a free website and Google check</Button></div>
+    <div class="btn-row" data-reveal="load" style="--d:5"><Button href="/contact/?package=check-up#check">Get a free website and Google check</Button></div>
   </PageHead>
 
   <section class="section section--tight" aria-label="Projects">
@@ -38,7 +38,7 @@ const crumbs = breadcrumbJsonLd([
       <ol class="rows" role="list">
         {
           work.map((w, i) => (
-            <li class="row" data-reveal={i === 0 ? 'load' : ''} style={`--d:${i * 100 + 200}`}>
+            <li class="row">
               <a class="row__link" href={`/work/${w.id}/`} data-spotlight data-cursor="Open">
                 <div class="row__text">
                   <div class="row__meta">
@@ -97,7 +97,7 @@ const crumbs = breadcrumbJsonLd([
         </p>
       </div>
 
-      <aside class="note" data-reveal aria-labelledby="work-note-title">
+      <aside class="note" aria-labelledby="work-note-title">
         <h2 id="work-note-title" class="eyebrow eyebrow--plain">What you won’t see here</h2>
         <p>
           Made-up results, borrowed client logos, or concept mock-ups dressed up as clients. When there’s more real work to
@@ -121,9 +121,10 @@ const crumbs = breadcrumbJsonLd([
     border: 1px solid var(--line);
     background: var(--surface);
     text-decoration: none;
-    transition: border-color var(--t-base), background-color var(--t-base);
+    transition: border-color var(--dur-3), background-color var(--dur-3);
   }
-  .row__link:hover {
+  .row__link:hover,
+  .row__link:focus-visible {
     border-color: var(--control);
     background: var(--surface-2);
   }
@@ -143,9 +144,10 @@ const crumbs = breadcrumbJsonLd([
     font-weight: var(--w-head);
     letter-spacing: var(--track-head);
     line-height: 0.95;
-    transition: letter-spacing 800ms var(--ease-out), color var(--t-base);
+    transition: letter-spacing var(--dur-4) var(--ease-out), color var(--dur-3);
   }
-  .row__link:hover .row__title {
+  .row__link:hover .row__title,
+  .row__link:focus-visible .row__title {
     letter-spacing: -0.025em;
     color: var(--signal);
   }
@@ -180,10 +182,11 @@ const crumbs = breadcrumbJsonLd([
     margin-top: var(--s-2);
   }
   .row__cta .icon {
-    transition: transform var(--t-base) var(--ease-out);
+    transition: transform var(--dur-3) var(--ease-out);
   }
   @media (prefers-reduced-motion: no-preference) {
-    .row__link:hover .row__cta .icon {
+    .row__link:hover .row__cta .icon,
+    .row__link:focus-visible .row__cta .icon {
       transform: translateX(5px);
     }
   }

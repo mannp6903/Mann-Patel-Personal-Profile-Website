@@ -168,11 +168,12 @@ const last = steps.length - 1;
     text-align: left;
     cursor: pointer;
     transition:
-      background-color var(--t-fast),
-      border-color var(--t-fast),
-      color var(--t-fast);
+      background-color var(--dur-1),
+      border-color var(--dur-1),
+      color var(--dur-1);
   }
-  .demo__step:hover {
+  .demo__step:hover,
+  .demo__step:focus-visible {
     color: var(--text);
     background: var(--surface-2);
   }
@@ -283,9 +284,10 @@ const last = steps.length - 1;
   .demo__toast--ok {
     border-color: var(--signal);
   }
+  /* With JavaScript only (html.js): without it the first state simply shows (gate M6). */
   @media (prefers-reduced-motion: no-preference) {
-    .demo__state:not([hidden]) {
-      animation: demo-in 380ms var(--ease-out);
+    :global(.js) .demo__state:not([hidden]) {
+      animation: demo-in var(--dur-3) var(--ease-out);
     }
   }
   @keyframes demo-in {

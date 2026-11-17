@@ -67,7 +67,7 @@ const loading = eager ? 'eager' : 'lazy';
     background: var(--frame-screen);
     box-shadow: 0 30px 60px -30px rgb(0 0 0 / 0.8);
     transform-origin: 30% 100%;
-    transition: transform 900ms var(--ease-out);
+    transition: transform var(--dur-4) var(--ease-out);
   }
   .pm__bar {
     display: flex;
@@ -102,15 +102,19 @@ const loading = eager ? 'eager' : 'lazy';
     overflow: hidden;
     background: var(--frame-screen);
     box-shadow: 0 30px 50px -20px rgb(0 0 0 / 0.85);
-    transition: transform 900ms var(--ease-out);
+    transition: transform var(--dur-4) var(--ease-out);
   }
   @media (prefers-reduced-motion: no-preference) {
     :global(a:hover) > .pm .pm__desk,
-    :global(.pm-host:hover) .pm__desk {
+    :global(.pm-host:hover) .pm__desk,
+    :global(a:focus-visible) > .pm .pm__desk,
+    :global(.pm-host:focus-within) .pm__desk {
       transform: scale(1.015) rotate(-0.4deg);
     }
     :global(a:hover) > .pm .pm__phone,
-    :global(.pm-host:hover) .pm__phone {
+    :global(.pm-host:hover) .pm__phone,
+    :global(a:focus-visible) > .pm .pm__phone,
+    :global(.pm-host:focus-within) .pm__phone {
       transform: translateY(-10px) rotate(2deg);
     }
   }

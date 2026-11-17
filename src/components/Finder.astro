@@ -29,14 +29,14 @@ const svcHrefs = Object.fromEntries(services.map((s) => [s.id, serviceHref(s.id)
         <p class="eyebrow">Find your starting point</p>
         <Heading id={`${id}-title`} lines={['Three questions.', '<span class="accent">One clear first step.</span>']} />
       </div>
-      <p class="lead" data-reveal>Answer honestly. You get a suggestion, the reasons for it, and a brief that’s already filled in.</p>
+      <p class="lead">Answer honestly. You get a suggestion, the reasons for it, and a brief that’s already filled in.</p>
     </div>
 
     <div class="finder__grid">
       <form class="finder__form" action="/contact/" method="get" data-finder data-pkg={JSON.stringify(pkgNames)} data-svc={JSON.stringify(svcNames)} data-svc-href={JSON.stringify(svcHrefs)}>
         {
           questions.map((q, qi) => (
-            <fieldset class="finder__q" data-reveal style={`--d:${qi * 80}`}>
+            <fieldset class="finder__q">
               <legend class="finder__legend">
                 <span class="finder__qn num" aria-hidden="true">
                   {String(qi + 1).padStart(2, '0')}
@@ -246,7 +246,7 @@ const svcHrefs = Object.fromEntries(services.map((s) => [s.id, serviceHref(s.id)
     background: var(--signal);
     transform: scaleX(0);
     transform-origin: left;
-    transition: transform var(--t-slow) var(--ease-out);
+    transition: transform var(--dur-4) var(--ease-out);
   }
   .fr__reasons {
     display: grid;
@@ -283,9 +283,10 @@ const svcHrefs = Object.fromEntries(services.map((s) => [s.id, serviceHref(s.id)
     font-size: var(--fs-sm);
     text-decoration: none;
     color: var(--text-2);
-    transition: border-color var(--t-fast), color var(--t-fast);
+    transition: border-color var(--dur-1), color var(--dur-1);
   }
-  .fr__svc :global(a:hover) {
+  .fr__svc :global(a:hover),
+  .fr__svc :global(a:focus-visible) {
     border-color: var(--signal);
     color: var(--text);
   }
@@ -298,7 +299,7 @@ const svcHrefs = Object.fromEntries(services.map((s) => [s.id, serviceHref(s.id)
   }
   @media (prefers-reduced-motion: no-preference) {
     .fr__full:global(.is-new) {
-      animation: fr-in 700ms var(--ease-out);
+      animation: fr-in var(--dur-4) var(--ease-out);
     }
   }
   @keyframes fr-in {

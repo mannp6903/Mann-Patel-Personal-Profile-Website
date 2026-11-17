@@ -135,7 +135,8 @@ const fmtDate = (iso: string) =>
     text-wrap: initial;
   }
   .sw__name a { text-decoration: none; }
-  .sw__name a:hover { text-decoration: underline; text-decoration-thickness: 2px; }
+  .sw__name a:hover,
+  .sw__name a:focus-visible { text-decoration: underline; text-decoration-thickness: 2px; }
   .sw__labels {
     display: flex;
     flex-wrap: wrap;

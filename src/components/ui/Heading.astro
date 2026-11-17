@@ -1,6 +1,7 @@
 ---
 /**
- * A heading revealed line by line (each line rises out of a mask when scrolled into view).
+ * A heading revealed line by line: each line rises out of a mask as it scrolls into view (CSS scroll timeline, design
+ * upgrade Phase 4), or on load for first-screen headings.
  * `lines` may contain inline HTML such as <span class="accent">…</span>. The text reads as one
  * sentence to screen readers; without motion it is simply visible.
  */
@@ -9,15 +10,13 @@ interface Props {
   lines: string[];
   id?: string;
   class?: string;
-  /** Extra delay in ms before the first line. */
-  delay?: number;
   /** First-screen headings: animate on load in CSS instead of waiting for scroll (fast LCP). */
   load?: boolean;
 }
-const { as: Tag = 'h2', lines, id, class: cls, delay = 0, load = false } = Astro.props;
+const { as: Tag = 'h2', lines, id, class: cls, load = false } = Astro.props;
 ---
 
-<Tag id={id} class={cls} data-split={load ? 'load' : ''} style={delay ? `--d:${delay}` : undefined}>
+<Tag id={id} class={cls} data-split={load ? 'load' : ''}>
   {
     lines.map((line, i) => (
       <>

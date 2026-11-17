@@ -1,8 +1,9 @@
 /**
  * Site-wide motion and small functions. Loaded once by BaseLayout.
  *
- * - [data-reveal] / [data-split]: fade-rise and line-by-line heading reveals when scrolled into view.
- *   Content is visible by default; html.js-motion (set in <head> when motion is allowed) opts in.
+ * - Reveals are CSS only (design upgrade Phase 4): section heads and media on a scroll timeline, first-screen content
+ *   on load. html.js-motion (set in <head> when motion is allowed) opts in; __revealReady tells the head's failsafe
+ *   that scripts run, so it leaves js-motion on (scenes such as the services bento need a script to play).
  * - [data-clock]: live Toronto time.
  * - [data-copy]: copy text to the clipboard, with a toast.
  * - [data-kinetic]: letters ([data-k-ch], HTML or SVG) get --g (0 → 1) by pointer distance; CSS moves them.
@@ -15,27 +16,12 @@ declare global {
 }
 
 window.__revealReady = true;
-const root = document.documentElement;
+/**
+ * Work that reads the layout waits for an idle moment, after the browser has laid the page out for its first frames
+ * (design upgrade Phase 4, gate M7): read at start-up, it would force that layout inside this script.
+ */
+const whenIdle = (fn: () => void) => ('requestIdleCallback' in window ? requestIdleCallback(fn, { timeout: 1000 }) : setTimeout(fn, 1));
 const reduced = matchMedia('(prefers-reduced-motion: reduce)');
-
-/* ── Reveal ─────────────────────────────────────────────── */
-const revealEls = document.querySelectorAll<HTMLElement>('[data-reveal], [data-split]');
-if (root.classList.contains('js-motion') && 'IntersectionObserver' in window) {
-  const io = new IntersectionObserver(
-    (entries) => {
-      for (const entry of entries) {
-        if (!entry.isIntersecting) continue;
-        entry.target.classList.add('is-in');
-        io.unobserve(entry.target);
-      }
-    },
-    { rootMargin: '0px 0px -10% 0px', threshold: 0.05 },
-  );
-  revealEls.forEach((el) => io.observe(el));
-} else {
-  root.classList.remove('js-motion');
-  revealEls.forEach((el) => el.classList.add('is-in'));
-}
 
 /* ── Smooth in-page links ───────────────────────────────── */
 // Only clicks on in-page links glide; find-in-page, focus moves and scripts jump instantly.
@@ -57,23 +43,30 @@ document.addEventListener('click', (e) => {
 });
 
 /* ── Toronto clock ──────────────────────────────────────── */
+// Toronto time worked out by hand: Eastern Time is UTC-5, and UTC-4 from the second Sunday of March (2:00) to the first
+// Sunday of November (2:00). A time-zone formatter (Intl.DateTimeFormat with timeZone) took 60-90ms to build on a slow
+// phone, a long frame on every page (design upgrade Phase 4, gate M7). The clock is decorative (aria-hidden).
 const clocks = document.querySelectorAll<HTMLElement>('[data-clock]');
+const toronto = (now: Date) => {
+  const y = now.getUTCFullYear();
+  const sunday = (month: number, nth: number) => {
+    const first = new Date(Date.UTC(y, month, 1)).getUTCDay();
+    return 1 + ((7 - first) % 7) + (nth - 1) * 7;
+  };
+  const t = now.getTime();
+  const summer = t >= Date.UTC(y, 2, sunday(2, 2), 7) && t < Date.UTC(y, 10, sunday(10, 1), 6);
+  return new Date(t + (summer ? -4 : -5) * 3_600_000); // read with the getUTC* methods
+};
 if (clocks.length) {
-  const fmt = new Intl.DateTimeFormat('en-CA', { timeZone: 'America/Toronto', hour: 'numeric', minute: '2-digit', hour12: true });
-  const iso = new Intl.DateTimeFormat('sv-SE', {
-    timeZone: 'America/Toronto',
-    year: 'numeric',
-    month: '2-digit',
-    day: '2-digit',
-    hour: '2-digit',
-    minute: '2-digit',
-  });
+  const pad = (n: number) => String(n).padStart(2, '0');
   const tick = () => {
-    const now = new Date();
-    const text = fmt.format(now).replace(/\s?([ap])\.?m\.?/i, (_, x: string) => ` ${x.toUpperCase()}M`);
+    const d = toronto(new Date());
+    const h = d.getUTCHours();
+    const text = `${h % 12 || 12}:${pad(d.getUTCMinutes())} ${h < 12 ? 'AM' : 'PM'}`;
+    const iso = `${d.getUTCFullYear()}-${pad(d.getUTCMonth() + 1)}-${pad(d.getUTCDate())}T${pad(h)}:${pad(d.getUTCMinutes())}`;
     clocks.forEach((c) => {
       c.textContent = text;
-      if (c.tagName === 'TIME') c.setAttribute('datetime', iso.format(now).replace(' ', 'T'));
+      if (c.tagName === 'TIME') c.setAttribute('datetime', iso);
     });
   };
   tick();
@@ -176,7 +169,7 @@ document.querySelectorAll<HTMLElement>('[data-rail]').forEach((rail) => {
   rail.addEventListener('scroll', () => {
     if (!raf) raf = requestAnimationFrame(update);
   }, { passive: true });
-  update();
+  whenIdle(update);
   // A rail with nothing focusable inside gets a tab stop only while it actually scrolls, so
   // keyboard users can move it with the arrow keys and desktop keeps no empty tab stops.
   if (!rail.querySelector('a, button, input, select, textarea, summary')) {
@@ -206,7 +199,7 @@ else if (progressEls.length) {
       el.style.setProperty('--p', p.toFixed(4));
     }
   };
-  update();
+  whenIdle(update);
   addEventListener('scroll', () => {
     if (!ticking) {
       ticking = true;

@@ -53,12 +53,13 @@ import Button from '../../components/ui/Button.astro';
     transform-box: fill-box;
     transform-origin: center;
   }
+  /* Only with JavaScript (html.js), like every entrance: without it the tick is simply there (gate M6). */
   @media (prefers-reduced-motion: no-preference) {
-    .rc__mark circle {
-      animation: ring-in 900ms var(--ease-out) both;
+    :global(.js) .rc__mark circle {
+      animation: ring-in var(--dur-5) var(--ease-out) both;
     }
-    .rc__mark path {
-      animation: tick-in 600ms var(--ease-spring, var(--ease-out)) 500ms both;
+    :global(.js) .rc__mark path {
+      animation: tick-in var(--dur-4) var(--ease-spring) var(--dur-4) both;
     }
   }
   @keyframes ring-in {

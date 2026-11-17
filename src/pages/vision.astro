@@ -67,7 +67,7 @@ const jsonLd = { '@context': 'https://schema.org', '@type': 'ProfilePage', mainE
     lines={['Local businesses do the work.', '<span class="accent">Software should run the rest</span><span class="stop">.</span>']}
     lead="Most owner-run businesses lose customers between the search and the booking: details out of date on Google, missed calls, slow replies, paperwork at night. I build the systems that close that gap, and I test them on my own business first."
   >
-    <div class="vi-head__actions" data-reveal="load" style="--d:300">
+    <div class="vi-head__actions" data-reveal="load" style="--d:5">
       <Button href="#ventures">What I’m building</Button>
       <Button href="/about/#story" variant="ghost">My story</Button>
     </div>
@@ -81,8 +81,8 @@ const jsonLd = { '@context': 'https://schema.org', '@type': 'ProfilePage', mainE
       </div>
       <ol class="vi-ventures" role="list">
         {
-          ventures.map((v, i) => (
-            <li class="vi-venture" data-reveal style={`--d:${i * 80}`}>
+          ventures.map((v) => (
+            <li class="vi-venture">
               <span class="vi-venture__tag num" aria-hidden="true">{v.tag}</span>
               <h3>{v.name}</h3>
               <p class="vi-venture__status num">{v.status}</p>
@@ -195,7 +195,7 @@ const jsonLd = { '@context': 'https://schema.org', '@type': 'ProfilePage', mainE
     border: 1px solid var(--line);
     border-radius: var(--r-lg);
     background: var(--bg-2);
-    transition: border-color var(--t-base) var(--ease-out), transform var(--t-base) var(--ease-out);
+    transition: border-color var(--dur-3) var(--ease-out), transform var(--dur-3) var(--ease-out);
   }
   .vi-venture:hover {
     border-color: var(--control);

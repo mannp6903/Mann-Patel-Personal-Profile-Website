@@ -38,7 +38,7 @@ const ring = 'FREE CHECK · NO OBLIGATION · ';
       <ol class="fc__list" role="list">
         {
           checkUp.includes.map((item, i) => (
-            <li data-reveal style={`--d:${i * 90}`}>
+            <li>
               <span class="fc__n num">{String(i + 1).padStart(2, '0')}</span>
               <span>{item}</span>
             </li>

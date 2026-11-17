@@ -25,12 +25,12 @@ const folds = items.length > SHORT + 1;
       <!-- 16 Nov 2026: a descriptive heading people search for; the slogan is the eyebrow. -->
       <p class="eyebrow">Straight answers</p>
       <Heading id={`${id}-title`} lines={['Web design', '<span class="accent">questions.</span>']} />
-      <p class="muted" data-reveal>
+      <p class="muted">
         Something else on your mind? Ask it in your brief, or email me. I answer every message myself.
       </p>
       {
         more && (
-          <a class="link-arrow" href="/pricing/#pr-faq" data-reveal>
+          <a class="link-arrow" href="/pricing/#pr-faq">
             Prices, payments and ownership <Icon name="arrow" />
           </a>
         )
@@ -39,7 +39,7 @@ const folds = items.length > SHORT + 1;
     <div class="faq__list" id={`${id}-list`} data-faq-list>
       {
         items.map((f, i) => (
-          <details class:list={['acc', folds && i >= SHORT && 'acc--extra']} name={id} data-reveal style={`--d:${Math.min(i, SHORT) * 50}`}>
+          <details class:list={['acc', folds && i >= SHORT && 'acc--extra']} name={id}>
             <summary>
               <h3 class="acc__q">{f.q}</h3>
               <span class="acc__plus" aria-hidden="true" />

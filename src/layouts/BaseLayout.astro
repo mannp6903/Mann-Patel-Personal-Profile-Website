@@ -87,6 +87,13 @@ const ld = jsonLd ? (Array.isArray(jsonLd) ? jsonLd : [jsonLd]) : [];
         } catch (e) {}
         if (!window.matchMedia('(prefers-reduced-motion: reduce)').matches) {
           d.classList.add('js-motion');
+          // The wordmark's "lock-on" plays once per visit (design upgrade Phase 4).
+          try {
+            if (!sessionStorage.getItem('wm')) {
+              d.classList.add('wm-intro');
+              sessionStorage.setItem('wm', '1');
+            }
+          } catch (e) {}
           // Failsafe: if the motion script never runs, never leave content hidden.
           setTimeout(function () {
             if (!window.__revealReady) d.classList.remove('js-motion');
