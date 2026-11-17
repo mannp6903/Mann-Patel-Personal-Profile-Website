@@ -72,8 +72,50 @@ None of the existing tests changed. New in `tests/e2e/design-gates.spec.ts`: R1,
 
 ## Quality gates
 
-QUALITY_GATES
+| Check | Result |
+| --- | --- |
+| `npm test` | 158/158 |
+| `npm run build` | ✓ |
+| `npx playwright test --trace off` | 225/225 (220 before; the five new gates) |
+| `npm run build:cloudflare` | ✓ (0 errors, the same 2 warnings) |
+| Lighthouse CI assertions | ✓ |
 
 ## Numbers, Phase 5 → Phase 6
 
-NUMBERS
+**How it was measured.** The Phase 5 captures in `qa-output/` had last been taken from a preview build (`npm run
+build`). A preview build includes the draft area pages (Markham, Pickering, East York, Ajax) in the footer and doesn't
+show the consent prompt. That made every page look 150–180px shorter in Phase 6 at 768 and up, for reasons unrelated
+to this phase. So I rebuilt the Phase 5 commit (`f7599a0`) with `npm run build:cloudflare` and captured it again, as
+Phase 0 specifies. The numbers below compare two production builds. (The Phase 5 record's page weights came from the
+preview build: Home at 375 is 287 KB in production, not 285.)
+
+**Lighthouse** (mobile, medians of 3): every page scores 1.00 for performance, accessibility and SEO, as before.
+
+- **LCP:** Home 799 → 807 ms; the case study 790 → 796 ms; the others 788–797 ms.
+- **`/pricing/`:** 795 ms. Phase 5's full run had a 1,404 ms median here, which turned out to be noise.
+- **Total blocking time:** 11–54 ms on every page.
+
+**Page weight, page length and elements** (production builds, lab, no throttling):
+
+| | Phase 5 | Phase 6 |
+| --- | --- | --- |
+| Home, KB at load, 375 / 768 / 1440 | 287 / 334 / 333 | 289 / 336 / 335 |
+| Home, elements | 1,224 | 1,234 (the tiles' inner wrappers) |
+| Home hero at 844×390, screens | 2.97 | 2.27 |
+| Home at 844×390, screens tall | 28.54 | 27.67 |
+| "Selected work" heading at 844×390, y | 1,302px | 1,027px |
+| Home at 768×1024, screens tall | 10.46 | 10.40 (the smaller scene in narrow services tiles) |
+| Home at 1280, 1440, 1920, screens tall | 10.85, 10.07, 8.79 | the same |
+| Contact at 375, screens tall | 3.70 | 3.72 (the 44px phone link) |
+
+- **Unchanged:** nothing runs after 15 s on any page; CLS stays 0–0.004 in the lab; the other pages weigh within 1 KB
+  of Phase 5.
+- **Everything else is the same:** the H1 and H2 sizes at all ten matrix sizes, and the hero height on phones and
+  desktops (1.34 at 375×812, 0.70 at 768×1024).
+
+## Notes for later phases
+
+- R6 for a 10 needs Mann: the hero and section headings on a real iPhone (Safari) and Android phone (Chrome).
+- The package line in the narrow services tiles (640–1023) wraps before "· $650" or "· $3,350". It did in Phase 5
+  too; the price stays with its separator, so I left it.
+- The D7 Archivo trial is still to come.
