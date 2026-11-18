@@ -269,13 +269,20 @@ Found by the audit, then fixed with Mann's approval (18 Nov 2026). No wording ch
 
 ## Quality gates
 
-| Check | Result |
-| --- | --- |
-| `npm test` | 158/158 |
-| `npm run build` | ✓ |
-| `npx playwright test --trace off` | 236/236 (12.0 min) |
-| `npm run build:cloudflare` | ✓ (0 errors, the same 2 warnings: the enquiry email address and the form-token secret live in Cloudflare, not in the build) |
-| Lighthouse CI assertions | ✓ (every assertion, judged on the median run) |
+| Check | Re-audit (`cf28f38`) | After the fixes (`e8634d9`) |
+| --- | --- | --- |
+| `npm test` | 158/158 | 160/160 (M8 and C6 are new) |
+| `npm run build` | ✓ | ✓ |
+| `npx playwright test --trace off` | 236/236 (12.0 min) | 240/240 (12.5 min; T6, C4, L1 and L4 are new) |
+| `npm run build:cloudflare` | ✓ (0 errors, the same 2 warnings: the enquiry email address and the form-token secret live in Cloudflare, not in the build) | ✓ (the same) |
+| Lighthouse CI assertions | ✓ (every assertion, judged on the median run) | ✓ |
+
+**After the fixes**, nothing measured moved outside noise:
+- **Lighthouse** (medians of 3): 1.00 for performance, accessibility and SEO on all eight pages, LCP 795–886 ms, CLS 0,
+  TBT 12–45 ms. The guide's 886 ms median includes a 1.5 s run (simulated-timing noise; its other runs are 802 and 886).
+- **Home:** 923 elements, 291 KB at 375, nothing running after 15 s.
+- **Page length:** Home at 390×844 is 10.94 screens (was 10.92: the free-check list's taller lines); the other pages
+  moved by less than 0.03 screens.
 
 ## Numbers, baseline (Phase 0) → Phase 9
 
