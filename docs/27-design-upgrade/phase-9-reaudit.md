@@ -141,15 +141,15 @@ gate ran in the quality run below; "my review" marks a [manual] gate, with what 
 | R3 | pass | › R3 |
 | R4 | pass | › R4 |
 | R5 | pass | › R5 |
-| R6 | pass (my review) / needs owner | › R6: no display heading ends on a one-word line at any matrix size. The Phase 9 matrix captures were looked through (5 pages × 10 sizes): ‹R6 REVIEW›. The real-iPhone and Android check is Mann's, for a 10 |
+| R6 | pass (my review) / needs owner | › R6: no display heading ends on a one-word line at any matrix size. The Phase 9 matrix captures were looked through (5 pages × 10 sizes): nothing out of place. One note: at 320, 1024 and 1920 the Home H1's second line breaks as "for Toronto / small / businesses.", leaving "small" alone in the middle (About's H1 does the same with "service" at 320 and 1024). It is not an orphan by the gate's definition (Phase 6: a short word left alone at the end of a line), and the heading reads as stacked display type. The real-iPhone and Android check is Mann's, for a 10 |
 
 ### Performance (9.5)
 
 | Gate | Result | Evidence |
 | --- | --- | --- |
-| P1 | pass | Lighthouse CI, medians of 3 on eight pages: ‹P1 NUMBERS› |
-| P2 | pass | › P2: ‹P2 NUMBERS›, measured as Phase 0 set out (1× density). At 2× Home is 326 KB (Phase 7, deviation 4) |
-| P3 | pass | › P3: ‹P3 NUMBERS› |
+| P1 | pass | Lighthouse CI, medians of 3 on eight pages: performance 1.00 on every page (Home ≥ 0.97), LCP 786–808 ms (≤ 1.8 s), CLS 0 (≤ 0.02), TBT 8–31 ms (≤ 100 ms) |
+| P2 | pass | › P2: Home at 375 loads 291 KB decoded (≤ 300), 26 KB script (≤ 60), 38 KB fonts (≤ 70), measured as Phase 0 set out (1× density). At 2× Home is 326 KB (Phase 7, deviation 4) |
+| P3 | pass | › P3: Home has 923 elements at 375 and at 1440 (≤ 950) |
 | P4 | pass | › M2 and P4 |
 | P5 | needs owner | Field data from real visitors (Search Console → Core Web Vitals). For a 10 |
 | P6 | pass | [`docs/stack.md`](../stack.md) → CSS delivery |
@@ -251,15 +251,54 @@ None of these is fixed in this phase (Phase 9 is the audit). Each fix is listed 
 
 | Check | Result |
 | --- | --- |
-| `npm test` | ‹UNIT› |
-| `npm run build` | ‹BUILD› |
-| `npx playwright test --trace off` | ‹E2E› |
-| `npm run build:cloudflare` | ‹CF› |
-| Lighthouse CI assertions | ‹LHCI› |
+| `npm test` | 158/158 |
+| `npm run build` | ✓ |
+| `npx playwright test --trace off` | 236/236 (12.0 min) |
+| `npm run build:cloudflare` | ✓ (0 errors, the same 2 warnings: the enquiry email address and the form-token secret live in Cloudflare, not in the build) |
+| Lighthouse CI assertions | ✓ (every assertion, judged on the median run) |
 
 ## Numbers, baseline (Phase 0) → Phase 9
 
-‹NUMBERS›
+**Lighthouse** (mobile, simulated, medians of 3), Phase 0 → Phase 9:
+
+| Page | Performance | Accessibility | SEO | LCP ms | CLS | TBT ms |
+| --- | --: | --: | --: | --: | --: | --: |
+| `/` | 0.98–0.99 → 1.00 | 1.00 | 1.00 | 799 → 799 | 0 | **127** → 31 |
+| `/services/` | 1.00 | 1.00 | 1.00 | 789 → 798 | 0 | 18 → 18 |
+| `/services/web-design/` | 0.99–1.00 → 1.00 | 1.00 | 1.00 | 1,504 → 789 | 0 | 35 → 21 |
+| `/pricing/` | 0.99–1.00 → 1.00 | 1.00 | 1.00 | 1,506 → 801 | 0 | 30 → 15 |
+| `/contact/` | 1.00 | 1.00 | 1.00 | 789 → 807 | 0 | 4 → 8 |
+| `/work/nest-and-rest-cleaning/` | 0.99–1.00 → 1.00 | 1.00 | 1.00 | 1,582 → 808 | 0 | 47 → 27 |
+| `/guides/how-much-does-a-website-cost-in-toronto/` | 1.00 | 1.00 | 1.00 | 780 → 786 | 0 | 37 → 13 |
+| `/web-design-scarborough/` | 1.00 | 1.00 | 1.00 | 796 → 795 | 0 | 25 → 21 |
+
+Best practices is 1.00 everywhere except `/contact/` at 0.96, as it was before the upgrade.
+
+**Lab** (`scripts/design-shots.mjs`, production build, unthrottled, decoded KB at load, 1× density):
+
+| | Phase 0 | Phase 9 |
+| --- | --- | --- |
+| Home, elements | 1,202 | 923 |
+| `/services/`, case study, About, Contact, elements | 795, 774, 806, 898 | 614, 620, 628, 709 |
+| Home, KB at load at 375 / 768 / 1440 | 290 / 316 / 327 | 291 / 338 / 337 |
+| Home, script / fonts | 21 / 38 KB | 26 / 38 KB |
+| Running 15 s after load, Home | 37 (all infinite) | 0 |
+| CLS (lab), all five pages | 0–0.0006 | 0–0.0043 (Home at 768) |
+| LCP element | Home: the H1. Elsewhere often the consent prompt's text | Home: the H1. Elsewhere the page's own lead or image |
+
+**Type and length** (Home):
+
+| | Phase 0 | Phase 9 |
+| --- | --- | --- |
+| H1 ÷ largest H2 at 375 / 768 / 1440 | 0.74 / 1.11 / 0.48 | 1.3 / 1.46 / 1.6 |
+| H1 at 768 → 1024 (should never shrink) | 72.2 → 49.6px | 61.6 → 74.7px |
+| Screens at 390×844 | 12.73 | 10.92 |
+| Hero, screens at 375×812 / 768×1024 | 1.70 / 1.65 | 1.34 / 0.70 |
+| Selected Work heading at 390 / 1440 | 1,552 / 1,008px | 1,244 / 997px |
+
+Captures (made by the run, not kept in the repository; `qa-output/` is ignored): `qa-output/design/phase-9/` (ten
+sizes, five pages, first screen and full page) and `qa-output/design/compare-baseline-phase-9/` (baseline beside Phase 9
+at 375, 768 and 1440).
 
 ## Owner items (Tier B), for Mann
 
