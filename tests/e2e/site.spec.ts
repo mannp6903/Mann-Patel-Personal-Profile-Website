@@ -421,6 +421,37 @@ test.describe('navigation', () => {
     await expect(btn).toBeFocused();
   });
 
+  test('the header keeps the whole MANN PATEL wordmark at every scroll position (18 Nov 2026, Mann)', async ({ page }) => {
+    for (const viewport of [
+      { width: 390, height: 844 },
+      { width: 1440, height: 900 },
+    ]) {
+      await page.setViewportSize(viewport);
+      await page.goto('/');
+      // Past the first-visit lock-on (done by 1.7 s, gate M3).
+      await page.waitForTimeout(2000);
+      // Every letter of the header wordmark is fully shown: on load, scrolled well past the hero, and back at the top.
+      const shown = () =>
+        page.evaluate(() =>
+          [...document.querySelectorAll('[data-header] .wordmark [data-k-ch]')].map((g) => Number(getComputedStyle(g).opacity)),
+        );
+      expect(await shown(), `${viewport.width}px on load`).toEqual(Array(9).fill(1));
+      await page.mouse.wheel(0, 2500);
+      await page.waitForTimeout(800);
+      expect(await shown(), `${viewport.width}px scrolled`).toEqual(Array(9).fill(1));
+      // The bar behind it is solid, so text scrolling underneath never shows through the logo.
+      const bar = await page.evaluate(() => {
+        const cs = getComputedStyle(document.querySelector('[data-header]')!, '::before');
+        return { background: cs.backgroundColor, opacity: cs.opacity };
+      });
+      expect(bar.background, `${viewport.width}px header background`).toMatch(/^rgb\(/);
+      expect(bar.opacity).toBe('1');
+      await page.mouse.wheel(0, -5000);
+      await page.waitForTimeout(800);
+      expect(await shown(), `${viewport.width}px back at the top`).toEqual(Array(9).fill(1));
+    }
+  });
+
   test('the header stays on screen while scrolling', async ({ page }) => {
     await page.goto('/services/');
     await page.mouse.wheel(0, 3000);
@@ -458,6 +489,32 @@ test.describe('navigation', () => {
     await page.keyboard.press('Escape');
     await expect(qm).toBeHidden();
     await expect(trigger).toBeFocused();
+  });
+
+  test('quick menu: Enter opens the best match by name ("pricing" opens Pricing, not Services) (18 Nov 2026)', async ({ page }) => {
+    await page.setViewportSize({ width: 1440, height: 900 });
+    await page.goto('/');
+    await page.keyboard.press('Control+k');
+    await page.getByRole('combobox').fill('pricing');
+    await expect(page.getByRole('option', { name: /^Pricing/ })).toHaveAttribute('aria-selected', 'true');
+    await page.keyboard.press('Enter');
+    await expect(page).toHaveURL(/\/pricing\/$/);
+  });
+
+  test('stand-alone links that wrap are underlined under each line, never through the text (18 Nov 2026)', async ({ page }) => {
+    await page.setViewportSize({ width: 375, height: 812 });
+    await page.goto('/work/nest-and-rest-cleaning/');
+    const links = page.locator('a.link.link--tap');
+    expect(await links.count()).toBeGreaterThan(0);
+    for (const link of await links.all()) {
+      const style = await link.evaluate((a) => {
+        const cs = getComputedStyle(a);
+        return { line: cs.textDecorationLine, image: cs.backgroundImage };
+      });
+      // The underline follows the text (a text decoration), not a background drawn once across the 44px box.
+      expect(style.line).toBe('underline');
+      expect(style.image).toBe('none');
+    }
   });
 
   test('quick menu shows an honest empty state', async ({ page }) => {

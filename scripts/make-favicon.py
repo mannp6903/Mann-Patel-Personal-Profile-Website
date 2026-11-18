@@ -1,5 +1,6 @@
 """
-Builds public/favicon.svg: the stacked MΛNN / PΛTEL app icon (black tile, white letters, lime Λ's).
+Builds public/favicon.svg: the stacked MΛNN / PΛTEL app icon (black tile, white letters, lime Λ's, each with the
+signal gap in its right leg: scripts/lambda_gap.py).
 
 The letters are outlined from the site's own Geist variable font at a bold weight, so the icon
 stays legible at 16-48 px. Both lines are justified to the same width, and the block sits inside
@@ -11,8 +12,11 @@ Run:  pip install fonttools brotli && python3 scripts/make-favicon.py && npm run
 from pathlib import Path
 
 from fontTools.pens.boundsPen import BoundsPen
+from fontTools.pens.recordingPen import RecordingPen
 from fontTools.pens.svgPathPen import SVGPathPen
 from fontTools.pens.transformPen import TransformPen
+
+from lambda_gap import path as gap_path, split_lambda
 from fontTools.ttLib import TTFont
 from fontTools.varLib.instancer import instantiateVariableFont
 
@@ -71,9 +75,16 @@ top = (TILE - block_h * scale) / 2
 
 
 def path_for(name, dx, baseline_y):
-    pen = SVGPathPen(glyphs, ntos=lambda v: f'{v:.1f}'.rstrip('0').rstrip('.'))
     # Font units are y-up; flip into SVG's y-down space and place on this line's baseline.
-    glyphs[name].draw(TransformPen(pen, (scale, 0, 0, -scale, left + dx * scale, baseline_y)))
+    transform = (scale, 0, 0, -scale, left + dx * scale, baseline_y)
+    if name == 'Lambda':
+        # The Λ's signal gap (18 Nov 2026, scripts/lambda_gap.py): cut its right leg, as in the wordmark.
+        rec = RecordingPen()
+        glyphs[name].draw(TransformPen(rec, transform))
+        pts = [args[0] for op, args in rec.value if op in ('moveTo', 'lineTo')]
+        return gap_path(split_lambda(pts), digits=1)
+    pen = SVGPathPen(glyphs, ntos=lambda v: f'{v:.1f}'.rstrip('0').rstrip('.'))
+    glyphs[name].draw(TransformPen(pen, transform))
     return pen.getCommands()
 
 

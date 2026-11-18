@@ -612,12 +612,28 @@ p {
   display: inline-flex;
   align-items: center;
   min-height: var(--tap);
-  background-position: 0 calc(50% + 0.7em);
+}
+/* 18 Nov 2026: its underline is a text decoration, so a link that wraps is underlined under each line. The background
+   underline sat once across the whole 44px box and ran through the second line like a strike-through (the case
+   studies' "Services shown"). Hover fades it instead of the swipe, which would move it to the box's bottom edge. */
+.link.link--tap {
+  background: none;
+  text-decoration: underline 1px;
+  text-underline-offset: 0.3em;
+  text-decoration-skip-ink: none;
+  transition:
+    color var(--dur-1) var(--ease-out),
+    text-decoration-color var(--dur-2) var(--ease-out);
+}
+@media (hover: hover) {
+  .link.link--tap:hover {
+    text-decoration-color: transparent;
+  }
 }
 /* The underline leaves to the right, then draws back in from the left. */
 @media (hover: hover) and (prefers-reduced-motion: no-preference) {
-  .link:hover,
-  .link:focus-visible {
+  .link:not(.link--tap):hover,
+  .link:not(.link--tap):focus-visible {
     animation: link-swipe var(--dur-5) var(--ease-in-out);
   }
 }
