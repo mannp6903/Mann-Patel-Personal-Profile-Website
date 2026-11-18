@@ -7,6 +7,9 @@
 // Phase 5 (17 Nov 2026):
 //   G3: one frame system for captures (MediaFrame.astro), with backdrops and the one media shadow from tokens.
 //   G4: the agent graph, the services scenes and the promise icons share the graph's stroke tokens.
+// Phase 9 (18 Nov 2026, the re-audit's fixes):
+//   M8: every :hover rule has a :focus-visible (or :focus-within / :focus) twin, apart from Phase 4's hover-only list.
+//   C6: DESIGN.md → Colour lists every colour token in tokens.css with its value.
 // "CSS" here is every .css file and every <style> block and style="" attribute in .astro files under src/components,
 // src/pages and src/layouts, plus src/styles/global.css. Comments are ignored.
 import { describe, expect, it } from 'vitest';
@@ -238,5 +241,74 @@ describe('design tokens (DESIGN_UPGRADE_PLAN.md §5)', () => {
     // Round ends, like the graph's lines.
     for (const f of ['src/components/home/ServiceSummary.astro', 'src/components/home/HowIWork.astro'])
       expect(DECLS.some((d) => d.file === f && d.prop === 'stroke-linecap' && d.value === 'round'), f).toBe(true);
+  });
+
+  it('M8: every hover state has a keyboard twin (:focus-visible, :focus-within or :focus)', () => {
+    // Hover-only by design (Phase 4's review): the pointer spotlight, the vision page's rows (not controls) and form
+    // fields, which have their own :focus styles.
+    const HOVER_ONLY = ['[data-spotlight]:hover', '.vi-venture:hover', '.input:hover', '.textarea:hover', '.select:hover'];
+    const splitTop = (sel: string) => {
+      const parts: string[] = [];
+      let depth = 0;
+      let cur = '';
+      for (const ch of sel) {
+        if (ch === '(' || ch === '[') depth++;
+        if (ch === ')' || ch === ']') depth--;
+        if (ch === ',' && depth === 0) {
+          parts.push(cur.trim());
+          cur = '';
+        } else cur += ch;
+      }
+      parts.push(cur.trim());
+      return parts.map((p) => p.replace(/\s+/g, ' '));
+    };
+    const offenders: string[] = [];
+    const files = [...SCANNED_DIRS.flatMap(walk), ...EXTRA_FILES, 'src/styles/tokens.css'];
+    let hovers = 0;
+    for (const file of files) {
+      const { css } = cssOf(file);
+      // Greedy and anchored on the brace, so long blank runs (the blanked-out template) stay linear.
+      const selectors = [...css.matchAll(/([^{};@]+)\{/g)]
+        .map((m) => ({ sel: m[1].trim(), at: m.index! + m[1].length - m[1].trimStart().length }))
+        .filter((x) => x.sel);
+      const all = new Set(selectors.flatMap((x) => splitTop(x.sel)));
+      for (const { sel, at } of selectors)
+        for (const part of splitTop(sel)) {
+          if (!part.includes(':hover') || HOVER_ONLY.some((h) => part.includes(h))) continue;
+          hovers++;
+          if (![':focus-visible', ':focus-within', ':focus'].some((f) => all.has(part.replaceAll(':hover', f))))
+            offenders.push(`${file}:${css.slice(0, at).split('\n').length}  ${part}`);
+        }
+    }
+    expect(hovers).toBeGreaterThan(50);
+    expect(offenders).toEqual([]);
+  });
+
+  it('C6: DESIGN.md → Colour lists every colour token in tokens.css, with the same value', () => {
+    const tokens = readFileSync(join(ROOT, 'src/styles/tokens.css'), 'utf8').replace(/\/\*[\s\S]*?\*\//g, '');
+    const design = readFileSync(join(ROOT, 'DESIGN.md'), 'utf8');
+    const colour = design.slice(design.indexOf('\n## Colour'), design.indexOf('\n## ', design.indexOf('\n## Colour') + 5));
+    const rows = colour.split('\n').filter((l) => l.startsWith('| `--'));
+    expect(rows.length).toBeGreaterThan(20);
+    // Colour tokens: a hex, rgb() or color-mix() value, or another colour token (--focus: var(--signal)).
+    const colourValue = /^(#[0-9a-f]{3,8}|rgb\([^)]*\)|color-mix\(.*\)|var\(--(signal|ink|paper|text|bg)[\w-]*\))$/i;
+    const missing: string[] = [];
+    for (const m of tokens.matchAll(/^\s*(--[\w-]+):\s*([^;]+);/gm)) {
+      const [, name, value] = m;
+      if (!colourValue.test(value.trim())) continue;
+      // The row whose first column names the token itself, else its numbered pair (`--paper-text` / `-2` / `-3`), else
+      // its family (`--frame-*`).
+      const first = (r: string) => r.split('|')[1];
+      const [, base, n] = name.match(/^(--[\w-]+?)-(\d)$/) ?? [];
+      const family = `--${name.split('-')[2]}-*`;
+      const row =
+        rows.find((r) => first(r).includes('`' + name + '`')) ??
+        (base ? rows.find((r) => first(r).includes('`' + base) && first(r).includes('`-' + n + '`')) : undefined) ??
+        rows.find((r) => first(r).includes('`' + family + '`'));
+      // The value appears in that row (hex compared without case; color-mix() and var() as written).
+      const v = value.trim();
+      if (!row || !row.toLowerCase().includes(v.toLowerCase())) missing.push(`${name}: ${v}`);
+    }
+    expect(missing).toEqual([]);
   });
 });

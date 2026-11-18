@@ -321,8 +321,12 @@ const jsonLd = { '@context': 'https://schema.org', '@type': 'ProfilePage', mainE
   }
   .ab-head__text {
     display: grid;
-    gap: var(--s-5);
+    /* Eyebrow → title → intro on the head-gap tokens, as PageHead (gate L4, re-audit 18 Nov 2026; was 24px). */
+    gap: var(--head-gap-2);
     align-content: start;
+  }
+  .ab-head__text > .eyebrow {
+    margin-bottom: calc(var(--head-gap-1) - var(--head-gap-2));
   }
   .ab-head__text :global(.ab-title) {
     font-size: var(--fs-h1);
@@ -462,8 +466,12 @@ const jsonLd = { '@context': 'https://schema.org', '@type': 'ProfilePage', mainE
 
   .vision {
     display: grid;
-    gap: var(--s-5);
+    /* Eyebrow → heading → intro on the head-gap tokens (gate L4, re-audit 18 Nov 2026; was 24px). */
+    gap: var(--head-gap-2);
     justify-items: start;
+  }
+  .vision > .eyebrow {
+    margin-bottom: calc(var(--head-gap-1) - var(--head-gap-2));
   }
   .vision :global(h2) {
     max-width: 18ch;
@@ -498,7 +506,7 @@ const jsonLd = { '@context': 'https://schema.org', '@type': 'ProfilePage', mainE
        so a visitor checking who Mann is sees him within the first screen or so (11 Nov 2026 audit).
        The text wrapper dissolves into the grid; the page order in the HTML is unchanged. */
     .ab-head__grid {
-      gap: var(--s-5);
+      gap: var(--head-gap-2);
     }
     .ab-head__text {
       display: contents;
@@ -569,6 +577,13 @@ const jsonLd = { '@context': 'https://schema.org', '@type': 'ProfilePage', mainE
     .glance {
       grid-template-columns: minmax(0, 0.8fr) minmax(0, 1.2fr);
       gap: var(--s-9);
+    }
+    /* The head stays beside its content instead of leaving an empty column (gate L1, re-audit 18 Nov 2026; as on Home,
+       task 3.4). */
+    .glance > :first-child {
+      position: sticky;
+      top: calc(var(--header-h) + var(--s-6));
+      align-self: start;
     }
     .glance__list > div {
       grid-template-columns: 12rem minmax(0, 1fr);

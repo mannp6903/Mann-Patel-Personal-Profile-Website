@@ -138,6 +138,13 @@ const list = servicesInGroup(group);
       grid-template-columns: minmax(0, 0.8fr) minmax(0, 1.2fr);
       gap: var(--s-9);
     }
+    /* The head stays beside its content instead of leaving an empty column (gate L1, re-audit 18 Nov 2026; as on Home,
+       task 3.4). */
+    .sd__grid > :first-child {
+      position: sticky;
+      top: calc(var(--header-h) + var(--s-6));
+      align-self: start;
+    }
   }
   /* Accordion styles moved unchanged from the old /services/ page. */
   .svc > summary {
