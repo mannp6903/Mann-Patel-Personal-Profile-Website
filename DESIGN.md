@@ -1,17 +1,20 @@
 # DESIGN.md · "Signal" (round 5, Nov 2026), compact editorial portfolio (round 7)
 
-> **Design upgrade, Phase 9 (18 Nov 2026): the re-audit.** Nothing on the site changed. Scored gate by gate against
-> the plan, the site is at **92 / 100** (101 of 110 points; the audit's score was 65).
-> - **At 9.5:** hero, UX, responsiveness, performance and accessibility.
-> - **Waiting on Mann:** structure and imagery need S5 (a real testimonial) and G5 (a third project, one more photo).
-> - **Typography (T6):** a few notes and checklist lines run past the 68ch measure on wide screens, and the free-check
->   list is set at 1.45.
-> - **Colour and brand:** C4, the header wordmark has no small-size (Medium) cut and is under 16px from 1024; C5,
->   clear space and minimum sizes aren't written down here yet; C6, the Colour table below is out of date (the mockup
->   backdrops, six tokens missing).
-> - **Layout:** L1, empty columns beside long content on seven inner pages; L4, head spacing is off the tokens in some
->   heads.
-> - **Motion (M8):** one hover rule without its keyboard twin.
+> **Design upgrade, Phase 9 (18 Nov 2026): the re-audit, and its fixes.** Scored gate by gate against the plan, the site
+> was at **92 / 100** (101 of 110; the audit's score was 65). Mann approved every fix, so it is now **94** (103.5).
+> - **Still short of 9.5:** structure and imagery, which wait on Mann: S5 (a real testimonial) and G5 (a third
+>   project, one more photo). Every other category is at 9.5.
+> - **The header wordmark has a small-size cut** (C4): Geist Medium with +20% tracking (`scripts/wordmark_cut.py`), at
+>   13px tall on phones and 16px from 64em; it was Regular at 11–14px. The footer and brand files keep the regular
+>   cut. Clear space and minimum sizes are now written down (C5): Colour → The wordmark.
+> - **Body text keeps the measure** (T6): notes under section headings, service checklists and sample intros stop at
+>   68ch; the free-check list is at the body line height (1.6).
+> - **No empty columns** (L1): from 64em every two-column head is sticky, as on Home.
+> - **One head spacing** (L4): eyebrow → heading `--head-gap-1`, heading → intro `--head-gap-2`, in every section and
+>   page head. Stacked eyebrows are block-level, and split headings keep their line masks' margins inside.
+> - **Also fixed:** stand-alone links fade their underline on keyboard focus as on hover (M8), and the Colour table
+>   below matches `tokens.css` (C6).
+> - **Tests:** T6, C4, L1 (as a check) and L4 in `design-gates.spec.ts`; M8 and C6 in `design-tokens.test.ts`.
 > - **Record:** [`docs/27-design-upgrade/phase-9-reaudit.md`](docs/27-design-upgrade/phase-9-reaudit.md).
 >
 > **Fixes after launch (18 Nov 2026, Mann's report).**
@@ -212,15 +215,21 @@ Dark only (`color-scheme: dark`). Text contrast measured against `--bg`.
 | `--text-2` | `#B3B2AB` | Secondary text, descriptions | 9.3:1 |
 | `--text-3` | `#8D8C86` | Labels, captions, metadata | 5.8:1 |
 | `--signal` | `#D4F84A` | The one accent: primary buttons, focus ring, highlights, live states | 16.2:1 |
+| `--signal-strong` | `#E4FF73` | The footer wordmark's Λ's as they light near the pointer | — |
 | `--on-signal` | `#0B0B0C` | Text and icons on `--signal` | 16.2:1 |
 | `--signal-wash` | `rgb(212 248 74 / 0.12)` | Selected chips, soft highlights | — |
+| `--focus` | `var(--signal)` | The focus ring; light surfaces set it to `--focus-on-light` | — |
+| `--focus-on-light` | `var(--ink)` (`#0B0B0C`) | The focus ring on light surfaces (the paper band, the free-check band), where lime is 1.2:1 | 17.4:1 on `--paper` |
+| `--accent-on-light` | `#637B05` | Lime-family text or icons on white, if one is ever needed (not used today) | 4.81:1 on white |
 | `--error` | `#FF6B57` | Errors and destructive notices | 7.0:1 |
+| `--error-wash` | `rgb(255 107 87 / 0.1)` | Behind error notices and a field in error | — |
 | `--warn` | `#F5C451` | "Not connected" and preview notes | 12.1:1 |
+| `--warn-wash` | `rgb(245 196 81 / 0.1)` | Behind warning notices | — |
 | `--paper` / `--ink` | `#F2F1EC` / `#0B0B0C` | Inverted moments (rare): prose code, toasts | 17.4:1 |
 | `--paper-section` | `#F0F0E8` | The light Selected Work band | — |
 | `--paper-text` / `-2` / `-3` | `#181A13` / `#43473B` / `#575A50` | Text on the paper band | measured on `--paper-section` |
 | `--paper-line` | `#C7C8BA` | Hairlines on the paper band | — |
-| `--media-bg-1` / `-2` | `#BFC9C9` / `#D5C4C9` | Backdrops behind project mockups (retuned in Phase 3) | — |
+| `--media-bg-1` / `-2` | `color-mix(in oklab, var(--paper-section) 80%, var(--surface))` / `color-mix(in oklab, var(--paper-section) 68%, var(--surface))` (about `#BFBFBA` / `#A3A3A0`) | Backdrops behind project mockups: two tints of the paper band toward the surface colour (Phase 3; were teal `#BFC9C9` and pink `#D5C4C9`) | — |
 | `--frame-*` | screen `#FFFFFF`, bar `#E9E9EC`, dots `#C4C4CA`, address `#5B5B63`, bezel `#1C1C20` | Browser and phone frames around captures | — |
 | `--graph-*` | mesh `#3A3E2C`, spokes `#5B6236`, ring `#4A4F37`, nodes `#8D9A4A`, pill line `#3D3F33` | The agent graph's lime-tinted greys | — |
 
@@ -253,6 +262,14 @@ favicon's. It is one geometry, set in proportions of the Λ's own box, in `scrip
 wordmark's paths (`Wordmark.astro`, `--lambda`, `public/brand/`), and `scripts/make-favicon.py` uses it for the bold
 icon (then `npm run images` for the PNGs and `.ico`). At the eyebrow's size the break is under a pixel, so the glyph
 reads as the plain Λ there; it shows from the header wordmark up.
+
+**The wordmark: two cuts, clear space and minimum size (18 Nov 2026, gates C4 and C5).**
+- **Two cuts** of MΛNN PΛTEL, both outlines in `components/ui/Wordmark.astro`, both with the signal gap:
+  - *regular*: Geist Regular, +26% tracking, for 20px tall and up (the footer, `public/brand/`, sharing images);
+  - *small*: Geist Medium, +20% tracking (`scripts/wordmark_cut.py`), for anything smaller, where Regular's thin
+    strokes read faint. The header uses it at 13px tall on phones and tablets and 16px from 64em.
+- **Clear space:** one Λ cap height (the wordmark's own height) on every side, kept free of other text and controls.
+- **Minimum size:** 12px tall for the small cut, 20px for the regular cut. Below 12px, use the favicon's stacked mark.
 
 ## Typography
 
@@ -302,7 +319,11 @@ characters (`--measure`).
 that used its own smaller padding). Section padding comes only from these two (gate L2,
 `tests/e2e/design-gates.spec.ts`). **Section heads** are spaced the same everywhere: eyebrow → heading
 `--head-gap-1` (12 → 20px), heading → lead or intro `--head-gap-2` (16 → 28px), whether the head is a grid
-(`.section-head`, the Home sections) or a `.stack`.
+(`.section-head`, the Home sections) or a `.stack`, and in page heads (PageHead's pattern: rows `--head-gap-2` apart,
+the eyebrow pulled up to `--head-gap-1`). Gate L4 measures it on every page (re-audit, 18 Nov 2026).
+**Two-column sections** (a head beside long content): from 64em the head column is sticky
+(`top: calc(var(--header-h) + var(--s-6))`), so it stays beside its content instead of leaving an empty column (gate
+L1). A head that is a child component (a `Heading`) needs `:global(:first-child)` to be reached from a page's style.
 **Containers** (design upgrade Phase 6): a card or tile whose inside changes with its width is a container
 (`container: <name> / inline-size`), with one inner wrapper laid out by `@container`. Examples: the services tiles
 (`ss-tile`, the smaller scene under 20rem), the promise tiles (`rule`, icon beside the text from 24rem) and the

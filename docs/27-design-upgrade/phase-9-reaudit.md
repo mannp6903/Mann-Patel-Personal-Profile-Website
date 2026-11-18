@@ -3,32 +3,32 @@
 [`DESIGN_UPGRADE_PLAN.md`](../../DESIGN_UPGRADE_PLAN.md) §4 Phase 9, §5 (the gates) and §6 (how a score is given),
 against [`DESIGN_AUDIT.md`](../../DESIGN_AUDIT.md). The method is the audit's: a code read, the screenshot matrix and the
 measurements, scored gate by gate. Measured as in [Phase 0](phase-0-baseline.md), on a production build
-(`npm run build:cloudflare`) of `cf28f38`, the code live on mannpatel.me since 18 Nov 2026 (PR #60). Nothing on the
-site changed in this phase.
+(`npm run build:cloudflare`) of `cf28f38`, the code live on mannpatel.me since 18 Nov 2026 (PR #60).
+
+The audit itself changed nothing. Mann then approved every fix it listed, the small-size wordmark cut included (18 Nov
+2026: "Record + fixes + Medium logo"), and they were made in this phase with a test for each gate. The tables show the
+gates as the re-audit found them and after the fixes.
 
 ## The score
 
-| # | Category | Audit (16 Nov) | Now | Failing gates |
-| --- | --- | :-: | :-: | --- |
-| 1 | Hero / first impression | 6 | **9.5** | none (H8 is for a 10) |
-| 2 | Landing page structure and flow | 7 | **9.0** | S5 (no real testimonial yet: owner) |
-| 3 | Typography | 5 | **9.0** | T6 |
-| 4 | Colour and brand consistency | 6 | **8.5** | C4, C5, C6 |
-| 5 | Layout, spacing, hierarchy | 6 | **8.75** | L1 (the manual part), L4 (the spacing part) |
-| 6 | Graphics and imagery | 7 | **9.0** | G5 (2 projects, 1 photo: owner) |
-| 7 | Motion and animation | 6 | **9.25** | M8 (one rule) |
-| 8 | UX and navigation | 7 | **9.5** | none (U5 is for a 10) |
-| 9 | Responsiveness | 6 | **9.5** | none (R6's real-phone check is for a 10) |
-| 10 | Performance and polish | 8 | **9.5** | none (P5 is for a 10) |
-| 11 | Accessibility | 8 | **9.5** | none (A8 is for a 10) |
-| | **Overall** | **65** (72 of 110) | **92** (101 of 110) | |
+| # | Category | Audit (16 Nov) | Re-audit | After the fixes | Still failing |
+| --- | --- | :-: | :-: | :-: | --- |
+| 1 | Hero / first impression | 6 | 9.5 | **9.5** | none (H8 is for a 10) |
+| 2 | Landing page structure and flow | 7 | 9.0 | **9.0** | S5 (no real testimonial yet: owner) |
+| 3 | Typography | 5 | 9.0 (T6) | **9.5** | none |
+| 4 | Colour and brand consistency | 6 | 8.5 (C4, C5, C6) | **9.5** | none |
+| 5 | Layout, spacing, hierarchy | 6 | 8.75 (L1, L4) | **9.5** | none |
+| 6 | Graphics and imagery | 7 | 9.0 | **9.0** | G5 (2 projects, 1 photo: owner) |
+| 7 | Motion and animation | 6 | 9.25 (M8) | **9.5** | none |
+| 8 | UX and navigation | 7 | 9.5 | **9.5** | none (U5 is for a 10) |
+| 9 | Responsiveness | 6 | 9.5 | **9.5** | none (R6's real-phone check is for a 10) |
+| 10 | Performance and polish | 8 | 9.5 | **9.5** | none (P5 is for a 10) |
+| 11 | Accessibility | 8 | 9.5 | **9.5** | none (A8 is for a 10) |
+| | **Overall** | **65** (72 of 110) | **92** (101 of 110) | **94** (103.5 of 110) | |
 
-**Seven categories are not 9.5.** Two of them wait on Mann (S5, G5). The other five have failing gates that are
-fixable in code and documents (below), one of which, C4, changes the logo and needs Mann to approve it first.
-
-- With the five fixed: 103.5 of 110 = **94**.
-- With S5 and G5 met as well: 104.5 of 110 = **95** (every category 9.5). 98 and above needs the remaining owner gates
-  (H8, U5, P5, A8, R6 on real phones), as §0 of the plan says.
+**Two categories are not 9.5, and both wait on Mann:** Structure needs S5 (one real testimonial) and Imagery needs G5
+(a third real project and one more professional photo). With those, every category is 9.5: 104.5 of 110 = **95**. 98
+and above needs the remaining owner gates (H8, U5, P5, A8, R6 on real phones), as §0 of the plan says.
 
 **How the scores below 9.5 were set (§6: "scored down from 9.5, by the share of gates failing and how serious each
 is").** One rule for every category, so the numbers can be checked:
@@ -37,12 +37,14 @@ is").** One rule for every category, so the numbers can be checked:
 - −0.5 for a minor one (a few places, a small visual effect) or a missing owner input the page is ready for;
 - −1.0 for a serious one (none found).
 
-So Colour is 9.5 − 0.5 (C4) − 0.25 (C5) − 0.25 (C6) = 8.5, and Layout is 9.5 − 0.5 (L1) − 0.25 (L4) = 8.75.
+So, at the re-audit, Colour was 9.5 − 0.5 (C4) − 0.25 (C5) − 0.25 (C6) = 8.5, and Layout 9.5 − 0.5 (L1) − 0.25 (L4) =
+8.75.
 
 ## Gates by category
 
 › marks a test in `tests/e2e/design-gates.spec.ts`, unit tests are in `tests/unit/design-tokens.test.ts`. Every [auto]
-gate ran in the quality run below; "my review" marks a [manual] gate, with what was looked at.
+gate ran in the quality runs below; "my review" marks a [manual] gate, with what was looked at. "Fixed" marks a gate the
+re-audit failed and the fixes turned green; each new test was checked to fail on the code before the fixes.
 
 ### Hero (9.5)
 
@@ -67,7 +69,7 @@ gate ran in the quality run below; "my review" marks a [manual] gate, with what 
 | S4 | pass | › S4 (D9: at most 11 screens at 390×844) |
 | S5 | **fail (needs owner)** | No real testimonial is rendered: there is none to show yet (`src/data/reviews.ts` is empty by rule). Needed for 9.5 |
 
-### Typography (9.0)
+### Typography (9.0 → 9.5)
 
 | Gate | Result | Evidence |
 | --- | --- | --- |
@@ -76,28 +78,28 @@ gate ran in the quality run below; "my review" marks a [manual] gate, with what 
 | T3 | pass | › T3 |
 | T4 | pass | › T4 and T5 at 375, 768, 1440 |
 | T5 | pass | › T4 and T5 |
-| T6 | **fail** | Measured on all 32 pages at 375–1920 (finding 1) |
+| T6 | **fixed** (was fail) | › T6: every body-size block on every page at 375, 768, 1024, 1280, 1440 and 1920 keeps 72 characters a line or fewer, at a line height of 1.5–1.7 (finding 1) |
 | T7 | pass (my review) | Zoomed captures (2×) at 1440 of the 13 longest H1s and the free-check H2, the tightest set at line height 0.92–1.02 (Home, About, Vision, the guides, the service pages). No glyph touches another; the closest pairs ("get" over "(within", "Why" over "Google") keep a clear gap |
 
-### Colour and brand (8.5)
+### Colour and brand (8.5 → 9.5)
 
 | Gate | Result | Evidence |
 | --- | --- | --- |
 | C1 | pass | › C1 at 375, 768 and 1440 |
 | C2 | pass | Unit: no hex colours outside `tokens.css` |
 | C3 | pass | › A1 at 375, 768 and 1440 (axe's colour-contrast rule is part of it): 0 violations on every page |
-| C4 | **fail** | Finding 2 |
-| C5 | **fail** | Eyebrows carry the Λ and the round dot means "live" only (DESIGN.md → Colour). But the wordmark's clear space and minimum sizes are not in `DESIGN.md` (finding 3) |
-| C6 | **fail** | `DESIGN.md` → Colour does not match `tokens.css` (finding 4) |
+| C4 | **fixed** (was fail) | › C4: at all ten matrix sizes the header wordmark is the small cut (Geist Medium), at least 13px tall below 1024 and 16px from 1024, with one cap height of clear space to every other control, the screen edge and the bar's edges (finding 2) |
+| C5 | **fixed** (was fail) | My review: eyebrows carry the Λ and the round dot means "live" only (DESIGN.md → Colour). The two cuts, clear space and minimum sizes are now in DESIGN.md → Colour → The wordmark (finding 3); › C4 checks the header's clear space |
+| C6 | **fixed** (was fail) | Unit › C6: every colour token in `tokens.css` is in DESIGN.md → Colour with its value (finding 4) |
 
-### Layout (8.75)
+### Layout (8.75 → 9.5)
 
 | Gate | Result | Evidence |
 | --- | --- | --- |
-| L1 | **fail (manual part)** | › L1: the three heads are sticky at 1440 (pass). The manual part fails on seven inner pages (finding 5); Home passes |
+| L1 | **fixed** (the manual part was fail) | › L1: the three Home heads are sticky at 1440. › L1 (manual part, as a check): on every page at 1440, no head leaves its column empty for more than 35% of the screen beside its content (finding 5); the captures confirm it |
 | L2 | pass | › L2 |
 | L3 | pass | › L3 |
-| L4 | **fail (spacing part)** | No two adjacent Home sections share a layout (as in Phase 3; unchanged since). But the head spacing is not the same everywhere (finding 6) |
+| L4 | **fixed** (the spacing part was fail) | My review: no two adjacent Home sections share a layout (as in Phase 3; unchanged since). › L4: on every page at 375 and 1440, eyebrow → heading is `--head-gap-1` and heading → intro `--head-gap-2`, ±1px (finding 6) |
 
 ### Imagery (9.0)
 
@@ -109,7 +111,7 @@ gate ran in the quality run below; "my review" marks a [manual] gate, with what 
 | G4 | pass (my review) | Unit: the scenes and promise icons draw with the graph's stroke tokens; seen in the captures |
 | G5 | **fail (needs owner)** | 2 real projects and 1 professional photo (the portrait). 9.5 needs 3 projects and 1 more photo |
 
-### Motion (9.25)
+### Motion (9.25 → 9.5)
 
 | Gate | Result | Evidence |
 | --- | --- | --- |
@@ -120,7 +122,7 @@ gate ran in the quality run below; "my review" marks a [manual] gate, with what 
 | M5 | pass | › M5 |
 | M6 | pass | › M6 |
 | M7 | pass | › M7 |
-| M8 | **fail** | One rule without its twin (finding 7) |
+| M8 | **fixed** (was fail) | Unit › M8: every `:hover` rule has a `:focus-visible`, `:focus-within` or `:focus` twin, apart from Phase 4's hover-only list (finding 7) |
 
 ### UX (9.5)
 
@@ -168,9 +170,9 @@ gate ran in the quality run below; "my review" marks a [manual] gate, with what 
 | A8 | needs owner | VoiceOver (iOS Safari) and NVDA pass. For a 10 |
 | A9 | pass | Lighthouse accessibility 1.00 on all eight CI pages |
 
-## Findings: what fails, and what each fix would be
+## Findings, and the fix made for each
 
-None of these is fixed in this phase (Phase 9 is the audit). Each fix is listed for approval.
+Found by the audit, then fixed with Mann's approval (18 Nov 2026). No wording changed.
 
 1. **T6: body text runs too wide in a few places, and one list is set tight.** Every paragraph at body size
    (`--fs-base`) and its line height, on all 32 pages at 375, 768, 1024, 1280, 1440 and 1920, measuring each real line
@@ -184,8 +186,12 @@ None of these is fixed in this phase (Phase 9 is the audit). Each fix is listed 
    - **Everything else passes:** body paragraphs are at 1.6 and at most 68ch (the `--measure`).
    - **Outside the gate but close to it:** a few captions at `--fs-sm` (15px, line height 1.5) run 73–113ch (the
      add-on notes on `/services/`, the sample notes on three service pages, a note on `/pricing/` at 1024).
-   - **Fix (CSS only, no wording):** cap those notes and checklist lines at `--measure`, and give the free-check list
-     the body line height (1.6). Then T6 as a test.
+   - **Fixed (CSS only):**
+     - a note under a section heading keeps `--measure` (`:where(.section-head) > p` in `global.css`, below `.lead`'s
+       44ch);
+     - the service pages' checklist lines and the intros above their samples keep it (`services/[slug].astro`), and so do
+       the add-on notes on `/services/` and the note under the package table (`PackageCompare.astro`);
+     - the free-check band's list is at 1.6 (`FreeCheck.astro`).
 2. **C4: the header wordmark is smaller than the gate and drawn from Regular.**
    - **Today:** 11px tall at 320, 12.2px at 360, 12.75px at 375, 13px from about 382px, and 14px from 1024.
    - **The gate:** at least 13px on phones and 16px from 1024, drawn from Geist *Medium* outlines (the audit's W10:
@@ -193,19 +199,24 @@ None of these is fixed in this phase (Phase 9 is the audit). Each fix is listed 
    - **The cut was never scheduled:** no phase of the plan lists it as a task, so it was never built.
    - **It fits:** at 320 the header holds only the logo and Menu, so a 13px wordmark (139px wide in the Medium cut)
      leaves 105px before Menu.
-   - **Fix:** a small-size cut drawn from Geist at weight 500 with +20% tracking, the same signal gap, used in the
-     header at 13px (phones) and 16px (from 1024). The footer keeps the Regular cut. It changes the logo, so it waits
-     for Mann: a mock-up is in the report, not on the site.
+   - **Fixed, with Mann's approval of the mock-up:** a small-size cut, drawn from Geist at weight 500 with +20% tracking
+     and the same signal gap.
+     - `scripts/wordmark_cut.py` prints its outlines, and `ui/Wordmark.astro` takes `cut="small"`.
+     - The header uses it at 13px (below 64em) and 16px (from 64em); at 320 it is 139px wide, about 100px clear of Menu.
+     - The footer, the brand files and the sharing images keep the regular cut (20px and up).
 3. **C5: clear space and minimum sizes are not documented.** The audit's rule ("clear space = one Λ cap height on every
    side; minimum 12px tall for the small-size cut, 20px for the regular cut") belongs in `DESIGN.md` with C4.
-   - **Why it waits:** written today it would contradict the header, which uses the Regular cut at 11–14px.
-   - **Fix:** document it together with the C4 fix.
+   - **Why it waited:** written before C4 was fixed, it would have contradicted the header, which used the Regular cut
+     at 11–14px.
+   - **Fixed:** DESIGN.md → Colour → The wordmark: the two cuts, clear space (one Λ cap height on every side) and
+     minimum sizes (12px small, 20px regular; below that, the favicon's stacked mark).
 4. **C6: `DESIGN.md` → Colour is out of date.**
    - **Mockup backdrops:** they are listed as `#BFC9C9` / `#D5C4C9`, the teal and pink they were before Phase 3. In
      `tokens.css` they are `color-mix()` tints of the paper band toward `--surface` (about `#BFBFBA` and `#A3A3A0`).
    - **Not listed:** `--signal-strong` (`#E4FF73`), `--focus` and `--focus-on-light`, `--accent-on-light` (`#637B05`,
      currently unused), `--error-wash` and `--warn-wash`.
-   - **Fix (documents only):** correct the table.
+   - **Fixed (documents only):** the table lists every token with its value. A unit test (C6) now fails if a colour
+     token is added to `tokens.css` without its row, or a value changes in one place only.
 5. **L1 (manual part): empty columns beside long content on inner pages.** At 1440×900, a two-column section whose
    head isn't sticky leaves its head column empty, once the head is passed, for longer than 35% of the screen (315px).
    - **Home passes:** its sticky heads (Prices, How I work, the questions) stay beside their content, as Phase 3
@@ -218,7 +229,10 @@ None of these is fixed in this phase (Phase 9 is the audit). Each fix is listed 
      - `/free-check/`, "Before you send it": 358px (40%);
      - `/services/web-design/`, the redesign section: 345px (38%);
      - `/pricing/`, "What moves it up or down.": 344px (38%).
-   - **Fix (CSS only):** make those heads sticky as on Home, the plan's own fix for dead zones (W9).
+   - **Fixed (CSS only):** from 64em the head column of every two-column section is sticky, as on Home (the plan's own
+     fix for dead zones, W9). It's in all eleven layouts of this kind: `about.astro`, `pricing.astro`, `services.astro`,
+     `services/[slug].astro`, `web-design-[area].astro`, `free-check.astro`, `IndustryPage.astro` and
+     `ServiceDetails.astro`, plus the three that already had it.
 6. **L4 (spacing part): eyebrow → heading → lead spacing is not identical everywhere.** Every eyebrow and its heading
    and lead, on all pages, at 375 and 1440 (`--head-gap-1` is 12 / 16.8px there, `--head-gap-2` 16 / 25px):
    - **Correct:** 67 section heads and 16 page heads use the tokens exactly.
@@ -231,13 +245,19 @@ None of these is fixed in this phase (Phase 9 is the audit). Each fix is listed 
    - **The question heads' lead:** 14 / 21px instead of 16 / 25px (Vision's 12px).
    - **Correction:** Phase 3 recorded "Head spacing is `--head-gap-1/2` everywhere". That was checked in the CSS, not
      measured, and it is not true for the heads above.
-   - **Fix (CSS only):** one head pattern (the `.section-head` grid, or `display: flex` for the stacked eyebrow) and
-     the tokens in those page heads.
+   - **Fixed (CSS only):**
+     - In `global.css`, an eyebrow in a `.stack` is block-level (`display: flex; width: fit-content`).
+     - Also in `global.css`, a split heading (`[data-split]`) is `display: flow-root`, so its last line mask's negative
+       margin no longer collapses into the next gap.
+     - In `global.css`, what follows an eyebrow and its heading in a stack sits `--head-gap-2` below the heading.
+     - The page heads (About, the guides, the received page, the free-check page, the legal pages), About's vision
+       section and the free-check page's sections now use PageHead's pattern: rows `--head-gap-2` apart, and the eyebrow
+       pulled up to `--head-gap-1`.
 7. **M8: one hover rule has no keyboard twin.** `.link.link--tap:hover` (the stand-alone links' underline fade, added
    18 Nov 2026 in the post-launch fixes) has no `:focus-visible` counterpart; every other `:hover` rule on the site
    has one (checked by script). Keyboard focus still shows the focus ring, so nothing is lost, but the gate asks for
    the match.
-   - **Fix:** a one-line `:focus-visible` twin.
+   - **Fixed:** `.link.link--tap:focus-visible` fades the underline as hover does (`global.css`).
 
 ## Since the plan: changes outside its tasks
 

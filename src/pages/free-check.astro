@@ -270,8 +270,12 @@ const faq = [
   }
   .lp-hero__copy {
     display: grid;
-    gap: var(--s-5);
+    /* Eyebrow → title → intro on the head-gap tokens, as PageHead (gate L4, re-audit 18 Nov 2026; was 24px). */
+    gap: var(--head-gap-2);
     justify-items: start;
+  }
+  .lp-hero__copy > .eyebrow {
+    margin-bottom: calc(var(--head-gap-1) - var(--head-gap-2));
   }
   .lp-hero__copy :global(.lp-hero__title) {
     /* Two lines at every width: "Don’t miss / the next call." */
@@ -420,7 +424,16 @@ const faq = [
     font-size: var(--fs-h2);
     line-height: 1;
     max-width: 16ch;
-    margin-top: var(--s-4);
+  }
+  /* Section heads: eyebrow → heading → intro on the head-gap tokens (gate L4, re-audit 18 Nov 2026; the heading had
+     its own 16px margin on top of each head's gap). */
+  .lp-what__grid > div:first-child {
+    display: grid;
+    gap: var(--head-gap-2);
+    justify-items: start;
+  }
+  .lp-what__grid > div:first-child > .eyebrow {
+    margin-bottom: calc(var(--head-gap-1) - var(--head-gap-2));
   }
 
   /* ── What I check ── */
@@ -486,7 +499,10 @@ const faq = [
   }
   .lp-form__main {
     display: grid;
-    gap: var(--s-4);
+    gap: var(--head-gap-2);
+  }
+  .lp-form__main > .eyebrow {
+    margin-bottom: calc(var(--head-gap-1) - var(--head-gap-2));
   }
   .lp-form__title {
     font-size: var(--fs-h2);
@@ -554,8 +570,11 @@ const faq = [
   }
   .lp-prices__grid > div:first-child {
     display: grid;
-    gap: var(--s-4);
+    gap: var(--head-gap-2);
     justify-items: start;
+  }
+  .lp-prices__grid > div:first-child > .eyebrow {
+    margin-bottom: calc(var(--head-gap-1) - var(--head-gap-2));
   }
   .lp-prices__lead {
     max-width: 44ch;
@@ -637,6 +656,13 @@ const faq = [
     .lp-faq__grid {
       grid-template-columns: 0.9fr 1.1fr;
       align-items: start;
+    }
+    /* The head stays beside its content instead of leaving an empty column (gate L1, re-audit 18 Nov 2026; as on Home,
+       task 3.4). */
+    .lp-faq__grid > :global(:first-child) {
+      position: sticky;
+      top: calc(var(--header-h) + var(--s-6));
+      align-self: start;
     }
   }
   .lp-faq__list {

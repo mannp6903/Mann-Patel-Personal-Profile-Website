@@ -77,8 +77,12 @@ const { title, lead, updated, see } = Astro.props;
   }
   .lg-head__inner {
     display: grid;
-    gap: var(--s-4);
+    /* Eyebrow → title → intro on the head-gap tokens, as PageHead (gate L4, re-audit 18 Nov 2026; was 16px). */
+    gap: var(--head-gap-2);
     justify-items: start;
+  }
+  .lg-head__inner > .eyebrow {
+    margin-bottom: calc(var(--head-gap-1) - var(--head-gap-2));
   }
   .lg-head__inner :global(.lg-title) {
     font-size: var(--fs-h1);

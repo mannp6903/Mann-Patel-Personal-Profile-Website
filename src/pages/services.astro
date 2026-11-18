@@ -275,6 +275,13 @@ for (const g of groups) {
       grid-template-columns: minmax(0, 0.8fr) minmax(0, 1.2fr);
       gap: var(--s-9);
     }
+    /* The head stays beside its list instead of leaving an empty column (gate L1, re-audit 18 Nov 2026; as on Home,
+       task 3.4). */
+    .ov__split > :first-child {
+      position: sticky;
+      top: calc(var(--header-h) + var(--s-6));
+      align-self: start;
+    }
   }
   .ov__h2 {
     font-size: var(--fs-h2);
@@ -290,6 +297,10 @@ for (const g of groups) {
     justify-items: start;
     padding-top: var(--s-4);
     border-top: 1px solid var(--line);
+  }
+  /* The body measure (gate T6, re-audit 18 Nov 2026). */
+  .ov__addons > li > p {
+    max-width: var(--measure);
   }
   .ov__name {
     font-size: var(--fs-lead);

@@ -5,6 +5,10 @@
  * its right leg (Mann's choice; the paths come from scripts/lambda_gap.py). Outlined, so it needs no font. Letters follow
  * `currentColor`; the two Λ's take lime (`--wm-accent`, default `--signal`) unless `accent` is
  * false. Size it by height, or by width with `height: auto` in CSS.
+ * Two cuts (design upgrade gate C4, 18 Nov 2026): `regular` (Geist Regular, +26% tracking) for 20px tall and up (the
+ * footer, brand files), and `small` (Geist Medium, +20%, scripts/wordmark_cut.py) for smaller uses (the header), where
+ * thin Regular strokes read faint. Minimum heights: 12px for the small cut, 20px for the regular (DESIGN.md → Colour →
+ * The wordmark).
  * Website Playbook (16 Nov 2026): an image named in Latin letters, "Mann Patel" (role="img"), so screen readers
  * never spell out the Λ's. A link around it still needs its own name (aria-label); a purely decorative copy sits
  * inside aria-hidden (the footer's).
@@ -24,13 +28,15 @@ interface Props {
    * once-per-visit "lock-on", away from the centre).
    */
   kinetic?: boolean;
+  /** Which outline set: `regular` (20px tall and up) or `small` (under 20px, drawn from Geist Medium). */
+  cut?: 'regular' | 'small';
 }
-const { class: className, height = 14, accent = true, kinetic = false } = Astro.props;
-const width = Math.round(height * (7980 / 710) * 100) / 100;
+const { class: className, height = 14, accent = true, kinetic = false, cut = 'regular' } = Astro.props;
 
+type Letter = { d: string; c: number; lam?: boolean };
 /** One outline per letter, in reading order; `lam` marks the crossbar-less A's (two pieces each: the signal gap); `c` is
- * the letter's centre (x). */
-const letters: { d: string; c: number; lam?: boolean }[] = [
+ * the letter's centre (x). The regular cut: Geist Regular. */
+const regular: Letter[] = [
   { d: 'M92 710V0H212L439 616L665 0H785V710H699V160L496 710H381L178 160V710Z', c: 438 },
   { d: 'M1102 710 1358 0 1474 0 1582 299 1502 324 1416 75 1196 710ZM1603 359 1730 710 1636 710 1523 384Z', c: 1416, lam: true },
   { d: 'M2037 710V0H2159L2510 624V0H2596V710H2468L2123 98V710Z', c: 2316 },
@@ -44,15 +50,38 @@ const letters: { d: string; c: number; lam?: boolean }[] = [
   { d: 'M6768 710V0H7214V84H6854V313H7202V395H6854V626H7222V710Z', c: 6995 },
   { d: 'M7631 710V0H7717V626H8072V710Z', c: 7851 },
 ];
-/** The wordmark's centre in its own units (viewBox 92 → 8072). */
-const mid = (92 + 8072) / 2;
+/** The small cut: Geist Medium, +20% tracking (printed by scripts/wordmark_cut.py). */
+const small: Letter[] = [
+  { d: 'M86 710V0H234L445 583L656 0H804V710H696V190L505 709H385L194 190V710Z', c: 445 },
+  { d: 'M1055 710 1311 0 1445 0 1552 298 1455 327 1378 103 1168 710ZM1574 358 1701 710 1587 710 1476 387Z', c: 1378, lam: true },
+  { d: 'M1942 710V0H2079L2407 579V0H2515V710H2373L2050 144V710Z', c: 2229 },
+  { d: 'M2867 710V0H3004L3332 579V0H3440V710H3298L2975 144V710Z', c: 3154 },
+  {
+    d: 'M4182 710V0H4447Q4569 0 4637 59Q4705 117 4705 221Q4705 290 4674 340Q4643 391 4586 418Q4528 444 4447 444H4290V710ZM4290 346H4444Q4517 346 4555 314Q4593 283 4593 221Q4593 160 4555 129Q4517 99 4444 99H4290Z',
+    c: 4444,
+  },
+  { d: 'M4873 710 5129 0 5263 0 5370 298 5273 327 5196 103 4986 710ZM5392 358 5519 710 5405 710 5294 387Z', c: 5196, lam: true },
+  { d: 'M5814 710V99H5596V0H6140V99H5922V710Z', c: 5868 },
+  { d: 'M6418 710V0H6880V99H6526V306H6868V402H6526V611H6888V710Z', c: 6653 },
+  { d: 'M7227 710V0H7335V670L7278 611H7681V710Z', c: 7454 },
+];
+const cuts = {
+  regular: { letters: regular, viewBox: '92 0 7980 710' },
+  small: { letters: small, viewBox: '86 0 7595 710' },
+};
+const { letters, viewBox } = cuts[cut];
+const [vx, , vw] = viewBox.split(' ').map(Number);
+const width = Math.round(height * (vw / 710) * 100) / 100;
+/** The wordmark's centre in its own units. */
+const mid = vx + vw / 2;
 ---
 
 <svg
   class:list={['wm', className]}
   width={width}
   height={height}
-  viewBox="92 0 7980 710"
+  viewBox={viewBox}
+  data-cut={cut}
   fill="currentColor"
   data-accent={accent ? '' : undefined}
   role="img"

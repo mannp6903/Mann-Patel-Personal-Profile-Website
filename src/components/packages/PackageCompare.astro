@@ -98,6 +98,10 @@ const anyApproved = packages.some((p) => priceLabel(p).approved);
   .cmp__title {
     font-size: var(--fs-h3);
   }
+  /* The body measure (gate T6, re-audit 18 Nov 2026). */
+  .cmp__note {
+    max-width: var(--measure);
+  }
   .cmp__wrap {
     overflow-x: auto;
     border: 1px solid var(--line);

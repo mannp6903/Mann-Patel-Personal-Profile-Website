@@ -31,8 +31,12 @@ import Button from '../../components/ui/Button.astro';
   }
   .rc__inner {
     display: grid;
-    gap: var(--s-5);
+    /* Eyebrow → title → intro on the head-gap tokens, as PageHead (gate L4, re-audit 18 Nov 2026; was 24px). */
+    gap: var(--head-gap-2);
     justify-items: start;
+  }
+  .rc__inner > .eyebrow {
+    margin-bottom: calc(var(--head-gap-1) - var(--head-gap-2));
   }
   .rc__title {
     font-size: var(--fs-h1);

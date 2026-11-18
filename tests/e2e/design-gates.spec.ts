@@ -9,6 +9,9 @@
 // Lighthouse assertions in lighthouserc.json.
 // Phase 8 (17 Nov 2026): A1 (axe everywhere, overlays open), A4 (text spacing), A5 (forced colours). A2 and A3 are in
 // Phase 2's tests, A6 is T4/T5 and R4, A7 is M5 and H7, A9 is lighthouserc.json.
+// Phase 9 (18 Nov 2026, the re-audit's fixes): T6 (body measure and line height), C4 (the header wordmark's small cut,
+// size and clear space), L1's manual part as a check (no empty column beside long content), L4 (head spacing). M8 and
+// C6 are unit tests.
 import AxeBuilder from '@axe-core/playwright';
 import { expect, test, type Page } from '@playwright/test';
 import { readdirSync } from 'node:fs';
@@ -1229,5 +1232,197 @@ test.describe('design gates: accessibility (Phase 8)', () => {
       expect.soft(bar.length > 0 && bar.every(visible), `${colorScheme}: progress bar ${bar.join(' ')} on ${canvas}`).toBe(true);
       await ctx.close();
     }
+  });
+});
+
+test.describe('design gates: the re-audit (Phase 9)', () => {
+  test('T6: body text keeps the measure (at most 72 characters a line) at a line height of 1.5 to 1.7, on every page', async ({ browser }) => {
+    test.setTimeout(900_000);
+    const problems = new Set<string>();
+    for (const [width, height] of [[375, 812], [768, 1024], [1024, 768], [1280, 800], [1440, 900], [1920, 1080]] as const) {
+      const ctx = await browser.newContext({ viewport: { width, height }, reducedMotion: 'reduce' });
+      const page = await ctx.newPage();
+      for (const path of builtPages()) {
+        await page.goto(path);
+        const found = await page.evaluate(() => {
+          const sized = document.createElement('div');
+          sized.style.cssText = 'position:absolute;font-size:var(--fs-base)';
+          document.body.append(sized);
+          const base = parseFloat(getComputedStyle(sized).fontSize);
+          sized.remove();
+          // Group each text run under its nearest block box: that box's lines are the text's lines.
+          const blocks = new Map<Element, Text[]>();
+          const SKIP = 'template, [aria-hidden="true"], h1, h2, h3, h4, button, label, summary, table, figcaption, .visually-hidden, dialog:not([open])';
+          for (const root of document.querySelectorAll('main, footer')) {
+            const walker = document.createTreeWalker(root, NodeFilter.SHOW_TEXT);
+            for (let n = walker.nextNode(); n; n = walker.nextNode()) {
+              if (!n.textContent!.trim() || !n.parentElement || n.parentElement.closest(SKIP)) continue;
+              let block: Element = n.parentElement;
+              while (block.parentElement && /^inline/.test(getComputedStyle(block).display)) block = block.parentElement;
+              if (!blocks.has(block)) blocks.set(block, []);
+              blocks.get(block)!.push(n as Text);
+            }
+          }
+          const out: string[] = [];
+          for (const [block, texts] of blocks) {
+            const cs = getComputedStyle(block);
+            const fs = parseFloat(cs.fontSize);
+            if (Math.abs(fs - base) > 0.05 || /mono/i.test(cs.fontFamily) || cs.visibility === 'hidden') continue;
+            const lines = new Map<number, [number, number]>();
+            for (const t of texts) {
+              const range = document.createRange();
+              range.selectNodeContents(t);
+              for (const r of range.getClientRects()) {
+                if (!r.width || r.height > fs * 2.5) continue;
+                const key = Math.round((r.top + r.height / 2) / 6);
+                const l = lines.get(key) ?? [Infinity, -Infinity];
+                lines.set(key, [Math.min(l[0], r.left), Math.max(l[1], r.right)]);
+              }
+            }
+            if (lines.size < 2) continue;
+            const probe = document.createElement('span');
+            probe.style.cssText = 'position:absolute;display:inline-block;width:72ch;height:0;visibility:hidden';
+            block.append(probe);
+            const measure = probe.getBoundingClientRect().width;
+            probe.remove();
+            const longest = Math.max(...[...lines.values()].map(([a, b]) => b - a));
+            const lh = parseFloat(cs.lineHeight) / fs;
+            const name = `${block.tagName.toLowerCase()}.${(block.getAttribute('class') || '').split(' ')[0]} "${block.textContent!.replace(/\s+/g, ' ').trim().slice(0, 40)}"`;
+            if (longest > measure + 0.5) out.push(`${name} runs ${((longest / measure) * 72).toFixed(0)}ch`);
+            if (!(lh >= 1.495 && lh <= 1.705)) out.push(`${name} has line height ${lh.toFixed(2)}`);
+          }
+          return out;
+        });
+        for (const f of found) problems.add(`${path} at ${width}: ${f}`);
+      }
+      await ctx.close();
+    }
+    expect([...problems]).toEqual([]);
+  });
+
+  test('C4: the header wordmark is the small (Medium) cut, at least 13px tall on phones and 16px from 1024, with clear space', async ({ browser }) => {
+    for (const [width, height] of MATRIX) {
+      const ctx = await browser.newContext({ viewport: { width, height }, reducedMotion: 'reduce' });
+      const page = await ctx.newPage();
+      for (const path of ['/', '/services/']) {
+        await page.goto(path);
+        const r = await page.evaluate(() => {
+          const svg = document.querySelector<SVGSVGElement>('[data-header] .wordmark__logo')!;
+          const w = svg.getBoundingClientRect();
+          const h = w.height;
+          const hdr = document.querySelector('[data-header]')!.getBoundingClientRect();
+          // Clear space (DESIGN.md → Colour → The wordmark): one cap height on every side, free of other text and controls.
+          const zone = { left: w.left - h, right: w.right + h, top: w.top - h, bottom: w.bottom + h };
+          const crowding = [...document.querySelectorAll('[data-header] a, [data-header] button, [data-header] p, [data-header] input')]
+            .filter((e) => !e.contains(svg) && e.getClientRects().length && getComputedStyle(e).visibility !== 'hidden')
+            .map((e) => ({ e, b: e.getBoundingClientRect() }))
+            .filter(({ b }) => b.width > 1 && b.height > 1 && b.right > 0 && b.left < innerWidth)
+            .filter(({ b }) => b.left < zone.right && b.right > zone.left && b.top < zone.bottom && b.bottom > zone.top)
+            .map(({ e }) => `${e.tagName.toLowerCase()}.${(e.getAttribute('class') || '').split(' ')[0]}`);
+          return {
+            cut: svg.dataset.cut,
+            h,
+            edges: { left: w.left, top: w.top - hdr.top, bottom: hdr.bottom - w.bottom },
+            crowding,
+          };
+        });
+        const where = `${path} at ${width}×${height}`;
+        expect.soft(r.cut, `${where}: cut`).toBe('small');
+        expect.soft(r.h, `${where}: height`).toBeGreaterThanOrEqual(width >= 1024 ? 15.99 : 12.99);
+        expect.soft(Math.min(r.edges.left, r.edges.top, r.edges.bottom), `${where}: space to the screen edge and the bar's edges`).toBeGreaterThanOrEqual(r.h - 0.5);
+        expect.soft(r.crowding, `${where}: inside the clear space`).toEqual([]);
+      }
+      await ctx.close();
+    }
+  });
+
+  test('L1 (manual part, as a check): at 1440 no head leaves its column empty for more than 35% of the screen beside its content', async ({ browser }) => {
+    test.setTimeout(300_000);
+    const ctx = await browser.newContext({ viewport: { width: 1440, height: 900 }, reducedMotion: 'reduce' });
+    const page = await ctx.newPage();
+    const problems: string[] = [];
+    for (const path of builtPages()) {
+      await page.goto(path);
+      const found = await page.evaluate(() => {
+        const out: string[] = [];
+        for (const hd of document.querySelectorAll('main h1, main h2')) {
+          if (hd.closest('template, [aria-hidden="true"]') || !hd.getClientRects().length) continue;
+          // The head's column: the ancestor with a sibling beside it (a two-column row).
+          let col: Element = hd;
+          let side: Element[] = [];
+          while (col.parentElement && col.parentElement.tagName !== 'MAIN') {
+            const me = col.getBoundingClientRect();
+            side = [...col.parentElement.children].filter((k) => {
+              if (k === col || !k.getClientRects().length || getComputedStyle(k).position === 'absolute') return false;
+              const r = k.getBoundingClientRect();
+              return r.width > 100 && r.top < me.bottom && r.bottom > me.top && (r.left >= me.right - 2 || r.right <= me.left + 2);
+            });
+            if (side.length) break;
+            col = col.parentElement;
+          }
+          if (!side.length) continue;
+          let sticky = false;
+          for (let e: Element | null = hd; e && e !== col.parentElement; e = e.parentElement) if (getComputedStyle(e).position === 'sticky') sticky = true;
+          if (sticky) continue;
+          const top = col.getBoundingClientRect().top;
+          let bottom = top;
+          for (const c of col.querySelectorAll('*')) if (c.getClientRects().length) bottom = Math.max(bottom, c.getBoundingClientRect().bottom);
+          const beside = Math.max(...side.map((k) => k.getBoundingClientRect().height));
+          const empty = beside - (bottom - top);
+          if (empty > innerHeight * 0.35) out.push(`"${hd.textContent!.replace(/\s+/g, ' ').trim().slice(0, 40)}" leaves ${Math.round(empty)}px empty`);
+        }
+        return out;
+      });
+      problems.push(...found.map((f) => `${path}: ${f}`));
+    }
+    await ctx.close();
+    expect(problems).toEqual([]);
+  });
+
+  test('L4: eyebrow → heading is --head-gap-1 and heading → intro is --head-gap-2, in every section and page head', async ({ browser }) => {
+    test.setTimeout(600_000);
+    const problems = new Set<string>();
+    for (const [width, height] of [[375, 812], [1440, 900]] as const) {
+      const ctx = await browser.newContext({ viewport: { width, height }, reducedMotion: 'reduce' });
+      const page = await ctx.newPage();
+      for (const path of builtPages()) {
+        await page.goto(path);
+        const found = await page.evaluate(() => {
+          const gap = (v: string) => {
+            const d = document.createElement('div');
+            d.style.cssText = `position:absolute;height:var(${v})`;
+            document.body.append(d);
+            const h = d.getBoundingClientRect().height;
+            d.remove();
+            return h;
+          };
+          const g1 = gap('--head-gap-1');
+          const g2 = gap('--head-gap-2');
+          const shown = (e: Element | null) => {
+            while (e && !e.getClientRects().length) e = e.nextElementSibling;
+            return e;
+          };
+          const out: string[] = [];
+          for (const eyebrow of document.querySelectorAll('main .eyebrow')) {
+            if (eyebrow.closest('template, [aria-hidden="true"]') || !eyebrow.getClientRects().length) continue;
+            const heading = shown(eyebrow.nextElementSibling);
+            if (!heading || !/^H[12]$/.test(heading.tagName)) continue;
+            const e = eyebrow.getBoundingClientRect();
+            const h = heading.getBoundingClientRect();
+            const name = `"${heading.textContent!.replace(/\s+/g, ' ').trim().slice(0, 36)}"`;
+            if (Math.abs(h.top - e.bottom - g1) > 1) out.push(`${name}: eyebrow → heading ${(h.top - e.bottom).toFixed(1)}px, not ${g1.toFixed(1)}`);
+            const intro = shown(heading.nextElementSibling);
+            if (!intro || intro.tagName !== 'P' || intro.classList.contains('eyebrow')) continue;
+            const i = intro.getBoundingClientRect();
+            if (i.top < h.bottom - 1) continue; // set beside the heading (Home's services head on wide screens)
+            if (Math.abs(i.top - h.bottom - g2) > 1) out.push(`${name}: heading → intro ${(i.top - h.bottom).toFixed(1)}px, not ${g2.toFixed(1)}`);
+          }
+          return out;
+        });
+        for (const f of found) problems.add(`${path} at ${width}: ${f}`);
+      }
+      await ctx.close();
+    }
+    expect([...problems]).toEqual([]);
   });
 });

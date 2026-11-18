@@ -21,7 +21,7 @@ const sheetLinks = [{ href: '/', label: 'Home' }, ...nav];
 <header class="hdr" data-header>
   <div class="hdr__bar container">
     <a class="wordmark" href="/" aria-label={`${profile.name}, home`}>
-      <Wordmark class="wordmark__logo" kinetic />
+      <Wordmark class="wordmark__logo" kinetic cut="small" />
     </a>
 
     <p class="hdr__clock num" aria-hidden="true">
@@ -264,8 +264,10 @@ const sheetLinks = [{ href: '/', label: 'Home' }, ...nav];
   /* The logo is a child component, so these selectors reach it with :global(). */
   .wordmark :global(.wordmark__logo) {
     display: block;
-    /* 11 px at 320 px wide (so the header fits beside Contact and Menu), 13 px from about 390 px. */
-    height: clamp(0.6875rem, 3.4vw, 0.8125rem);
+    /* The small-size cut (Geist Medium, ui/Wordmark.astro), 13px tall on phones and tablets and 16px from 64em (gate C4,
+       re-audit 18 Nov 2026; was 11–13px and 14px in the Regular cut). On a 320px phone the header holds only the logo
+       and Menu, so 13px (139px wide) leaves about 100px between them. */
+    height: 0.8125rem;
     width: auto;
   }
   /* Design upgrade Phase 4 (task 4.8; DESIGN.md → Motion → Wordmark). Each letter is a group (data-k-ch) with a lime
@@ -313,7 +315,7 @@ const sheetLinks = [{ href: '/', label: 'Home' }, ...nav];
   }
   @media (min-width: 64em) {
     .wordmark :global(.wordmark__logo) {
-      height: 0.875rem;
+      height: 1rem;
     }
   }
 

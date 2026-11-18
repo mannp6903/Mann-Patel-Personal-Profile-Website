@@ -251,6 +251,17 @@ p {
 .stack > .eyebrow + * {
   margin-top: var(--head-gap-1);
 }
+/* Block-level in a stack, so it doesn't sit in a line box as tall as the body text's (that added 3–4px above the
+   heading: gate L4, re-audit 18 Nov 2026). */
+.stack > .eyebrow {
+  display: flex;
+  width: fit-content;
+}
+/* What follows an eyebrow and its heading (the intro) sits --head-gap-2 below the heading, whatever the stack's own
+   gap (gate L4, re-audit 18 Nov 2026: stacks at a fixed 16px left it short on wide screens). */
+.stack > .eyebrow + * + * {
+  margin-top: var(--head-gap-2);
+}
 .cluster {
   display: flex;
   flex-wrap: wrap;
@@ -268,6 +279,11 @@ p {
 .section-head > .eyebrow,
 .head-eyebrow {
   margin-bottom: calc(var(--head-gap-1) - var(--head-gap-2));
+}
+/* A note under a section heading keeps the body measure (gate T6, re-audit 18 Nov 2026: the area and trade pages'
+   price notes ran to 112 characters a line). :where() keeps it below .lead's own 44ch. */
+:where(.section-head) > p {
+  max-width: var(--measure);
 }
 
 /* ═══════════════ Swipe rail (phones) ═══════════════ */
@@ -624,6 +640,10 @@ p {
   transition:
     color var(--dur-1) var(--ease-out),
     text-decoration-color var(--dur-2) var(--ease-out);
+}
+/* Keyboard focus matches hover (gate M8, re-audit 18 Nov 2026), and also shows the focus ring. */
+.link.link--tap:focus-visible {
+  text-decoration-color: transparent;
 }
 @media (hover: hover) {
   .link.link--tap:hover {
@@ -1144,6 +1164,11 @@ fieldset > legend + * {
 }
 .line-mask > span {
   display: block;
+}
+/* The last mask's negative margin stays inside its heading, so the next element sits exactly its own gap below (it
+   collapsed into that gap in stacked heads: gate L4, re-audit 18 Nov 2026). */
+[data-split] {
+  display: flow-root;
 }
 @supports (animation-timeline: view()) {
   @media (prefers-reduced-motion: no-preference) {

@@ -37,7 +37,8 @@
 **Overall: 65 / 100** (72 of 110 points, scaled to 100).
 
 > **Re-audit after the upgrade (18 Nov 2026): 92 / 100** (101 of 110), scored gate by gate in
-> [`docs/27-design-upgrade/phase-9-reaudit.md`](docs/27-design-upgrade/phase-9-reaudit.md).
+> [`docs/27-design-upgrade/phase-9-reaudit.md`](docs/27-design-upgrade/phase-9-reaudit.md); **94** (103.5) after its
+> fixes. Structure and imagery wait on owner inputs (a real testimonial; a third project and one more photo).
 
 **Verdict:** A fast, honest, carefully engineered site whose visual voice is drowned out by too many elements, an inverted type scale and lime on everything. It needs **editing, not reinventing**.
 
