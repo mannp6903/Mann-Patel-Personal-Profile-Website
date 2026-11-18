@@ -160,17 +160,14 @@ const sheetLinks = [{ href: '/', label: 'Home' }, ...nav];
     // header), then turns lime. Same box either way (both variants have a 1px border), so nothing moves.
     const hdrCta = header.querySelector<HTMLElement>('[data-hdr-cta]');
     const heroCta = document.querySelector<HTMLElement>('[data-hero-cta]');
-    // Design upgrade Phase 4: the wordmark condenses to "MΛ" once the hero (or the page's first section) has scrolled
-    // up under the header, and expands again near the top.
-    const lead = document.querySelector<HTMLElement>('#hero') ?? document.querySelector<HTMLElement>('main > :first-child');
-    // Both watch the area below the header, whose height is read in an idle moment, once the page is laid out (reading it
-    // at start-up would force that layout here: gate M7). Until then the button keeps its server-rendered state.
+    // 18 Nov 2026 (Mann): the full wordmark stays in the header at every scroll position. The Phase 4 "condense" to
+    // "MΛ" after the hero read as the logo disappearing, so it is gone.
+    // The button watches the area below the header, whose height is read in an idle moment, once the page is laid out
+    // (reading it at start-up would force that layout here: gate M7). Until then it keeps its server-rendered state.
     const watch = () => {
       if (!('IntersectionObserver' in window)) return;
       const below = { rootMargin: `-${header.offsetHeight}px 0px 0px 0px` };
       if (hdrCta && heroCta) new IntersectionObserver(([e]) => hdrCta.classList.toggle('is-quiet', e.isIntersecting), below).observe(heroCta);
-      if (lead)
-        new IntersectionObserver(([e]) => header.classList.toggle('is-condensed', !e.isIntersecting && e.boundingClientRect.top < 0), below).observe(lead);
     };
     if ('requestIdleCallback' in window) requestIdleCallback(watch, { timeout: 1000 });
     else setTimeout(watch, 1);
@@ -195,15 +192,15 @@ const sheetLinks = [{ href: '/', label: 'Home' }, ...nav];
     /* Holds still while the page underneath changes (view transitions in global.css). */
     view-transition-name: site-header;
   }
-  /* Once the page scrolls, a solid, blurred layer fades in behind the header (opacity only, so it is cheap to
-     animate: SEO audit Phase 4). It replaces a transition of background, border colour and backdrop-filter. */
+  /* Once the page scrolls, a solid layer fades in behind the header (opacity only, so it is cheap to animate: SEO audit
+     Phase 4). 18 Nov 2026: fully opaque. It was 82% with a backdrop blur, but the header's view-transition-name stops
+     a blur inside it from seeing the page, so text scrolling under the bar showed through, sharp, behind the logo. */
   .hdr::before {
     content: '';
     position: absolute;
     inset: 0 0 -1px;
     z-index: -1;
-    background: rgb(11 11 12 / 0.82);
-    backdrop-filter: blur(14px) saturate(140%);
+    background: var(--bg);
     border-bottom: 1px solid var(--line);
     opacity: 0;
     transition: opacity var(--dur-3) var(--ease-out);
@@ -278,14 +275,6 @@ const sheetLinks = [{ href: '/', label: 'Home' }, ...nav];
   }
   .wordmark :global(.wm__lit) {
     fill: var(--signal);
-    opacity: 0;
-  }
-  /* Scroll condense: once the hero (or a page's first section) has scrolled away, the wordmark becomes "MΛ". The other
-     letters fade out in place, so nothing in the bar moves; at the top of the page they come back. */
-  .wordmark :global([data-k-ch]:nth-child(n + 3)) {
-    transition: opacity var(--dur-3) var(--ease-out);
-  }
-  .hdr.is-condensed .wordmark :global([data-k-ch]:nth-child(n + 3)) {
     opacity: 0;
   }
   @media (prefers-reduced-motion: no-preference) {

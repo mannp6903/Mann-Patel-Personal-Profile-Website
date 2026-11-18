@@ -1,5 +1,16 @@
 # DESIGN.md · "Signal" (round 5, Nov 2026), compact editorial portfolio (round 7)
 
+> **Fixes after launch (18 Nov 2026, Mann's report).**
+> - **The logo stays whole.** The header showed only "MΛ" once the hero scrolled away (the Phase 4 condense), which read
+>   as the logo disappearing. The full MANN PATEL now stays at every scroll position.
+> - **The scrolled header is solid.** Its layer was 82% with a backdrop blur, but the header's view-transition-name
+>   stops a blur inside it from seeing the page, so text scrolling under the bar showed through behind the logo. It is
+>   now `--bg`, fully opaque (and "no glass" is the rule anyway).
+> - **Stand-alone links underline each line.** `.link--tap` (Phase 6) drew the underline once across its 44px box, so a
+>   link that wrapped (the case studies' "Services shown") had a line through its second line. Its underline is now a
+>   text decoration.
+> - **Quick menu:** Enter opens the best match by name ("pricing" opened Services, whose keywords include pricing).
+>
 > **Design upgrade, Phase 8 (17 Nov 2026): accessibility.**
 > - **Forced colours** (Windows contrast themes): buttons keep a `ButtonText` edge, the focus ring is `Highlight`,
 >   display headings open up to 1.15 line height (the mode's line backplates were cutting the line above), and every
@@ -67,9 +78,9 @@
 > cycles, then everything rests by about 13 s (D8). Pointer, focus or a tap wakes it; hovering or tapping an input pill
 > lights its routes. Reveals are scroll-driven CSS for section heads and media only; paragraphs, lists and buttons never
 > start hidden, and with JavaScript off nothing moves. Page transitions take 220 / 420 ms, opacity and transform only.
-> The magnetic pull is on the hero and footer buttons only (6px at most). The header wordmark settles in once per visit,
-> becomes "MΛ" after the hero and sweeps lime on hover or focus. Lime buttons glow on hover or focus, and every hover
-> state has a matching keyboard-focus state. Gates M1–M8. Record:
+> The magnetic pull is on the hero and footer buttons only (6px at most). The header wordmark settles in once per visit
+> and sweeps lime on hover or focus (its condense to "MΛ" after the hero was removed on 18 Nov 2026). Lime buttons glow
+> on hover or focus, and every hover state has a matching keyboard-focus state. Gates M1–M8. Record:
 > [`docs/27-design-upgrade/phase-4-motion.md`](docs/27-design-upgrade/phase-4-motion.md).
 >
 > **Design upgrade, Phase 3 (17 Nov 2026): sections and flow.** Home runs hero → Selected Work (reviews strip once real
@@ -430,8 +441,9 @@ All are 0 under `prefers-reduced-motion`. No component writes a raw duration, an
 - **Page transitions**: the old page fades and shrinks a little (220 ms, `--ease-in`), the new one rises in (420 ms,
   `--ease-out`); the header holds still.
 - **Wordmark**: per-letter groups in the header. Once per visit (`sessionStorage`), the letters settle in from wider
-  spacing while the two Λ's rise from the baseline; after the hero (or a page's first section) it condenses to "MΛ" (the
-  other letters fade in place); hover or keyboard focus runs one lime sweep across the letters.
+  spacing while the two Λ's rise from the baseline; hover or keyboard focus runs one lime sweep across the letters. The
+  whole MANN PATEL stays in the header at every scroll position (18 Nov 2026: the Phase 4 condense to "MΛ" read as the
+  logo disappearing, so Mann had it removed).
 - **Hover and focus**: lime buttons glow (an opacity-only layer), labels roll and arrows turn; every hover state has a
   matching `:focus-visible` (or `:focus-within` for a label around a control) state (M8). The magnetic pull is on
   `[data-magnetic]` only: the hero and footer buttons, at most 6px.

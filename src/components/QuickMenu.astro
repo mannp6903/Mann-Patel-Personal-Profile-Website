@@ -163,7 +163,12 @@ const groups: { title: string; items: Item[] }[] = [
       groups.forEach((g) => (g.hidden = !g.querySelector('[data-qm-item]:not([hidden])')));
       empty.hidden = visible.length > 0;
       live.textContent = q ? `${visible.length} result${visible.length === 1 ? '' : 's'}` : '';
-      setActive(0);
+      // 18 Nov 2026: the option Enter opens is the best match by name: a label that starts with the search, then one
+      // that contains it, then the first match by keyword. "pricing" opened Services (its keywords include pricing).
+      const label = (it: HTMLElement) => (it.querySelector('.qm__label')?.textContent ?? '').toLowerCase();
+      const starts = q ? visible.findIndex((it) => label(it).startsWith(q)) : -1;
+      const has = q && starts === -1 ? visible.findIndex((it) => label(it).includes(q)) : -1;
+      setActive(Math.max(0, starts !== -1 ? starts : has));
     };
     /* The first open puts the items in the page (they wait in a <template> until then: gate P3). */
     const ensureItems = () => {
