@@ -1,5 +1,19 @@
 # DESIGN.md · "Signal" (round 5, Nov 2026), compact editorial portfolio (round 7)
 
+> **Design upgrade, Phase 9 (18 Nov 2026): the re-audit.** Nothing on the site changed. Scored gate by gate against
+> the plan, the site is at **92 / 100** (101 of 110 points; the audit's score was 65).
+> - **At 9.5:** hero, UX, responsiveness, performance and accessibility.
+> - **Waiting on Mann:** structure and imagery need S5 (a real testimonial) and G5 (a third project, one more photo).
+> - **Typography (T6):** a few notes and checklist lines run past the 68ch measure on wide screens, and the free-check
+>   list is set at 1.45.
+> - **Colour and brand:** C4, the header wordmark has no small-size (Medium) cut and is under 16px from 1024; C5,
+>   clear space and minimum sizes aren't written down here yet; C6, the Colour table below is out of date (the mockup
+>   backdrops, six tokens missing).
+> - **Layout:** L1, empty columns beside long content on seven inner pages; L4, head spacing is off the tokens in some
+>   heads.
+> - **Motion (M8):** one hover rule without its keyboard twin.
+> - **Record:** [`docs/27-design-upgrade/phase-9-reaudit.md`](docs/27-design-upgrade/phase-9-reaudit.md).
+>
 > **Fixes after launch (18 Nov 2026, Mann's report).**
 > - **The logo stays whole.** The header showed only "MΛ" once the hero scrolled away (the Phase 4 condense), which read
 >   as the logo disappearing. The full MANN PATEL now stays at every scroll position.
