@@ -10,6 +10,8 @@
 >   link that wrapped (the case studies' "Services shown") had a line through its second line. Its underline is now a
 >   text decoration.
 > - **Quick menu:** Enter opens the best match by name ("pricing" opened Services, whose keywords include pricing).
+> - **The Λ's signal gap:** every Λ (wordmark, eyebrows, favicon, brand files) has a small slanted break in its right
+>   leg. Colour → The signal gap.
 >
 > **Design upgrade, Phase 8 (17 Nov 2026): accessibility.**
 > - **Forced colours** (Windows contrast themes): buttons keep a `ButtonText` edge, the focus ring is `Highlight`,
@@ -230,6 +232,13 @@ graph's SVG keeps its own colours (the mode leaves SVG paint alone) and reads on
 
 **The Λ as a system glyph.** Eyebrows start with a small Λ cut from the wordmark (`--lambda`, a mask painted
 `--eyebrow-mark`: lime on dark, ink on the paper band). The round dot is kept only where it means "live" (`.status__dot`).
+
+**The signal gap (18 Nov 2026, Mann's choice of three).** Every Λ has a small slanted break in its right leg, like a
+pulse passing through: the wordmark's two (header, footer, brand SVGs, sharing images), the eyebrow glyph and the
+favicon's. It is one geometry, set in proportions of the Λ's own box, in `scripts/lambda_gap.py`: it prints the
+wordmark's paths (`Wordmark.astro`, `--lambda`, `public/brand/`), and `scripts/make-favicon.py` uses it for the bold
+icon (then `npm run images` for the PNGs and `.ico`). At the eyebrow's size the break is under a pixel, so the glyph
+reads as the plain Λ there; it shows from the header wordmark up.
 
 ## Typography
 
