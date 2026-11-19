@@ -1988,8 +1988,9 @@ test.describe('audit of 11 Nov 2026', () => {
 
   test('Home is easy to quote: an answer-first opening, a definition and a summary that restates it', async ({ page }) => {
     await page.goto('/');
-    // The first two paragraphs: who and where, then what the work does (no slogan, no "welcome").
-    const opening = await page.locator('.hero__text > p').allInnerTexts();
+    // The first two paragraphs: who and where (the greeting), then what the work does (no slogan, no "welcome").
+    const opening = await page.locator('.hero__hello p, .hero__place').allInnerTexts();
+    expect(opening).toHaveLength(2);
     expect(opening[0].replace(/\s+/g, ' ')).toContain('Based in Scarborough');
     expect(opening[1]).toMatch(/^I’m a web designer who /);
     // The summary: a heading that says what it is, the definition as it stands in src/data/site.ts, then prices from

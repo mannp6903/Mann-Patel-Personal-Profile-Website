@@ -15,8 +15,12 @@ const local = priceLabel(packageById('local-visibility')!);
 <!-- A plain heading, as in the work, services and prices heads: Home stays within 950 elements (gate P3). -->
 <section class="sum section section--rule" id="summary" aria-labelledby="summary-title">
   <div class="container sum__grid">
-    <p class="eyebrow">05 / Summary</p>
-    <h2 id="summary-title" class="sum__title">Mann Patel <span class="accent">at a glance.</span></h2>
+    <!-- The eyebrow and heading share one stacked head (as in the questions), so the text beside them on wide screens
+         can't stretch the gap between them (gate L4). -->
+    <div class="sum__head stack" style="--stack: var(--head-gap-2)">
+      <p class="eyebrow">05 / Summary</p>
+      <h2 id="summary-title" class="sum__title">Mann Patel <span class="accent">at a glance.</span></h2>
+    </div>
     <div class="sum__body">
       <p class="sum__def">{profile.definition}</p>
       <p class="muted">
@@ -45,9 +49,6 @@ const local = priceLabel(packageById('local-visibility')!);
     display: grid;
     row-gap: var(--head-gap-2);
   }
-  .sum__grid .eyebrow {
-    margin-bottom: calc(var(--head-gap-1) - var(--head-gap-2));
-  }
   .sum__title {
     font-size: var(--fs-h2);
     letter-spacing: var(--track-head);
@@ -70,15 +71,6 @@ const local = priceLabel(packageById('local-visibility')!);
       grid-template-columns: minmax(0, 1.1fr) minmax(0, 1fr);
       align-items: end;
       column-gap: var(--s-8);
-    }
-    .sum__grid .eyebrow,
-    .sum__title {
-      grid-column: 1;
-    }
-    .sum__body {
-      grid-column: 2;
-      grid-row: 1 / span 2;
-      align-self: end;
     }
   }
 </style>
