@@ -178,7 +178,8 @@ test.describe('pages', () => {
     ['/services/local-visibility/', 'Local SEO & Google Business Profile Toronto | Mann Patel', 'Local SEO and Google Business Profile setup in Toronto', 'Improve your Google presence with eligible profile setup, listing updates and a review workflow. Ask about SEO foundations and an AI search check.'],
     ['/services/enquiry-follow-up/', 'Enquiry Automation & Online Booking in Toronto | Mann Patel', 'Enquiry follow-up and online booking for Toronto businesses', 'Set up missed-call text-back, form follow-up or an online booking path with tools you own. Get one scoped workflow, tested and documented.'],
     ['/work/', 'Toronto Small Business Website Projects | Mann Patel', 'Website projects for Toronto service businesses', 'See the Nest & Rest Cleaning website case study and Samp Hair & Spa preview, with dated work, project status and documented checks.'],
-    ['/pricing/', 'Web Design & Local SEO Pricing in Toronto | Mann Patel', 'What it costs, and what it covers.', 'Published prices in CAD: 5-page website $1,950, website + booking $3,350, fixes $450–$850, local SEO setup $650, care $149/month. Toronto and GTA.'],
+    // SEO report (18 Nov 2026): the H1 names the service and the place; the old slogan is the eyebrow.
+    ['/pricing/', 'Web Design & Local SEO Pricing in Toronto | Mann Patel', 'Web design and local SEO prices in Toronto.','Published prices in CAD: 5-page website $1,950, website + booking $3,350, fixes $450–$850, local SEO setup $650, care $149/month. Toronto and GTA.'],
     ['/vision/', 'Vision | Mann Patel, Web Designer in Toronto', 'Local businesses do the work. Software should run the rest.', 'What Mann Patel is building: local businesses that do the work while software and AI handle the rest. His ventures, what has shipped, and what comes next.'],
     // SEO audit Phase 3 (14 Nov 2026): one page per search we can win (plan C1, C3, C4).
     ['/websites-for-cleaning-companies/', 'Cleaning Company Website Design in Toronto | Mann Patel', 'Cleaning company website design in Toronto', 'Websites for Toronto cleaning companies: prices up front, the areas you serve and a booking request. See the Nest & Rest case study. From $1,950 CAD.'],
@@ -275,10 +276,12 @@ test.describe('pages', () => {
   });
 
   test('structured data is valid JSON and makes no rating or address claims', async ({ page }) => {
-    for (const path of ['/', '/services/', '/about/', '/services/web-design/', '/services/local-visibility/', '/services/enquiry-follow-up/', '/pricing/', '/websites-for-cleaning-companies/', '/websites-for-salons-and-spas/', '/web-design-scarborough/', `/guides/${GUIDES[0]}/`]) {
+    for (const path of ['/', '/services/', '/about/', '/services/web-design/', '/services/local-visibility/', '/services/enquiry-follow-up/', '/pricing/', '/websites-for-cleaning-companies/', '/websites-for-salons-and-spas/', '/web-design-scarborough/', `/guides/${GUIDES[0]}/`, '/work/nest-and-rest-cleaning/']) {
       await page.goto(path);
       const blocks = await page.$$eval('script[type="application/ld+json"]', (s) => s.map((x) => x.textContent || ''));
       expect(blocks.length).toBeGreaterThan(0);
+      // SEO report (18 Nov 2026): a case study is an Article by Mann.
+      if (path.startsWith('/work/')) expect(blocks.join(' ')).toContain('"Article"');
       // No rating, review, street address, postal code or award properties (the words may appear in answers,
       // e.g. "home address hidden"). Since 14 Nov 2026 the business has a city-level address only (Mann's decision).
       for (const b of blocks) {

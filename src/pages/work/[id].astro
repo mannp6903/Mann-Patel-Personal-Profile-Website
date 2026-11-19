@@ -11,7 +11,8 @@ import Confirm from '../../components/Confirm.astro';
 import { serviceById } from '../../data/services';
 import { captures } from '../../data/captures';
 import { servicePageForGroup, serviceHref, type ServicePage } from '../../data/service-pages';
-import { breadcrumbJsonLd } from '../../lib/seo';
+import { breadcrumbJsonLd, personRef } from '../../lib/seo';
+import { absoluteUrl } from '../../lib/mode';
 import { projectSite } from '../../lib/work';
 import { industryPageForWork } from '../../data/industry-pages';
 
@@ -53,12 +54,30 @@ const site = projectSite(d);
 const servicePagesShown = [...new Set(services.map((s) => servicePageForGroup(s.group)).filter(Boolean))] as ServicePage[];
 // The industry page this project leads (SEO audit Phase 3, 14 Nov 2026).
 const industry = industryPageForWork(entry.id);
+// Article (SEO report, 18 Nov 2026): a case study is a dated write-up by Mann about one business's website, so search
+// engines and AI answers can tie it to him. dateModified is the visible "Checked" date. The business's own address is
+// given only while its site is launched and its link isn't paused (projectSite), never a preview address.
+const csUrl = absoluteUrl(`/work/${entry.id}/`);
+const csImage = absoluteUrl(`/og/work-${entry.id}.png`);
+const articleLd = {
+  '@context': 'https://schema.org',
+  '@type': 'Article',
+  headline: d.seoTitle,
+  description: d.description,
+  inLanguage: 'en-CA',
+  author: personRef(),
+  publisher: personRef(),
+  dateModified: d.checked,
+  about: { '@type': 'Organization', name: d.title, ...(site.live && site.links[0] ? { url: site.links[0].url } : {}) },
+  ...(csUrl ? { url: csUrl, mainEntityOfPage: { '@type': 'WebPage', '@id': csUrl } } : {}),
+  ...(csImage ? { image: csImage } : {}),
+};
 ---
 
 <BaseLayout
   title={d.seoTitle}
   description={d.description}
-  jsonLd={crumbs ?? undefined}
+  jsonLd={[articleLd, ...(crumbs ? [crumbs] : [])]}
   ogImage={`/og/work-${entry.id}.png`}
   ogAlt={`Case study: ${d.title}. ${[d.relationship, site.websiteStatus, d.businessStatus].filter(Boolean).join(', ')}.`}
 >
@@ -95,7 +114,7 @@ const industry = industryPageForWork(entry.id);
       <ProjectMedia scene={d.scene} eager sizes="(min-width: 80em) 1130px, 86vw" phoneSizes="(min-width: 64em) 168px, 22vw" />
     </div>
 
-    <!-- The short version first (round 7): relationship, status, role and the problem. -->
+    {/* The short version first (round 7): relationship, status, role and the problem. */}
     <section class="container glance" aria-labelledby="glance-title">
       <h2 id="glance-title" class="visually-hidden">At a glance</h2>
       <dl class="glance__grid">

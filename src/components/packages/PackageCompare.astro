@@ -39,7 +39,7 @@ const anyApproved = packages.some((p) => priceLabel(p).approved);
         </tr>
       </thead>
       <tbody>
-        <!-- 14 Nov 2026: the price comes first, right under the package names. -->
+        {/* 14 Nov 2026: the price comes first, right under the package names. */}
         <tr class="cmp__price">
           <th scope="row">Price</th>
           {packages.map((p) => <td data-price>{priceLabel(p).text}</td>)}

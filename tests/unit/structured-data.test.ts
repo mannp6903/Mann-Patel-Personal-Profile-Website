@@ -58,4 +58,9 @@ describe('structured data: the business node', () => {
     expect(biz.sameAs).toContain(gbp.mapsUrl ?? gbp.url);
     for (const u of biz.sameAs) expect(u).toMatch(/^https:\/\//);
   });
+
+  it('names the Google Maps listing as its map once the full Maps URL is supplied (SEO report, 18 Nov 2026)', () => {
+    if (gbp.mapsUrl) expect(biz.hasMap).toBe(gbp.mapsUrl);
+    else expect(biz.hasMap).toBeUndefined();
+  });
 });

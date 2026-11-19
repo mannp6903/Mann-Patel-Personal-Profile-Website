@@ -1,4 +1,4 @@
-import { profile, sameAs, businessSameAs, logo } from '../data/site';
+import { profile, sameAs, businessSameAs, logo, gbp } from '../data/site';
 import { groups, addOns, servicesInGroup } from '../data/services';
 import { servicePages, moreServicePages, serviceHref } from '../data/service-pages';
 import { packages, packageById, type Package } from '../data/packages';
@@ -129,6 +129,8 @@ export function businessJsonLd({ withServices = false }: { withServices?: boolea
     ...(range ? { priceRange: range } : {}),
     founder: personRef(),
     ...(businessSameAs.length ? { sameAs: businessSameAs } : {}),
+    // SEO report (18 Nov 2026): the Google Maps listing as the business's map, beside its place in sameAs.
+    ...(gbp.mapsUrl ? { hasMap: gbp.mapsUrl } : {}),
     ...(withServices ? { hasOfferCatalog: serviceCatalog() } : {}),
   };
 }
