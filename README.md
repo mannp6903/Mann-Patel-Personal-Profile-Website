@@ -92,6 +92,7 @@ Cloudflare Workers, connected to GitHub: build command `npm run build:cloudflare
 | [`docs/14-round-7-editorial.md`](docs/14-round-7-editorial.md) | Round 7: the 8 Nov audit applied (work first, free-check path, honest delivery states, case-study evidence, package comparison), verification, the delivery blocker, deploy and rollback |
 | [`docs/23-website-audit/`](docs/23-website-audit/) | Full website audit (10 to 11 Nov 2026): review report and scorecard, prioritized issue register (CSV), approved copy deck, implementation prompt, plan and implementation report |
 | [`docs/25-seo-report-followup.md`](docs/25-seo-report-followup.md) | SEO report follow-up (19 Nov 2026): the missed-call calculator, the demo line and videos (off until supplied), the after-hours study outline, area findings, breadcrumbs on About and Contact, and the tasks skipped for missing decisions |
+| [`docs/28-answer-extractability.md`](docs/28-answer-extractability.md) | Answer extractability on Home (19 Nov 2026): a direct-answer hero subline, self-contained section intros, the "Mann Patel at a glance" summary with a quotable definition, and the two gates that moved (S1, S4) |
 | [`THIRD-PARTY-NOTICES.md`](THIRD-PARTY-NOTICES.md) | What the site uses that others made, and on what terms |
 | [`docs/OWNER-INPUTS.md`](docs/OWNER-INPUTS.md) | Questions and owner actions |
 

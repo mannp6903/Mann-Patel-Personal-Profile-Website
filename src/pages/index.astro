@@ -6,6 +6,7 @@ import ServiceSummary from '../components/home/ServiceSummary.astro';
 import PricingTeaser from '../components/home/PricingTeaser.astro';
 import FreeCheck from '../components/home/FreeCheck.astro';
 import HowIWork from '../components/home/HowIWork.astro';
+import Summary from '../components/home/Summary.astro';
 import Faq from '../components/Faq.astro';
 import ReviewsStrip from '../components/ReviewsStrip.astro';
 import { packageById, priceLabel } from '../data/packages';
@@ -38,5 +39,7 @@ const description = `Websites, local SEO and Google Business Profile setup for T
   <PricingTeaser />
   <FreeCheck />
   <HowIWork />
+  <!-- 19 Nov 2026 (answer extractability): the definition and the core answer, restated before the questions. -->
+  <Summary />
   <Faq limit={5} more rule />
 </BaseLayout>

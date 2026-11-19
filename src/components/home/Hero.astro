@@ -12,6 +12,10 @@
  *
  * Earlier history: 14 Nov 2026 (SEO audit) the H1 became "Websites and local SEO for Toronto small businesses." (place
  * and customer, docs/seo/PLAN.md A7); AI search and automation stay in the subline.
+ *
+ * 19 Nov 2026 (answer extractability, docs/28-answer-extractability.md): the subline is a direct answer, "I’m a web
+ * designer who…", instead of a slogan, and the greeting's role line carries the place ("Based in Scarborough") so the
+ * two don't both say "web designer". Both stay two lines from 375px, so the hero is no taller (gate R3).
  */
 import { Picture } from 'astro:assets';
 import avatar from '../../assets/mann-patel-avatar.jpg';
@@ -37,7 +41,7 @@ const portrait = profile.portrait;
         }
         <p>
           <span class="hero__hi">Hi, I’m {profile.name}.</span>
-          <span class="hero__role">Web designer in Toronto · local SEO and AI automation<span class="hero__status"> · Taking new projects</span></span>
+          <span class="hero__role">Based in Scarborough · local SEO and AI automation<span class="hero__status"> · Taking new projects</span></span>
         </p>
       </div>
 
@@ -45,7 +49,7 @@ const portrait = profile.portrait;
       <h1 class="hero__title" id="hero-title">
         <span class="hero__line">Websites and local SEO</span> <br /><span class="hero__line">for Toronto small businesses<span class="stop">.</span></span>
       </h1>
-      <p class="hero__place">Get found on Google and in AI answers, then turn searches into bookings.</p>
+      <p class="hero__place">I’m a web designer who gets you found on Google and in AI answers, then booked.</p>
 
       <div class="hero__actions">
         <div class="btn-row">

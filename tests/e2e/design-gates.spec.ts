@@ -418,10 +418,11 @@ test.describe('design gates: header and consent (Phase 2)', () => {
 
 // ── Phase 3 (17 Nov 2026): sections and flow ──────────────────────────────────────────────────────────────────────
 test.describe('design gates: structure and layout (Phase 3)', () => {
-  test('S1: Home runs hero, work, (reviews), services, prices, free check, how I work, questions; at most three lime-tipped rules', async ({ page }) => {
+  test('S1: Home runs hero, work, (reviews), services, prices, free check, how I work, summary, questions; at most three lime-tipped rules', async ({ page }) => {
     await page.goto('/');
     const ids = await page.locator('main > section[id]').evaluateAll((els) => els.map((e) => e.id));
-    const expected = ['hero', 'work', 'what-i-do', 'prices', 'check', 'how-i-work', 'faq'];
+    // 19 Nov 2026 (answer extractability): + the "at a glance" summary before the questions.
+    const expected = ['hero', 'work', 'what-i-do', 'prices', 'check', 'how-i-work', 'summary', 'faq'];
     // Real reviews only (src/data/reviews.ts): the strip sits right after Selected Work once there are some.
     expect(ids.filter((id) => id !== 'reviews')).toEqual(expected);
     if (ids.includes('reviews')) expect(ids[ids.indexOf('work') + 1]).toBe('reviews');
@@ -476,10 +477,12 @@ test.describe('design gates: structure and layout (Phase 3)', () => {
     });
   }
 
-  test('S4: Home is at most 11 screens at 390×844 (D9)', async ({ page }) => {
+  // 19 Nov 2026 (answer extractability, docs/28-answer-extractability.md): 11.75, was 11 (D9). The "at a glance"
+  // summary (about 490px at 390) and the self-contained section intros (about 130px) measured 11.67.
+  test('S4: Home is at most 11.75 screens at 390×844 (D9, plus the summary)', async ({ page }) => {
     await page.setViewportSize({ width: 390, height: 844 });
     await page.goto('/');
-    expect(await page.evaluate(() => document.documentElement.scrollHeight / innerHeight)).toBeLessThanOrEqual(11);
+    expect(await page.evaluate(() => document.documentElement.scrollHeight / innerHeight)).toBeLessThanOrEqual(11.75);
   });
 
   test('L1: from 1440 the heads of How I work, Prices and the questions stay in view (sticky)', async ({ page }) => {
