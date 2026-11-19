@@ -59,6 +59,8 @@ Variable names are documented in [`.env.example`](.env.example). Never commit `.
 - Enquiry delivery: `file` (local), `resend` (email), `webhook` (e.g. Google Sheet), `none` (honest "not connected").
 - Analytics: off unless `PUBLIC_GA4_ID` is set; loads only after consent.
 - Spam: honeypot + signed time token (`FORM_TOKEN_SECRET`), optional Turnstile.
+- Demo line: `PUBLIC_DEMO_PHONE` (a build variable) shows a "Try it" box for the fictional Example Cleaning Co. on `/services/enquiry-follow-up/`. Set it only once that line's missed-call text-back is live and tested; empty = no box.
+- Demo videos: add them to `src/data/videos.ts`; the "Watch it work" section, each transcript and the `VideoObject` data appear only while the list has entries.
 
 Setup steps, monitoring, deploy, rollback and recurring costs: [`docs/05-launch-and-integrations.md`](docs/05-launch-and-integrations.md).
 
@@ -89,6 +91,7 @@ Cloudflare Workers, connected to GitHub: build command `npm run build:cloudflare
 | [`docs/19-brand-black-and-white.md`](docs/19-brand-black-and-white.md) | Logo update: MΛNN PΛTEL wordmark, favicons and sharing image (colours unchanged) |
 | [`docs/14-round-7-editorial.md`](docs/14-round-7-editorial.md) | Round 7: the 8 Nov audit applied (work first, free-check path, honest delivery states, case-study evidence, package comparison), verification, the delivery blocker, deploy and rollback |
 | [`docs/23-website-audit/`](docs/23-website-audit/) | Full website audit (10 to 11 Nov 2026): review report and scorecard, prioritized issue register (CSV), approved copy deck, implementation prompt, plan and implementation report |
+| [`docs/25-seo-report-followup.md`](docs/25-seo-report-followup.md) | SEO report follow-up (19 Nov 2026): the missed-call calculator, the demo line and videos (off until supplied), the after-hours study outline, area findings, breadcrumbs on About and Contact, and the tasks skipped for missing decisions |
 | [`THIRD-PARTY-NOTICES.md`](THIRD-PARTY-NOTICES.md) | What the site uses that others made, and on what terms |
 | [`docs/OWNER-INPUTS.md`](docs/OWNER-INPUTS.md) | Questions and owner actions |
 

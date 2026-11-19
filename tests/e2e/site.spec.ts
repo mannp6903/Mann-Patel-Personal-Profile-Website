@@ -27,6 +27,8 @@ const GUIDES = [
   'how-to-get-more-google-reviews',
   'how-to-optimize-google-business-profile',
   'website-redesign-cost-toronto',
+  // SEO report follow-up (19 Nov 2026): the after-hours study, an outline and a draft (previews only).
+  'how-scarborough-businesses-answer-after-hours',
 ];
 
 const PAGES = [
@@ -760,7 +762,9 @@ test.describe('phones: short pages', () => {
     '/services/web-design/': 15, // plus the Website Fix package, the redesign section and its services
     // 16 Nov 2026 (Website Playbook): footer links at least 44 × 44px make the phone footer about 70px taller.
     '/services/local-visibility/': 12.5,
-    '/services/enquiry-follow-up/': 14,
+    // 19 Nov 2026 (SEO report follow-up): + the missed-call calculator (about 1.35 screens at 390), the line on what
+    // the extra over Website Launch buys, and in previews the draft after-hours study's guide link. Was 14.
+    '/services/enquiry-follow-up/': 15.5,
     // 14 Nov 2026 (SEO audit): the intro names Toronto and the GTA, one more line on a phone.
     // 16 Nov 2026 (competitor gap work): + "Which package fits?" (previews also list the draft area pages in the footer).
     '/pricing/': 16,
@@ -2495,6 +2499,132 @@ test.describe('Website Playbook, accessibility and brand (16 Nov 2026)', () => {
         expect(lcp.loading, `${path}: LCP image`).not.toBe('lazy');
         expect(lcp.fp, `${path}: LCP image`).toBe('high');
       }
+    }
+  });
+});
+
+// SEO report follow-up (19 Nov 2026): proof that the automation works, on /services/enquiry-follow-up/. The
+// calculator always shows; the demo line and the videos only once Mann supplies them (nothing renders until then).
+test.describe('enquiry page: calculator, demo line and videos (19 Nov 2026)', () => {
+  const PATH = '/services/enquiry-follow-up/';
+  const box = (page: Page, label: RegExp) => page.locator('#calculator').getByLabel(label);
+  const fill = async (page: Page, values: [RegExp, string][]) => {
+    for (const [label, value] of values) await box(page, label).fill(value);
+  };
+
+  test('the calculator works from the visitor’s own numbers and shows its formula', async ({ page }) => {
+    await page.goto(PATH);
+    const section = page.locator('#calculator');
+    await expect(section.getByRole('heading', { level: 2 })).toHaveText('What missed calls may be worth.');
+    // With JavaScript: the boxes replace the hand-worked explanation, and every box starts empty.
+    await expect(section.locator('[data-calc-nojs]')).toBeHidden();
+    await expect(section.getByRole('form', { name: 'Missed-call calculator' })).toBeVisible();
+    for (const input of await section.locator('input').all()) await expect(input).toHaveValue('');
+    const value = section.locator('[data-calc-value]');
+    await expect(value).toHaveText('Fill in all four numbers');
+
+    await fill(page, [
+      [/Calls to your business/, '12'],
+      [/Share of those calls you miss/, '30'],
+      [/average job/, '$180'],
+      [/would have booked/, '25%'],
+    ]);
+    await expect(value).toHaveText('$702 a month');
+    await expect(section.locator('[data-calc-detail]')).toHaveText('About 15.6 missed calls a month, and 3.9 of those callers would have booked.');
+    await expect(section.locator('[data-calc-formula]')).toHaveText(
+      '12 calls a week × 30% missed × 52 weeks ÷ 12 months × 25% would have booked × $180 a job = $702 a month',
+    );
+    // The result is announced politely; the formula isn't read out at every change.
+    await expect(section.locator('[aria-live="polite"]')).toContainText('$702 a month');
+    await expect(section.locator('[aria-live="polite"] [data-calc-formula]')).toHaveCount(0);
+  });
+
+  test('the calculator says what to fix, from the keyboard, and clears it once fixed', async ({ page }) => {
+    await page.goto(PATH);
+    const section = page.locator('#calculator');
+    // Every box is reached with Tab, in order, and has a hint tied to it.
+    await box(page, /Calls to your business/).focus();
+    for (const label of [/Share of those calls you miss/, /average job/, /would have booked/]) {
+      await page.keyboard.press('Tab');
+      await expect(box(page, label)).toBeFocused();
+    }
+    for (const input of await section.locator('input').all()) {
+      const ids = ((await input.getAttribute('aria-describedby')) ?? '').split(' ');
+      expect(ids.length).toBe(2);
+      for (const id of ids) await expect(page.locator(`#${id}`)).toBeAttached();
+    }
+
+    await fill(page, [
+      [/Calls to your business/, '12'],
+      [/Share of those calls you miss/, '150'],
+      [/average job/, 'lots'],
+      [/would have booked/, '25'],
+    ]);
+    await page.keyboard.press('Tab');
+    await expect(box(page, /Share of those calls you miss/)).toHaveAttribute('aria-invalid', 'true');
+    await expect(section.locator('[data-error-for="missed"]')).toHaveText('Enter a number from 0 to 100.');
+    await expect(section.locator('[data-error-for="job"]')).toHaveText('Enter a number, for example 12.');
+    await expect(section.locator('[data-calc-value]')).toHaveText('Check the numbers above');
+    await expect(section.locator('[data-calc-formula]')).toBeHidden();
+
+    await fill(page, [
+      [/Share of those calls you miss/, '30'],
+      [/average job/, '180'],
+    ]);
+    await expect(section.locator('[data-calc-value]')).toHaveText('$702 a month');
+    await expect(box(page, /Share of those calls you miss/)).toHaveAttribute('aria-invalid', 'false');
+    await expect(section.locator('[data-error-for="missed"]')).toHaveText('');
+  });
+
+  test('the calculator fits a 320px screen and passes axe', async ({ page }) => {
+    await page.setViewportSize({ width: 320, height: 640 });
+    await page.goto(PATH);
+    await revealAll(page);
+    await fill(page, [
+      [/Calls to your business/, '1000'],
+      [/Share of those calls you miss/, '100'],
+      [/average job/, '100000'],
+      [/would have booked/, '100'],
+    ]);
+    await expect(page.locator('#calculator [data-calc-value]')).toHaveText('$433,333,333 a month');
+    await noHorizontalOverflow(page);
+    const overflowing = await page.locator('#calculator').evaluate((s) =>
+      [...s.querySelectorAll<HTMLElement>('input, p, label')].filter((e) => e.getBoundingClientRect().right > innerWidth + 0.5).map((e) => e.outerHTML.slice(0, 60)),
+    );
+    expect(overflowing).toEqual([]);
+    const axe = await new AxeBuilder({ page } as unknown as ConstructorParameters<typeof AxeBuilder>[0])
+      .include('#calculator')
+      .withTags(['wcag2a', 'wcag2aa', 'wcag21a', 'wcag21aa', 'wcag22aa'])
+      .analyze();
+    const summary = axe.violations.map((v) => `${v.id} (${v.impact}): ${v.nodes.length} × ${v.nodes[0]?.target.join(' ')}`);
+    expect(summary, summary.join('\n')).toEqual([]);
+  });
+
+  test('without JavaScript, the calculator is a short explanation of the same sum', async ({ browser }) => {
+    const ctx = await browser.newContext({ javaScriptEnabled: false });
+    const page = await ctx.newPage();
+    await page.goto(PATH);
+    const section = page.locator('#calculator');
+    await expect(section.locator('[data-calc-nojs]')).toBeVisible();
+    await expect(section.locator('[data-calc-nojs]')).toContainText('52 weeks ÷ 12 months');
+    await expect(section.locator('form')).toBeHidden();
+    await ctx.close();
+  });
+
+  test('the demo line and the videos show nothing until Mann supplies them', async ({ page }) => {
+    await page.goto(PATH);
+    // PUBLIC_DEMO_PHONE is not set in the test build; the videos list is empty in src/data/videos.ts.
+    const noVideos = /export const videos: Video\[\] = \[\];/.test(readFileSync('src/data/videos.ts', 'utf8'));
+    if (!process.env.PUBLIC_DEMO_PHONE) await expect(page.locator('[data-demo-line]')).toHaveCount(0);
+    if (noVideos) {
+      await expect(page.locator('#videos')).toHaveCount(0);
+      const blocks = await page.$$eval('script[type="application/ld+json"]', (s) => s.map((x) => x.textContent || ''));
+      expect(blocks.join(' ')).not.toContain('"VideoObject"');
+    }
+    // Only this page carries them.
+    for (const other of ['/services/web-design/', '/services/local-visibility/']) {
+      await page.goto(other);
+      await expect(page.locator('#calculator, [data-demo-line], #videos')).toHaveCount(0);
     }
   });
 });

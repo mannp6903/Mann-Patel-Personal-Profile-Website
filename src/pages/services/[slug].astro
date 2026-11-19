@@ -13,6 +13,8 @@ import Button from '../../components/ui/Button.astro';
 import Icon from '../../components/ui/Icon.astro';
 import PackageCard from '../../components/packages/PackageCard.astro';
 import EnquiryDemo from '../../components/EnquiryDemo.astro';
+import DemoLine from '../../components/DemoLine.astro';
+import MissedCallCalculator from '../../components/MissedCallCalculator.astro';
 import ServiceDetails from '../../components/ServiceDetails.astro';
 import ReviewsStrip from '../../components/ReviewsStrip.astro';
 import { profile } from '../../data/site';
@@ -20,7 +22,8 @@ import { servicePages, moreServicePages, type ServicePage } from '../../data/ser
 import FreeCheck from '../../components/home/FreeCheck.astro';
 import { packageById, priceLabel, type Package } from '../../data/packages';
 import { absoluteUrl } from '../../lib/mode';
-import { breadcrumbJsonLd, businessRef, packageOffer } from '../../lib/seo';
+import { breadcrumbJsonLd, businessRef, packageOffer, videoJsonLd } from '../../lib/seo';
+import { videos, videoLength } from '../../data/videos';
 import { projectSite } from '../../lib/work';
 import { industryPages } from '../../data/industry-pages';
 import { areaHref, visibleGuides } from '../../lib/published';
@@ -80,11 +83,14 @@ const crumbs = breadcrumbJsonLd([
   { name: 'Services', path: '/services/' },
   { name: page.short, path },
 ]);
+// SEO report follow-up (19 Nov 2026): demo videos, each with its transcript, only while src/data/videos.ts has some.
+const shownVideos = page.proof ? videos : [];
+const videoLd = shownVideos.map(videoJsonLd);
 const fmtDate = (iso: string) =>
   new Intl.DateTimeFormat('en-CA', { day: 'numeric', month: 'short', year: 'numeric', timeZone: 'UTC' }).format(new Date(`${iso}T12:00:00Z`));
 ---
 
-<BaseLayout title={page.title} description={page.description} jsonLd={[serviceLd, faqLd, ...(crumbs ? [crumbs] : [])]}>
+<BaseLayout title={page.title} description={page.description} jsonLd={[serviceLd, faqLd, ...videoLd, ...(crumbs ? [crumbs] : [])]}>
   <nav class="crumbs container" aria-label="Breadcrumb">
     <ol role="list">
       <li><a href="/services/">Services</a></li>
@@ -101,7 +107,8 @@ const fmtDate = (iso: string) =>
       <p class="sp__price small">
         <span class="subtle">{main.name}:</span> <span data-price>{priceLabel(main).text}</span>
       </p>
-      <!-- SEO audit Phase 2 (14 Nov 2026): where I'm based, and local proof (Samp Hair & Spa is in Scarborough). -->
+      {/* SEO audit Phase 2 (14 Nov 2026): where I'm based, and local proof (Samp Hair & Spa is in Scarborough). As a
+          template note (19 Nov 2026), so it stays out of the built page. */}
       <p class="sp__local small" data-local>
         Based in {scarborough ? <a class="link" href={scarborough}>{profile.location}</a> : profile.location}, working across {profile.serviceArea}. Local work:{' '}
         <a class="link" href="/work/samp-hair-spa/">Samp Hair &amp; Spa</a>, a Scarborough salon (website in progress), and{' '}
@@ -197,7 +204,59 @@ const fmtDate = (iso: string) =>
               Fictional business, fictional customer: this shows the shape of a workflow, not a real client. Choose any step.
             </p>
           </div>
+          {page.proof && <DemoLine />}
           <EnquiryDemo id="demo-walkthrough" />
+        </div>
+      </section>
+    )
+  }
+
+  {
+    shownVideos.length > 0 && (
+      <section class="section section--rule" id="videos" aria-labelledby="videos-title">
+        <div class="container stack" style="--stack: var(--s-6)">
+          <div class="section-head">
+            <p class="eyebrow">Watch it work</p>
+            <h2 id="videos-title" class="sp__h2">
+              Each workflow, <span class="accent">on a real screen.</span>
+            </h2>
+            <p class="muted">Short screen recordings with test data. Each transcript is below its video.</p>
+          </div>
+          <ul class="sp__videos" role="list">
+            {shownVideos.map((v) => (
+              <li class="sp__video">
+                <h3>{v.title}</h3>
+                <p class="muted small">
+                  {v.description}
+                  {videoLength(v.duration) && <span class="num"> · {videoLength(v.duration)}</span>}
+                </p>
+                <a class="link-arrow" href={v.url} rel="noopener">
+                  Watch the video<span class="visually-hidden">: {v.title}</span> <Icon name="arrow" />
+                </a>
+                <div class="sp__transcript">
+                  <h4>Transcript</h4>
+                  <p>{v.transcript}</p>
+                </div>
+              </li>
+            ))}
+          </ul>
+        </div>
+      </section>
+    )
+  }
+
+  {
+    page.proof && (
+      <section class="section section--rule" id="calculator" aria-labelledby="calc-title">
+        <div class="container sp__split">
+          <div class="stack" style="--stack: var(--s-4)">
+            <p class="eyebrow">Missed-call calculator</p>
+            <h2 id="calc-title" class="sp__h2">
+              What missed calls <span class="accent">may be worth.</span>
+            </h2>
+            <p class="muted">Four numbers from your own week. The result uses only what you type.</p>
+          </div>
+          <MissedCallCalculator id="calc" />
         </div>
       </section>
     )
@@ -687,6 +746,44 @@ const fmtDate = (iso: string) =>
   }
   .sp__sources {
     margin-top: var(--s-5);
+  }
+  .sp__videos {
+    display: grid;
+    gap: var(--s-4);
+  }
+  @media (min-width: 56em) {
+    .sp__videos {
+      grid-template-columns: repeat(2, minmax(0, 1fr));
+    }
+  }
+  .sp__video {
+    display: grid;
+    align-content: start;
+    gap: var(--s-3);
+    padding: clamp(var(--s-4), 2.5vw, var(--s-6));
+    border: 1px solid var(--line);
+    border-radius: var(--r-lg);
+    background: var(--surface);
+  }
+  .sp__video h3 {
+    font-size: var(--fs-h3);
+  }
+  .sp__transcript {
+    display: grid;
+    gap: var(--s-2);
+    padding-top: var(--s-3);
+    border-top: 1px solid var(--line);
+    font-size: var(--fs-sm);
+    color: var(--text-2);
+  }
+  .sp__transcript h4 {
+    font-size: var(--fs-ui);
+    font-weight: var(--w-head);
+    color: var(--text);
+  }
+  .sp__transcript p {
+    max-width: var(--measure);
+    white-space: pre-line;
   }
   .sp__more {
     display: grid;

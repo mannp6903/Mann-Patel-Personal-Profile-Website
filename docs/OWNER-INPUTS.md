@@ -92,6 +92,21 @@ hidden until you send it; nothing is guessed.
 6. **Landing page design** (which package covers it, or drop it) and **a larger-site tier** (name, price, page limit, or
    skip): not built until you decide.
 
+## From the SEO report follow-up (19 Nov 2026)
+
+Record: [`docs/25-seo-report-followup.md`](25-seo-report-followup.md). Built and switched off until you supply them:
+
+1. **Decisions D1 to D13** in the master prompt (Facebook Page, review link, Enquiry Setup and Enquiry Care prices, a
+   "Stay found" price, text-back and confirmation-email checks, hero line, "AI" wording, print add-ons, reviews). Every
+   task that needs one was skipped.
+2. **Demo line** → build variable `PUBLIC_DEMO_PHONE` (a separate number for the fictional Example Cleaning Co.). Turns
+   on the "Try it" box on `/services/enquiry-follow-up/`. Set it only after testing the text-back from another phone.
+3. **Demo videos** → `src/data/videos.ts` (with a thumbnail and a word-for-word transcript). Turns on "Watch it work"
+   and the video structured data on the same page.
+4. **After-hours study** → run the calls, fill in
+   `src/content/guides/how-scarborough-businesses-answer-after-hours.md`, then publish it, and add `localFindings` to
+   the Scarborough (and North York) entries in `src/data/areas.ts` for the "What I found" block.
+
 ## Accounts and live actions (only Mann can do these)
 
 | Action | Why | Where it's explained |
@@ -117,7 +132,9 @@ hidden until you send it; nothing is guessed.
 | FAQ | `src/data/faqs.ts` |
 | Case studies | `src/content/work/*.md` |
 | Industry pages (cleaning companies, salons and spas) | `src/data/industry-pages.ts` |
-| Area pages (Scarborough) and their neighbourhoods | `src/data/areas.ts` |
+| Area pages (Scarborough) and their neighbourhoods, plus "What I found" (`localFindings`) | `src/data/areas.ts` |
+| Demo videos on the enquiry page | `src/data/videos.ts` |
+| Missed-call calculator (labels, limits, arithmetic) | `src/lib/missed-calls.ts` |
 | Guides (drafts until `draft: false`) | `src/content/guides/*.md` |
 | About story and principles | `src/pages/about.astro` |
 | Home hero wording | `src/components/home/Hero.astro` |

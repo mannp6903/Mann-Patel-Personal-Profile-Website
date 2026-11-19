@@ -40,6 +40,8 @@ const path = areaPath(area);
 // Local proof: the projects in this area, with their honest labels.
 const work = (await getCollection('work')).sort((a, b) => a.data.order - b.data.order).filter((w) => w.data.location?.includes(area.name));
 const lines = area.lines.map((l, i) => (i === area.lines.length - 1 ? accentLine(l) : l));
+// "What I found in <area>" (SEO report follow-up, 19 Nov 2026): shown only once Mann fills it in.
+const findings = area.localFindings?.points.length ? area.localFindings : null;
 const faqLd = {
   '@context': 'https://schema.org',
   '@type': 'FAQPage',
@@ -134,7 +136,32 @@ const crumbs = breadcrumbJsonLd([
     )
   }
 
-  <!-- Real client reviews only (src/data/reviews.ts); renders nothing until there are some. -->
+  {
+    // What I found here (19 Nov 2026): Mann's own local checks, only once he fills them in (src/data/areas.ts).
+    findings && (
+      <section class="section section--rule" data-local-findings aria-labelledby="ar-found-title">
+        <div class="container sp-found">
+          <div class="stack" style="--stack: var(--s-4)">
+            <p class="eyebrow">Local findings</p>
+            <h2 id="ar-found-title" class="ar__h2">
+              What I found <span class="accent">in {area.name}.</span>
+            </h2>
+            <p class="muted small">{findings.how}</p>
+          </div>
+          <ul class="ar__found" role="list">
+            {findings.points.map((point) => (
+              <li>
+                <Icon name="check" />
+                <span>{point}</span>
+              </li>
+            ))}
+          </ul>
+        </div>
+      </section>
+    )
+  }
+
+  {/* Real client reviews only (src/data/reviews.ts); renders nothing until there are some. */}
   <ReviewsStrip />
 
   <section class="section section--alt" data-neighbourhoods aria-labelledby="ar-areas-title">
@@ -314,6 +341,35 @@ const crumbs = breadcrumbJsonLd([
   .ar__example {
     max-width: 60ch;
     color: var(--text-2);
+  }
+  .sp-found {
+    display: grid;
+    gap: var(--s-6);
+  }
+  @media (min-width: 64em) {
+    .sp-found {
+      grid-template-columns: minmax(0, 0.8fr) minmax(0, 1.2fr);
+      gap: var(--s-9);
+    }
+  }
+  .ar__found {
+    display: grid;
+    gap: var(--s-3);
+  }
+  .ar__found li {
+    display: flex;
+    gap: var(--s-3);
+    align-items: flex-start;
+  }
+  .ar__found li > span {
+    max-width: var(--measure);
+  }
+  .ar__found :global(.icon) {
+    flex: none;
+    width: 1.1rem;
+    height: 1.1rem;
+    margin-top: 0.2em;
+    color: var(--signal);
   }
   .ar__hoods {
     display: flex;

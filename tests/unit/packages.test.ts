@@ -1,5 +1,6 @@
 import { describe, it, expect } from 'vitest';
-import { packages, checkUp, normalizePackageId, packageById, priceLabel, pricesPublished, legacyPackageIds, type Package } from '../../src/data/packages';
+import { packages, checkUp, normalizePackageId, packageById, priceLabel, pricesPublished, legacyPackageIds, upgradeNote, type Package } from '../../src/data/packages';
+import { readFileSync } from 'node:fs';
 import { PACKAGE_OPTIONS, SERVICE_IDS } from '../../src/lib/enquiry/options';
 import { validateEnquiry } from '../../src/lib/enquiry/validate';
 
@@ -57,5 +58,19 @@ describe('packages: one source of truth (round 10)', () => {
     expect(priceLabel(checkUp).text).toBe('Free');
     // The pricing page is published only once at least one paid package has an approved price.
     expect(pricesPublished).toBe(packages.some((p) => p.price.amount !== null));
+  });
+
+  // SEO report follow-up (19 Nov 2026): one plain line on what the step up from Website Launch buys, worked out from
+  // the two prices so it can never disagree with them.
+  it('Website + Enquiry System says what its extra over Website Launch buys, from the two prices', () => {
+    const enquiry = packageById('website-enquiry')!;
+    const launch = packageById('website-launch')!;
+    const extra = enquiry.price.amount! - launch.price.amount!;
+    expect(extra).toBe(1400);
+    expect(upgradeNote(enquiry)).toBe('The extra $1,400 over Website Launch buys one booking integration plus one workflow.');
+    expect(readFileSync('public/llms.txt', 'utf8')).toContain(upgradeNote(enquiry)!);
+    // No note for packages built on nothing, or once either price is unpublished.
+    for (const p of packages.filter((x) => x.id !== 'website-enquiry')) expect(upgradeNote(p)).toBeNull();
+    expect(upgradeNote({ ...enquiry, price: { amount: null, unit: 'one-time' } })).toBeNull();
   });
 });

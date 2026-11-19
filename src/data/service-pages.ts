@@ -74,6 +74,12 @@ export interface ServicePage {
   asides?: Aside[];
   /** Show the fictional enquiry walkthrough. */
   demo?: boolean;
+  /**
+   * SEO report follow-up (19 Nov 2026): show the missed-call calculator (src/components/MissedCallCalculator.astro),
+   * the demo line's "Try it" box (only while PUBLIC_DEMO_PHONE is set) and the demo videos (only while
+   * src/data/videos.ts has entries).
+   */
+  proof?: boolean;
   limits: string[];
   /** Costs other providers bill, in plain words. */
   costs: string;
@@ -377,6 +383,7 @@ export const servicePages: ServicePage[] = [
     ],
     work: [],
     demo: true,
+    proof: true,
     testLog: {
       id: 'test-log',
       badge: 'Sample · fictional test log',
