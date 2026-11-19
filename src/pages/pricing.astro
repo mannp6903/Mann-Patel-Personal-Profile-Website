@@ -104,8 +104,8 @@ const faqLd = {
   jsonLd={[faqLd, ...(crumbs ? [crumbs] : [])]}
 >
   <PageHead
-    eyebrow="Pricing"
-    lines={['What it costs,', '<span class="accent">and what it covers</span><span class="stop">.</span>']}
+    eyebrow="What it costs, and what it covers"
+    lines={['Web design and local SEO', '<span class="accent">prices in Toronto</span><span class="stop">.</span>']}
     lead="Five offers for small businesses in Toronto and the GTA, each with a published price and a clear boundary, plus a free check if you’re not sure where to start. All prices in Canadian dollars, plus applicable tax."
 
   >
@@ -116,8 +116,8 @@ const faqLd = {
   <section class="section section--rule" aria-labelledby="pr-packages">
     <div class="container stack" style="--stack: var(--s-6)">
       <h2 id="pr-packages" class="visually-hidden">Packages</h2>
-      <!-- 14 Nov 2026: the free check is the sixth tile, so the offers sit in a tidy grid (3 × 2 on
-           desktop, 2 × 3 on tablets) instead of three cards, two wider cards and a banner. -->
+      {/* 14 Nov 2026: the free check is the sixth tile, so the offers sit in a tidy grid (3 × 2 on
+           desktop, 2 × 3 on tablets) instead of three cards, two wider cards and a banner. */}
       <ol class="pr__grid" role="list">
         {packages.map((p) => <PackageCard pkg={p} level={3} />)}
         <li class="pr__free" id="pkg-check-up">
@@ -180,7 +180,7 @@ const faqLd = {
     </div>
   </section>
 
-  <!-- Real client reviews only (src/data/reviews.ts); renders nothing until there are some. -->
+  {/* Real client reviews only (src/data/reviews.ts); renders nothing until there are some. */}
   <ReviewsStrip />
 
 
@@ -243,7 +243,7 @@ const faqLd = {
   <section class="section section--rule" aria-labelledby="pr-faq">
     <div class="container pr__split">
       <div class="stack" style="--stack: var(--s-4)">
-        <!-- 16 Nov 2026: a question people search for; the slogan is the eyebrow. -->
+        {/* 16 Nov 2026: a question people search for; the slogan is the eyebrow. */}
         <p class="eyebrow">Before you decide</p>
         <h2 id="pr-faq" class="pr__h2">What’s included <span class="accent">in the price?</span></h2>
         {
