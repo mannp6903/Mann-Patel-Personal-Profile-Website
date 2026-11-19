@@ -39,6 +39,14 @@ export const profile = {
   intro:
     'I’m Mann Patel, a Toronto web designer and AI automation builder. I help local businesses get found on Google, reply to enquiries faster, and turn website visits into booking requests.',
   /**
+   * The one-sentence definition answer engines can quote (answer extractability, 19 Nov 2026). Third person and
+   * self-contained, so it still reads right when lifted out of the page. Shown in Home's "at a glance" summary. It matches
+   * the summary that opens public/llms.txt and the Person and business descriptions in the structured data
+   * (src/lib/seo.ts): change them together.
+   */
+  definition:
+    'Mann Patel is an independent web designer in Scarborough, Toronto, who builds websites, sets up local SEO and Google Business Profiles, and connects enquiry follow-up and online booking for small businesses in Toronto and the GTA.',
+  /**
    * Public location. 14 Nov 2026 (SEO audit): "Based in Scarborough, working across Toronto and the GTA".
    * A district only: never a street address (service-area business).
    */

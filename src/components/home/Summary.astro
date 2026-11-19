@@ -1,0 +1,76 @@
+---
+/**
+ * Home: the short version (answer extractability, 19 Nov 2026; docs/28-answer-extractability.md). One definition
+ * sentence an answer engine can quote as it stands (profile.definition, third person, no pronouns), then the core answer
+ * restated: what the work does, what it costs and the first step. It sits before the questions, so the page ends on its
+ * own summary. Prices come from src/data/packages.ts; the sentence about them is left out if either price is unset.
+ */
+import { profile } from '../../data/site';
+import { packageById, priceLabel } from '../../data/packages';
+
+const launch = priceLabel(packageById('website-launch')!);
+const local = priceLabel(packageById('local-visibility')!);
+---
+
+<!-- A plain heading, as in the work, services and prices heads: Home stays within 950 elements (gate P3). -->
+<section class="sum section section--rule" id="summary" aria-labelledby="summary-title">
+  <div class="container sum__grid">
+    <!-- The eyebrow and heading share one stacked head (as in the questions), so the text beside them on wide screens
+         can't stretch the gap between them (gate L4). -->
+    <div class="sum__head stack" style="--stack: var(--head-gap-2)">
+      <p class="eyebrow">05 / Summary</p>
+      <h2 id="summary-title" class="sum__title">Mann Patel <span class="accent">at a glance.</span></h2>
+    </div>
+    <div class="sum__body">
+      <p class="sum__def">{profile.definition}</p>
+      <p class="muted">
+        The work helps a business get found on Google and in AI answers, then booked.
+        {
+          launch.approved && local.approved && (
+            <>
+              Websites start at {launch.text} and local search setup is {local.text} (CAD, plus tax), and the first step is a{' '}
+              <a href="/contact/?package=check-up#check">free website and Google check</a>.
+            </>
+          )
+        }
+      </p>
+    </div>
+  </div>
+</section>
+
+<style>
+  /* Phones: tight section padding, as the sections around it (gate S4). */
+  @media (max-width: 39.99em) {
+    .sum {
+      padding-block: var(--section-tight);
+    }
+  }
+  .sum__grid {
+    display: grid;
+    row-gap: var(--head-gap-2);
+  }
+  .sum__title {
+    font-size: var(--fs-h2);
+    letter-spacing: var(--track-head);
+    line-height: 1;
+    max-width: 12ch;
+    text-wrap: balance;
+  }
+  .sum__body {
+    display: grid;
+    gap: var(--s-4);
+    max-width: var(--measure);
+  }
+  .sum__def {
+    color: var(--text);
+    font-weight: var(--w-ui);
+  }
+  /* Wide screens: the head on the left, the summary beside it, as in the services head. */
+  @media (min-width: 64em) {
+    .sum__grid {
+      grid-template-columns: minmax(0, 1.1fr) minmax(0, 1fr);
+      align-items: end;
+      column-gap: var(--s-8);
+    }
+  }
+</style>

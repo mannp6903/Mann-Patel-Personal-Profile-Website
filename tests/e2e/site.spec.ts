@@ -746,7 +746,8 @@ test.describe('phones: short pages', () => {
     // (Website Fix) and a worked salon example.
     // D9 (design upgrade, 17 Nov 2026; applied in Phase 3 with gate S4, Mann's choice): 11 screens, was 13.5. The slimmer
     // hero (Phase 2) and the service and promise bentos as swipe rails on phones (Phase 3) make the room.
-    '/': 11,
+    // 19 Nov 2026 (answer extractability): + the "at a glance" summary and self-contained section intros (11.67). Was 11.
+    '/': 11.75,
     // 14 Nov 2026 (SEO audit Phase 2): /services/ is a short overview now; each service's details moved
     // to its service page as closed "Service by service" accordions (plus the redesign section on web design).
     '/services/': 9,
@@ -1980,8 +1981,32 @@ test.describe('audit of 11 Nov 2026', () => {
     await expect(lines.nth(0)).toHaveText('Websites and local SEO');
     await expect(lines.nth(1)).toHaveText('for Toronto small businesses.');
     // 14 Nov 2026 (founder profile): the outcome line sits under the H1 instead of inside it.
+    // 19 Nov 2026 (answer extractability): it is a direct answer now, not a slogan.
     await expect(page.locator('#hero-title .hero__place')).toHaveCount(0);
-    await expect(page.locator('.hero .hero__place')).toHaveText('Get found on Google and in AI answers, then turn searches into bookings.');
+    await expect(page.locator('.hero .hero__place')).toHaveText('I’m a web designer who gets you found on Google and in AI answers, then booked.');
+  });
+
+  test('Home is easy to quote: an answer-first opening, a definition and a summary that restates it', async ({ page }) => {
+    await page.goto('/');
+    // The first two paragraphs: who and where (the greeting), then what the work does (no slogan, no "welcome").
+    const opening = await page.locator('.hero__hello p, .hero__place').allInnerTexts();
+    expect(opening).toHaveLength(2);
+    expect(opening[0].replace(/\s+/g, ' ')).toContain('Based in Scarborough');
+    expect(opening[1]).toMatch(/^I’m a web designer who /);
+    // The summary: a heading that says what it is, the definition as it stands in src/data/site.ts, then prices from
+    // src/data/packages.ts and the first step.
+    const summary = page.locator('main > section#summary');
+    await expect(summary.locator('h2')).toHaveText('Mann Patel at a glance.');
+    await expect(summary.locator('.sum__def')).toHaveText(
+      'Mann Patel is an independent web designer in Scarborough, Toronto, who builds websites, sets up local SEO and Google Business Profiles, and connects enquiry follow-up and online booking for small businesses in Toronto and the GTA.',
+    );
+    await expect(summary).toContainText('Websites start at $1,950 and local search setup is $650 (CAD, plus tax)');
+    await expect(summary.getByRole('link', { name: 'free website and Google check' })).toHaveAttribute('href', '/contact/?package=check-up#check');
+    // Every section intro answers on its own: it names its subject rather than leaning on the cards around it.
+    await expect(page.locator('.sw__intro')).toContainText('Nest & Rest Cleaning is a home-cleaning business');
+    await expect(page.locator('.ss__lead')).toContainText('I offer three services for small businesses in Toronto and the GTA');
+    await expect(page.locator('.pt__lead')).toContainText('A website costs $1,950 for up to five pages, or $3,350');
+    await expect(page.locator('.about__lead')).toContainText('from a short brief to a written handover');
   });
 
   test('phones: the hero photo is sized for the screen, and the pause button is reachable on touch', async ({ browser }) => {

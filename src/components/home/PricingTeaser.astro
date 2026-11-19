@@ -4,9 +4,13 @@
  * costs and the one-line boundary of what that price covers. Full detail lives on /pricing/.
  * Everything reads from src/data/packages.ts.
  */
-import { packages, priceLabel, priceTerms } from '../../data/packages';
+import { packageById, packages, priceLabel, priceTerms } from '../../data/packages';
 import Button from '../ui/Button.astro';
 import Icon from '../ui/Icon.astro';
+
+// 19 Nov 2026 (answer extractability): the lead opens with the answer to the heading, in prices from the same file.
+const launch = packageById('website-launch')!;
+const enquiry = packageById('website-enquiry')!;
 ---
 
 <section class="pt section rule-signal" id="prices" aria-labelledby="pt-title">
@@ -16,8 +20,13 @@ import Icon from '../ui/Icon.astro';
       <p class="eyebrow">03 / Prices you can see before you call</p>
       <h2 id="pt-title" class="pt__title">Website prices <span class="accent">in Toronto (CAD).</span></h2>
       <p class="muted pt__lead">
-        Each price covers the scope written under it. Anything outside that is quoted in writing before any work starts, and
-        your domain, hosting and tools are billed to you directly, in your name.
+        {
+          priceLabel(launch).approved && priceLabel(enquiry).approved && (
+            <>A website costs {priceLabel(launch).text} for up to five pages, or {priceLabel(enquiry).text} with a booking integration and one follow-up workflow. </>
+          )
+        }
+        Anything outside a price’s written scope is quoted in writing first, and your domain, hosting and tools are billed to
+        you directly, in your name.
       </p>
       <p class="small subtle">All prices in Canadian dollars, plus applicable tax. Websites: half at kickoff, half once the agreed launch checks pass.</p>
       <div class="btn-row">
