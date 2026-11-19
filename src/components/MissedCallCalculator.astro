@@ -1,0 +1,217 @@
+---
+/**
+ * Missed-call calculator (SEO report follow-up, 19 Nov 2026), on /services/enquiry-follow-up/.
+ *
+ * Four of the visitor's own numbers in, the value at stake each month out, with the formula written under the result.
+ * The arithmetic is src/lib/missed-calls.ts (unit-tested); this file only reads the boxes and writes the result.
+ * - Nothing is filled in for the visitor: no defaults, no averages, no claim about what a text-back wins back.
+ * - Plain text boxes with a numeric keyboard (`inputmode`), so "$180" or "30%" are understood; labels and hints tied to
+ *   each box, an error under a box that isn't a number in range, and the result in a polite live region (the formula
+ *   is shown beside it, not read out at every change).
+ * - Without JavaScript the boxes stay hidden and a short paragraph explains the same sum, to do by hand.
+ */
+import { FIELDS } from '../lib/missed-calls';
+
+interface Props {
+  id?: string;
+}
+const { id = 'calc' } = Astro.props;
+---
+
+<div class="calc" data-calc>
+  <p class="calc__nojs muted" data-calc-nojs>
+    To work it out yourself: take your calls in a usual week, multiply by the share you miss, then by 52 weeks ÷ 12
+    months, then by the share of those callers who would have booked, and by your average job. That is the value at
+    stake each month, from your own numbers.
+  </p>
+
+  <form class="calc__form" data-calc-form hidden novalidate aria-label="Missed-call calculator">
+    <div class="calc__fields">
+      {
+        FIELDS.map((f) => (
+          <div class="field">
+            <label for={`${id}-${f.name}`}>{f.label}</label>
+            <p class="hint" id={`${id}-${f.name}-hint`}>
+              {f.hint}
+            </p>
+            <div class="calc__box">
+              <input
+                class="input"
+                id={`${id}-${f.name}`}
+                name={f.name}
+                type="text"
+                inputmode={f.mode}
+                autocomplete="off"
+                spellcheck="false"
+                aria-describedby={`${id}-${f.name}-hint ${id}-${f.name}-error`}
+              />
+              <span class="calc__unit" aria-hidden="true">
+                {f.unit}
+              </span>
+            </div>
+            <p class="error-text" id={`${id}-${f.name}-error`} data-error-for={f.name}></p>
+          </div>
+        ))
+      }
+    </div>
+
+    <div class="calc__result">
+      <div class="calc__live" aria-live="polite" aria-atomic="true">
+        <p class="calc__label">Value at stake each month</p>
+        <p class="calc__value" data-calc-value>Fill in all four numbers</p>
+        <p class="calc__detail" data-calc-detail hidden></p>
+      </div>
+      <p class="calc__formula small" data-calc-formula hidden></p>
+    </div>
+    <p class="calc__note small subtle">
+      Your estimate, from your numbers only. It shows what missed calls may be worth, not what any set-up will win back.
+      Nothing you type here is sent anywhere.
+    </p>
+  </form>
+</div>
+
+<script>
+  import { FIELDS, parseInputs, calculate, fmtValue, fmtDetail, fmtFormula, type FieldName } from '../lib/missed-calls';
+
+  document.querySelectorAll<HTMLElement>('[data-calc]').forEach((root) => {
+    const form = root.querySelector<HTMLFormElement>('[data-calc-form]')!;
+    const value = root.querySelector<HTMLElement>('[data-calc-value]')!;
+    const detail = root.querySelector<HTMLElement>('[data-calc-detail]')!;
+    const formula = root.querySelector<HTMLElement>('[data-calc-formula]')!;
+    const input = (name: FieldName) => form.elements.namedItem(name) as HTMLInputElement;
+    const error = (name: FieldName) => form.querySelector<HTMLElement>(`[data-error-for="${name}"]`)!;
+
+    // The calculator works: swap the hand-worked explanation for the boxes.
+    root.querySelector<HTMLElement>('[data-calc-nojs]')!.hidden = true;
+    form.hidden = false;
+
+    const read = () => parseInputs(Object.fromEntries(FIELDS.map((f) => [f.name, input(f.name).value])));
+
+    const update = () => {
+      const parsed = read();
+      // An empty box is not an error: the visitor just hasn't got to it yet.
+      for (const f of FIELDS) {
+        const message = parsed.ok ? '' : (parsed.errors[f.name] ?? '');
+        if (error(f.name).textContent !== message) error(f.name).textContent = message;
+        input(f.name).setAttribute('aria-invalid', String(Boolean(message)));
+      }
+      if (!parsed.ok) {
+        value.textContent = Object.keys(parsed.errors).length ? 'Check the numbers above' : 'Fill in all four numbers';
+        detail.hidden = formula.hidden = true;
+        return;
+      }
+      const result = calculate(parsed.value);
+      value.textContent = fmtValue(result);
+      detail.textContent = fmtDetail(result);
+      formula.textContent = fmtFormula(parsed.value, result);
+      detail.hidden = formula.hidden = false;
+    };
+
+    // A short pause after typing, so a screen reader hears the result once, not at every key.
+    let timer = 0;
+    form.addEventListener('input', () => {
+      clearTimeout(timer);
+      timer = window.setTimeout(update, 250);
+    });
+    form.addEventListener('change', () => {
+      clearTimeout(timer);
+      update();
+    });
+    // Never reload the page if the form is submitted.
+    form.addEventListener('submit', (e) => {
+      e.preventDefault();
+      update();
+    });
+  });
+</script>
+
+<style>
+  .calc {
+    display: grid;
+    gap: var(--s-5);
+  }
+  .calc__nojs {
+    max-width: var(--measure);
+  }
+  .calc__form {
+    display: grid;
+    gap: var(--s-5);
+  }
+  .calc__form[hidden],
+  .calc__nojs[hidden] {
+    display: none;
+  }
+  .calc__fields {
+    display: grid;
+    gap: var(--s-5);
+  }
+  @media (min-width: 40em) {
+    .calc__fields {
+      grid-template-columns: repeat(2, minmax(0, 1fr));
+    }
+    /* Side by side, the hint row takes up the difference, so both boxes in a row line up when one label wraps. */
+    .calc__fields > .field {
+      grid-template-rows: auto 1fr auto;
+    }
+  }
+  .calc__box {
+    display: flex;
+    align-items: center;
+    gap: var(--s-3);
+  }
+  .calc__box .input {
+    flex: 1 1 auto;
+    min-width: 0;
+    font-variant-numeric: tabular-nums;
+  }
+  .calc__unit {
+    flex: none;
+    min-width: 2.75rem;
+    font-family: var(--font-mono);
+    font-size: var(--fs-label);
+    color: var(--text-2);
+  }
+  .calc__result,
+  .calc__live {
+    display: grid;
+    gap: var(--s-2);
+  }
+  .calc__result {
+    gap: var(--s-3);
+    padding: clamp(var(--s-4), 2.5vw, var(--s-6));
+    border: 1px solid var(--line);
+    border-radius: var(--r-lg);
+    background: var(--surface);
+  }
+  .calc__label {
+    font-family: var(--font-mono);
+    font-size: var(--fs-label);
+    text-transform: uppercase;
+    letter-spacing: var(--track-label);
+    color: var(--text-3);
+  }
+  /* Lime budget: a result is a price, so it is white, in tabular figures. */
+  .calc__value {
+    font-size: var(--fs-h3);
+    font-weight: var(--w-head);
+    letter-spacing: var(--track-head);
+    line-height: 1.2;
+    font-variant-numeric: tabular-nums;
+    color: var(--text);
+  }
+  .calc__detail,
+  .calc__formula,
+  .calc__note {
+    max-width: var(--measure);
+  }
+  .calc__detail {
+    color: var(--text-2);
+  }
+  .calc__formula {
+    padding-top: var(--s-3);
+    border-top: 1px solid var(--line);
+    font-variant-numeric: tabular-nums;
+    color: var(--text-2);
+    overflow-wrap: anywhere;
+  }
+</style>

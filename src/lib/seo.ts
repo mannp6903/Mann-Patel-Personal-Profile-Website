@@ -4,6 +4,7 @@ import { servicePages, moreServicePages, serviceHref } from '../data/service-pag
 import { packages, packageById, type Package } from '../data/packages';
 import { areas, areaIsDraft, areaPath } from '../data/areas';
 import { contact } from './contact';
+import type { Video } from '../data/videos';
 import { absoluteUrl } from './mode';
 
 /**
@@ -195,6 +196,29 @@ export function websiteJsonLd() {
     ...(url ? { url } : {}),
     inLanguage: 'en-CA',
     publisher: personRef(),
+  };
+}
+
+/**
+ * A demo video (src/data/videos.ts), on the page that shows it with its transcript (SEO report follow-up,
+ * 19 Nov 2026). Google's required fields (name, thumbnail, upload date) plus the length, the transcript and who made
+ * it. Never a view count, rating or interaction count.
+ */
+export function videoJsonLd(v: Video) {
+  return {
+    '@context': 'https://schema.org',
+    '@type': 'VideoObject',
+    name: v.title,
+    description: v.description,
+    thumbnailUrl: v.thumbnail,
+    uploadDate: v.uploadDate,
+    duration: v.duration,
+    url: v.url,
+    ...(v.embedUrl ? { embedUrl: v.embedUrl } : {}),
+    transcript: v.transcript,
+    inLanguage: 'en-CA',
+    author: personRef(),
+    publisher: businessRef(),
   };
 }
 

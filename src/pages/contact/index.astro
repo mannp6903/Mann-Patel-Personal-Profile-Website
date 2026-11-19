@@ -8,9 +8,15 @@ import Icon from '../../components/ui/Icon.astro';
 import Button from '../../components/ui/Button.astro';
 import { contact, emailHref } from '../../lib/contact';
 import { profile, bookingUrl } from '../../data/site';
-import { businessJsonLd } from '../../lib/seo';
+import Crumbs from '../../components/Crumbs.astro';
+import { breadcrumbJsonLd, businessJsonLd } from '../../lib/seo';
 
 const mail = emailHref();
+// SEO report follow-up (19 Nov 2026): a breadcrumb, as on the service, area and guide pages.
+const crumbs = breadcrumbJsonLd([
+  { name: 'Home', path: '/' },
+  { name: 'Contact', path: '/contact/' },
+]);
 // Only promise the channels that exist (the phone buttons need a configured number, src/lib/contact.ts).
 const description = contact.phone
   ? 'Send Mann Patel a short project brief, or reach him directly by email, phone, WhatsApp or text. Helping small businesses in Toronto and the GTA.'
@@ -21,9 +27,10 @@ const description = contact.phone
   title="Contact"
   fullTitle="Contact Mann Patel | Web Design & Local SEO in Toronto"
   description={description}
-  jsonLd={businessJsonLd()}
+  jsonLd={[businessJsonLd(), ...(crumbs ? [crumbs] : [])]}
   footerCta={false}
 >
+  <Crumbs items={[{ label: 'Home', href: '/' }, { label: 'Contact' }]} />
   <PageHead
     eyebrow="Contact"
     lines={['Tell me about', '<span class="accent">your business</span><span class="stop">.</span>']}
@@ -33,7 +40,7 @@ const description = contact.phone
   <section class="section contact" aria-label="Project brief, free check and direct contact">
     <div class="container contact__grid">
       <div class="contact__form">
-        <!-- Two ways in. Without JavaScript both forms show, one after the other. -->
+        {/* Two ways in. Without JavaScript both forms show, one after the other. */}
         <nav class="choose" aria-label="What would you like to send?" data-choose>
           <a class="choose__opt" href="#brief" data-choose-opt="brief" aria-current="true">
             <b>Project brief</b>

@@ -104,6 +104,18 @@ describe('area pages', () => {
     // A local example, when given, is Mann's own words; left out, the page shows its real local work only.
     expect(ny.localExample === undefined || ny.localExample === null || ny.localExample.length > 20).toBe(true);
   });
+
+  // SEO report follow-up (19 Nov 2026): "What I found in <area>" comes only from Mann's own checks. Left empty until
+  // the after-hours study is run; when filled, each point is a real line and `how` says what was checked and when.
+  it('local findings are left out until Mann fills them in, and then say how they were found', () => {
+    for (const a of areas) {
+      if (!a.localFindings) continue;
+      expect(a.localFindings.points.length, a.slug).toBeGreaterThan(0);
+      for (const p of a.localFindings.points) expect(p.length, a.slug).toBeGreaterThan(10);
+      expect(a.localFindings.how, a.slug).toMatch(/20\d\d/);
+    }
+    expect(JSON.stringify(areas.map((a) => a.localFindings ?? null))).not.toMatch(NO_PROMISES);
+  });
 });
 
 describe('guides', () => {
@@ -118,9 +130,12 @@ describe('guides', () => {
   const all = files.map(guide);
   const bySlug = (slug: string) => all.find((g) => g.slug === slug)!;
 
-  it('eight guides; an outline is never published, and a published guide has a date', () => {
+  // 19 Nov 2026 (SEO report follow-up): nine, with the after-hours study as an unpublished outline (was eight).
+  it('nine guides; an outline is never published, and a published guide has a date', () => {
     expect(all.map((g) => g.slug).sort()).toEqual(
       [
+        // + the local after-hours study, an outline until Mann runs the calls (19 Nov 2026).
+        'how-scarborough-businesses-answer-after-hours',
         // + three from the competitor gap work (16 Nov 2026).
         'how-to-get-more-google-reviews',
         'how-to-optimize-google-business-profile',
@@ -137,8 +152,10 @@ describe('guides', () => {
       if (g.field('outline') === 'true') expect(g.field('draft'), `${g.slug}: an outline can't be published`).toBe('true');
       if (g.field('draft') === 'false') expect(g.field('published'), g.slug).toMatch(/^\d{4}-\d{2}-\d{2}$/);
     }
-    // All are written in full (no outlines).
-    expect(all.filter((g) => g.field('outline') === 'true').map((g) => g.slug)).toEqual([]);
+    // All are written in full except the after-hours study (19 Nov 2026), an outline and a draft until Mann has the
+    // totals; it was "no outlines" before.
+    expect(all.filter((g) => g.field('outline') === 'true').map((g) => g.slug)).toEqual(['how-scarborough-businesses-answer-after-hours']);
+    expect(bySlug('how-scarborough-businesses-answer-after-hours').field('draft')).toBe('true');
   });
 
   it('the cost and Business Profile guides link to each other, their service page and /pricing/', () => {
@@ -164,6 +181,21 @@ describe('guides', () => {
     const first = bySlug('how-much-does-a-website-cost-in-toronto').body.trim().split('\n')[0];
     expect(first.startsWith(`A five-page small business website costs ${priceLabel(packageById('website-launch')!).text} CAD with me, fixed scope; `)).toBe(true);
     expect(first).toContain('Toronto agencies often quote [$3,000–$10,000](https://trttech.ca/?p=11988).');
+  });
+
+  // 19 Nov 2026 (SEO report follow-up): the study publishes totals only, and its results table stays empty until the
+  // calls are made, so nothing in it can be a guessed figure.
+  it('the after-hours study: totals only, no names, no fake quote requests, and an empty results table', () => {
+    const study = bySlug('how-scarborough-businesses-answer-after-hours');
+    expect(study.field('service')).toBe('/services/enquiry-follow-up/');
+    for (const heading of ['The question', 'The method', 'The results', 'What it means for owners', 'How to fix it'])
+      expect(study.body, heading).toContain(`## ${heading}`);
+    expect(study.body).toMatch(/totals only/i);
+    expect(study.body).toMatch(/no quote is asked for/i);
+    const rows = study.body.split('\n').filter((l) => /^\| /.test(l) && !/^\| (What|How fast|---)/.test(l));
+    expect(rows.length).toBeGreaterThan(0);
+    for (const row of rows) expect(row.split('|').slice(2, -1).every((cell) => cell.trim() === ''), row).toBe(true);
+    expect(study.body).not.toMatch(/\d+%/);
   });
 
   it('a guide’s `updated` date, when set, is on or after its published date', () => {

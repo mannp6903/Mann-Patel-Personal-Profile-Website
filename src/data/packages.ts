@@ -41,6 +41,11 @@ export interface Package {
   price: Price;
   /** Offered at no charge (Mann's decision, 1 Nov 2026). */
   free?: boolean;
+  /**
+   * A package that is another package plus more (SEO report follow-up, 19 Nov 2026): what the extra money buys. The
+   * line under the boundary works the difference out from the two prices (`upgradeNote`), so it can't drift.
+   */
+  builtOn?: { id: PackageId; buys: string };
 }
 
 export const packages: Package[] = [
@@ -124,6 +129,7 @@ export const packages: Package[] = [
     serviceIds: ['websites', 'seo', 'booking', 'enquiry-workflows', 'missed-calls'],
     page: '/services/enquiry-follow-up/',
     price: { amount: 3350, unit: 'one-time' },
+    builtOn: { id: 'website-launch', buys: 'one booking integration plus one workflow' },
   },
   {
     id: 'local-visibility',
@@ -237,4 +243,17 @@ export function priceLabel(p: Package): { text: string; approved: boolean } {
   const amount = cad.format(p.price.amount);
   if (p.price.max) return { text: `${amount}–${cad.format(p.price.max)}`, approved: true };
   return { text: p.price.unit === 'month' ? `${amount} a month` : amount, approved: true };
+}
+
+/**
+ * "The extra $1,400 over Website Launch buys one booking integration plus one workflow." (SEO report follow-up,
+ * 19 Nov 2026). Worked out from the two prices; null unless both are single, approved prices.
+ */
+export function upgradeNote(p: Package): string | null {
+  if (!p.builtOn) return null;
+  const base = packageById(p.builtOn.id);
+  const a = p.price.amount;
+  const b = base?.price.amount;
+  if (!base || a == null || b == null || p.price.max || base.price.max || p.price.unit !== base.price.unit || a <= b) return null;
+  return `The extra ${cad.format(a - b)} over ${base.name} buys ${p.builtOn.buys}.`;
 }

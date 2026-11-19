@@ -1,0 +1,70 @@
+---
+/**
+ * "Try it" box (SEO report follow-up, 19 Nov 2026), above the sample workflow on /services/enquiry-follow-up/.
+ *
+ * A demo phone line for Example Cleaning Co., the fictional business in the walkthrough: call it, let it ring out, and
+ * get the automatic text a customer would. It renders only when the build variable PUBLIC_DEMO_PHONE holds a valid
+ * number (see .env.example). Set it only once the demo line is live and tested from another phone; until then the
+ * page shows nothing here.
+ *
+ * The demo number is never Mann's business number and never goes into the structured data.
+ */
+import { PUBLIC_DEMO_PHONE } from 'astro:env/client';
+import { formatPhone, normalizePhone } from '../lib/phone';
+import Button from './ui/Button.astro';
+
+/** The fictional business, as in src/components/EnquiryDemo.astro. */
+const DEMO_BUSINESS = 'Example Cleaning Co.';
+const digits = normalizePhone(PUBLIC_DEMO_PHONE);
+---
+
+{
+  digits && (
+    <aside class="tryit" aria-labelledby="tryit-title" data-demo-line>
+      <span class="tryit__tag">Demo line · fictional business</span>
+      <h3 id="tryit-title" class="tryit__title">Try it from your own phone</h3>
+      <p class="tryit__body">
+        Call <a class="link" href={`tel:+${digits}`}>{formatPhone(digits)}</a> and let it ring out. You get the automatic text a customer of{' '}
+        {DEMO_BUSINESS} would get. {DEMO_BUSINESS} is not a real business: nobody answers and nothing is booked.
+      </p>
+      <p class="tryit__small small subtle">Your carrier’s usual rates for calls and texts apply.</p>
+      <div class="tryit__cta">
+        <Button href={`tel:+${digits}`} variant="ghost" size="sm" aria-label={`Call the demo line, ${formatPhone(digits)}`}>
+          Call the demo line
+        </Button>
+      </div>
+    </aside>
+  )
+}
+
+<style>
+  .tryit {
+    display: grid;
+    gap: var(--s-3);
+    padding: clamp(var(--s-4), 2.5vw, var(--s-6));
+    border: 1px dashed var(--control);
+    border-radius: var(--r-lg);
+  }
+  .tryit__tag {
+    justify-self: start;
+    padding: 0.2rem 0.6rem;
+    border: 1px dashed var(--control);
+    border-radius: var(--r-pill);
+    font-family: var(--font-mono);
+    font-size: var(--fs-label);
+    color: var(--text-2);
+  }
+  .tryit__title {
+    font-size: var(--fs-h3);
+  }
+  .tryit__body,
+  .tryit__small {
+    max-width: var(--measure);
+  }
+  .tryit__body {
+    color: var(--text-2);
+  }
+  .tryit__cta {
+    padding-top: var(--s-2);
+  }
+</style>

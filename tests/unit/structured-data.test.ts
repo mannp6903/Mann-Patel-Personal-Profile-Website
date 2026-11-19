@@ -59,3 +59,57 @@ describe('structured data: the business node', () => {
     for (const u of biz.sameAs) expect(u).toMatch(/^https:\/\//);
   });
 });
+
+// SEO report follow-up (19 Nov 2026): demo videos (src/data/videos.ts) get VideoObject data on the page that shows
+// them with their transcript. The list is empty until Mann posts the recordings, so this uses a made-up test entry
+// that never reaches the site.
+describe('structured data: demo videos', async () => {
+  const { videoJsonLd } = await import('../../src/lib/seo');
+  const { videos, videoLength } = await import('../../src/data/videos');
+  const sample = {
+    title: 'Test video',
+    description: 'A test entry for this unit test only.',
+    url: 'https://www.youtube.com/watch?v=test',
+    thumbnail: 'https://i.ytimg.com/vi/test/hqdefault.jpg',
+    duration: 'PT1M5S',
+    uploadDate: '2026-11-19',
+    transcript: 'Word for word.',
+  };
+
+  it('a VideoObject with Google’s required fields, the length and the transcript, made by Mann for the business', () => {
+    const ld = videoJsonLd(sample);
+    expect(ld).toMatchObject({
+      '@type': 'VideoObject',
+      name: sample.title,
+      thumbnailUrl: sample.thumbnail,
+      uploadDate: sample.uploadDate,
+      duration: 'PT1M5S',
+      transcript: sample.transcript,
+      author: { '@id': 'https://mannpatel.me/#person' },
+      publisher: { '@id': 'https://mannpatel.me/#business' },
+    });
+    expect(ld).not.toHaveProperty('embedUrl');
+    expect(videoJsonLd({ ...sample, embedUrl: 'https://www.youtube.com/embed/test' }).embedUrl).toBe('https://www.youtube.com/embed/test');
+    // Never a count or a rating.
+    expect(JSON.stringify(ld)).not.toMatch(/interactionStatistic|aggregateRating|"review"/i);
+  });
+
+  it('every listed video is complete: an ISO 8601 length, a date, a thumbnail and its transcript', () => {
+    for (const v of videos) {
+      expect(videoLength(v.duration), v.title).not.toBeNull();
+      expect(v.uploadDate, v.title).toMatch(/^\d{4}-\d{2}-\d{2}$/);
+      expect(v.thumbnail, v.title).toMatch(/^https:\/\//);
+      expect(v.url, v.title).toMatch(/^https:\/\//);
+      expect(v.transcript.trim().length, v.title).toBeGreaterThan(20);
+    }
+  });
+
+  it('shows lengths as minutes and seconds', () => {
+    expect(videoLength('PT1M')).toBe('1:00');
+    expect(videoLength('PT1M5S')).toBe('1:05');
+    expect(videoLength('PT45S')).toBe('0:45');
+    expect(videoLength('PT1H2M3S')).toBe('1:02:03');
+    expect(videoLength('PT')).toBeNull();
+    expect(videoLength('1 minute')).toBeNull();
+  });
+});

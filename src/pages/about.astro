@@ -9,7 +9,8 @@ import SocialLinks from '../components/SocialLinks.astro';
 import Process from '../components/Process.astro';
 import { profile, businesses, gbp, social } from '../data/site';
 import { businessHref } from '../lib/work';
-import { personJsonLd } from '../lib/seo';
+import Crumbs from '../components/Crumbs.astro';
+import { breadcrumbJsonLd, personJsonLd } from '../lib/seo';
 
 const nest = businesses[0];
 // "Find me elsewhere" (16 Nov 2026): the profiles that are set, so people (and search engines) can match this site to
@@ -93,14 +94,20 @@ const chapters = [
 ];
 // The page about Mann himself is the profile page; the home page carries the WebSite (src/lib/seo.ts).
 const jsonLd = { '@context': 'https://schema.org', '@type': 'ProfilePage', mainEntity: personJsonLd() };
+// SEO report follow-up (19 Nov 2026): a breadcrumb, as on the service, area and guide pages.
+const crumbs = breadcrumbJsonLd([
+  { name: 'Home', path: '/' },
+  { name: 'About', path: '/about/' },
+]);
 ---
 
 <BaseLayout
   title="About"
   fullTitle="About Mann Patel | Website Designer in Toronto"
   description="Mann Patel is an independent website designer in Toronto. What he delivers, how the work is checked, and his story from Palana, Gujarat to Toronto."
-  jsonLd={jsonLd}
+  jsonLd={[jsonLd, ...(crumbs ? [crumbs] : [])]}
 >
+  <Crumbs items={[{ label: 'Home', href: '/' }, { label: 'About' }]} />
   <header class="ab-head">
     <div class="container ab-head__grid">
       <div class="ab-head__text">
@@ -150,7 +157,7 @@ const jsonLd = { '@context': 'https://schema.org', '@type': 'ProfilePage', mainE
     </div>
   </header>
 
-  <!-- Round 10 (audit 8 Nov 2026): the buyer's practical questions first; the personal story follows. -->
+  {/* Round 10 (audit 8 Nov 2026): the buyer's practical questions first; the personal story follows. */}
   <section class="section section--rule" id="glance" aria-labelledby="glance-title">
     <div class="container glance">
       <div class="stack" style="--stack: var(--s-4)">
@@ -180,7 +187,7 @@ const jsonLd = { '@context': 'https://schema.org', '@type': 'ProfilePage', mainE
     </div>
   </section>
 
-  <!-- SEO audit Phase 2 (14 Nov 2026): the five steps with what you do and what I do, moved from the old /services/. -->
+  {/* SEO audit Phase 2 (14 Nov 2026): the five steps with what you do and what I do, moved from the old /services/. */}
   <Process />
 
   <section class="section section--alt section--rule" aria-labelledby="principles-title">

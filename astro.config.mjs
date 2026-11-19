@@ -124,6 +124,9 @@ export default defineConfig({
       // Phone for the Call / WhatsApp / Text buttons, E.164 (e.g. +16475550142). Set it as a
       // Cloudflare build variable so the number is never stored in this public repository.
       PUBLIC_CONTACT_PHONE: envField.string({ context: 'client', access: 'public', optional: true }),
+      // The demo line for the fictional Example Cleaning Co. (SEO report follow-up, 19 Nov 2026): a "Try it" box on
+      // /services/enquiry-follow-up/, shown only while this holds a number. Set it once the demo line is live and tested.
+      PUBLIC_DEMO_PHONE: envField.string({ context: 'client', access: 'public', optional: true }),
       PUBLIC_TURNSTILE_SITE_KEY: envField.string({ context: 'client', access: 'public', optional: true }),
       SITE_MODE: envField.enum({ context: 'server', access: 'public', values: ['preview', 'production'], default: 'preview' }),
       SITE_INDEXING: envField.boolean({ context: 'server', access: 'public', default: false }),

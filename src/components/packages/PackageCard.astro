@@ -5,7 +5,7 @@
  */
 import Button from '../ui/Button.astro';
 import Icon from '../ui/Icon.astro';
-import { priceLabel, priceTerms, type Package } from '../../data/packages';
+import { priceLabel, priceTerms, upgradeNote, type Package } from '../../data/packages';
 
 interface Props {
   pkg: Package;
@@ -15,6 +15,8 @@ interface Props {
 const { pkg: p, level = 3 } = Astro.props;
 const H = level === 2 ? 'h2' : 'h3';
 const price = priceLabel(p);
+// Website + Enquiry System: what the extra over Website Launch buys, from the two prices (19 Nov 2026).
+const upgrade = upgradeNote(p);
 // No "How it works" link on the page it would point to.
 const here = Astro.url.pathname === p.page;
 ---
@@ -26,6 +28,7 @@ const here = Astro.url.pathname === p.page;
     <span class="pkg__terms">{priceTerms(p)}</span>
   </p>
   <p class="pkg__boundary">{p.boundary}</p>
+  {upgrade && <p class="pkg__upgrade small" data-upgrade>{upgrade}</p>}
   <p class="pkg__for muted">{p.forWho}</p>
   <ul class="pkg__list" role="list">
     {
@@ -101,6 +104,9 @@ const here = Astro.url.pathname === p.page;
   }
   .pkg__for {
     font-size: var(--fs-sm);
+  }
+  .pkg__upgrade {
+    color: var(--text-2);
   }
   .pkg__list {
     display: grid;

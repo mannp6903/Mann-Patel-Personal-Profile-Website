@@ -40,6 +40,13 @@ export interface Area {
    * Scarborough page). null = needed but not supplied: the page stays a draft, and previews show a "To confirm" note.
    */
   localExample?: string | null;
+  /**
+   * "What I found in <name>" (SEO report follow-up, 19 Nov 2026): a few short lines from Mann's own local checks, such
+   * as the after-hours call study (src/content/guides/how-scarborough-businesses-answer-after-hours.md). Totals only,
+   * never a business's name, exactly as Mann words them, with `how` saying what was checked and when.
+   * Left out = no block on the page. Never filled with guesses or other people's statistics.
+   */
+  localFindings?: { points: string[]; how: string };
   faqs: Faq[];
 }
 
