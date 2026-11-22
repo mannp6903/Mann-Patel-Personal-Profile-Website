@@ -40,6 +40,19 @@ that are code. The items only Mann can do are listed at the end, and in [`OWNER-
   focus.
 - `tests/e2e/design-gates.spec.ts`: S1 (no summary), S4 (11 screens), U1 (the "Free check" button), M7 (removed).
 - Tests that depend on `bookingUrl` read it from `src/data/site.ts`, so they pass before and after Mann adds the link.
+- C1 (one lime mark per screen) exempts the phone action bar as it does the sticky header; R7.3 checks the bar has
+  left before the footer's lime button is on screen.
+
+### Results (22 Nov 2026, local)
+
+| Check | Result |
+|---|---|
+| Unit tests (`npm test`) | 177 passed |
+| End-to-end (`npx playwright test`), full suite on the final build | 252 of 253 passed; the one failure (C1 at 375px) was then fixed and re-run with the related gates (C1, S3, H7, L3, the Phase 1 block): 15 passed |
+| The same hero, booking, bar and layout gates with a stand-in `bookingUrl` (not committed) | 26 passed, after one fix: from 48em to 72em the two hero buttons take the compact size so they share one row at 1024×768 (H4, H7) |
+| Production build and pre-launch check (`npm run build:cloudflare`) | 0 errors; 2 warnings for Cloudflare secrets a local build can't see |
+| SEO check (`scripts/seo-check.mjs`) | 0 errors; 2 warnings on pages this change didn't touch (/privacy/ description length, /services/ word count) |
+| `astro check` | 2 errors, both present before this change (`AgentGraph.astro:159`, `design-gates.spec.ts:282`) |
 
 ## Not done here, and why
 

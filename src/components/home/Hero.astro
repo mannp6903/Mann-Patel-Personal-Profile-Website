@@ -212,12 +212,12 @@ const portrait = profile.portrait;
     .hero__inner { gap: var(--s-5); }
     .hero__text { gap: var(--s-3); }
     /* Phones: the button label stays on one line from 390px (gate H5): a compact button, the same label. */
-    .hero__actions :global(.hero__cta) {
+    .hero__actions :global(:is(.hero__cta, .hero__book)) {
       gap: var(--s-3);
       padding-left: var(--s-4);
       font-size: var(--fs-sm);
     }
-    .hero__actions :global(.hero__cta .btn__icon) { width: 2.25rem; height: 2.25rem; }
+    .hero__actions :global(:is(.hero__cta, .hero__book) .btn__icon) { width: 2.25rem; height: 2.25rem; }
   }
   @media (max-width: 22.5em) {
     /* The smallest phones (320 px): tighter spacing, and both links straight after the H1, so they sit on the first
@@ -231,6 +231,22 @@ const portrait = profile.portrait;
     .hero :global(.hero__graph) {
       justify-self: center;
       max-width: 30rem;
+    }
+  }
+  /* Once bookingUrl is set the hero has two buttons. Where the text column is narrow (about 512px at 1024) they take the
+     phones' compact size, so they share one row and the price line stays on the first screen (gates H4, H7). */
+  @media (min-width: 48em) and (max-width: 71.99em) {
+    .hero__actions:has(:global(.hero__book)) :global(.btn-row) {
+      column-gap: var(--s-3);
+    }
+    .hero__actions:has(:global(.hero__book)) :global(:is(.hero__cta, .hero__book)) {
+      gap: var(--s-3);
+      padding-left: var(--s-4);
+      font-size: var(--fs-sm);
+    }
+    .hero__actions:has(:global(.hero__book)) :global(:is(.hero__cta, .hero__book) .btn__icon) {
+      width: 2.25rem;
+      height: 2.25rem;
     }
   }
   /* Two columns from 48em (task 2.3): the graph takes about 44% of the width. */
