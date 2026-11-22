@@ -53,9 +53,7 @@
   --signal-wash: rgb(212 248 74 / 0.12);
   /* Lime at set strengths, for the agent graph's glow, its core ring and the lime-tipped rule (upgrade report R4.1: these
      were literals in the components). */
-  --signal-a04: rgb(212 248 74 / 0.04);
   --signal-a15: rgb(212 248 74 / 0.15);
-  --signal-a16: rgb(212 248 74 / 0.16);
   --signal-a25: rgb(212 248 74 / 0.25);
   --signal-a30: rgb(212 248 74 / 0.3);
   --signal-a60: rgb(212 248 74 / 0.6);

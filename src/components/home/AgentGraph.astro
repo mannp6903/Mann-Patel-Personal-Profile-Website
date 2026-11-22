@@ -51,11 +51,13 @@ const wide: Layout = {
   dir: 'x',
   // Design upgrade Phase 2: the core is a little larger (r 122 → 126) because the graph column is now about 44% wide,
   // and the inner node columns moved out (158/482 → 152/488) so the dotted ring still clears them.
-  core: { x: 320, y: 270, r: 126 },
+  // 22 Nov 2026 (one portrait per page; upgrade report R3.1): r 126 → 140, about 249px across at 1440 (was 214), so his
+  // face is the size that builds trust; the node columns move out again (→ 146/494) and the rings sit closer (below).
+  core: { x: 320, y: 270, r: 140 },
   inputs: [{ x: 64, y: 118 }, { x: 64, y: 270 }, { x: 64, y: 422 }],
   outputs: [{ x: 578, y: 118 }, { x: 578, y: 270 }, { x: 578, y: 422 }],
-  hiddenIn: [70, 170, 270, 370, 470].map((y) => ({ x: 152, y })),
-  hiddenOut: [70, 170, 270, 370, 470].map((y) => ({ x: 488, y })),
+  hiddenIn: [70, 170, 270, 370, 470].map((y) => ({ x: 146, y })),
+  hiddenOut: [70, 170, 270, 370, 470].map((y) => ({ x: 494, y })),
 };
 // Design upgrade Phase 2: 30 units shorter than before (520), so the phone hero stays within 1.35 screens (gate R3)
 // while the photo keeps its size.
@@ -159,8 +161,8 @@ const pt = pct(tall);
         <Wrap class={Wrap === 'div' ? 'ag__layout' : undefined} data-ag-alt={Wrap === 'template' ? '' : undefined}>
         <svg class={`ag__svg ag__svg--${id}`} viewBox={`0 0 ${L.w} ${L.h}`} aria-hidden="true" focusable="false">
           <g class="ag__orbit" style={`transform-origin:${L.core.x}px ${L.core.y}px`}>
-            <circle cx={L.core.x} cy={L.core.y} r={L.core.r + 34} class="ag__ring ag__ring--dots" />
-            <circle cx={L.core.x} cy={L.core.y} r={L.core.r + 18} class="ag__ring ag__ring--scan" pathLength="100" />
+            <circle cx={L.core.x} cy={L.core.y} r={L.core.r + 24} class="ag__ring ag__ring--dots" />
+            <circle cx={L.core.x} cy={L.core.y} r={L.core.r + 13} class="ag__ring ag__ring--scan" pathLength="100" />
           </g>
           <circle cx={L.core.x} cy={L.core.y} r={L.core.r + 6} class="ag__ping" style={`transform-origin:${L.core.x}px ${L.core.y}px`} />
           <g class="ag__mesh">
@@ -241,7 +243,7 @@ const pt = pct(tall);
             src={portrait.src}
             alt={portrait.alt}
             widths={[240, 360, 480, 640]}
-            sizes="(min-width: 64em) 15rem, (min-width: 48em) 11rem, (min-width: 40em) 14rem, 48vw"
+            sizes="(min-width: 64em) 15rem, (min-width: 48em) 12rem, (min-width: 40em) 14rem, 48vw"
             formats={['avif']}
             fallbackFormat="webp"
             data-src-w={portrait.src.width}
@@ -618,19 +620,6 @@ const pt = pct(tall);
     --cx: var(--cx-t);
     --cy: var(--cy-t);
     --cd: var(--cd-t);
-  }
-  .ag__stage::before {
-    /* The glow that the core gives off. */
-    content: '';
-    position: absolute;
-    z-index: -1;
-    left: var(--cx);
-    top: var(--cy);
-    width: calc(var(--cd) * 2.2);
-    aspect-ratio: 1;
-    transform: translate(-50%, -50%);
-    border-radius: 50%;
-    background: radial-gradient(circle, var(--signal-a16), var(--signal-a04) 45%, transparent 70%);
   }
   .ag__svg {
     display: block;

@@ -1,75 +1,59 @@
 ---
 /**
- * Home: "You work with me" (upgrade report R3.2 and §9, 22 Nov 2026; Phase 2). Owner-run businesses hire a person, and
- * until now a visitor saw Mann's face at a size that builds trust only on About. The same real photo as the hero's core
- * (src/assets/mann-patel-hero.jpg), at 4:5: no glow, duotone or filter, the media shadow and the large radius. Photo on
- * the left from 64em, on top on phones. Then one short paragraph and two actions: the 15-minute call (shown once
- * bookingUrl is set) and More about me.
+ * Home: "You work with me" (upgrade report R3.2 and §9, 22 Nov 2026).
+ *
+ * 22 Nov 2026, later (Mann: the same photo showed twice on Home): one portrait per page. His face stays in the hero,
+ * larger (the agent graph's core, about 249px across at 1440), and this block makes the same point without repeating
+ * it: a roster of every job in a project, and the one name against each of them. The person you talk to is the person
+ * who does the work. Real claims only: each row is a step the process and the packages already describe.
+ *
+ * Wide screens: the statement on the left, the roster from grid column 7. Phones: stacked. No lime here (the hero, the
+ * band and the buttons carry it), and nothing moves.
  */
-import { Picture } from 'astro:assets';
 import { profile } from '../../data/site';
 import BookingButton from '../ui/BookingButton.astro';
 import Icon from '../ui/Icon.astro';
 
-const portrait = profile.portrait;
+const first = profile.name.split(' ')[0];
+// The jobs in a project, in the order they happen (src/data/services.ts → process, and the packages' scope).
+const roster = ['Your written scope', 'Design and build', 'Your Google listing', 'Calls and messages', 'Testing and launch', 'The written handover'];
 ---
 
 <section class="wwm section" id="with-me" aria-labelledby="wwm-title">
   <div class="container wwm__grid">
-    {
-      portrait && (
-        <figure class="wwm__photo" data-lead-media>
-          <Picture
-            src={portrait.src}
-            alt={portrait.alt}
-            widths={[360, 440, 720, 880]}
-            sizes="(min-width: 64em) 440px, calc(100vw - 2rem)"
-            width={440}
-            height={550}
-            formats={['avif']}
-            fallbackFormat="webp"
-            data-src-w={portrait.src.width}
-            quality={60}
-            loading="lazy"
-            decoding="async"
-          />
-        </figure>
-      )
-    }
     <div class="wwm__text">
       <h2 id="wwm-title" class="wwm__title">You work with me, <span class="accent">start to finish.</span></h2>
       <p class="lead wwm__lead">
-        I’m {profile.name}, a web designer in {profile.location}. I write your brief, build your site, set up your Google
-        listing and answer your messages myself. Every account is set up in your name, and the handover is written down.
+        I’m {profile.name}, a web designer in {profile.location}. There’s no account manager and no hand-off: the person
+        you talk to is the person who does the work, and every account is set up in your name.
       </p>
       <div class="btn-row wwm__actions">
         <BookingButton />
         <a class="link-arrow" href="/about/">More about me <Icon name="arrow" /></a>
       </div>
     </div>
+
+    <figure class="roster" aria-labelledby="roster-title">
+      <figcaption id="roster-title" class="roster__title">Who does what on your project</figcaption>
+      <dl class="roster__list">
+        {
+          roster.map((job) => (
+            <div class="roster__row">
+              <dt>{job}</dt>
+              <dd>{first}</dd>
+            </div>
+          ))
+        }
+      </dl>
+    </figure>
   </div>
 </section>
 
 <style>
   .wwm__grid {
     display: grid;
-    gap: var(--s-6);
-    align-items: center;
-  }
-  .wwm__photo {
-    margin: 0;
-    max-width: 27.5rem;
-  }
-  .wwm__photo :global(img) {
-    display: block;
-    width: 100%;
-    height: auto;
-    aspect-ratio: 4 / 5;
-    object-fit: cover;
-    object-position: 50% 30%;
-    border-radius: var(--r-lg);
-    box-shadow: var(--shadow-media);
-    background: var(--surface);
+    gap: var(--s-7);
+    align-items: start;
   }
   .wwm__text {
     display: grid;
@@ -84,28 +68,76 @@ const portrait = profile.portrait;
     text-wrap: balance;
   }
   .wwm__lead {
-    max-width: 46ch;
+    max-width: 44ch;
   }
   .wwm__actions {
     margin-top: var(--s-3);
     align-items: center;
     gap: var(--s-3) var(--s-5);
   }
+
+  /* The roster: every job, one name. A ledger, not a card: hairlines, a dotted leader, the name set like a heading. */
+  .roster {
+    margin: 0;
+    display: grid;
+    gap: var(--s-4);
+  }
+  .roster__title {
+    color: var(--text-2);
+    font-size: var(--fs-sm);
+    font-weight: var(--w-ui);
+  }
+  .roster__list {
+    margin: 0;
+    border-top: 1px solid var(--line);
+  }
+  .roster__row {
+    display: flex;
+    align-items: baseline;
+    gap: var(--s-3);
+    padding-block: var(--s-4);
+    border-bottom: 1px solid var(--line);
+  }
+  .roster__row dt {
+    color: var(--text-2);
+  }
+  /* The dotted leader between the job and the name, as in a table of contents. */
+  .roster__row::after {
+    content: '';
+    order: 1;
+    flex: 1;
+    min-width: var(--s-5);
+    border-bottom: 1px dotted var(--control);
+    transform: translateY(-0.3em);
+  }
+  .roster__row dd {
+    order: 2;
+    margin: 0;
+    color: var(--text);
+    font-size: var(--fs-h3);
+    font-weight: var(--w-head);
+    letter-spacing: var(--track-head);
+    line-height: 1.1;
+  }
   @media (max-width: 39.99em) {
     .wwm {
       padding-block: var(--section-tight);
     }
+    .roster__row {
+      padding-block: var(--s-3);
+    }
+    .roster__row dd {
+      font-size: var(--fs-lead);
+    }
   }
-  /* Photo on grid columns 1 to 5, text from column 7 (about half the container), as the report's layout. */
+  /* Statement on grid columns 1 to 6, the roster from column 7 (about half the container). */
   @media (min-width: 64em) {
     .wwm__grid {
-      grid-template-columns: minmax(0, 5fr) minmax(0, 1fr) minmax(0, 6fr);
+      grid-template-columns: minmax(0, 6fr) minmax(0, 6fr);
+      column-gap: var(--s-8);
     }
-    .wwm__photo {
-      grid-column: 1;
-    }
-    .wwm__text {
-      grid-column: 3;
+    .roster {
+      padding-top: var(--s-2);
     }
   }
 </style>

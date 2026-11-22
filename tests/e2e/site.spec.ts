@@ -726,11 +726,14 @@ test.describe('home interactions', () => {
       await expect(photo).toHaveAttribute('alt', /Mann Patel smiling/);
       await expect(photo).toHaveAttribute('src', /mann-patel-hero/);
       await page.waitForFunction(() => (document.querySelector('.hero .ag__photo') as HTMLImageElement).naturalWidth > 0);
-      // 22 Nov 2026 (upgrade report R3.2, Mann's go-ahead for Phase 2): the photo also shows large in "You work with me",
-      // which links to About. How I work stays about the process.
-      await expect(page.locator('main img[alt*="Mann Patel smiling"]')).toHaveCount(2);
+      // 22 Nov 2026 (Mann: the same photo showed twice on Home): one portrait per page, the hero's, larger. "You work
+      // with me" makes its point with a roster instead: every job in a project, one name against each.
+      await expect(page.locator('main img[alt*="Mann Patel smiling"]')).toHaveCount(1);
       const me = page.locator('#with-me');
       await expect(me.getByRole('heading', { level: 2 })).toHaveText('You work with me, start to finish.');
+      await expect(me.locator('img')).toHaveCount(0);
+      await expect(me.locator('.roster dt')).toHaveCount(6);
+      expect(new Set(await me.locator('.roster dd').allInnerTexts())).toEqual(new Set(['Mann']));
       await expect(me.getByRole('link', { name: 'More about me' })).toHaveAttribute('href', '/about/');
       const section = page.locator('#how-i-work');
       await expect(section.getByRole('heading', { level: 2 })).toHaveText('How a website project works.');
@@ -2711,6 +2714,15 @@ test.describe('upgrade report Phase 1 (22 Nov 2026)', () => {
       const [hi, h1] = await Promise.all([page.locator('.hero__hi').boundingBox(), page.locator('.hero__title').boundingBox()]);
       expect(Math.abs(hi!.x - h1!.x), `${width}px`).toBeLessThanOrEqual(1);
     }
+  });
+
+  test('R3.1: one portrait on Home, at least 240px across at 1440, with no lime halo behind it', async ({ page }) => {
+    await page.setViewportSize({ width: 1440, height: 900 });
+    await page.goto('/');
+    await expect(page.locator('main img[alt*="Mann Patel smiling"]')).toHaveCount(1);
+    // Measured once the core's entrance (a scale-in) has finished.
+    await expect.poll(async () => (await page.locator('.hero .ag__core').boundingBox())!.width, { timeout: 5000 }).toBeGreaterThanOrEqual(240);
+    expect(await page.locator('.ag__stage').evaluate((e) => getComputedStyle(e, '::before').content)).toBe('none');
   });
 
   test('R6.2: no caption under the hero graph; the pause button stays, a 44px icon button with a name', async ({ page }) => {

@@ -3,7 +3,10 @@
 > **Upgrade report, Phase 2 (22 Nov 2026; `docs/30-upgrade-report-phase-2.md`).** Overrides the notes below where
 > they disagree.
 > - **Packages:** Google Listing Setup, Website, Website + Booking, Website Fix, Website Care (ids unchanged).
-> - **Home:** hero, work, "You work with me" (portrait 4:5, `--r-lg`, `--shadow-media`, no glow), "What I do, and what it
+> - **One portrait per page** (22 Nov 2026, Mann: the same photo showed twice on Home). Home's is the hero's: the agent
+>   graph's core grew from r 126 to 140 (about 214 → 249px across at 1440) and lost its lime halo; the thin lime ring
+>   stays. "You work with me" carries no photo: a roster of every job in a project, with one name against each.
+> - **Home:** hero, work, "You work with me" (statement and roster), "What I do, and what it
 >   costs" (the three package tiles with prices and the M5 phone, Fix and Care below), the free check, the process as a
 >   five-step line with the promises in one row, three questions.
 > - **Labels:** eyebrows only where they add a fact the heading doesn't; tags, table heads and card labels in the body
@@ -271,7 +274,7 @@ Dark only (`color-scheme: dark`). Text contrast measured against `--bg`.
 | `--signal-strong` | `#E4FF73` | The footer wordmark's Λ's as they light near the pointer | — |
 | `--on-signal` | `#0B0B0C` | Text and icons on `--signal` | 16.2:1 |
 | `--signal-wash` | `rgb(212 248 74 / 0.12)` | Selected chips, soft highlights | — |
-| `--signal-*` (alphas) | `rgb(212 248 74 / 0.04)`, `rgb(212 248 74 / 0.15)`, `rgb(212 248 74 / 0.16)`, `rgb(212 248 74 / 0.25)`, `rgb(212 248 74 / 0.3)`, `rgb(212 248 74 / 0.6)`, `rgb(212 248 74 / 0.8)`, `rgb(212 248 74 / 0.9)` (`-a04` … `-a90`) | The agent graph's glow and core ring, the lime-tipped rule (upgrade report R4.1: lifted out of the components) | — |
+| `--signal-*` (alphas) | `rgb(212 248 74 / 0.15)`, `rgb(212 248 74 / 0.25)`, `rgb(212 248 74 / 0.3)`, `rgb(212 248 74 / 0.6)`, `rgb(212 248 74 / 0.8)`, `rgb(212 248 74 / 0.9)` (`-a15` … `-a90`) | The agent graph's core ring and sparks, the lime-tipped rule (upgrade report R4.1: lifted out of the components) | — |
 | `--scrim`, `--scrim-*` | `rgb(11 11 10 / 0.72)`, soft `rgb(11 11 10 / 0.55)` | Behind the phone menu and the quick menu | — |
 | `--ink-*` (alphas) | `rgb(11 11 12 / 0.25)`, `rgb(11 11 12 / 0.4)` (`-a25`, `-a40`) | Ink hairlines on the lime band and the free-check receipt | — |
 | `--dot-*` | grid `rgb(255 255 255 / 0.07)`, field `rgb(242 241 236 / 0.13)` | The hero's dot grid and the signal field | — |
