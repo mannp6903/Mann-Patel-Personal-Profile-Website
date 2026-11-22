@@ -1966,7 +1966,8 @@ test.describe('audit of 11 Nov 2026', () => {
 
   test('published prices agree everywhere, and the check stays optional', async ({ page }) => {
     await page.goto('/');
-    await expect(page.locator('#what-i-do')).toContainText('Website · $1,950');
+    const website = page.locator('#what-i-do .ss__tile').filter({ has: page.getByRole('heading', { name: 'Website', exact: true }) });
+    await expect(website.locator('[data-price]')).toHaveText('$1,950');
     await expect(page.locator('.hero__price')).toContainText('Google setup $650');
     await page.goto('/services/');
     await expect(page.locator('#packages')).toContainText('The free check is separate, with no obligation.');
@@ -2107,20 +2108,33 @@ test.describe('desktop layout (14 Nov 2026)', () => {
 });
 
 test.describe('sharing images (Nov 2026 audit fixes)', () => {
+  /** Width and height from a PNG's IHDR or a JPEG's start-of-frame marker. */
+  const imageSize = (b: Buffer): [number, number] => {
+    if (b[0] === 0x89 && b[1] === 0x50) return [b.readUInt32BE(16), b.readUInt32BE(20)];
+    let i = 2;
+    while (i < b.length) {
+      if (b[i] !== 0xff) return [0, 0];
+      const marker = b[i + 1];
+      // SOF0 to SOF15, except DHT (C4), JPG (C8) and DAC (CC): height then width.
+      if (marker >= 0xc0 && marker <= 0xcf && ![0xc4, 0xc8, 0xcc].includes(marker)) return [b.readUInt16BE(i + 7), b.readUInt16BE(i + 5)];
+      i += 2 + b.readUInt16BE(i + 2);
+    }
+    return [0, 0];
+  };
   test('every page has its own 1200 × 630 card, drawn at build time (case studies keep theirs)', async ({ page, request }) => {
     const seen = new Map<string, string>();
     for (const path of PAGES) {
       await page.goto(path);
       const og = await page.locator('meta[property="og:image"]').getAttribute('content');
       const image = new URL(og!, page.url()).pathname;
-      if (path.startsWith('/work/') && path !== '/work/') expect(image, path).toMatch(/^\/og\/work-[a-z-]+\.png$/);
+      // Case-study cards are JPEG since 22 Nov 2026 (upgrade report R2.4); every other card is a PNG drawn at build time.
+      if (path.startsWith('/work/') && path !== '/work/') expect(image, path).toMatch(/^\/og\/work-[a-z-]+\.jpg$/);
       else expect(image, path).toMatch(/^\/og\/p\/[a-z0-9-]+\.png$/);
       expect(seen.get(image), `${path} shares ${image} with ${seen.get(image)}`).toBeUndefined();
       seen.set(image, path);
       const res = await request.get(image);
       expect(res.status(), image).toBe(200);
-      const png = await res.body();
-      expect([png.readUInt32BE(16), png.readUInt32BE(20)], image).toEqual([1200, 630]);
+      expect(imageSize(await res.body()), image).toEqual([1200, 630]);
       expect(await page.locator('meta[property="og:image:alt"]').getAttribute('content'), path).toBeTruthy();
     }
   });
@@ -2181,14 +2195,17 @@ test.describe('competitor gap work (16 Nov 2026)', () => {
       if (eyebrow) await expect(head.first()).toHaveText(eyebrow);
       else await expect(head).toHaveCount(0);
     }
-    // Labels are the body face, sentence case and untracked (no mono capitals).
-    const style = await page.locator('#faq .eyebrow').first().evaluate((e) => {
-      const cs = getComputedStyle(e);
-      return { transform: cs.textTransform, spacing: cs.letterSpacing, family: cs.fontFamily };
-    });
-    expect(style.transform).toBe('none');
-    expect(['normal', '0px']).toContain(style.spacing);
-    expect(style.family).not.toMatch(/mono/i);
+    // Labels are the body face, sentence case and untracked (no mono capitals): a service tile's step name and a work
+    // card's "The problem" (Phase 2 took the questions' label away; the heading names them).
+    for (const sel of ['#what-i-do .ss__step .eyebrow', '#work .sw__facts dt']) {
+      const style = await page.locator(sel).first().evaluate((e) => {
+        const cs = getComputedStyle(e);
+        return { transform: cs.textTransform, spacing: cs.letterSpacing, family: cs.fontFamily };
+      });
+      expect(style.transform, sel).toBe('none');
+      expect(['normal', '0px'], sel).toContain(style.spacing);
+      expect(style.family, sel).not.toMatch(/mono/i);
+    }
     expect(await page.locator('main').innerText()).not.toMatch(/\b0\d \/ /);
   });
 
@@ -2250,7 +2267,7 @@ test.describe('competitor gap work, new pages (16 Nov 2026)', () => {
     await page.goto('/pricing/');
     const fit = page.locator('#fit');
     await expect(fit.getByRole('heading', { level: 2 })).toHaveText('Which package fits?');
-    await expect(fit).toContainText('Website, $1,950');
+    await expect(fit).toContainText('the Website package, $1,950');
     await expect(fit).toContainText('Website Fix, $450–$850');
     await expect(page.locator('#pr-faq')).toHaveText('What’s included in the price?');
   });
