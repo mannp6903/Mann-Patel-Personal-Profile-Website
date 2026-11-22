@@ -8,13 +8,17 @@
 >   stays in view beside them, acting out the tile at the reading line: **A** a search types itself and the business
 >   drops onto the map; **B** a missed call gets an automatic text and the customer replies; **C** the Book button is
 >   tapped and the booking confirms, with a text to the owner. The phone is `aria-hidden` decoration, built by the
->   script only when the section is near. Its markup and styles (`scripts/service-phone.ts`, `styles/service-phone.css`)
->   are one chunk fetched at that moment, so phones and tablets never download them and Home stays inside its byte
+>   script only when the section is near. Its markup, styles and the code that moves it (`scripts/service-phone.ts`,
+>   `styles/service-phone.css`) are one chunk fetched at that moment, so phones and tablets never download them and Home stays inside its byte
 >   budget (P2) and first style pass (M7). The phone's column is sized from the first paint, so nothing shifts. Lime appears only as fills (the pin's dot, the tick's disc), so the lime budget (C1) is unchanged.
 >   Phones, tablets, reduced motion and no JavaScript keep the bento and its small scenes.
 > - **M7 Odometer prices (Home → Prices).** When the price list is well into view, every digit turns one lap and lands
 >   on the same figure (an `aria-hidden` overlay that is removed when it lands). `[data-price]` always holds the plain
->   price.
+>   price, unpainted while the overlay turns (that rule stays scoped so it outranks the price colour). The overlay's
+>   code and styles (`scripts/odometer.ts`, `styles/odometer.css`) load as the list approaches.
+> - **Byte budget (P2), 22 Nov.** Home on a phone sits close to its 300 KB budget (CI measures about 8 KB more than a
+>   local build). Both moments therefore load on demand, including the phone's controller, so a phone's first load
+>   carries only their small triggers.
 > - **Considered and left out** (round 7's restraint and "nothing loops forever"): a velocity marquee, a cursor follower,
 >   3D tilt. The hero's signal field, agent graph, kinetic words, the wordmark's lock-on, magnetic buttons, spotlights,
 >   the footer name and page transitions already cover the rest of the audit's motion list.

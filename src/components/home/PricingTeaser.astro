@@ -8,6 +8,7 @@
  * over each price, resting on the real figure; every digit turns one lap and lands on the same number, then the overlay
  * is removed. The prices themselves never change (they stay the text of [data-price], for readers, tests and search),
  * so Home keeps its element budget (gate P3). Transform only, tokens only, once; reduced motion and no JavaScript skip it.
+ * The overlay's code and styles load on demand (scripts/odometer.ts, styles/odometer.css), as the list approaches.
  */
 import { packageById, packages, priceLabel, priceTerms } from '../../data/packages';
 import Button from '../ui/Button.astro';
@@ -190,107 +191,30 @@ const enquiry = packageById('website-enquiry')!;
   }
 </style>
 
-<style is:global>
-  /* M7 overlay (created by the script below, so global, namespaced): one window per digit, one line tall; the column of
-     0–9 twice starts on the digit's own figure and turns one lap. */
-  .pt__price {
-    position: relative;
-  }
-  .pt-odo {
-    position: absolute;
-    top: 0;
-    right: 0;
-    font-size: var(--fs-h3);
-    font-weight: var(--w-head);
-    letter-spacing: var(--track-head);
-    line-height: 1.1;
-    font-variant-numeric: tabular-nums;
-    color: var(--text);
-    white-space: pre;
-    pointer-events: none;
-  }
-  .pt-odo__d {
-    display: inline-block;
-    height: 1.1em;
-    overflow: hidden;
-    vertical-align: top;
-  }
-  .pt-odo__col {
-    display: block;
-    translate: 0 calc(var(--n) * -1.1em);
-    transition: translate calc(var(--dur-5) * 2) var(--ease-out) calc((var(--r) * 2 + var(--k)) * var(--stagger));
-  }
-  .pt-odo.is-spun .pt-odo__col {
-    translate: 0 calc((var(--n) + 10) * -1.1em);
-  }
-</style>
-
 <script>
-  // M7: once, when the price list is well into view. Each price gets an aria-hidden overlay of digit columns that turns
-  // one lap and lands on the same figure; the overlay is then removed and the plain price shows again.
+  // M7: once, when the price list is well into view. The overlay's code and styles (scripts/odometer.ts) are fetched as
+  // the list approaches, so a phone's first load doesn't carry them (gate P2).
   const list = document.querySelector<HTMLElement>('[data-odometer]');
   if (list && document.documentElement.classList.contains('js-motion') && !matchMedia('(prefers-reduced-motion: reduce)').matches) {
-    const COLUMN = Array.from({ length: 20 }, (_, i) => i % 10).join('\n');
-    const roll = () => {
-      const overlays: HTMLElement[] = [];
-      list.querySelectorAll<HTMLElement>('[data-price]').forEach((price, r) => {
-        const text = price.textContent ?? '';
-        if (!/\d/.test(text)) return;
-        const odo = document.createElement('span');
-        odo.className = 'pt-odo';
-        odo.setAttribute('aria-hidden', 'true');
-        odo.style.setProperty('--r', String(r));
-        let k = 0;
-        for (const ch of text) {
-          if (!/\d/.test(ch)) {
-            odo.append(ch);
-            continue;
-          }
-          const win = document.createElement('span');
-          win.className = 'pt-odo__d';
-          const col = document.createElement('span');
-          col.className = 'pt-odo__col';
-          col.style.setProperty('--n', ch);
-          col.style.setProperty('--k', String(k++));
-          col.textContent = COLUMN;
-          win.append(col);
-          odo.append(win);
-        }
-        price.after(odo);
-        price.classList.add('is-rolling');
-        overlays.push(odo);
-      });
-      if (!overlays.length) return;
-      // Next frame: start the lap. When the last column lands, put the plain prices back.
-      requestAnimationFrame(() =>
-        requestAnimationFrame(() => {
-          overlays.forEach((o) => o.classList.add('is-spun'));
-          const cols = list.querySelectorAll('.pt-odo__col');
-          const last = cols[cols.length - 1];
-          const done = () => {
-            overlays.forEach((o) => o.remove());
-            list.querySelectorAll('[data-price].is-rolling').forEach((p) => p.classList.remove('is-rolling'));
-          };
-          let finished = false;
-          const finish = () => {
-            if (finished) return;
-            finished = true;
-            done();
-          };
-          if (last) last.addEventListener('transitionend', finish, { once: true });
-          // A backstop for a hidden tab, where transitions may never end.
-          setTimeout(finish, 4000);
-        }),
-      );
-    };
-    const io = new IntersectionObserver(
+    let odometer: Promise<typeof import('../../scripts/odometer')> | undefined;
+    const load = () => (odometer ??= import('../../scripts/odometer'));
+    const near = new IntersectionObserver(
       (entries) => {
         if (!entries.some((e) => e.isIntersecting)) return;
-        io.disconnect();
-        roll();
+        near.disconnect();
+        load();
+      },
+      { rootMargin: '0px 0px 50% 0px' },
+    );
+    const inView = new IntersectionObserver(
+      (entries) => {
+        if (!entries.some((e) => e.isIntersecting)) return;
+        inView.disconnect();
+        load().then(({ roll }) => roll(list), () => {});
       },
       { threshold: 0.35 },
     );
-    io.observe(list);
+    near.observe(list);
+    inView.observe(list);
   }
 </script>
