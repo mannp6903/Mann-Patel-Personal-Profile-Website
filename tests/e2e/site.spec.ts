@@ -2719,8 +2719,9 @@ test.describe('upgrade report Phase 1 (22 Nov 2026)', () => {
     expect(await shown()).toBe(false);
     await page.evaluate(() => scrollTo({ top: document.getElementById('what-i-do')!.offsetTop, behavior: 'instant' }));
     await expect.poll(shown).toBe(true);
+    // Once its slide (320ms) has landed, it sits on the bottom edge.
+    await expect.poll(async () => { const b = (await bar.boundingBox())!; return b.y + b.height; }).toBeLessThanOrEqual(844 + 1);
     const box = (await bar.boundingBox())!;
-    expect(box.y + box.height).toBeLessThanOrEqual(844 + 1);
     expect(box.height).toBeLessThanOrEqual(80);
     const links = bar.locator('a');
     await expect(links.first()).toHaveText('Free check');
