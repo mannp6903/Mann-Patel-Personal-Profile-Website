@@ -1843,7 +1843,8 @@ test.describe('free check (short path)', () => {
     await page.goto('/contact/?package=check-up#check');
     await expect(panel(page)).toBeVisible();
     await expect(page.locator('[data-brief]')).toBeHidden();
-    await expect(page.getByRole('link', { name: /Free check/ })).toHaveAttribute('aria-current', 'true');
+    // (In main: the header's button is "Free check" too since 22 Nov 2026.)
+    await expect(page.locator('main').getByRole('link', { name: /Free check/ })).toHaveAttribute('aria-current', 'true');
     // Only what the check needs: no services, budget or timeframe, and the note is optional.
     await expect(panel(page).locator('input[name="services"], [name="budget"], [name="timeframe"]')).toHaveCount(0);
     await expect(panel(page).locator('#c-message')).not.toHaveAttribute('required', '');
