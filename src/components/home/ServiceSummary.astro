@@ -562,14 +562,28 @@ const more = [packageById('website-fix')!, packageById('care')!];
       display: none;
     }
     :global(.js-motion) .ss__tile {
+      position: relative;
+      isolation: isolate;
       display: grid;
       align-content: center;
       min-height: min(24rem, 46vh);
-      transition: background-color var(--dur-3) var(--ease-out), border-color var(--dur-3) var(--ease-out);
     }
-    :global(.js-motion) .ss__tile.is-on {
+    /* The tile at the reading line lights up: a lighter fill and border on a layer that fades in (opacity only; a
+       colour transition on the tile itself broke the transform-and-opacity rule, found 22 Nov 2026). */
+    :global(.js-motion) .ss__tile::before {
+      content: '';
+      position: absolute;
+      z-index: -1;
+      inset: -1px;
+      border: 1px solid var(--control);
+      border-radius: inherit;
       background: var(--surface);
-      border-color: var(--control);
+      opacity: 0;
+      pointer-events: none;
+      transition: opacity var(--dur-3) var(--ease-out);
+    }
+    :global(.js-motion) .ss__tile.is-on::before {
+      opacity: 1;
     }
   }
 
