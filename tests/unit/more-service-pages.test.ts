@@ -39,7 +39,7 @@ describe('more service pages (SEO audit Phase 4)', () => {
     }
   });
 
-  it('sells existing packages only: Website Care, and Local Visibility Setup for the AI search check (no new price)', () => {
+  it('sells existing packages only: Website Care, and Google Listing Setup for the AI search check (no new price)', () => {
     expect(moreServicePages[0].packages).toEqual(['care']);
     expect(moreServicePages[1].packages).toEqual(['local-visibility']);
     for (const p of moreServicePages) for (const id of p.packages) expect(packageById(id), id).toBeDefined();
@@ -61,11 +61,11 @@ describe('more service pages (SEO audit Phase 4)', () => {
     }
   });
 
-  it('the AI page never says website fixes are part of Local Visibility Setup (they are quoted separately)', () => {
+  it('the AI page never says website fixes are part of Google Listing Setup (they are quoted separately)', () => {
     const ai = moreServicePages[1];
     const text = [ai.lead, ai.notFor, ...ai.steps.map((s) => s.body), ...ai.limits, ai.costs, ai.handover, ...ai.faqs.map((f) => f.a)].join(' ');
     for (const sentence of text.split(/(?<=[.!?])\s+/))
-      if (/Local Visibility Setup|\$650|part of/i.test(sentence) && /website/i.test(sentence)) expect(sentence).toMatch(/quoted/i);
+      if (/Google Listing Setup|\$650|part of/i.test(sentence) && /website/i.test(sentence)) expect(sentence).toMatch(/quoted/i);
     // Repeat checks after the set-up aren't part of it.
     expect(ai.faqs.find((f) => /how often/i.test(f.q))!.a).toMatch(/yourself/);
   });

@@ -133,12 +133,12 @@ export const servicePages: ServicePage[] = [
       },
     ],
     asides: [
-      // SEO audit Phase 2 (14 Nov 2026): "website redesign toronto". Built only on the Website Launch package.
+      // SEO audit Phase 2 (14 Nov 2026): "website redesign toronto". Built only on the Website package.
       {
         id: 'redesign',
         eyebrow: 'Website redesign',
         title: 'Website redesign in Toronto',
-        body: 'A redesign makes sense when your site is dated, slow or hard to use on a phone, or doesn’t say what you do, where you work and how to book. It is the same Website Launch package as a new site, priced below. You work with me directly: I’m a freelance web designer in Toronto, so the person you brief is the person who builds and tests your site.',
+        body: 'A redesign makes sense when your site is dated, slow or hard to use on a phone, or doesn’t say what you do, where you work and how to book. It is the same Website package as a new site, priced below. You work with me directly: I’m a freelance web designer in Toronto, so the person you brief is the person who builds and tests your site.',
         items: [
           'It starts with the free check of your current site, so you know what fails today',
           'Up to five pages rebuilt for phones first, with click-to-call and one clear next step on every page',
@@ -371,7 +371,7 @@ export const servicePages: ServicePage[] = [
         id: 'options',
         eyebrow: 'Scoped options',
         title: 'Start with one workflow',
-        body: 'Each option is small enough to test properly. One workflow and one booking integration are included in Website + Enquiry System; a second is quoted separately.',
+        body: 'Each option is small enough to test properly. One workflow and one booking integration are included in Website + Booking; a second is quoted separately.',
         items: [
           'Missed-call text-back: a caller who rings out gets a text from your business number, marked as automatic, with what happens next',
           'Form follow-up: every website enquiry gets an instant reply and lands in one list you check',
@@ -386,7 +386,7 @@ export const servicePages: ServicePage[] = [
     proof: true,
     testLog: {
       id: 'test-log',
-      badge: 'Sample · fictional test log',
+      badge: 'Sample, fictional test log',
       cols: ['Test', 'What should happen', 'Result'],
       title: 'Sample: the test log you get at handover',
       intro:
@@ -449,8 +449,8 @@ export const servicePages: ServicePage[] = [
  * optimization, each a search people make ("website maintenance toronto small business", "ai search optimization
  * toronto"). Same template as the three above, but not one of the three main services: they don't appear in the
  * service lists, the menu or the finder, carry no "Service by service" details, and end with the free check.
- * They sell existing packages only (Website Care; the AI search check is part of Local Visibility Setup; the website
- * redesign page, added 16 Nov 2026, is Website Launch or Website Fix).
+ * They sell existing packages only (Website Care; the AI search check is part of Google Listing Setup; the website
+ * redesign page, added 16 Nov 2026, is the Website package or Website Fix).
  */
 export const moreServicePages: ServicePage[] = [
   {
@@ -543,11 +543,11 @@ export const moreServicePages: ServicePage[] = [
     card: 'What ChatGPT, Gemini and Perplexity say about your business, checked on a dated sheet, and the public facts they draw on fixed.',
     title: 'AI Search Optimization (AEO & GEO) in Toronto',
     description:
-      'See what ChatGPT, Gemini and Perplexity say about your business, then fix the public facts they draw on. Part of Local Visibility Setup, $650 CAD.',
+      'See what ChatGPT, Gemini and Perplexity say about your business, then fix the public facts they draw on. Part of Google Listing Setup, $650 CAD.',
     eyebrow: 'AI search visibility',
     h1: 'AI search optimization for Toronto businesses',
     lines: ['AI search optimization', 'for Toronto businesses'],
-    lead: 'People now ask ChatGPT, Gemini and Perplexity to recommend a local business. I check what each one says about yours, record it on a dated sheet, and fix the public facts they draw on in your Google Business Profile and listings. It is part of Local Visibility Setup, because the fixes are ordinary local SEO done carefully; website fixes are listed in priority order and quoted separately.',
+    lead: 'People now ask ChatGPT, Gemini and Perplexity to recommend a local business. I check what each one says about yours, record it on a dated sheet, and fix the public facts they draw on in your Google Business Profile and listings. It is part of Google Listing Setup, because the fixes are ordinary local SEO done carefully; website fixes are listed in priority order and quoted separately.',
     packages: ['local-visibility'],
     forWho: [
       'People ask an AI assistant for a business like yours, and you don’t know what it says',
@@ -581,7 +581,7 @@ export const moreServicePages: ServicePage[] = [
     work: [],
     sample: {
       title: 'Sample: an AI answers check',
-      badge: 'Sample · fictional business',
+      badge: 'Sample, fictional business',
       cols: ['Question', 'Assistant', 'What it said'],
       intro: 'A sample with a fictional cleaning business, so you can see the format. Your sheet uses your business and the questions your customers ask, dated.',
       rows: [
@@ -595,7 +595,7 @@ export const moreServicePages: ServicePage[] = [
       'Google says its AI features need no special markup: the fixes are accurate public details, clear pages and consistent listings.',
       'The sheet is a record of what each assistant said on the day, not a ranking.',
     ],
-    costs: 'Nothing is required beyond what Local Visibility Setup lists. If you want printed review cards, the printer bills you directly.',
+    costs: 'Nothing is required beyond what Google Listing Setup lists. If you want printed review cards, the printer bills you directly.',
     handover:
       'You keep the dated sheet (the questions, each answer, whether it linked your website and which facts it used) and the list of fixes made, so you can repeat the check yourself.',
     faqs: [
@@ -609,7 +609,7 @@ export const moreServicePages: ServicePage[] = [
       },
       {
         q: 'Is this a separate package?',
-        a: 'No. The check is part of Local Visibility Setup ($650), together with your Google Business Profile and listings. Website fixes it turns up are listed in priority order and quoted separately.',
+        a: 'No. The check is part of Google Listing Setup ($650), together with your Google Business Profile and listings. Website fixes it turns up are listed in priority order and quoted separately.',
       },
       {
         q: 'How often should the check be repeated?',
@@ -622,7 +622,7 @@ export const moreServicePages: ServicePage[] = [
     ],
   },
   {
-    // Competitor gap work (16 Nov 2026; "website redesign toronto"). Sells existing packages only: Website Launch for a
+    // Competitor gap work (16 Nov 2026; "website redesign toronto"). Sells existing packages only: the Website package for a
     // redesign of up to five pages, Website Fix when one problem is the issue. Prices come from src/data/packages.ts.
     // No case study is shown: both projects are new builds, not redesigns.
     // TODO(Mann): if you set up redirects from old page addresses during a redesign, say so in a step or FAQ here.
@@ -651,7 +651,7 @@ export const moreServicePages: ServicePage[] = [
       },
       {
         title: 'Redesign or repair',
-        body: `If one problem is costing you customers, a Website Fix (${price('website-fix')}) solves it and leaves the rest alone. If the site needs rebuilding, Website Launch (${price('website-launch')}) covers up to five pages. You decide with a written scope in hand.`,
+        body: `If one problem is costing you customers, a Website Fix (${price('website-fix')}) solves it and leaves the rest alone. If the site needs rebuilding, the Website package (${price('website-launch')}) covers up to five pages. You decide with a written scope in hand.`,
       },
       {
         title: 'Keep what still works',
@@ -688,7 +688,7 @@ export const moreServicePages: ServicePage[] = [
     faqs: [
       {
         q: 'How much does a website redesign cost?',
-        a: `A redesign of up to five pages is the Website Launch package: ${price('website-launch')} CAD plus tax, paid half at kickoff and half once the agreed launch checks pass. If only one thing on your site needs fixing, a Website Fix is ${price('website-fix')}, by size. Domain, hosting and tool subscriptions are billed to you directly by each provider.`,
+        a: `A redesign of up to five pages is the Website package: ${price('website-launch')} CAD plus tax, paid half at kickoff and half once the agreed launch checks pass. If only one thing on your site needs fixing, a Website Fix is ${price('website-fix')}, by size. Domain, hosting and tool subscriptions are billed to you directly by each provider.`,
       },
       {
         q: 'Do I need a redesign, or just a fix?',

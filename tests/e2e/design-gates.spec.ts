@@ -426,7 +426,8 @@ test.describe('design gates: structure and layout (Phase 3)', () => {
     const ids = await page.locator('main > section[id]').evaluateAll((els) => els.map((e) => e.id));
     // 19 Nov 2026 (answer extractability): + the "at a glance" summary before the questions. 22 Nov 2026 (upgrade
     // report R1.1): it is gone again; it repeated the hero and the prices.
-    const expected = ['hero', 'work', 'what-i-do', 'prices', 'check', 'how-i-work', 'faq'];
+    // 22 Nov 2026 (Phase 2, upgrade report §5): + "You work with me" after the work; Services and Prices are one section.
+    const expected = ['hero', 'work', 'with-me', 'what-i-do', 'check', 'how-i-work', 'faq'];
     // Real reviews only (src/data/reviews.ts): the strip sits right after Selected Work once there are some.
     expect(ids.filter((id) => id !== 'reviews')).toEqual(expected);
     if (ids.includes('reviews')) expect(ids[ids.indexOf('work') + 1]).toBe('reviews');
@@ -489,10 +490,12 @@ test.describe('design gates: structure and layout (Phase 3)', () => {
     expect(await page.evaluate(() => document.documentElement.scrollHeight / innerHeight)).toBeLessThanOrEqual(11);
   });
 
-  test('L1: from 1440 the heads of How I work, Prices and the questions stay in view (sticky)', async ({ page }) => {
+  test('L1: from 1440 the questions’ head stays in view (sticky)', async ({ page }) => {
     await page.setViewportSize({ width: 1440, height: 900 });
     await page.goto('/');
-    for (const head of ['#how-i-work .about__head', '#prices .pt__head', '#faq .faq__head'])
+    // 22 Nov 2026 (Phase 2): How I work is a full-width process line and Prices joined Services, so only the questions'
+    // head stays sticky.
+    for (const head of ['#faq .faq__head'])
       expect(await page.locator(head).evaluate((e) => getComputedStyle(e).position), head).toBe('sticky');
   });
 
@@ -504,8 +507,10 @@ test.describe('design gates: structure and layout (Phase 3)', () => {
       for (const s of document.querySelectorAll('main > section[id], footer .ftr__cta')) {
         const c = s.querySelector('.container') ?? s;
         const edge = c.getBoundingClientRect().left + parseFloat(getComputedStyle(c).paddingLeft);
-        // (22 Nov 2026: plain labels inside cards, .eyebrow--plain, are not section eyebrows.)
-        for (const el of [s.querySelector('.eyebrow:not(.eyebrow--plain), .fc__label'), s.querySelector('h1, h2')]) {
+        // (22 Nov 2026: plain labels inside cards, .eyebrow--plain, are not section eyebrows. A section that leads with a
+        // photo, "You work with me", puts the photo on the edge and its heading beside it: the photo is checked instead.)
+        const lead = s.querySelector('[data-lead-media]');
+        for (const el of lead ? [lead] : [s.querySelector('.eyebrow:not(.eyebrow--plain), .fc__label'), s.querySelector('h1, h2')]) {
           if (!el) continue;
           const left = el.getBoundingClientRect().left;
           if (Math.abs(left - edge) > 1) out.push(`${s.id || s.className.split(' ')[0]} ${el.tagName.toLowerCase()}: ${Math.round(left)} vs ${Math.round(edge)}`);
@@ -1492,9 +1497,9 @@ test.describe('launch motion (22 Nov 2026, DESIGN.md → Motion → Search to bo
     page.on('request', (r) => r.resourceType() === 'script' && scripts.push(r.url()));
     await page.setViewportSize({ width: 1440, height: 900 });
     await page.goto('/');
-    await page.locator('#prices .pt__list').scrollIntoViewIfNeeded();
+    await page.locator('#what-i-do .ss__more').scrollIntoViewIfNeeded();
     await page.waitForTimeout(800);
-    await expect(page.locator('#prices .pt-odo, #prices [data-odometer]')).toHaveCount(0);
+    await expect(page.locator('.pt-odo, [data-odometer]')).toHaveCount(0);
     expect(scripts.filter((u) => /odometer/i.test(u))).toEqual([]);
   });
 });

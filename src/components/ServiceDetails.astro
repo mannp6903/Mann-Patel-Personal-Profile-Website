@@ -22,7 +22,6 @@ const list = servicesInGroup(group);
     <section class="section section--rule sd" id={id} aria-labelledby={`${id}-title`}>
       <div class="container sd__grid">
         <div class="stack" style="--stack: var(--s-4)">
-          <p class="eyebrow">Service by service</p>
           <h2 id={`${id}-title`} class="sd__h2">
             What each part <span class="accent">includes.</span>
           </h2>
@@ -181,10 +180,7 @@ const list = servicesInGroup(group);
   .svc__k {
     display: block;
     margin-bottom: var(--s-1);
-    font-family: var(--font-mono);
     font-size: var(--fs-label);
-    letter-spacing: var(--track-label);
-    text-transform: uppercase;
     color: var(--text-3);
   }
   .svc__problem {
@@ -200,11 +196,8 @@ const list = servicesInGroup(group);
   }
   .svc__h {
     margin: var(--s-4) 0 var(--s-3);
-    font-family: var(--font-mono);
     font-size: var(--fs-label);
     font-weight: var(--w-ui);
-    letter-spacing: var(--track-label);
-    text-transform: uppercase;
     color: var(--text-3);
   }
   .svc__cols > div > .svc__h:first-child {

@@ -50,7 +50,7 @@ const crumbs = breadcrumbJsonLd([
           guides.map((g) => (
             <li class="gl__item">
               <p class="gl__meta small subtle">
-                {g.data.draft ? (g.data.outline ? 'Outline · not published' : 'Draft · not published') : fmt(g.data.published!)}
+                {g.data.draft ? (g.data.outline ? 'Outline, not published' : 'Draft, not published') : fmt(g.data.published!)}
               </p>
               <h2 class="gl__title">
                 <a href={`/guides/${g.id}/`}>{g.data.title}</a>

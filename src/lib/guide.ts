@@ -78,13 +78,13 @@ export function recommend({ stage, problem, site }: GuideAnswers): Recommendatio
     return {
       packageId: 'local-visibility',
       serviceIds: site === 'ok' ? ['business-profile', 'reviews', 'listings'] : ['business-profile', 'reviews', 'listings', 'websites'],
-      headline: 'Local Visibility Setup fits best',
+      headline: 'Google Listing Setup fits best',
       reasons: [
         'Correct details and recent, real reviews are what people nearby compare before they call.',
         'Your Google profile, Apple Maps, Bing and what AI assistants say about you are checked and made consistent.',
         site === 'ok'
           ? 'Rankings are decided by Google; this work improves what you control.'
-          : 'A clear website helps too: Website Launch can follow, or be quoted together.',
+          : 'A clear website helps too: the Website package can follow, or be quoted together.',
       ],
     };
   }
@@ -115,7 +115,7 @@ export function recommend({ stage, problem, site }: GuideAnswers): Recommendatio
   return {
     packageId: 'website-enquiry',
     serviceIds: problem === 'enquiries' ? ['websites', 'enquiry-workflows', 'missed-calls'] : ['websites', 'booking', 'enquiry-workflows'],
-    headline: 'Website + Enquiry System fits best',
+    headline: 'Website + Booking fits best',
     reasons,
   };
 }

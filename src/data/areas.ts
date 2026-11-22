@@ -319,7 +319,7 @@ export const areas: Area[] = [
       },
       {
         q: 'Can you redesign the website I already have?',
-        a: 'Yes. A redesign of up to five pages is the same Website Launch package as a new site, on the domain you already own. If most of your site works, a single fix costs less, and I’ll say so.',
+        a: 'Yes. A redesign of up to five pages is the same Website package as a new site, on the domain you already own. If most of your site works, a single fix costs less, and I’ll say so.',
       },
       {
         q: 'Where do I start?',

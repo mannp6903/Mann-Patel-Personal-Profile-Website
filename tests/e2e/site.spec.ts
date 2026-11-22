@@ -189,7 +189,7 @@ test.describe('pages', () => {
     ['/websites-for-salons-and-spas/', 'Salon & Spa Website Design in Toronto | Mann Patel', 'Salon and spa website design in Toronto', 'Salon and spa websites in Toronto: a menu clients can scan, your real hours and online booking. See the Samp Hair & Spa preview. From $1,950 CAD.'],
     // SEO audit Phase 4 (14 Nov 2026): plan C15, C16.
     ['/services/website-care/', 'Small Business Website Maintenance in Toronto | Mann Patel', 'Website maintenance for Toronto small businesses', 'Website Care, $149 a month: a monthly test enquiry through your form, your booking link checked, up to 30 minutes of edits and a note. Stop any month.'],
-    ['/services/ai-search-optimization/', 'AI Search Optimization (AEO & GEO) in Toronto | Mann Patel', 'AI search optimization for Toronto businesses', 'See what ChatGPT, Gemini and Perplexity say about your business, then fix the public facts they draw on. Part of Local Visibility Setup, $650 CAD.'],
+    ['/services/ai-search-optimization/', 'AI Search Optimization (AEO & GEO) in Toronto | Mann Patel', 'AI search optimization for Toronto businesses', 'See what ChatGPT, Gemini and Perplexity say about your business, then fix the public facts they draw on. Part of Google Listing Setup, $650 CAD.'],
     ['/web-design-scarborough/', 'Web Design in Scarborough, Ontario | Mann Patel', 'Web design in Scarborough, Ontario', 'Web designer based in Scarborough, Ontario: websites, Google Business Profile setup and online booking for local small businesses, with published prices.'],
   ];
   test('search copy: titles, H1s and descriptions name the service and the place', async ({ page }) => {
@@ -590,32 +590,40 @@ test.describe('home interactions', () => {
     await ctx.close();
   });
 
-  test('the three service summaries each link to their focused page and name their package', async ({ page }) => {
+  // 22 Nov 2026 (upgrade report R5.1, R10.1; Phase 2): Services and Prices are one section. Each tile leads with its
+  // package and price, says what the price covers, and links to the service page by the service's name.
+  test('the three service tiles each name their package and price and link to their focused page', async ({ page }) => {
     await page.goto('/');
-    const items = page.locator('#what-i-do li');
-    await expect(items).toHaveCount(3);
-    for (const slug of ['local-visibility', 'enquiry-follow-up', 'web-design'])
-      await expect(page.locator(`#what-i-do a[href="/services/${slug}/"]`)).toBeVisible();
-    for (const name of ['Local Visibility Setup', 'Website + Enquiry System', 'Website Launch'])
-      await expect(page.locator('#what-i-do')).toContainText(`Package: ${name}`);
-    // Plain service names on the cards, and links that name the service they lead to.
-    for (const name of ['Local SEO and Google Business Profile', 'Enquiry follow-up and online booking', 'Web design and redesign'])
-      await expect(page.locator('#what-i-do').getByRole('heading', { name })).toBeVisible();
-    await expect(page.locator('#what-i-do a[href="/services/web-design/"]')).toContainText('Web design');
+    const tiles = page.locator('#what-i-do .ss__tile');
+    await expect(tiles).toHaveCount(3);
+    for (const [i, [slug, name, price, link]] of [
+      ['local-visibility', 'Google Listing Setup', '$650', 'Local SEO'],
+      ['enquiry-follow-up', 'Website + Booking', '$3,350', 'Enquiry follow-up'],
+      ['web-design', 'Website', '$1,950', 'Web design'],
+    ].entries()) {
+      const tile = tiles.nth(i);
+      await expect(tile.getByRole('heading', { level: 3 })).toHaveText(name);
+      await expect(tile.locator('[data-price]')).toHaveText(price);
+      await expect(tile.locator('.ss__pkg')).not.toBeEmpty();
+      await expect(tile.locator(`a[href="/services/${slug}/"]`)).toContainText(link);
+    }
     // Case studies link to the service they are evidence for.
     await page.goto('/work/nest-and-rest-cleaning/');
     await expect(page.locator('main a[href="/services/web-design/"]').first()).toContainText('Web design service');
   });
 
-  test('the home page lists every price, each with what it covers, and links to the full pricing page', async ({ page }) => {
+  test('the home page lists every price once, each with what it covers, and links to the full pricing page', async ({ page }) => {
     await page.goto('/');
-    const prices = page.locator('#prices');
-    for (const [name, price] of [['Website Fix', '$450–$850'], ['Website Launch', '$1,950'], ['Website + Enquiry System', '$3,350'], ['Local Visibility Setup', '$650'], ['Website Care', '$149 a month']]) {
-      const row = prices.locator('.pt__row').filter({ has: page.locator('.pt__name', { hasText: new RegExp(`^${name.replace(/[+]/g, '\\+')}$`) }) });
+    const prices = page.locator('#what-i-do');
+    expect(await prices.locator('[data-price]').allInnerTexts()).toEqual(['$650', '$3,350', '$1,950', '$450–$850', '$149 a month']);
+    for (const [name, price] of [['Website Fix', '$450–$850'], ['Website Care', '$149 a month']]) {
+      const row = prices.locator('.ss__more li').filter({ has: page.locator('.ss__more-name', { hasText: name }) });
       await expect(row.locator('[data-price]')).toHaveText(price);
-      await expect(row.locator('.pt__boundary')).not.toBeEmpty();
+      await expect(row.locator('.ss__more-boundary')).not.toBeEmpty();
     }
-    await expect(prices).toContainText('plus applicable tax');
+    await expect(prices).toContainText('plus tax');
+    // Prices are said once on Home: no separate prices section, no summary.
+    await expect(page.locator('#prices, #summary')).toHaveCount(0);
     // 22 Nov 2026 (upgrade report R7.2): verb plus object.
     await expect(prices.getByRole('link', { name: 'See every package' })).toHaveAttribute('href', '/pricing/');
   });
@@ -631,7 +639,7 @@ test.describe('home interactions', () => {
     await finder.getByText('Yes, and it works well').click();
     await expect(finder.locator('[data-r-name]')).toHaveText('Start with a free check of your enquiry path');
     await finder.getByText('No', { exact: true }).click();
-    await expect(finder.locator('[data-r-name]')).toHaveText('Website + Enquiry System fits best');
+    await expect(finder.locator('[data-r-name]')).toHaveText('Website + Booking fits best');
     const cta = finder.locator('[data-r-cta]');
     await expect(cta).toHaveAttribute('href', /\/contact\/\?package=website-enquiry&services=/);
     await cta.click();
@@ -718,11 +726,15 @@ test.describe('home interactions', () => {
       await expect(photo).toHaveAttribute('alt', /Mann Patel smiling/);
       await expect(photo).toHaveAttribute('src', /mann-patel-hero/);
       await page.waitForFunction(() => (document.querySelector('.hero .ag__photo') as HTMLImageElement).naturalWidth > 0);
-      await expect(page.locator('main img[alt*="Mann Patel smiling"]')).toHaveCount(1);
+      // 22 Nov 2026 (upgrade report R3.2, Mann's go-ahead for Phase 2): the photo also shows large in "You work with me",
+      // which links to About. How I work stays about the process.
+      await expect(page.locator('main img[alt*="Mann Patel smiling"]')).toHaveCount(2);
+      const me = page.locator('#with-me');
+      await expect(me.getByRole('heading', { level: 2 })).toHaveText('You work with me, start to finish.');
+      await expect(me.getByRole('link', { name: 'More about me' })).toHaveAttribute('href', '/about/');
       const section = page.locator('#how-i-work');
       await expect(section.getByRole('heading', { level: 2 })).toHaveText('How a website project works.');
       await expect(section.getByText('Hi, I’m Mann')).toHaveCount(0);
-      await expect(section.getByRole('link', { name: 'More about me' })).toHaveAttribute('href', '/about/');
     }
   });
 
@@ -772,7 +784,7 @@ test.describe('phones: short pages', () => {
     // 16 Nov 2026 (Website Playbook): footer links at least 44 × 44px make the phone footer about 70px taller.
     '/services/local-visibility/': 12.5,
     // 19 Nov 2026 (SEO report follow-up): + the missed-call calculator (about 1.35 screens at 390), the line on what
-    // the extra over Website Launch buys, and in previews the draft after-hours study's guide link. Was 14.
+    // the extra over the Website package buys, and in previews the draft after-hours study's guide link. Was 14.
     '/services/enquiry-follow-up/': 15.5,
     // 14 Nov 2026 (SEO audit): the intro names Toronto and the GTA, one more line on a phone.
     // 16 Nov 2026 (competitor gap work): + "Which package fits?" (previews also list the draft area pages in the footer).
@@ -900,8 +912,8 @@ test.describe('new pages (SEO audit Phase 3)', () => {
   const lastSectionId = (page: Page) => page.evaluate(() => document.querySelector('main')?.lastElementChild?.id);
 
   const INDUSTRY: [string, string, string[], [string, string][]][] = [
-    ['/websites-for-cleaning-companies/', 'nest-and-rest-cleaning', ['My own business', NEST_STATUS, 'Business opens summer 2027'], [['Website Launch', '$1,950'], ['Local Visibility Setup', '$650']]],
-    ['/websites-for-salons-and-spas/', 'samp-hair-spa', ['Client website', 'In progress'], [['Website + Enquiry System', '$3,350'], ['Website Launch', '$1,950']]],
+    ['/websites-for-cleaning-companies/', 'nest-and-rest-cleaning', ['My own business', NEST_STATUS, 'Business opens summer 2027'], [['Website', '$1,950'], ['Google Listing Setup', '$650']]],
+    ['/websites-for-salons-and-spas/', 'samp-hair-spa', ['Client website', 'In progress'], [['Website + Booking', '$3,350'], ['Website', '$1,950']]],
   ];
   for (const [path, study, labels, pkgs] of INDUSTRY) {
     test(`${path} leads with its case study, honestly labelled, then the package that fits`, async ({ page }) => {
@@ -1016,7 +1028,7 @@ test.describe('new pages (SEO audit Phase 3)', () => {
 test.describe('more service pages (SEO audit Phase 4)', () => {
   const PAGES4: [string, string, string][] = [
     ['/services/website-care/', 'Website Care', '$149 a month'],
-    ['/services/ai-search-optimization/', 'Local Visibility Setup', '$650'],
+    ['/services/ai-search-optimization/', 'Google Listing Setup', '$650'],
   ];
   for (const [path, pkg, price] of PAGES4) {
     test(`${path}: its package and published price, no copy of another page's details, ends with the free check`, async ({ page }) => {
@@ -1031,7 +1043,7 @@ test.describe('more service pages (SEO audit Phase 4)', () => {
       // Every sample is labelled as fictional.
       const badges = await page.locator('.sp__badge').allInnerTexts();
       expect(badges.length).toBeGreaterThan(0);
-      for (const badge of badges) expect(badge).toMatch(/Sample · fictional/);
+      for (const badge of badges) expect(badge).toMatch(/Sample, fictional/);
       const svc = (await page.$$eval('script[type="application/ld+json"]', (s) => s.map((x) => JSON.parse(x.textContent || '{}')))).find(
         (b) => b['@type'] === 'Service',
       );
@@ -1044,7 +1056,7 @@ test.describe('more service pages (SEO audit Phase 4)', () => {
 
   test('the AI search page says what it is part of and promises nothing', async ({ page }) => {
     await page.goto('/services/ai-search-optimization/');
-    await expect(page.locator('main')).toContainText('part of Local Visibility Setup');
+    await expect(page.locator('main')).toContainText('part of Google Listing Setup');
     // Website fixes are quoted separately, never part of the $650.
     await expect(page.locator('.ph__lead')).not.toContainText('your website');
     await expect(page.locator('main')).toContainText('No one can promise what an AI assistant says');
@@ -1221,11 +1233,11 @@ test.describe('services', () => {
     // Package detail lives on /pricing/ only (SEO audit Phase 2, 14 Nov 2026).
     await page.goto('/pricing/');
     const table = page.getByRole('table', { name: 'Side by side' });
-    for (const name of ['Website Fix', 'Website Launch', 'Website + Enquiry System', 'Local Visibility Setup', 'Website Care'])
+    for (const name of ['Website Fix', 'Website', 'Website + Booking', 'Google Listing Setup', 'Website Care'])
       await expect(table.getByRole('columnheader', { name, exact: true })).toBeVisible();
     for (const row of ['Best for', 'Boundary', 'Covers', 'Not included', 'You provide', 'Paid to others', 'Timeline', 'Price', 'Next step'])
       await expect(table.getByRole('rowheader', { name: row })).toBeVisible();
-    await expect(table.getByRole('link', { name: /Request a quote for Website Launch/ })).toHaveAttribute('href', '/contact/?package=website-launch#brief');
+    await expect(table.getByRole('link', { name: 'Request a quote for Website', exact: true })).toHaveAttribute('href', '/contact/?package=website-launch#brief');
     const cardPrices = await page.locator('.pr__grid .pkg [data-price]').allInnerTexts();
     const tablePrices = await table.locator('[data-price]').allInnerTexts();
     expect(cardPrices).toEqual(['$450–$850', '$1,950', '$3,350', '$650', '$149 a month']);
@@ -1258,11 +1270,11 @@ test.describe('services', () => {
     await expect(page.locator('main')).toContainText('In progress, preview online');
     // Local visibility shows a sample, labelled as one, and cites Google's own guidance.
     await page.goto('/services/local-visibility/');
-    await expect(page.locator('main')).toContainText('Sample · fictional business');
+    await expect(page.locator('main')).toContainText('Sample, fictional business');
     await expect(page.locator('a[href="https://support.google.com/business/answer/7091?hl=en"]')).toBeVisible();
     // Enquiry follow-up demonstrates the workflow with fictional data.
     await page.goto('/services/enquiry-follow-up/');
-    await expect(page.locator('#demo-walkthrough')).toContainText('Demonstration · fictional data');
+    await expect(page.locator('#demo-walkthrough')).toContainText('Demonstration, fictional data');
     // The overview keeps its anchors and links to each page.
     await page.goto('/services/');
     for (const slug of ['web-design', 'local-visibility', 'enquiry-follow-up'])
@@ -1274,9 +1286,9 @@ test.describe('services', () => {
     await page.goto('/services/');
     const paths = page.locator('#paths');
     for (const [slug, name, pkg] of [
-      ['web-design', 'Web design and redesign', 'Website Launch'],
-      ['local-visibility', 'Local SEO and Google Business Profile', 'Local Visibility Setup'],
-      ['enquiry-follow-up', 'Enquiry follow-up and online booking', 'Website + Enquiry System'],
+      ['web-design', 'Web design and redesign', 'Website'],
+      ['local-visibility', 'Local SEO and Google Business Profile', 'Google Listing Setup'],
+      ['enquiry-follow-up', 'Enquiry follow-up and online booking', 'Website + Booking'],
     ]) {
       const card = paths.locator('li', { has: page.locator(`a[href="/services/${slug}/"]`) });
       await expect(card).toContainText(name);
@@ -1368,7 +1380,7 @@ test.describe('services', () => {
     await page.goto('/services/enquiry-follow-up/');
     for (const term of ['Missed-call text-back', 'Form follow-up', 'alert', 'Online booking set-up']) await expect(page.locator('main')).toContainText(term);
     const log = page.locator('#test-log');
-    await expect(log).toContainText('Sample · fictional test log');
+    await expect(log).toContainText('Sample, fictional test log');
     await expect(log).toContainText('handed to the owner');
     await expect(log).toContainText('Request');
     await expect(log).toContainText('only after the booking tool confirms');
@@ -1765,10 +1777,10 @@ test.describe('motion (restrained in round 7)', () => {
     await page.waitForTimeout(300);
     expect(await btn.evaluate((e) => (e as HTMLElement).style.translate)).toBe('');
     // The prices are plain text the whole way into view.
-    await page.locator('#prices .pt__list').scrollIntoViewIfNeeded();
+    await page.locator('#what-i-do .ss__more').scrollIntoViewIfNeeded();
     await page.waitForTimeout(500);
-    expect(await page.locator('#prices [data-price]').allInnerTexts()).toEqual(['$450–$850', '$1,950', '$3,350', '$650', '$149 a month']);
-    await expect(page.locator('#prices .pt-odo, #prices .is-rolling')).toHaveCount(0);
+    expect(await page.locator('#what-i-do [data-price]').allInnerTexts()).toEqual(['$650', '$3,350', '$1,950', '$450–$850', '$149 a month']);
+    await expect(page.locator('.pt-odo, .is-rolling')).toHaveCount(0);
   });
 
   test('the hero labels are plain text, with no decoding effect (round 10: fewer elements around the portrait)', async ({ page }) => {
@@ -1953,7 +1965,7 @@ test.describe('audit of 11 Nov 2026', () => {
 
   test('published prices agree everywhere, and the check stays optional', async ({ page }) => {
     await page.goto('/');
-    await expect(page.locator('#what-i-do')).toContainText('Website Launch · $1,950');
+    await expect(page.locator('#what-i-do')).toContainText('Website · $1,950');
     await expect(page.locator('.hero__price')).toContainText('Google setup $650');
     await page.goto('/services/');
     await expect(page.locator('#packages')).toContainText('The free check is separate, with no obligation.');
@@ -2009,8 +2021,7 @@ test.describe('audit of 11 Nov 2026', () => {
     await expect(page.locator('#summary')).toHaveCount(0);
     // Every section intro answers on its own: it names its subject rather than leaning on the cards around it.
     await expect(page.locator('.sw__intro')).toContainText('A salon website for a client, Samp Hair & Spa, and the website for my own cleaning business');
-    await expect(page.locator('.ss__lead')).toContainText('I offer three services for small businesses in Toronto and the GTA');
-    await expect(page.locator('.pt__lead')).toContainText('A website costs $1,950 for up to five pages, or $3,350');
+    await expect(page.locator('.ss__lead')).toContainText('Local SEO, online booking and websites for small businesses in Toronto and the GTA');
     await expect(page.locator('.about__lead')).toContainText('from a short brief to a written handover');
   });
 
@@ -2064,17 +2075,17 @@ test.describe('desktop layout (14 Nov 2026)', () => {
     }
   });
 
-  test('the home price list lines up: names, scopes and prices in the same columns on every row', async ({ page }) => {
+  test('the home price rows line up: names, scopes and prices in the same columns on every row', async ({ page }) => {
     await page.setViewportSize({ width: 1440, height: 900 });
     await page.goto('/');
-    const cols = await page.$$eval('#prices .pt__row', (rows) =>
+    const cols = await page.$$eval('#what-i-do .ss__more a', (rows) =>
       rows.map((r) => ({
-        name: Math.round(r.querySelector('.pt__name')!.getBoundingClientRect().left),
-        scope: Math.round(r.querySelector('.pt__boundary')!.getBoundingClientRect().left),
-        price: Math.round(r.querySelector('.pt__price')!.getBoundingClientRect().right),
+        name: Math.round(r.querySelector('.ss__more-name')!.getBoundingClientRect().left),
+        scope: Math.round(r.querySelector('.ss__more-boundary')!.getBoundingClientRect().left),
+        price: Math.round(r.querySelector('.ss__more-price')!.getBoundingClientRect().right),
       })),
     );
-    expect(cols).toHaveLength(5);
+    expect(cols).toHaveLength(2);
     for (const key of ['name', 'scope', 'price'] as const) expect(new Set(cols.map((c) => c[key])).size).toBe(1);
   });
 
@@ -2156,10 +2167,10 @@ test.describe('competitor gap work (16 Nov 2026)', () => {
     await page.goto('/');
     const sections: [string, string, string | null][] = [
       ['#work', 'Website projects in Scarborough.', null],
-      ['#what-i-do', 'Web design, local SEO and booking services.', null],
-      ['#prices', 'Website prices in Toronto (CAD).', null],
+      ['#with-me', 'You work with me, start to finish.', null],
+      ['#what-i-do', 'What I do, and what it costs.', null],
       ['#how-i-work', 'How a website project works.', null],
-      ['#faq', 'Web design questions.', 'Straight answers'],
+      ['#faq', 'Web design questions.', null],
     ];
     for (const [id, h2, eyebrow] of sections) {
       const section = page.locator(id);
@@ -2238,7 +2249,7 @@ test.describe('competitor gap work, new pages (16 Nov 2026)', () => {
     await page.goto('/pricing/');
     const fit = page.locator('#fit');
     await expect(fit.getByRole('heading', { level: 2 })).toHaveText('Which package fits?');
-    await expect(fit).toContainText('Website Launch, $1,950');
+    await expect(fit).toContainText('Website, $1,950');
     await expect(fit).toContainText('Website Fix, $450–$850');
     await expect(page.locator('#pr-faq')).toHaveText('What’s included in the price?');
   });

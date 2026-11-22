@@ -3,7 +3,7 @@ import BaseLayout from '../layouts/BaseLayout.astro';
 import Hero from '../components/home/Hero.astro';
 import SelectedWork from '../components/home/SelectedWork.astro';
 import ServiceSummary from '../components/home/ServiceSummary.astro';
-import PricingTeaser from '../components/home/PricingTeaser.astro';
+import WorkWithMe from '../components/home/WorkWithMe.astro';
 import FreeCheck from '../components/home/FreeCheck.astro';
 import HowIWork from '../components/home/HowIWork.astro';
 import Faq from '../components/Faq.astro';
@@ -36,8 +36,10 @@ const description = `Websites, local SEO and Google Business Profile setup for T
   <SelectedWork />
   <!-- Real client reviews only (src/data/reviews.ts); renders nothing until there are some. -->
   <ReviewsStrip />
+  <!-- 22 Nov 2026 (upgrade report §5, Phase 2): the person behind the work, then one section for what I do and what it
+       costs (Services and Prices merged; PricingTeaser is no longer on Home). -->
+  <WorkWithMe />
   <ServiceSummary />
-  <PricingTeaser />
   <FreeCheck />
   <HowIWork />
   <!-- 22 Nov 2026 (upgrade report R1.1, R1.2): the "at a glance" summary is gone. It repeated the hero and the prices;

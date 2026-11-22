@@ -94,11 +94,11 @@ describe('guide', () => {
     }
   });
 
-  it('sends owners without a working site who lose enquiries to Website + Enquiry System', () => {
+  it('sends owners without a working site who lose enquiries to Website + Booking', () => {
     expect(recommend({ stage: 'running', problem: 'enquiries', site: 'none' }).packageId).toBe('website-enquiry');
     expect(recommend({ stage: 'starting', problem: 'bookings', site: 'outdated' }).packageId).toBe('website-enquiry');
   });
-  it('sends owners who want to be found to Local Visibility Setup', () => {
+  it('sends owners who want to be found to Google Listing Setup', () => {
     expect(recommend({ stage: 'running', problem: 'found', site: 'ok' }).packageId).toBe('local-visibility');
     expect(recommend({ stage: 'starting', problem: 'found', site: 'none' }).packageId).toBe('local-visibility');
   });

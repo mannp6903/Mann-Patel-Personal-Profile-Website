@@ -17,8 +17,8 @@ import { PUBLIC_GA4_ID } from 'astro:env/client';
   PUBLIC_GA4_ID && (
     <div class="consent" data-consent role="region" aria-label="Visit counting" hidden>
       <p class="consent__text">
-        May I count visits?<span class="consent__more"> It shows me which pages are useful.</span> No ads, and nothing you
-        type into forms. <a href="/privacy/#analytics">Details</a>
+        May I count visits?<span class="consent__more"> It shows me which pages are useful.</span> No ads<span
+          class="consent__forms">, and nothing you type into forms</span>. <a href="/privacy/#analytics">Details</a>
       </p>
       <div class="consent__actions">
         <button class="btn btn--sm btn--plain consent__btn consent__allow" type="button" data-consent-allow>
@@ -96,6 +96,16 @@ import { PUBLIC_GA4_ID } from 'astro:env/client';
   }
   .consent__more {
     display: none;
+  }
+  /* Upgrade report R13.3 (22 Nov 2026): on phones the short version, at the body size, so the bar covers less of the
+     first screen: "May I count visits? No ads. Details" (the details page says the rest). */
+  @media (max-width: 39.99em) {
+    .consent {
+      font-size: var(--fs-ui);
+    }
+    .consent__forms {
+      display: none;
+    }
   }
   .consent a {
     color: var(--text);

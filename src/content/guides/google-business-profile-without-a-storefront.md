@@ -49,7 +49,7 @@ You don't need a shop to collect reviews. Ask every customer the same way after 
 
 ## What it costs
 
-A Google Business Profile is free. You can set it up yourself with the steps above. If you'd rather have it done, my Local Visibility Setup is $650: an eligibility check first, the profile set up or cleaned up, your other listings made consistent, a review routine, and a before-and-after snapshot. Google decides rankings, so no one can promise you a position on the map. See [local SEO and Google Business Profile setup](/services/local-visibility/), or [every package and price](/pricing/).
+A Google Business Profile is free. You can set it up yourself with the steps above. If you'd rather have it done, my Google Listing Setup is $650: an eligibility check first, the profile set up or cleaned up, your other listings made consistent, a review routine, and a before-and-after snapshot. Google decides rankings, so no one can promise you a position on the map. See [local SEO and Google Business Profile setup](/services/local-visibility/), or [every package and price](/pricing/).
 
 ## Not sure where you stand?
 

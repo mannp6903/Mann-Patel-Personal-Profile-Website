@@ -15,7 +15,7 @@ interface Props {
 const { pkg: p, level = 3 } = Astro.props;
 const H = level === 2 ? 'h2' : 'h3';
 const price = priceLabel(p);
-// Website + Enquiry System: what the extra over Website Launch buys, from the two prices (19 Nov 2026).
+// Website + Booking: what the extra over the Website package buys, from the two prices (19 Nov 2026).
 const upgrade = upgradeNote(p);
 // No "How it works" link on the page it would point to.
 const here = Astro.url.pathname === p.page;

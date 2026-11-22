@@ -25,7 +25,7 @@ const last = steps.length - 1;
 
 <figure class="demo" id={id} data-demo aria-labelledby={`${id}-cap`}>
   <figcaption class="demo__cap" id={`${id}-cap`}>
-    <span class="demo__tag">Demonstration · fictional data</span>
+    <span class="demo__tag">Demonstration, fictional data</span>
     <span class="demo__title">One enquiry, start to finish</span>
   </figcaption>
 
@@ -55,18 +55,18 @@ const last = steps.length - 1;
             <div class="demo__row">
               <span class="demo__who">
                 <span>
-                  <b>Sam</b> · Deep clean, 2-bedroom condo
+                  <b>Sam</b>: deep clean, 2-bedroom condo
                 </span>
-                <small>Website form · {i === 0 ? 'just now' : 'today'}</small>
+                <small>Website form, {i === 0 ? 'just now' : 'today'}</small>
               </span>
               <span class:list={['demo__chip', `demo__chip--${s.status.split(' ')[0].toLowerCase()}`]}>{s.status}</span>
             </div>
             <div class="demo__row demo__row--dim">
               <span class="demo__who">
                 <span>
-                  <b>Lee</b> · Move-out clean
+                  <b>Lee</b>: move-out clean
                 </span>
-                <small>Missed call → text-back · yesterday</small>
+                <small>Missed call → text-back, yesterday</small>
               </span>
               <span class="demo__chip demo__chip--quoted">Quoted</span>
             </div>
@@ -109,9 +109,7 @@ const last = steps.length - 1;
     padding: 0.2rem 0.6rem;
     border: 1px dashed var(--control);
     border-radius: var(--r-pill);
-    font-family: var(--font-mono);
     font-size: var(--fs-label);
-    letter-spacing: 0.04em;
     color: var(--text-2);
   }
   .demo__title {
@@ -244,7 +242,6 @@ const last = steps.length - 1;
     flex: none;
     padding: 0.15rem 0.55rem;
     border-radius: var(--r-pill);
-    font-family: var(--font-mono);
     font-size: var(--fs-label);
     border: 1px solid var(--line);
     color: var(--text-2);

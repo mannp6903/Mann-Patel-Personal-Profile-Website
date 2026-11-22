@@ -3,7 +3,7 @@
  * which he has not confirmed yet. The production build refuses to render it.
  *
  * SEO audit Phase 2 (14 Nov 2026): the long /services/ page used to list fifteen questions. Each now lives in
- * one place (docs/seo/PLAN.md, "/services/ inventory"): the five here are the home page's questions (since 22 Nov 2026,
+ * one place (docs/seo/PLAN.md, "/services/ inventory"): these are the home page's questions (since 22 Nov 2026,
  * upgrade report R1.1, Home shows the first three: order matters);
  * `overviewFaqs` is the question on /services/; questions about one service moved to that service page
  * (src/data/service-pages.ts); questions already answered on /pricing/ or a service page were not repeated.
@@ -22,6 +22,11 @@ export const faqs: Faq[] = [
   {
     q: 'How much does a website cost?',
     a: 'A new or redesigned website of up to five pages is $1,950. A website with a booking integration and one follow-up workflow is $3,350. One fix on your current site is $450 to $850, local search setup is $650, and care after launch is $149 a month. All prices are in Canadian dollars, plus applicable tax. Domain, hosting and tool subscriptions are billed to you directly by each provider.',
+  },
+  {
+    // 22 Nov 2026 (upgrade report §9): the third question on Home. It restates the "You own every account" promise.
+    q: 'Do I own the website and the accounts?',
+    a: 'Yes. Your domain, hosting, Google Business Profile and any tools are set up in your name and billed to you directly, and you get every login, written down, at handover.',
   },
   {
     q: 'What are GEO and AEO, and can you get my business into AI answers?',

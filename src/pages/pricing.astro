@@ -29,7 +29,7 @@ const costGuide = (await visibleGuides()).find((g) => g.id === 'how-much-does-a-
 const fits = [
   {
     t: 'My website is dated or hard to use on a phone',
-    d: `A redesign: Website Launch, ${price('website-launch')}, rebuilds up to five pages on the domain you already own.`,
+    d: `A redesign: the Website package, ${price('website-launch')}, rebuilds up to five pages on the domain you already own.`,
     href: '/services/website-redesign/',
     link: 'How a website redesign works',
   },
@@ -50,7 +50,7 @@ const fits = [
 const costs = [...new Set(packages.flatMap((p) => p.thirdParty).filter((c) => !c.startsWith('Everything in')))];
 
 const affects = [
-  { t: 'Pages beyond the boundary', d: 'Website Launch covers up to five pages. More pages, or pages that need new writing, are quoted in writing on top.' },
+  { t: 'Pages beyond the boundary', d: 'The Website package covers up to five pages. More pages, or pages that need new writing, are quoted in writing on top.' },
   { t: 'What you supply', d: 'Ready text and real photos keep the price at the boundary. Writing from scratch or arranging photos adds time.' },
   { t: 'Your tools', d: 'A booking tool or phone set-up that connects easily is quicker than one that needs a workaround, or can’t connect at all.' },
   { t: 'The state of what exists', d: 'An old profile with duplicates, or a site with broken forms, can need clean-up before the new work starts.' },
@@ -154,7 +154,6 @@ const faqLd = {
   <section class="section section--rule" id="fit" aria-labelledby="pr-fit">
     <div class="container pr__split">
       <div class="stack" style="--stack: var(--s-4)">
-        <p class="eyebrow">Redesign, repair or not sure</p>
         <h2 id="pr-fit" class="pr__h2">Which package <span class="accent">fits?</span></h2>
       </div>
       <dl class="pr__affects">
@@ -182,9 +181,8 @@ const faqLd = {
   <section class="section section--alt" aria-labelledby="pr-example">
     <div class="container pr__split">
       <div class="stack" style="--stack: var(--s-4)">
-        <p class="eyebrow">Example</p>
         <h2 id="pr-example" class="pr__h2">A salon website <span class="accent">for $1,950.</span></h2>
-        <p class="muted">What Website Launch looks like for a neighbourhood salon, similar to the <a class="link" href="/work/samp-hair-spa/">Samp Hair &amp; Spa preview</a>: affordable web design in Toronto, with the price and the boundary written down before you start.</p>
+        <p class="muted">What the Website package looks like for a neighbourhood salon, similar to the <a class="link" href="/work/samp-hair-spa/">Samp Hair &amp; Spa preview</a>: affordable web design in Toronto, with the price and the boundary written down before you start.</p>
       </div>
       <dl class="pr__affects">
         <div><dt>Pages</dt><dd>Home, Services and Pricing, About, Gallery and Contact.</dd></div>
@@ -199,7 +197,6 @@ const faqLd = {
   <section class="section section--rule" aria-labelledby="pr-affects">
     <div class="container pr__split">
       <div class="stack" style="--stack: var(--s-4)">
-        <p class="eyebrow">How the price is set</p>
         <h2 id="pr-affects" class="pr__h2">What moves it <span class="accent">up or down.</span></h2>
       </div>
       <dl class="pr__affects">
@@ -218,7 +215,6 @@ const faqLd = {
   <section class="section" aria-labelledby="pr-costs">
     <div class="container pr__split">
       <div class="stack" style="--stack: var(--s-4)">
-        <p class="eyebrow">Paid to other providers</p>
         <h2 id="pr-costs" class="pr__h2">Billed to you, <span class="accent">in your name.</span></h2>
         <p class="muted">Each provider bills you directly, at their own prices, so the accounts stay yours.</p>
       </div>
@@ -239,7 +235,6 @@ const faqLd = {
     <div class="container pr__split">
       <div class="stack" style="--stack: var(--s-4)">
         <!-- 16 Nov 2026: a question people search for; the slogan is the eyebrow. -->
-        <p class="eyebrow">Before you decide</p>
         <h2 id="pr-faq" class="pr__h2">What’s included <span class="accent">in the price?</span></h2>
         {
           costGuide && (

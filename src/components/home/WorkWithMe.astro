@@ -1,0 +1,109 @@
+---
+/**
+ * Home: "You work with me" (upgrade report R3.2 and §9, 22 Nov 2026; Phase 2). Owner-run businesses hire a person, and
+ * until now a visitor saw Mann's face at a size that builds trust only on About. The same real photo as the hero's core
+ * (src/assets/mann-patel-hero.jpg), at 4:5: no glow, duotone or filter, the media shadow and the large radius. Photo on
+ * the left from 64em, on top on phones. Then one short paragraph and two actions: the 15-minute call (shown once
+ * bookingUrl is set) and More about me.
+ */
+import { Picture } from 'astro:assets';
+import { profile } from '../../data/site';
+import BookingButton from '../ui/BookingButton.astro';
+import Icon from '../ui/Icon.astro';
+
+const portrait = profile.portrait;
+---
+
+<section class="wwm section" id="with-me" aria-labelledby="wwm-title">
+  <div class="container wwm__grid">
+    {
+      portrait && (
+        <figure class="wwm__photo" data-lead-media>
+          <Picture
+            src={portrait.src}
+            alt={portrait.alt}
+            widths={[360, 440, 720, 880]}
+            sizes="(min-width: 64em) 440px, calc(100vw - 2rem)"
+            width={440}
+            height={550}
+            formats={['avif', 'webp']}
+            quality={60}
+            loading="lazy"
+            decoding="async"
+          />
+        </figure>
+      )
+    }
+    <div class="wwm__text">
+      <h2 id="wwm-title" class="wwm__title">You work with me, <span class="accent">start to finish.</span></h2>
+      <p class="lead wwm__lead">
+        I’m {profile.name}, a web designer in {profile.location}. I write your brief, build your site, set up your Google
+        listing and answer your messages myself. Every account is set up in your name, and the handover is written down.
+      </p>
+      <div class="btn-row wwm__actions">
+        <BookingButton />
+        <a class="link-arrow" href="/about/">More about me <Icon name="arrow" /></a>
+      </div>
+    </div>
+  </div>
+</section>
+
+<style>
+  .wwm__grid {
+    display: grid;
+    gap: var(--s-6);
+    align-items: center;
+  }
+  .wwm__photo {
+    margin: 0;
+    max-width: 27.5rem;
+  }
+  .wwm__photo :global(img) {
+    display: block;
+    width: 100%;
+    height: auto;
+    aspect-ratio: 4 / 5;
+    object-fit: cover;
+    object-position: 50% 30%;
+    border-radius: var(--r-lg);
+    box-shadow: var(--shadow-media);
+    background: var(--surface);
+  }
+  .wwm__text {
+    display: grid;
+    gap: var(--head-gap-2);
+    justify-items: start;
+  }
+  .wwm__title {
+    font-size: var(--fs-h2);
+    letter-spacing: var(--track-head);
+    line-height: 1;
+    max-width: 14ch;
+    text-wrap: balance;
+  }
+  .wwm__lead {
+    max-width: 46ch;
+  }
+  .wwm__actions {
+    margin-top: var(--s-3);
+    align-items: center;
+    gap: var(--s-3) var(--s-5);
+  }
+  @media (max-width: 39.99em) {
+    .wwm {
+      padding-block: var(--section-tight);
+    }
+  }
+  /* Photo on grid columns 1 to 5, text from column 7 (about half the container), as the report's layout. */
+  @media (min-width: 64em) {
+    .wwm__grid {
+      grid-template-columns: minmax(0, 5fr) minmax(0, 1fr) minmax(0, 6fr);
+    }
+    .wwm__photo {
+      grid-column: 1;
+    }
+    .wwm__text {
+      grid-column: 3;
+    }
+  }
+</style>

@@ -34,7 +34,7 @@ const ventures = [
   {
     tag: 'B',
     name: nest.name,
-    status: 'Website live · bookings open summer 2027',
+    status: 'Website live, bookings open summer 2027',
     text: 'A home-cleaning business I’m getting ready to open in Scarborough and North York. People do the cleaning; the plan is for software and AI to handle the rest: marketing, scheduling, supply orders, payroll and customer feedback. It is where I test every system before I sell it.',
     href: nest.caseStudy,
     link: 'Read the case study',
@@ -76,7 +76,7 @@ const jsonLd = { '@context': 'https://schema.org', '@type': 'ProfilePage', mainE
   <section class="section section--rule" id="ventures" aria-labelledby="ventures-title">
     <div class="container">
       <div class="section-head">
-        <p class="eyebrow">01 / Ventures</p>
+        <p class="eyebrow">Ventures</p>
         <Heading id="ventures-title" lines={['Two businesses,', '<span class="accent">one idea.</span>']} />
       </div>
       <ol class="vi-ventures" role="list">
@@ -102,7 +102,7 @@ const jsonLd = { '@context': 'https://schema.org', '@type': 'ProfilePage', mainE
   <section class="section section--alt section--rule" aria-labelledby="shipped-title">
     <div class="container vi-split">
       <div class="stack" style="--stack: var(--s-4)">
-        <p class="eyebrow">02 / Shipped</p>
+        <p class="eyebrow">Shipped</p>
         <Heading id="shipped-title" lines={['Built,', '<span class="accent">not pitched.</span>']} />
         <p class="muted">Everything here is live and dated. The case studies show the real tests, including what is still open.</p>
       </div>
@@ -125,7 +125,7 @@ const jsonLd = { '@context': 'https://schema.org', '@type': 'ProfilePage', mainE
   <section class="section section--rule" aria-labelledby="next-title">
     <div class="container vi-split">
       <div class="stack" style="--stack: var(--s-4)">
-        <p class="eyebrow">03 / Next</p>
+        <p class="eyebrow">Next</p>
         <Heading id="next-title" lines={['Prove it small,', '<span class="accent">then repeat it.</span>']} />
       </div>
       <ol class="vi-list" role="list">
@@ -144,7 +144,7 @@ const jsonLd = { '@context': 'https://schema.org', '@type': 'ProfilePage', mainE
   <section class="section section--alt" aria-labelledby="why-title">
     <div class="container vi-split">
       <div class="stack" style="--stack: var(--s-4)">
-        <p class="eyebrow">04 / Why me</p>
+        <p class="eyebrow">Why me</p>
         <Heading id="why-title" lines={['I start from zero,', '<span class="accent">and finish.</span>']} />
       </div>
       <div class="stack vi-why" style="--stack: var(--s-4)">
@@ -164,7 +164,7 @@ const jsonLd = { '@context': 'https://schema.org', '@type': 'ProfilePage', mainE
   <section class="section section--rule" aria-labelledby="talk-title">
     <div class="container vi-split">
       <div class="stack" style="--stack: var(--s-4)">
-        <p class="eyebrow">05 / Let’s talk</p>
+        <p class="eyebrow">Let’s talk</p>
         <Heading id="talk-title" lines={['Want to build', '<span class="accent">something together?</span>']} />
       </div>
       <div class="stack" style="--stack: var(--s-5)">
@@ -220,8 +220,6 @@ const jsonLd = { '@context': 'https://schema.org', '@type': 'ProfilePage', mainE
   }
   .vi-venture__status {
     font-size: var(--fs-label);
-    text-transform: uppercase;
-    letter-spacing: 0.08em;
     color: var(--text-3);
   }
   .vi-venture .link-arrow {
@@ -246,8 +244,6 @@ const jsonLd = { '@context': 'https://schema.org', '@type': 'ProfilePage', mainE
   .vi-list time,
   .vi-list__when {
     font-size: var(--fs-label);
-    text-transform: uppercase;
-    letter-spacing: 0.08em;
     color: var(--signal);
     padding-top: 0.3em;
   }
