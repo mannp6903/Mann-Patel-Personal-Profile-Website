@@ -1,0 +1,167 @@
+---
+/**
+ * The hero visual (22 Nov 2026, Mann: the "wired signal" graph looked complicated). Mann's real photo, cut out, standing
+ * in a plain studio panel, his head breaking out above its top edge: one person, at a size that builds trust, with no
+ * lines, pills or diagram around him.
+ *
+ * Motion, once, on load (about 1.3 s, transform and opacity only):
+ *   1. The panel rises into place.
+ *   2. Mann rises into frame from behind the panel's bottom edge.
+ *   3. He arrives as a halftone print (warm white dots, the site's dot grid made into a picture) that "develops" into
+ *      the photo: the print fades and the real photo is underneath. A nod to his photography (@mannpatel.frames).
+ * Then nothing moves on its own. Scrolling the hero away brings him a little forward, out of the panel (he grows 6%
+ * from the panel's bottom edge, so his base never lifts off it; CSS scroll-driven, where supported). Reduced motion, no
+ * JavaScript: the finished picture, still.
+ *
+ * Performance: the photo is the hero's one priority image and is painted from the first frame (the print only covers
+ * it), so the largest paint never waits for the effect. The print is a separate image made by scripts/make-halftone.py.
+ */
+import { Picture } from 'astro:assets';
+import cutout from '../../assets/mann-patel-cutout.png';
+import halftone from '../../assets/mann-patel-halftone.png';
+
+interface Props {
+  class?: string;
+}
+const { class: cls } = Astro.props;
+const widths = [320, 400, 480, 640, 800, 914];
+// The figure is about 30rem wide from 64em, 40vw from 48em, and up to 22rem on phones (the CSS below).
+const sizes = '(min-width: 90em) 30rem, (min-width: 64em) 33vw, (min-width: 48em) 40vw, min(22rem, 88vw)';
+---
+
+<div class:list={['hp', cls]} data-hero-portrait>
+  <div class="hp__stage" aria-hidden="true"></div>
+  <div class="hp__clip">
+    <div class="hp__figure">
+      <Picture
+        src={cutout}
+        alt="Mann Patel smiling, in a dark green sweatshirt."
+        widths={widths}
+        sizes={sizes}
+        width={cutout.width}
+        height={cutout.height}
+        formats={['avif']}
+        fallbackFormat="webp"
+        quality={62}
+        priority
+        decoding="async"
+        data-src-w={cutout.width}
+        class="hp__photo"
+      />
+      <Picture
+        src={halftone}
+        alt=""
+        widths={widths}
+        sizes={sizes}
+        width={halftone.width}
+        height={halftone.height}
+        formats={['avif']}
+        fallbackFormat="webp"
+        quality={55}
+        loading="eager"
+        decoding="async"
+        data-src-w={halftone.width}
+        class="hp__print"
+        aria-hidden="true"
+      />
+    </div>
+  </div>
+</div>
+
+<style>
+  /* The figure sets the box (the cut-out's own proportions); the panel sits behind its lower 82%. */
+  .hp {
+    position: relative;
+    width: min(100%, 30rem);
+    aspect-ratio: 914 / 964;
+    isolation: isolate;
+  }
+  .hp__stage {
+    position: absolute;
+    z-index: -1;
+    inset: 18% -4% 0;
+    border: 1px solid var(--line);
+    border-radius: var(--r-lg);
+    /* A soft studio light behind his head, the hero's dot grid, and the surface fading down into the page. */
+    background:
+      radial-gradient(ellipse 70% 55% at 50% 22%, color-mix(in srgb, var(--text) 8%, transparent), transparent 72%),
+      radial-gradient(circle at 1px 1px, var(--dot-grid) 1px, transparent 0) 0 0 / 22px 22px,
+      linear-gradient(180deg, var(--surface), var(--bg-2));
+  }
+  /* Clips the figure at the panel's bottom edge (and nowhere else), so he can rise from behind it. Scaled from that
+     edge on scroll (below), so the edge stays put. */
+  .hp__clip {
+    position: absolute;
+    inset: 0;
+    clip-path: inset(-40% -10% 0 -10%);
+    transform-origin: 50% 100%;
+  }
+  .hp__figure {
+    position: absolute;
+    inset: 0;
+  }
+  .hp__figure :global(img) {
+    position: absolute;
+    inset: 0;
+    display: block;
+    width: 100%;
+    height: 100%;
+    object-fit: contain;
+    object-position: 50% 100%;
+  }
+  /* The print waits hidden: only the entrance below shows it, and only with motion and JavaScript. */
+  .hp__figure :global(.hp__print) {
+    opacity: 0;
+  }
+
+  @media (prefers-reduced-motion: no-preference) {
+    :global(.js-motion) .hp__stage {
+      animation: hp-rise var(--dur-4) var(--ease-out) var(--dur-1) both;
+    }
+    :global(.js-motion) .hp__figure {
+      animation: hp-up var(--dur-5) var(--ease-out) var(--dur-2) both;
+    }
+    :global(.js-motion) .hp__figure :global(.hp__print) {
+      animation: hp-develop var(--dur-5) var(--ease-in-out) calc(var(--dur-3) + var(--dur-1)) both;
+    }
+  }
+  @keyframes hp-rise {
+    from {
+      opacity: 0;
+      transform: translateY(16px) scale(0.98);
+    }
+  }
+  @keyframes hp-up {
+    from {
+      transform: translateY(16%);
+    }
+  }
+  @keyframes hp-develop {
+    from {
+      opacity: 1;
+    }
+    to {
+      opacity: 0;
+    }
+  }
+
+  /* Depth on scroll: as the hero leaves, he comes a little forward, out of the panel. A scale from the bottom edge, not a
+     slide: sliding up would open a gap between his cut-off base and the panel's edge. Every property written out: the
+     CSS minifier folds animation-timeline into the shorthand otherwise, which browsers reject (global.css). */
+  @supports (animation-timeline: view()) {
+    @media (prefers-reduced-motion: no-preference) {
+      :global(.js-motion) .hp__clip {
+        animation-name: hp-depth;
+        animation-timing-function: linear;
+        animation-fill-mode: both;
+        animation-timeline: view();
+        animation-range: exit 0% exit 100%;
+      }
+    }
+  }
+  @keyframes hp-depth {
+    to {
+      transform: scale(1.06);
+    }
+  }
+</style>

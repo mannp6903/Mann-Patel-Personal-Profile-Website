@@ -534,60 +534,57 @@ test.describe('navigation', () => {
 });
 
 test.describe('home interactions', () => {
-  test('the hero photo is the core of the agent graph: real, sized for the screen, and loaded first', async ({ page }) => {
-    for (const [w, h, min] of [[390, 844, 170], [1440, 900, 190]]) {
+  test('the hero portrait is Mann’s real photo: sized for the screen, loaded first, with no diagram around it', async ({ page }) => {
+    // 22 Nov 2026 (Mann: the "wired signal" graph looked complicated): his cut-out photo in a plain studio panel.
+    for (const [w, h, min] of [[390, 844, 280], [1440, 900, 420]]) {
       await page.setViewportSize({ width: w, height: h });
       await page.goto('/');
-      const photo = page.locator('.hero [data-agent-graph] .ag__photo');
+      const photo = page.locator('.hero [data-hero-portrait] .hp__photo');
       await expect(photo).toBeVisible();
       await expect(photo).toHaveAttribute('alt', /Mann Patel smiling/);
       await expect(photo).toHaveAttribute('fetchpriority', 'high');
-      await page.waitForFunction(() => (document.querySelector('.ag__photo') as HTMLImageElement).naturalWidth > 0);
-      const box = (await photo.boundingBox())!;
+      await page.waitForFunction(() => (document.querySelector('.hp__photo') as HTMLImageElement).naturalWidth > 0);
+      const box = (await page.locator('.hero [data-hero-portrait]').boundingBox())!;
       expect(box.width).toBeGreaterThanOrEqual(min);
-      // Only the layout for this screen is shown: left-to-right on desktop, top-to-bottom on phones.
-      await expect(page.locator(w >= 1024 ? '.ag__svg--wide' : '.ag__svg--tall')).toBeVisible();
-      await expect(page.locator(w >= 1024 ? '.ag__svg--tall' : '.ag__svg--wide')).toBeHidden();
+      // No lines, labels, pills or pause button: one photo.
+      await expect(page.locator('[data-hero-portrait] :is(svg, button, figcaption)')).toHaveCount(0);
     }
-    // The radio photo and the signal ribbon are gone.
-    await expect(page.locator('[data-tune], [data-signal-sculpture]')).toHaveCount(0);
+    // The graph, the radio photo and the signal ribbon are gone.
+    await expect(page.locator('[data-agent-graph], [data-ag-toggle], [data-tune], [data-signal-sculpture]')).toHaveCount(0);
   });
 
-  test('the graph labels name where customers come from and what should happen, and the pause button stops the pulses', async ({ page }) => {
+  test('the portrait arrives once: the halftone print develops into the photo, then nothing moves', async ({ page }) => {
     await page.setViewportSize({ width: 1440, height: 900 });
     await page.goto('/');
-    const svg = page.locator('.ag__svg--wide');
-    for (const label of ['Google', 'Maps', 'AI answers', 'Enquiry', 'Reply', 'Booking']) await expect(svg).toContainText(label);
-    // SEO audit Phase 4 (speed): the pulses are streaks moved along each route with transform (Web Animations).
-    // D8 (design upgrade Phase 4, 17 Nov 2026): two routes loop for three cycles, then rest, so there is one streak per
-    // leg of those two routes (4, was 12), in the layout on screen only.
-    const sparks = page.locator('.ag__svg--wide .ag__spark');
-    await expect(sparks).toHaveCount(4);
-    const states = () => page.evaluate(() => [...document.querySelectorAll('.ag__spark')].flatMap((e) => e.getAnimations().map((a) => a.playState)));
-    expect(new Set(await states())).toEqual(new Set(['running']));
-    const toggle = page.locator('[data-ag-toggle]');
-    await expect(toggle).toHaveAccessibleName('Pause animation');
-    await toggle.click();
-    await expect(toggle).toHaveAttribute('aria-pressed', 'true');
-    await expect(page.locator('[data-agent-graph]')).toHaveClass(/is-paused/);
-    expect(new Set(await states())).toEqual(new Set(['paused']));
-    expect(await page.locator('.ag__orbit').first().evaluate((e) => getComputedStyle(e).animationPlayState)).toBe('paused');
-    await toggle.click();
-    await expect(toggle).toHaveAttribute('aria-pressed', 'false');
-    expect(new Set(await states())).toEqual(new Set(['running']));
+    // The print is decoration over the photo: no name, hidden from assistive technology.
+    const print = page.locator('.hp__print');
+    await expect(print).toHaveAttribute('alt', '');
+    await expect(print).toHaveAttribute('aria-hidden', 'true');
+    // It shows first (the photo is under it from the first frame), then fades for good.
+    await expect.poll(() => print.evaluate((e) => getComputedStyle(e).opacity), { timeout: 5000 }).toBe('0');
+    const onClock = () =>
+      page.evaluate(
+        () =>
+          document
+            .querySelector('[data-hero-portrait]')!
+            .getAnimations({ subtree: true })
+            .filter((a) => a.playState === 'running' && a.timeline === document.timeline).length,
+      );
+    await expect.poll(onClock, { timeout: 5000 }).toBe(0);
   });
 
 
-  test('reduced motion: the graph is a still diagram with two lit routes and no pause button', async ({ browser }) => {
-    const ctx = await browser.newContext({ reducedMotion: 'reduce', viewport: { width: 390, height: 844 } });
-    const page = await ctx.newPage();
-    await page.goto('/');
-    expect(await page.locator('.ag__svg--tall .ag__pulse').first().evaluate((e) => getComputedStyle(e).animationName)).toBe('none');
-    expect(await page.locator('.ag__orbit').first().evaluate((e) => getComputedStyle(e).animationName)).toBe('none');
-    await expect(page.locator('.ag__svg--tall .ag__pulse:visible')).toHaveCount(4);
-    await expect(page.locator('.ag__spark')).toHaveCount(0);
-    await expect(page.locator('[data-ag-toggle]')).toBeHidden();
-    await ctx.close();
+  test('reduced motion and no JavaScript: the finished portrait, still, with no print over it', async ({ browser }) => {
+    for (const opts of [{ reducedMotion: 'reduce' as const }, { javaScriptEnabled: false }]) {
+      const ctx = await browser.newContext({ ...opts, viewport: { width: 390, height: 844 } });
+      const page = await ctx.newPage();
+      await page.goto('/');
+      await expect(page.locator('.hp__photo')).toBeVisible();
+      expect(await page.locator('.hp__print').evaluate((e) => getComputedStyle(e).opacity)).toBe('0');
+      for (const sel of ['.hp__stage', '.hp__clip', '.hp__figure', '.hp__print'])
+        expect(await page.locator(sel).evaluate((e) => getComputedStyle(e).animationName), `${sel}: ${JSON.stringify(opts)}`).toBe('none');
+      await ctx.close();
+    }
   });
 
   // 22 Nov 2026 (upgrade report R5.1, R10.1; Phase 2): Services and Prices are one section. Each tile leads with its
@@ -691,14 +688,14 @@ test.describe('home interactions', () => {
     });
   }
 
-  test('phones: the header has only the logo and Menu (no separate Contact button), and the photo graph follows the buttons', async ({ page }) => {
+  test('phones: the header has only the logo and Menu (no separate Contact button), and the portrait follows the buttons', async ({ page }) => {
     await page.setViewportSize({ width: 360, height: 800 });
     await page.goto('/');
     // 14 Nov 2026 (round 2): Mann asked to remove the top Contact button on phones; Contact stays in the menu.
     await expect(page.locator('[data-header]').getByRole('link', { name: 'Contact', exact: true })).toBeHidden();
     await expect(page.locator('[data-menu-open]')).toBeVisible();
     const gap = await page.evaluate(
-      () => document.querySelector('[data-agent-graph]')!.getBoundingClientRect().top - document.querySelector('.hero__text')!.getBoundingClientRect().bottom,
+      () => document.querySelector('[data-hero-portrait]')!.getBoundingClientRect().top - document.querySelector('.hero__text')!.getBoundingClientRect().bottom,
     );
     expect(gap).toBeGreaterThanOrEqual(0);
     expect(gap).toBeLessThan(60);
@@ -716,18 +713,19 @@ test.describe('home interactions', () => {
     }
   });
 
-  test('the hero graph shows the close-crop photo; the lower section no longer repeats the photo and intro', async ({ page }) => {
+  test('the hero shows the cut-out portrait; the lower section no longer repeats the photo and intro', async ({ page }) => {
     // 14 Nov 2026 (Mann's call): his photo and introduction appear once, in the hero.
     for (const [w, h] of [[390, 844], [820, 1180], [1440, 900]]) {
       await page.setViewportSize({ width: w, height: h });
       await page.goto('/');
-      const photo = page.locator('.hero .ag__photo');
+      const photo = page.locator('.hero .hp__photo');
       await expect(photo).toBeVisible();
       await expect(photo).toHaveAttribute('alt', /Mann Patel smiling/);
-      await expect(photo).toHaveAttribute('src', /mann-patel-hero/);
-      await page.waitForFunction(() => (document.querySelector('.hero .ag__photo') as HTMLImageElement).naturalWidth > 0);
-      // 22 Nov 2026 (Mann: the same photo showed twice on Home): one portrait per page, the hero's, larger. "You work
-      // with me" makes its point with a roster instead: every job in a project, one name against each.
+      await expect(photo).toHaveAttribute('src', /mann-patel-cutout/);
+      await page.waitForFunction(() => (document.querySelector('.hero .hp__photo') as HTMLImageElement).naturalWidth > 0);
+      // 22 Nov 2026 (Mann: the same photo showed twice on Home): one portrait per page, the hero's. "You work with me"
+      // makes its point with a roster instead: every job in a project, one name against each. (The halftone print over
+      // the hero photo has an empty alt, so it isn't counted.)
       await expect(page.locator('main img[alt*="Mann Patel smiling"]')).toHaveCount(1);
       const me = page.locator('#with-me');
       await expect(me.getByRole('heading', { level: 2 })).toHaveText('You work with me, start to finish.');
@@ -747,10 +745,9 @@ test.describe('home interactions', () => {
     await page.goto('/');
     await expect(page.locator('.hdr__nav').getByRole('link', { name: 'Services' })).toBeVisible();
     await expect(page.locator('[data-menu-open]')).toBeHidden();
-    // The graph is drawn without JavaScript; only its pause button needs a script.
-    await expect(page.locator('.ag__svg--tall')).toBeVisible();
-    await expect(page.locator('.ag__photo')).toBeVisible();
-    await expect(page.locator('[data-ag-toggle]')).toBeHidden();
+    // The portrait needs no script: the finished photo, with the print hidden.
+    await expect(page.locator('.hp__photo')).toBeVisible();
+    expect(await page.locator('.hp__print').evaluate((e) => getComputedStyle(e).opacity)).toBe('0');
     await ctx.close();
   });
 });
@@ -1729,7 +1726,7 @@ test.describe('motion (restrained in round 7)', () => {
     await page.goto('/no-such-page/');
     const field = page.locator('.fx-field');
     await expect(field).toHaveAttribute('aria-hidden', 'true');
-    // 14 Nov 2026: the home hero is the agent graph, drawn in SVG, so it needs no WebGL.
+    // The home hero is a photo (the agent graph before 22 Nov 2026, drawn in SVG), so it needs no WebGL.
     for (const path of ['/', '/services/', '/work/', '/about/', '/contact/']) {
       await page.goto(path);
       await expect(page.locator('.fx-field')).toHaveCount(0);
@@ -1744,23 +1741,11 @@ test.describe('motion (restrained in round 7)', () => {
     await page.mouse.move(400, 400);
     await page.waitForTimeout(1200);
     await expect(page.locator('canvas')).toHaveCount(0);
-    await expect(page.locator('.ag__photo')).toBeVisible();
-    await expect(page.locator('[data-ag-toggle]')).toBeHidden();
+    await expect(page.locator('.hp__photo')).toBeVisible();
     await expect(page.locator('[data-scramble] [aria-hidden="true"]')).toHaveCount(0);
     await ctx.close();
   });
 
-  test('the agent graph pause button works from the keyboard', async ({ page }) => {
-    await page.setViewportSize({ width: 1440, height: 900 });
-    await page.goto('/');
-    const toggle = page.locator('[data-ag-toggle]');
-    await toggle.focus();
-    await page.keyboard.press('Space');
-    await expect(toggle).toHaveAttribute('aria-pressed', 'true');
-    await expect(page.getByRole('button', { name: 'Play animation' })).toBeVisible();
-    await page.keyboard.press('Space');
-    await expect(toggle).toHaveAttribute('aria-pressed', 'false');
-  });
 
   // 22 Nov 2026 (upgrade report R8.1): + the magnetic pull, the cursor spotlight, the price odometer and the rotating
   // "FREE CHECK" ring.
@@ -2030,18 +2015,25 @@ test.describe('audit of 11 Nov 2026', () => {
     await expect(page.locator('.about__lead')).toContainText('from a short brief to a written handover');
   });
 
-  test('phones: the hero photo is sized for the screen, and the pause button is reachable on touch', async ({ browser }) => {
+  test('phones: the hero photo loads a file big enough for the screen, and nothing over it takes a tap', async ({ browser }) => {
     const context = await browser.newContext({ viewport: { width: 390, height: 844 }, hasTouch: true, isMobile: true });
     const page = await context.newPage();
     await page.goto('/');
-    const photo = page.locator('.ag__photo');
-    expect(await photo.getAttribute('srcset')).toMatch(/240w.*360w.*480w.*640w/);
-    await page.waitForFunction(() => (document.querySelector('.ag__photo') as HTMLImageElement).complete);
-    const loaded = await photo.evaluate((img: HTMLImageElement) => new URL(img.currentSrc).pathname);
-    expect(loaded).not.toMatch(/240w/);
-    await expect(page.locator('[data-ag-toggle]')).toBeVisible();
-    const box = (await page.locator('[data-ag-toggle]').boundingBox())!;
-    expect(box.width).toBeGreaterThanOrEqual(44);
+    const photo = page.locator('.hp__photo');
+    await page.waitForFunction(() => (document.querySelector('.hp__photo') as HTMLImageElement).complete);
+    // The width of the file the browser chose, from the srcset entry it loaded, against the drawn width.
+    const [chosen, drawn] = await photo.evaluate((img: HTMLImageElement) => {
+      const pic = img.closest('picture')!;
+      const sets = [...pic.querySelectorAll('source'), img].map((e) => e.getAttribute('srcset') ?? '').join(',');
+      const entry = sets
+        .split(',')
+        .map((c) => c.trim().split(/\s+/))
+        .find(([url]) => url && new URL(url, location.href).href === img.currentSrc);
+      return [entry ? parseInt(entry[1], 10) : 0, img.getBoundingClientRect().width * devicePixelRatio];
+    });
+    expect(chosen).toBeGreaterThanOrEqual(Math.min(914, drawn));
+    // The print is decoration: taps go through it.
+    await expect(page.locator('[data-hero-portrait] :is(button, a)')).toHaveCount(0);
     await context.close();
   });
 
@@ -2511,20 +2503,6 @@ test.describe('Website Playbook, accessibility and brand (16 Nov 2026)', () => {
     expect(tokens).toEqual(['#637b05', '#0b0b0c']);
   });
 
-  test('the hero "Pause animation" button works from the keyboard (Enter and Space)', async ({ page }) => {
-    await page.goto('/');
-    const btn = page.locator('[data-ag-toggle]');
-    await expect(btn).toBeVisible();
-    await btn.focus();
-    await expect(btn).toBeFocused();
-    await page.keyboard.press('Enter');
-    await expect(btn).toHaveAttribute('aria-pressed', 'true');
-    await expect(btn).toHaveAccessibleName('Play animation');
-    await expect(page.locator('[data-agent-graph]')).toHaveClass(/is-paused/);
-    await page.keyboard.press('Space');
-    await expect(btn).toHaveAttribute('aria-pressed', 'false');
-    await expect(btn).toHaveAccessibleName('Pause animation');
-  });
 
   test('reduced motion: hover and press give colour feedback only, and nothing moves with the scroll', async ({ page }) => {
     const iconOnHover = async () => {
@@ -2716,25 +2694,25 @@ test.describe('upgrade report Phase 1 (22 Nov 2026)', () => {
     }
   });
 
-  test('R3.1: one portrait on Home, at least 240px across at 1440, with no lime halo behind it', async ({ page }) => {
+  test('R3.1: one portrait on Home, at least 420px across at 1440, with no lime behind it', async ({ page }) => {
     await page.setViewportSize({ width: 1440, height: 900 });
     await page.goto('/');
     await expect(page.locator('main img[alt*="Mann Patel smiling"]')).toHaveCount(1);
-    // Measured once the core's entrance (a scale-in) has finished.
-    await expect.poll(async () => (await page.locator('.hero .ag__core').boundingBox())!.width, { timeout: 5000 }).toBeGreaterThanOrEqual(240);
-    expect(await page.locator('.ag__stage').evaluate((e) => getComputedStyle(e, '::before').content)).toBe('none');
+    await expect.poll(async () => (await page.locator('.hero [data-hero-portrait]').boundingBox())!.width, { timeout: 5000 }).toBeGreaterThanOrEqual(420);
+    // The studio panel is the page's neutrals: no signal colour in its fill or border.
+    const panel = await page.locator('.hp__stage').evaluate((e) => {
+      const cs = getComputedStyle(e);
+      return `${cs.backgroundImage} ${cs.backgroundColor} ${cs.borderTopColor}`;
+    });
+    expect(panel).not.toMatch(/212, 248, 74|228, 255, 115/);
   });
 
-  test('R6.2: no caption under the hero graph; the pause button stays, a 44px icon button with a name', async ({ page }) => {
+  test('R6.2: no caption, labels or controls around the hero portrait', async ({ page }) => {
     await page.setViewportSize({ width: 1440, height: 900 });
     await page.goto('/');
-    await expect(page.locator('.ag figcaption, .ag__caption')).toHaveCount(0);
-    const toggle = page.locator('[data-ag-toggle]');
-    await expect(toggle).toBeVisible();
-    await expect(toggle).toHaveAccessibleName('Pause animation');
-    const box = (await toggle.boundingBox())!;
-    expect(box.width).toBeGreaterThanOrEqual(44);
-    expect(box.height).toBeGreaterThanOrEqual(44);
+    await expect(page.locator('[data-hero-portrait]')).toBeVisible();
+    await expect(page.locator('[data-hero-portrait] :is(figcaption, button, svg, text)')).toHaveCount(0);
+    expect((await page.locator('[data-hero-portrait]').innerText()).trim()).toBe('');
   });
 
   test('R7.2: one wording for the actions: "Get a free website check" and, once set, "Book a 15-minute call"', async ({ page }) => {

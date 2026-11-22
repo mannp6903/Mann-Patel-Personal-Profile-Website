@@ -1,10 +1,13 @@
 ---
 /**
  * Home hero, "Signal path" (design upgrade Phase 2, 17 Nov 2026; DESIGN_AUDIT.md → Hero redesign). One story: a search
- * comes in, passes through Mann, and comes out as a booking. The text column holds five things only: the greeting (with
- * a small photo on screens under 64em, so his face is on the first screen), the H1, the subline, one lime button with a
- * quiet "See prices" link, and the price line. The visual is the agent graph (AgentGraph.astro), with Mann's photo as
- * the core node.
+ * comes in, passes through Mann, and comes out as a booking. The text column holds five things only: the greeting, the
+ * H1, the subline, one lime button with a quiet "See prices" link, and the price line. (Until 22 Nov 2026 the greeting
+ * carried a small photo under 64em; the portrait itself now shows his face on a phone's first screen.)
+ *
+ * The visual was the agent graph (AgentGraph.astro), with Mann's photo as the core node; since 22 Nov 2026 (Mann: the
+ * wired signal looked complicated) it is his cut-out portrait in a studio panel, which develops from a halftone print
+ * on load (HeroPortrait.astro).
  *
  * Moved out of the hero (approved decisions): the service chips (D1; the services section names them), the recent-work
  * cards (D2; Selected Work follows directly), the Vision link (D3; footer) and the "Or reach me directly" icons (D4;
@@ -22,29 +25,23 @@
  * site-wide primary label (R7.2) and, once bookingUrl is set, "Book a 15-minute call" beside it (R7.1). The greeting's
  * <picture> is hidden with the photo from 64em, so the text no longer starts 12px off the H1's edge (R6.1).
  */
-import { Picture } from 'astro:assets';
-import avatar from '../../assets/mann-patel-avatar.jpg';
 import { bookingUrl, cta, profile } from '../../data/site';
 import { packageById, priceLabel } from '../../data/packages';
 import Button from '../ui/Button.astro';
 import BookingButton from '../ui/BookingButton.astro';
 import Icon from '../ui/Icon.astro';
-import AgentGraph from './AgentGraph.astro';
+import HeroPortrait from './HeroPortrait.astro';
 
 const launch = packageById('website-launch')!;
 const local = packageById('local-visibility')!;
-const portrait = profile.portrait;
 ---
 
 <section class="hero" id="hero" aria-labelledby="hero-title">
   <div class="hero__inner container">
     <div class="hero__text">
+      <!-- 22 Nov 2026: no small avatar here any more. The portrait under the text shows his face on a phone's first screen
+           too, so it would only repeat it. -->
       <div class="hero__hello">
-        {
-          portrait && (
-            <Picture src={avatar} alt="" data-src-w={avatar.width} widths={[80, 120]} sizes="40px" width={40} height={40} formats={['avif']} fallbackFormat="webp" quality={55} loading="lazy" decoding="async" class="hero__avatar" pictureAttributes={{ class: 'hero__pic' }} />
-          )
-        }
         <p class="hero__hi">Hi, I’m {profile.name.split(' ')[0]}. Web designer in {profile.location}.</p>
       </div>
 
@@ -67,7 +64,7 @@ const portrait = profile.portrait;
       </p>
     </div>
 
-    <AgentGraph class="hero__graph" />
+    <HeroPortrait class="hero__portrait" />
   </div>
 </section>
 
@@ -79,7 +76,7 @@ const portrait = profile.portrait;
     overflow: clip;
   }
   .hero::before {
-    /* A faint dot grid: the network's graph paper. */
+    /* A faint dot grid behind the portrait (its halftone print is the same dots, made into a picture). */
     content: '';
     position: absolute;
     inset: 0;
@@ -115,15 +112,6 @@ const portrait = profile.portrait;
     align-items: center;
     gap: var(--s-3);
     font-size: var(--fs-sm);
-  }
-  .hero__avatar {
-    flex: none;
-    width: 2.5rem;
-    height: 2.5rem;
-    border-radius: 50%;
-    object-fit: cover;
-    object-position: 50% 50%;
-    box-shadow: 0 0 0 1px var(--line);
   }
   .hero__hi {
     min-width: 0;
@@ -173,7 +161,8 @@ const portrait = profile.portrait;
   /* Entrance (design upgrade Phase 4; DESIGN_AUDIT.md → Entrance sequence, about 1.6 s with the graph). Everything is
      painted from the first frame and only rises into place (Mann's choice, 17 Nov 2026), so the H1 stays the LCP
      element: the greeting at 60ms, the H1's lines from 120ms, 60ms apart, then the subline, buttons and price line from
-     380ms. The graph's core arrives at 320ms and its first pulse leaves at about 1.2 s (AgentGraph.astro). */
+     380ms. The portrait's panel arrives at 120ms, Mann rises into it from 200ms, and his halftone print has developed
+     into the photo by about 1.3 s (HeroPortrait.astro). */
   @media (prefers-reduced-motion: no-preference) {
     :global(.js-motion) .hero__hello,
     :global(.js-motion) .hero__place,
@@ -227,10 +216,14 @@ const portrait = profile.portrait;
     .hero__place { order: 2; }
     .hero__price { order: 3; }
   }
-  @media (min-width: 40em) and (max-width: 47.99em) {
-    .hero :global(.hero__graph) {
-      justify-self: center;
-      max-width: 30rem;
+  /* The portrait: centred under the text on phones and small tablets, centred in its column from 48em. */
+  .hero :global(.hero__portrait) {
+    justify-self: center;
+  }
+  @media (max-width: 47.99em) {
+    .hero :global(.hero__portrait) {
+      width: min(100% - var(--s-6), 22rem);
+      margin-top: var(--s-5);
     }
   }
   /* Once bookingUrl is set the hero has two buttons. Where the text column is narrow (about 512px at 1024) they take the
@@ -249,7 +242,7 @@ const portrait = profile.portrait;
       height: 2.25rem;
     }
   }
-  /* Two columns from 48em (task 2.3): the graph takes about 44% of the width. */
+  /* Two columns from 48em (task 2.3): the portrait takes about 44% of the width. */
   @media (min-width: 48em) {
     .hero__inner {
       grid-template-columns: minmax(0, 1.27fr) minmax(0, 1fr);
@@ -266,8 +259,6 @@ const portrait = profile.portrait;
       min-height: calc(100vh - var(--header-h));
       min-height: calc(100svh - var(--header-h));
     }
-    /* R6.1: the whole <picture>, not just its <img>, so the flex gap goes with it. */
-    .hero__hello :global(.hero__pic) { display: none; }
   }
   @media (min-width: 64em) and (max-height: 56em) {
     /* Laptop screens up to about 900px tall: a little less space between the five parts, so the button and prices sit
@@ -288,7 +279,7 @@ const portrait = profile.portrait;
     .hero__actions { order: 1; }
     .hero__place { order: 2; }
     .hero__price { order: 3; }
-    /* The graph's wide layout here (AgentGraph.astro), no taller than about one screen. */
-    .hero :global(.hero__graph) { justify-self: center; width: 100%; max-width: min(36rem, 115vh); }
+    /* The portrait, no taller than about one screen. */
+    .hero :global(.hero__portrait) { width: min(100%, 75vh); }
   }
 </style>

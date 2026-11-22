@@ -51,14 +51,9 @@
   --signal-strong: #e4ff73;
   --on-signal: #0b0b0c;
   --signal-wash: rgb(212 248 74 / 0.12);
-  /* Lime at set strengths, for the agent graph's glow, its core ring and the lime-tipped rule (upgrade report R4.1: these
-     were literals in the components). */
-  --signal-a15: rgb(212 248 74 / 0.15);
-  --signal-a25: rgb(212 248 74 / 0.25);
-  --signal-a30: rgb(212 248 74 / 0.3);
+  /* Lime at a set strength, for the lime-tipped rule (upgrade report R4.1: it was a literal). The agent graph's strengths
+     went with the graph (22 Nov 2026). */
   --signal-a60: rgb(212 248 74 / 0.6);
-  --signal-a80: rgb(212 248 74 / 0.8);
-  --signal-a90: rgb(212 248 74 / 0.9);
   /* Behind the phone menu and the quick menu. */
   --scrim: rgb(11 11 10 / 0.72);
   --scrim-soft: rgb(11 11 10 / 0.55);
@@ -98,20 +93,19 @@
   --frame-screen: #ffffff;
   --frame-bar: #e9e9ec;
   --frame-bezel: #1c1c20;
-  /* The one shadow for mockups: project captures, the portrait core and the free-check receipt (design upgrade Phase
+  /* The one shadow for mockups: project captures, the services phone and the free-check receipt (design upgrade Phase
      5, task 5.1). The single exception to "depth comes from surfaces" (DESIGN.md → Shape and depth); floating UI keeps
      --shadow-pop. One plain shadow with no spread, so it works in box-shadow and in filter: drop-shadow() alike. */
   --shadow-media: 0 24px 36px rgb(0 0 0 / 0.55);
   /* The wordmark's crossbar-less Λ (components/ui/Wordmark.astro), as a mask: eyebrows paint it lime. */
   --lambda: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='1102 0 628 710'%3E%3Cpath d='M1102 710 1358 0 1474 0 1582 299 1502 324 1416 75 1196 710ZM1603 359 1730 710 1636 710 1523 384Z'/%3E%3C/svg%3E");
-  /* Agent graph strokes: lime-tinted greys for the network (components/home/AgentGraph.astro). */
+  /* Line-art strokes: lime-tinted greys, first drawn for the agent graph (removed 22 Nov 2026), now the services scenes
+     and the promise icons. */
   --graph-mesh: #3a3e2c;
   --graph-spoke: #5b6236;
-  --graph-ring: #4a4f37;
   --graph-node: #8d9a4a;
-  --graph-pill-line: #3d3f33;
-  /* Line weights shared by the agent graph, the services scenes and the promise icons (design upgrade Phase 5, task
-     5.4): hairline for the mesh and outlines, regular for nodes, spokes and drawings, bold for one highlighted mark, and
+  /* Line weights shared by the services scenes, the services phone and the promise icons (design upgrade Phase 5, task
+     5.4; first set for the agent graph): hairline for the mesh and outlines, regular for nodes, spokes and drawings, bold for one highlighted mark, and
      signal for a lit route. Ends are round; lime marks only the signal. */
   --graph-stroke-fine: 1;
   --graph-stroke: 1.5;
@@ -192,7 +186,7 @@
   --dur-4: 560ms; /* element reveals, the label roll */
   --dur-5: 800ms; /* hero headline lines */
   --stagger: 60ms; /* lists and lines */
-  --dur-loop: 4200ms; /* one agent-graph cycle; it plays three, then rests (D8) */
+  --dur-loop: 4200ms; /* a slow loop (the live dot's ping is half of one); every loop plays a few times, then rests (D8) */
   /* Page transitions: the old page leaves in 220ms (--ease-in), the new one arrives in 420ms (--ease-out); gate M4
      keeps both at or under 450ms. */
   --dur-page-out: 220ms;
