@@ -16,7 +16,6 @@ const { title, lead, updated, see } = Astro.props;
 
 <header class="lg-head">
   <div class="container lg-head__inner">
-    <p class="eyebrow">Legal</p>
     <Heading as="h1" lines={[title]} class="lg-title" />
     <p class="lead">{lead}</p>
     <p class="small subtle text-links">Last updated {updated}. See also the <a href={see.href}>{see.label}</a>.</p>
@@ -80,9 +79,6 @@ const { title, lead, updated, see } = Astro.props;
     /* Eyebrow → title → intro on the head-gap tokens, as PageHead (gate L4, re-audit 18 Nov 2026; was 16px). */
     gap: var(--head-gap-2);
     justify-items: start;
-  }
-  .lg-head__inner > .eyebrow {
-    margin-bottom: calc(var(--head-gap-1) - var(--head-gap-2));
   }
   .lg-head__inner :global(.lg-title) {
     font-size: var(--fs-h1);

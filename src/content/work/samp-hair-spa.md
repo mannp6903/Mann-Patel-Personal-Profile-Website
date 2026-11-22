@@ -3,7 +3,7 @@ title: Samp Hair & Spa
 seoTitle: Samp Hair & Spa Website Preview
 order: 1
 status: in-progress
-kind: Client website · Scarborough salon & spa
+kind: Client website, Scarborough salon and spa
 year: '2026'
 summary: A new website for a neighbourhood hair salon and spa on Painted Post Drive in Scarborough, currently in progress.
 role: I'm building it with Lovable (an AI-assisted website builder), working from a brief I wrote using the salon's verified details.

@@ -42,7 +42,6 @@ const footerMore = moreServicePages.filter((sp) => sp.slug === 'website-care' ||
   {
     cta && (
       <section class="ftr__cta container" aria-labelledby="ftr-cta-title">
-        <p class="eyebrow">Next step</p>
         <Heading id="ftr-cta-title" class="ftr__title" lines={['Tell me what isn’t working.', '<span class="accent">I’ll tell you where to start</span><span class="stop">.</span>']} />
         <div class="ftr__cta-row">
           <p class="lead ftr__lead">
@@ -188,9 +187,6 @@ const footerMore = moreServicePages.filter((sp) => sp.slug === 'website-care' ||
     display: grid;
     row-gap: var(--head-gap-2);
   }
-  .ftr__cta > .eyebrow {
-    margin-bottom: calc(var(--head-gap-1) - var(--head-gap-2));
-  }
   .ftr__title {
     font-size: var(--fs-h2);
     font-weight: var(--w-head);
@@ -243,11 +239,8 @@ const footerMore = moreServicePages.filter((sp) => sp.slug === 'website-care' ||
     margin-top: 0;
     margin-bottom: var(--s-4);
     line-height: 1;
-    font-family: var(--font-mono);
     font-size: var(--fs-label);
     font-weight: var(--w-ui);
-    letter-spacing: var(--track-label);
-    text-transform: uppercase;
     color: var(--text-3);
   }
   /* Website Playbook (16 Nov 2026): every footer link is at least 44 × 44px (--tap), rows touching. */

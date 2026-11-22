@@ -69,4 +69,4 @@ Google says review count and review score factor into local ranking, as part of 
 
 ## Want this set up for you?
 
-[Local Visibility Setup](/services/local-visibility/) ($650 CAD) includes a review routine: your review link, a QR review card, a request message and reply templates, alongside your Google Business Profile and listings. Or start with the [free website and Google check](/contact/?package=check-up#check): I look you up the way a customer would and compare your reviews with those of the businesses that show up near you.
+[Google Listing Setup](/services/local-visibility/) ($650 CAD) includes a review routine: your review link, a QR review card, a request message and reply templates, alongside your Google Business Profile and listings. Or start with the [free website and Google check](/contact/?package=check-up#check): I look you up the way a customer would and compare your reviews with those of the businesses that show up near you.

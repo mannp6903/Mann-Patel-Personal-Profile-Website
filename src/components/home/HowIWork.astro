@@ -3,21 +3,26 @@
  * How I work: how a project runs in five steps, and what a client can count on.
  *
  * 14 Nov 2026: the photo and "Hi, I’m Mann" introduction were removed from this section (Mann's
- * call). The hero already opens with his name and photo, so repeating them here was redundant.
- * The full story lives on About.
+ * call). The full story lives on About; since 22 Nov 2026 Home's "You work with me" block (WorkWithMe.astro) carries the
+ * photo and the About link.
+ *
+ * 22 Nov 2026 (upgrade report §5 and §9, Phase 2): a different shape from the sections around it. The five steps run as a
+ * horizontal line from 64em (a vertical list on phones), each with its short name and one line; then the four
+ * promises in one row, at most nine words each. No sticky head and no mono labels. Typical durations wait until Mann
+ * confirms them (packages.ts promises no turnaround yet).
  */
 import { process } from '../../data/services';
 import { reviews } from '../../data/reviews';
 import Icon, { type IconName } from '../ui/Icon.astro';
 import Testimonial from '../Testimonial.astro';
 
-// Design upgrade Phase 3 (task 3.3): the four promises are a bento of tiles with icons (a swipe rail on phones). A
-// testimonial tile joins them only once a real review exists (src/data/reviews.ts); never a placeholder.
-const rules: { t: string; d: string; icon: IconName }[] = [
-  { t: 'You own every account', d: 'Domains, Google profiles and logins are created in your name.', icon: 'user' },
-  { t: 'A handover you can use', d: 'Access, what changed and what’s left to do, written down.', icon: 'layers' },
-  { t: 'Real reviews only', d: 'No bought, swapped or incentivised reviews. Ever.', icon: 'check' },
-  { t: 'No promised rankings', d: 'Google decides rankings. I improve what you control.', icon: 'shield' },
+// Design upgrade Phase 3 (task 3.3): the four promises, with icons (a swipe rail on phones). A testimonial tile joins
+// them only once a real review exists (src/data/reviews.ts); never a placeholder.
+const rules: { t: string; icon: IconName }[] = [
+  { t: 'You own every account.', icon: 'user' },
+  { t: 'Real reviews only. Never bought or swapped.', icon: 'check' },
+  { t: 'No promised rankings. Google decides those.', icon: 'shield' },
+  { t: 'A written handover you can use.', icon: 'layers' },
 ];
 const quote = reviews[0];
 ---
@@ -25,58 +30,45 @@ const quote = reviews[0];
 <section class="about section" id="how-i-work" aria-labelledby="about-title">
   <div class="container about__grid">
     <div class="about__head">
-      <!-- 16 Nov 2026: a descriptive heading people search for. 22 Nov 2026 (upgrade report R4.2): no numbered eyebrow. -->
       <h2 id="about-title" class="about__title">How a website project <span class="accent">works.</span></h2>
       <p class="lead about__lead">
         Every project follows the same five steps, from a short brief to a written handover. Everything I set up stays in your name.
       </p>
-      <a class="link-arrow" href="/about/">More about me <Icon name="arrow" /></a>
     </div>
 
-    <div class="about__side">
-      <div>
-        <h3 class="about__h">How a project runs</h3>
-        <ol class="steps" role="list">
-          {
-            process.map((s, i) => (
-              <li>
-                <span class="num steps__n" aria-hidden="true">
-                  {String(i + 1).padStart(2, '0')}
-                </span>
-                <span>
-                  <b>{s.title}.</b> <span class="muted">{s.me}</span>
-                </span>
-              </li>
-            ))
-          }
-        </ol>
-      </div>
-      <div>
-        <h3 class="about__h">What you can count on</h3>
-        <ul class="rules rail" role="list" data-rail>
-          {
-            rules.map((r) => (
-              <li class="rules__tile">
-                <div class="rules__in">
-                  <span class="rules__icon" aria-hidden="true">
-                    <Icon name={r.icon} />
-                  </span>
-                  <span class="rules__text">
-                    <b>{r.t}.</b> {r.d}
-                  </span>
-                </div>
-              </li>
-            ))
-          }
-          {
-            quote && (
-              <li class="rules__tile rules__tile--quote">
-                <Testimonial quote={quote.quote} name={quote.name} business={quote.business} reviewUrl={quote.url} />
-              </li>
-            )
-          }
-        </ul>
-      </div>
+    <ol class="line" role="list" aria-labelledby="about-title">
+      {
+        process.map((s, i) => (
+          <li class="line__step">
+            <span class="line__n num" aria-hidden="true">{String(i + 1).padStart(2, '0')}</span>
+            <b class="line__name">{s.step}.</b>
+            <span class="line__text">{s.short}</span>
+          </li>
+        ))
+      }
+    </ol>
+
+    <div class="about__promises">
+      <h3 class="about__h">What you can count on</h3>
+      <ul class="rules rail" role="list" data-rail>
+        {
+          rules.map((r) => (
+            <li class="rules__tile">
+              <span class="rules__icon" aria-hidden="true">
+                <Icon name={r.icon} />
+              </span>
+              <span class="rules__text">{r.t}</span>
+            </li>
+          ))
+        }
+        {
+          quote && (
+            <li class="rules__tile rules__tile--quote">
+              <Testimonial quote={quote.quote} name={quote.name} business={quote.business} reviewUrl={quote.url} />
+            </li>
+          )
+        }
+      </ul>
     </div>
   </div>
 </section>
@@ -84,10 +76,6 @@ const quote = reviews[0];
 <style>
   @media (max-width: 39.99em) {
     .about { padding-block: var(--section-tight); }
-    /* Phones: tighter, so Home stays within 11 screens (gate S4). */
-    .about__grid,
-    .about__side { gap: var(--s-6); }
-    .about .steps li { font-size: var(--fs-sm); padding-block: var(--s-2); }
   }
   @media (max-width: 47.99em) {
     /* The rail's side padding (the list reset for role="list" would otherwise remove it). */
@@ -102,7 +90,6 @@ const quote = reviews[0];
   .about__head {
     display: grid;
     row-gap: var(--head-gap-2);
-    align-content: start;
     justify-items: start;
   }
   .about__title {
@@ -112,66 +99,94 @@ const quote = reviews[0];
     max-width: 15ch;
   }
   .about__lead {
-    max-width: 40ch;
+    max-width: 52ch;
   }
-  .about__side {
+
+  /* The five steps. Phones: a vertical list along a hairline. From 64em: one row, a hairline through the numbers. */
+  .line {
     display: grid;
-    grid-template-columns: minmax(0, 1fr);
-    gap: var(--s-7);
+    gap: 0;
+    border-left: 1px solid var(--line);
+  }
+  .line__step {
+    position: relative;
+    display: grid;
+    align-content: start;
+    gap: var(--s-1);
+    padding: 0 0 var(--s-5) var(--s-5);
+  }
+  .line__step::before {
+    /* The node on the line. */
+    content: '';
+    position: absolute;
+    left: calc(-0.3125rem - 0.5px);
+    top: 0.45em;
+    width: 0.625rem;
+    height: 0.625rem;
+    border-radius: 50%;
+    background: var(--bg);
+    box-shadow: 0 0 0 1px var(--control);
+  }
+  .line__step:last-child {
+    padding-bottom: 0;
+  }
+  .line__n {
+    font-size: var(--fs-label);
+    color: var(--text-3);
+  }
+  .line__name {
+    font-size: var(--fs-lead);
+    font-weight: var(--w-head);
+    letter-spacing: var(--track-head);
+    color: var(--text);
+  }
+  .line__text {
+    color: var(--text-2);
+    font-size: var(--fs-sm);
+    max-width: 36ch;
+  }
+  @media (min-width: 64em) {
+    .line {
+      grid-template-columns: repeat(5, minmax(0, 1fr));
+      gap: var(--s-5);
+      border-left: 0;
+      border-top: 1px solid var(--line);
+    }
+    .line__step {
+      padding: var(--s-5) 0 0;
+    }
+    .line__step::before {
+      left: 0;
+      top: calc(-0.3125rem - 0.5px);
+    }
+  }
+
+  /* The promises: one row from 48em (a swipe rail on phones). */
+  .about__promises {
+    display: grid;
+    gap: var(--s-4);
   }
   .about__h {
-    font-family: var(--font-mono);
-    font-size: var(--fs-label);
-    font-weight: var(--w-ui);
-    letter-spacing: var(--track-label);
-    text-transform: uppercase;
-    color: var(--text-3);
-    margin-bottom: var(--s-3);
-  }
-  .steps {
-    display: grid;
-    border-top: 1px solid var(--line);
-  }
-  .steps li {
-    display: flex;
-    gap: var(--s-3);
-    align-items: baseline;
-    padding-block: var(--s-3);
-    border-bottom: 1px solid var(--line);
-  }
-  .steps b,
-  .rules b {
-    color: var(--text);
+    font-size: var(--fs-h3);
     font-weight: var(--w-head);
+    letter-spacing: var(--track-head);
+    line-height: 1.1;
   }
-  /* The promises bento: tiles in the graph's line style (the icons share its 1.5px stroke). */
   .rules {
     display: grid;
     gap: var(--s-3);
   }
-  /* Each promise is a container (design upgrade Phase 6, task 6.2): a wide tile puts its icon beside the words. */
   .rules__tile {
-    container: rule / inline-size;
+    display: grid;
+    align-content: start;
+    gap: var(--s-3);
     padding: var(--s-5);
     background: var(--bg-2);
     border: 1px solid var(--line);
     border-radius: var(--r-lg);
-    color: var(--text-2);
+    color: var(--text);
+    font-weight: var(--w-ui);
   }
-  .rules__in {
-    display: grid;
-    align-content: start;
-    gap: var(--s-3);
-  }
-  @container rule (min-width: 24rem) {
-    .rules__in {
-      grid-template-columns: auto minmax(0, 1fr);
-      align-items: start;
-      column-gap: var(--s-4);
-    }
-  }
-  /* Beside the icon the text column is narrower, and "name." or "down." could end a line alone; pretty keeps two words
-     on the last line. */
   .rules__text {
     text-wrap: pretty;
   }
@@ -193,27 +208,14 @@ const quote = reviews[0];
     stroke-width: var(--graph-stroke);
     stroke-linecap: round;
   }
-  .steps__n {
-    flex: none;
-    width: 2ch;
-    font-size: var(--fs-label);
-    color: var(--text-3);
-  }
-  @media (min-width: 64em) {
-    .about__grid {
-      grid-template-columns: minmax(0, 0.8fr) minmax(0, 1.2fr);
-      gap: var(--s-9);
-    }
-    /* Sticky head (task 3.4): the heading stays beside the steps and promises instead of leaving a blank column. */
-    .about__head {
-      align-self: start;
-      position: sticky;
-      top: calc(var(--header-h) + var(--s-6));
-    }
-  }
   @media (min-width: 48em) {
     .rules {
-      grid-template-columns: 1fr 1fr;
+      grid-template-columns: repeat(2, minmax(0, 1fr));
+    }
+  }
+  @media (min-width: 64em) {
+    .rules {
+      grid-template-columns: repeat(4, minmax(0, 1fr));
     }
   }
 </style>

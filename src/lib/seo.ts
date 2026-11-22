@@ -46,7 +46,7 @@ export function priceRange(): string | null {
 /**
  * The price fields of an Offer for a package, from src/data/packages.ts (the data /pricing/ shows), so the
  * structured data can never disagree with the page. Empty while a package has no approved price.
- * - fixed price (Website Launch $1,950): price + priceCurrency
+ * - fixed price (Website, $1,950): price + priceCurrency
  * - a range (Website Fix $450–$850): priceCurrency + a PriceSpecification with minPrice and maxPrice (no single
  *   `price`, which would claim the low end is the price)
  * - monthly (Website Care $149 a month): price + priceCurrency + a UnitPriceSpecification per month
@@ -239,7 +239,7 @@ export function breadcrumbJsonLd(items: { name: string; path: string }[]) {
 /**
  * What the business sells (home page): one Offer per published package, priced from src/data/packages.ts (the
  * same data as /pricing/), each pointing at the service page that explains it. Plus the AI search check, named
- * on its own because people search for it: it is part of Local Visibility Setup, so it carries that price.
+ * on its own because people search for it: it is part of Google Listing Setup, so it carries that price.
  */
 function serviceCatalog() {
   const url = absoluteUrl('/');

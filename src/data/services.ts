@@ -465,26 +465,37 @@ export const services: Service[] = [
 export const process = [
   {
     title: 'Send a short brief',
+    // 22 Nov 2026 (upgrade report §9): the step's short name and one line, for Home's process line.
+    step: 'Short brief',
+    short: 'You tell me what isn’t working. I reply with questions, or tell you if I’m not the right fit.',
     you: 'Tell me about your business and what is not working. Two minutes, no preparation needed.',
     me: 'I read it and reply with questions, or say honestly if I am not the right fit.',
   },
   {
     title: 'Agree a written scope',
+    step: 'Written scope',
+    short: 'Pages, price, what I need from you and what’s not included.',
     you: 'Answer a few questions, on a call or by email.',
     me: 'I send a scope with deliverables, what I need from you, exclusions, third-party costs and a quote.',
   },
   {
     title: 'Build and check in',
+    step: 'Build',
+    short: 'You see progress and a running list of decisions.',
     you: 'Send content and review drafts. Two rounds of changes are included per deliverable.',
     me: 'I build, show progress and keep a list of decisions.',
   },
   {
     title: 'Test and launch together',
+    step: 'Test and launch',
+    short: 'Speed and accessibility checks and a real test enquiry, then live.',
     you: 'Try it yourself. We send a real test enquiry.',
     me: 'I run speed and accessibility checks and fix what we find.',
   },
   {
     title: 'Hand over',
+    step: 'Handover',
+    short: 'Logins, what changed and what’s left, written down.',
     you: 'Keep your logins and the short guide.',
     me: 'I document access, what changed and what you still need to do. Ongoing support is optional.',
   },

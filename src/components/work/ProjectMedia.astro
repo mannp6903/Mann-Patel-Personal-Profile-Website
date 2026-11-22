@@ -31,7 +31,6 @@ const {
   phoneSizes = '(min-width: 90em) 160px, (min-width: 64em) 11vw, 22vw',
 } = Astro.props;
 const c = captures[scene];
-const host = new URL(c.url).host;
 ---
 
 <div class="pm">
@@ -40,7 +39,6 @@ const host = new URL(c.url).host;
     class="pm__desk"
     src={c.desktop.src}
     alt={c.desktop.alt}
-    host={host}
     widths={[320, 400, 480, 560, 640, 800, 1000, 1250, 1440]}
     sizes={sizes}
     priority={eager}
@@ -71,7 +69,9 @@ const host = new URL(c.url).host;
   .pm :global(.pm__phone) {
     position: absolute;
     right: clamp(0.75rem, 4%, 2rem);
-    bottom: clamp(-3rem, -6%, -1rem);
+    /* 22 Nov 2026 (upgrade report R2.3): the whole phone sits inside the panel (it ran up to 80px past the bottom edge
+       and was clipped there). */
+    bottom: clamp(0.75rem, 4%, 2rem);
     width: clamp(5.5rem, 24%, 11rem);
     transition: transform var(--dur-4) var(--ease-out);
   }

@@ -261,7 +261,7 @@ const groups: { title: string; items: Item[] }[] = [
     overflow: hidden;
   }
   .qm::backdrop {
-    background: rgb(0 0 0 / 0.55);
+    background: var(--scrim-soft);
     backdrop-filter: blur(4px);
   }
   .qm[open] {
@@ -309,10 +309,7 @@ const groups: { title: string; items: Item[] }[] = [
   }
   .qm__title {
     padding: var(--s-3) var(--s-3) var(--s-2);
-    font-family: var(--font-mono);
     font-size: var(--fs-label);
-    letter-spacing: var(--track-label);
-    text-transform: uppercase;
     color: var(--text-3);
   }
   .qm__item {

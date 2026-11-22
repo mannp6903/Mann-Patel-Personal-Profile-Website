@@ -60,7 +60,7 @@ export const packages: Package[] = [
       'Checked on a phone and a desktop before and after',
       'A short note of what changed and how to check it yourself',
     ],
-    notIncluded: ['A redesign or new pages (see Website Launch)', 'Problems found along the way, which I list and quote separately', 'Guaranteed rankings or traffic'],
+    notIncluded: ['A redesign or new pages (see the Website package)', 'Problems found along the way, which I list and quote separately', 'Guaranteed rankings or traffic'],
     youProvide: ['Access to your website or builder account', 'A description of what goes wrong, or a screenshot'],
     timeline: 'Usually days, not weeks, once I have access. The written scope gives the date.',
     thirdParty: ['Any paid plugin or plan your platform needs for the fix'],
@@ -70,7 +70,8 @@ export const packages: Package[] = [
   },
   {
     id: 'website-launch',
-    name: 'Website Launch',
+    // 22 Nov 2026 (upgrade report R10.1): plain names, used everywhere. Was "Website Launch"; the id stays.
+    name: 'Website',
     boundary: 'Up to five pages, one enquiry path, your own text and photos, two rounds of revisions.',
     forWho: 'Service businesses that need a clear, fast website, or a rebuild of one that is dated or hard to use on a phone.',
     includes: [
@@ -86,7 +87,7 @@ export const packages: Package[] = [
       'Writing all your copy from scratch (I edit what you supply for clarity)',
       'Photography and logo design (I can recommend people)',
       'Online stores',
-      'Booking integrations and follow-up workflows (see Website + Enquiry System)',
+      'Booking integrations and follow-up workflows (see Website + Booking)',
       'Guaranteed rankings or traffic',
     ],
     youProvide: ['Your services, area and the details you want shown', 'Photos of your real work', 'Domain and account access in your name'],
@@ -98,11 +99,11 @@ export const packages: Package[] = [
   },
   {
     id: 'website-enquiry',
-    name: 'Website + Enquiry System',
-    boundary: 'Everything in Website Launch, plus one booking integration and one defined follow-up workflow.',
+    name: 'Website + Booking',
+    boundary: 'Everything in the Website package, plus one booking integration and one defined follow-up workflow.',
     forWho: 'Owners who miss calls or messages while they work, and want enquiries and bookings handled in one place.',
     includes: [
-      'Everything in Website Launch',
+      'Everything in the Website package',
       'One booking integration: your booking or quote tool connected to the site, with reminders before appointments',
       'One follow-up workflow, agreed in writing first: for example, each website enquiry lands in one list with an instant reply and a reminder before anyone waits too long, or missed-call text-back',
       'Every step tested with sample data, including what happens when a step fails',
@@ -116,13 +117,13 @@ export const packages: Package[] = [
       'Guaranteed bookings or response times from your team',
     ],
     youProvide: [
-      'Everything Website Launch needs',
+      'Everything the Website package needs',
       'Your booking tool, or a choice from my recommendation',
       'Your usual answers to common questions',
     ],
-    timeline: 'As for Website Launch, plus time to set up and test the workflow with your real accounts.',
+    timeline: 'As for the Website package, plus time to set up and test the workflow with your real accounts.',
     thirdParty: [
-      'Everything in Website Launch',
+      'Everything in the Website package',
       'Your booking tool’s subscription, if it charges',
       'Phone number and text-message usage, if the workflow sends texts',
     ],
@@ -133,7 +134,7 @@ export const packages: Package[] = [
   },
   {
     id: 'local-visibility',
-    name: 'Local Visibility Setup',
+    name: 'Google Listing Setup',
     boundary: 'One eligible Google Business Profile, a short named list of other listings, a review routine and a before-and-after snapshot.',
     forWho: 'Service businesses that are hard to find on Google or Maps, or have few recent reviews.',
     includes: [
@@ -246,7 +247,7 @@ export function priceLabel(p: Package): { text: string; approved: boolean } {
 }
 
 /**
- * "The extra $1,400 over Website Launch buys one booking integration plus one workflow." (SEO report follow-up,
+ * "The extra $1,400 over the Website package buys one booking integration plus one workflow." (SEO report follow-up,
  * 19 Nov 2026). Worked out from the two prices; null unless both are single, approved prices.
  */
 export function upgradeNote(p: Package): string | null {
@@ -255,5 +256,5 @@ export function upgradeNote(p: Package): string | null {
   const a = p.price.amount;
   const b = base?.price.amount;
   if (!base || a == null || b == null || p.price.max || base.price.max || p.price.unit !== base.price.unit || a <= b) return null;
-  return `The extra ${cad.format(a - b)} over ${base.name} buys ${p.builtOn.buys}.`;
+  return `The extra ${cad.format(a - b)} over the ${base.name} package buys ${p.builtOn.buys}.`;
 }

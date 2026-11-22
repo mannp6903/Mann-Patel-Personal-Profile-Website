@@ -212,7 +212,7 @@ describe('design tokens (DESIGN_UPGRADE_PLAN.md §5)', () => {
     expect(boxOffenders).toEqual([]);
     // drop-shadow(): the media shadow, or a glow (no offset) in lime, which marks something live (the graph's signal).
     const dropOffenders = DECLS.filter((d) => d.prop === 'filter' && /drop-shadow/.test(d.value))
-      .filter((d) => !/^drop-shadow\(var\(--shadow-media\)\)$/.test(d.value) && !/^drop-shadow\(0 0 [\d.]+px rgb\(212 248 74 \/ [\d.]+\)\)$/.test(d.value))
+      .filter((d) => !/^drop-shadow\(var\(--shadow-media\)\)$/.test(d.value) && !/^drop-shadow\(0 0 [\d.]+px (rgb\(212 248 74 \/ [\d.]+\)|var\(--signal-a\d+\))\)$/.test(d.value))
       .map(where);
     expect(dropOffenders).toEqual([]);
   });

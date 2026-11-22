@@ -2,6 +2,13 @@
 
 Everything below is tracked in code. Unverified **claims** are wrapped in `<Confirm>` (production builds fail until they're resolved). Missing **optional** items use `<PreviewNote>` (shown in previews only). Run `grep -rn "Confirm note\|confirm:\|Confirm:\|PreviewNote note" src` to list them.
 
+## Upgrade report, Phase 2 (22 Nov 2026)
+
+Detail: [`docs/30-upgrade-report-phase-2.md`](30-upgrade-report-phase-2.md). The packages are now **Google Listing Setup**,
+**Website** and **Website + Booking** (plus Website Fix and Website Care), at the same prices. Still yours to supply:
+typical durations for the five project steps (shown on Home's process line once you confirm them) and a reply time
+(`profile.contact.replyTime`).
+
 ## Before the 25 Nov 2026 launch (upgrade report, Phase 1)
 
 Detail and a draft message: [`docs/29-upgrade-report-phase-1.md`](29-upgrade-report-phase-1.md#what-only-mann-can-do-phase-1).

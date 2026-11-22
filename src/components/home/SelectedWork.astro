@@ -48,6 +48,12 @@ const fmtDate = (iso: string) =>
                     </span>
                   </p>
                   {project.businessStatus && <p class="sw__business">{project.businessStatus}</p>}
+                  {/* 22 Nov 2026 (upgrade report R2.2): the real address, as a fact, where the drawn browser bar used to show it. */}
+                  {site.links[0] && (
+                    <a class="link link--tap sw__host" href={site.links[0].url} rel="noopener">
+                      {new URL(site.links[0].url).host}
+                    </a>
+                  )}
                   <dl class="sw__facts">
                     <div><dt>The problem</dt><dd>{project.problem}</dd></div>
                     <div><dt>My role</dt><dd>{project.roleShort}</dd></div>
@@ -137,7 +143,8 @@ const fmtDate = (iso: string) =>
     line-height: 1.1;
     text-wrap: initial;
   }
-  .sw__name a { text-decoration: none; }
+  /* Upgrade report R13.4: a fingertip-sized target (44px) on phones, without moving the text. */
+  .sw__name a { display: inline-flex; align-items: center; min-height: var(--tap); text-decoration: none; }
   .sw__name a:hover,
   .sw__name a:focus-visible { text-decoration: underline; text-decoration-thickness: 2px; }
   .sw__labels {
@@ -145,7 +152,6 @@ const fmtDate = (iso: string) =>
     flex-wrap: wrap;
     gap: 0.35em 0.7em;
     color: var(--text-3);
-    font-family: var(--font-mono);
     font-size: var(--fs-label);
     font-weight: var(--w-ui);
   }
@@ -160,14 +166,12 @@ const fmtDate = (iso: string) =>
     color: var(--ink);
   }
   .sw__business { color: var(--text-3); font-size: var(--fs-sm); }
+  .sw__host { font-size: var(--fs-sm); color: var(--text-2); }
   .sw__facts { display: grid; gap: var(--s-2); }
   .sw__facts dt {
     color: var(--text-3);
-    font-family: var(--font-mono);
     font-size: var(--fs-label);
     font-weight: var(--w-ui);
-    letter-spacing: var(--track-label);
-    text-transform: uppercase;
   }
   .sw__facts dd { color: var(--text-2); max-width: 47ch; }
   .sw__foot {

@@ -111,7 +111,6 @@ const crumbs = breadcrumbJsonLd([
   <header class="ab-head">
     <div class="container ab-head__grid">
       <div class="ab-head__text">
-        <p class="eyebrow">About</p>
         <Heading
           as="h1"
           class="ab-title"
@@ -149,7 +148,7 @@ const crumbs = breadcrumbJsonLd([
             />
             <figcaption class="num">
               <span>Mann Patel</span>
-              <span>Toronto · 2026</span>
+              <span>Toronto, 2026</span>
             </figcaption>
           </figure>
         )
@@ -161,7 +160,6 @@ const crumbs = breadcrumbJsonLd([
   <section class="section section--rule" id="glance" aria-labelledby="glance-title">
     <div class="container glance">
       <div class="stack" style="--stack: var(--s-4)">
-        <p class="eyebrow">At a glance</p>
         <h2 id="glance-title" class="glance__title">What I do, <span class="accent">and how.</span></h2>
       </div>
       <dl class="glance__list">
@@ -294,7 +292,6 @@ const crumbs = breadcrumbJsonLd([
   <section class="section section--rule" id="elsewhere" aria-labelledby="elsewhere-title">
     <div class="container glance">
       <div class="stack" style="--stack: var(--s-4)">
-        <p class="eyebrow">Profiles</p>
         <h2 id="elsewhere-title" class="glance__title">Find me <span class="accent">elsewhere.</span></h2>
       </div>
       <dl class="glance__list">
@@ -332,9 +329,6 @@ const crumbs = breadcrumbJsonLd([
     gap: var(--head-gap-2);
     align-content: start;
   }
-  .ab-head__text > .eyebrow {
-    margin-bottom: calc(var(--head-gap-1) - var(--head-gap-2));
-  }
   .ab-head__text :global(.ab-title) {
     font-size: var(--fs-h1);
     max-width: 17ch;
@@ -358,7 +352,6 @@ const crumbs = breadcrumbJsonLd([
     display: flex;
     justify-content: space-between;
     font-size: var(--fs-label);
-    letter-spacing: 0.04em;
     color: var(--text-3);
   }
   @media (min-width: 64em) {
@@ -391,8 +384,6 @@ const crumbs = breadcrumbJsonLd([
     display: flex;
     gap: var(--s-3);
     font-size: var(--fs-label);
-    letter-spacing: 0.06em;
-    text-transform: uppercase;
     color: var(--text-2);
   }
   .chapter__n {

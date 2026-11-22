@@ -1,5 +1,7 @@
 // Project sharing cards (1200×630), one per case study, from the project's real desktop capture
-// and its true status labels (src/content/work/*.md). Output: public/og/work-<id>.png
+// and its true status labels (src/content/work/*.md). Output: public/og/work-<id>.jpg
+// 22 Nov 2026 (upgrade report R2.4): JPEG at quality 80, about a third of the PNG's weight, so link previews in
+// WhatsApp and iMessage load quickly.
 // Run: npm run images   (after a capture or a status changes)
 import { chromium } from '@playwright/test';
 import sharp from 'sharp';
@@ -65,8 +67,8 @@ h1{font-weight:600;font-size:76px;line-height:.95;letter-spacing:-.045em}
   await page.goto(`file://${tmp}`);
   await page.evaluate(() => document.fonts.ready);
   await page.waitForTimeout(150);
-  await page.screenshot({ path: `${root}public/og/work-${id}.png` });
+  await page.screenshot({ path: `${root}public/og/work-${id}.jpg`, type: 'jpeg', quality: 80 });
   await rm(tmp);
-  console.log(`wrote og/work-${id}.png`);
+  console.log(`wrote og/work-${id}.jpg`);
 }
 await browser.close();

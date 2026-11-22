@@ -55,7 +55,7 @@ If an assistant gets a fact wrong, find where that fact is published and fix it 
 
 ## Getting help
 
-My [AI search optimization](/services/ai-search-optimization/) check is part of Local Visibility Setup ($650). I ask ChatGPT, Gemini and Perplexity the same questions, record their answers on a dated sheet, and fix your Google Business Profile and listings. Website fixes are listed in priority order and quoted separately. See [every package and price](/pricing/).
+My [AI search optimization](/services/ai-search-optimization/) check is part of Google Listing Setup ($650). I ask ChatGPT, Gemini and Perplexity the same questions, record their answers on a dated sheet, and fix your Google Business Profile and listings. Website fixes are listed in priority order and quoted separately. See [every package and price](/pricing/).
 
 Not sure where you stand? Ask for the [free website and Google check](/contact/?package=check-up#check): I look you up on Google, Maps, Apple Maps and AI assistants the way a customer would, and send you a short written list of fixes, most important first.
 

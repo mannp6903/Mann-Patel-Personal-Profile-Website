@@ -19,6 +19,8 @@ html {
   /* The sticky header's height plus 8px, so an anchor's heading lands just below it (Website Playbook, 16 Nov 2026). */
   scroll-padding-top: calc(var(--header-h) + 0.5rem);
   interpolate-size: allow-keywords;
+  /* Upgrade report R13.5 (Hallmark 34): clipped on html as well as body, so nothing can scroll the page sideways. */
+  overflow-x: clip;
 }
 body {
   min-height: 100svh;
@@ -227,7 +229,7 @@ p {
   top: 0;
   inset-inline: max(var(--gutter), calc((100% - var(--container)) / 2 + var(--gutter)));
   height: 1px;
-  background: linear-gradient(90deg, rgb(212 248 74 / 0.6), var(--line) 18%, var(--line));
+  background: linear-gradient(90deg, var(--signal-a60), var(--line) 18%, var(--line));
   pointer-events: none;
 }
 .stack > * + * {
@@ -710,10 +712,8 @@ p {
   padding: 0.35em 0.8em 0.35em 0.65em;
   border: 1px solid var(--line);
   border-radius: var(--r-pill);
-  font-family: var(--font-mono);
   font-size: var(--fs-label);
   font-weight: var(--w-ui);
-  letter-spacing: 0.04em;
   color: var(--text-2);
   white-space: nowrap;
 }
@@ -1269,7 +1269,7 @@ fieldset > legend + * {
   content: '';
   position: absolute;
   inset: 0;
-  background-image: radial-gradient(circle at center, rgb(242 241 236 / 0.13) 0 1px, transparent 1.6px);
+  background-image: radial-gradient(circle at center, var(--dot-field) 0 1px, transparent 1.6px);
   background-size: 22px 22px;
   transition: opacity var(--dur-5) var(--ease-out);
 }

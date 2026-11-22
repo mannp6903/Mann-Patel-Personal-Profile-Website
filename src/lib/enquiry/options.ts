@@ -29,9 +29,9 @@ export const SERVICE_OPTIONS = [
 /** Must match src/data/packages.ts (a unit test checks). Old ids are mapped in packages.ts. */
 export const PACKAGE_OPTIONS = [
   { id: 'website-fix', label: 'Website Fix' },
-  { id: 'website-launch', label: 'Website Launch' },
-  { id: 'website-enquiry', label: 'Website + Enquiry System' },
-  { id: 'local-visibility', label: 'Local Visibility Setup' },
+  { id: 'website-launch', label: 'Website' },
+  { id: 'website-enquiry', label: 'Website + Booking' },
+  { id: 'local-visibility', label: 'Google Listing Setup' },
   { id: 'care', label: 'Website Care' },
   { id: 'check-up', label: 'Free website and Google check' },
 ] as const;

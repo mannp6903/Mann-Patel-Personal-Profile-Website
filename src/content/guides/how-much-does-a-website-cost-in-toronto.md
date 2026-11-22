@@ -15,10 +15,10 @@ A five-page small business website costs $1,950 CAD with me, fixed scope; Toront
 
 ## What a small business website costs with me
 
-- **A new or redesigned website of up to five pages: $1,950.** Website Launch, with one tested enquiry form.
-- **The same website, plus online booking and one follow-up workflow: $3,350.** Website + Enquiry System, for example a booking tool with reminders, or missed-call text-back.
+- **A new or redesigned website of up to five pages: $1,950.** The Website package, with one tested enquiry form.
+- **The same website, plus online booking and one follow-up workflow: $3,350.** Website + Booking, for example a booking tool with reminders, or missed-call text-back.
 - **One problem on your current website fixed: $450–$850,** by size. For example, a contact form that doesn't reach you, or a booking button customers can't find on a phone.
-- **Your Google Business Profile and listings set up, with a review routine: $650.** Local Visibility Setup.
+- **Your Google Business Profile and listings set up, with a review routine: $650.** Google Listing Setup.
 - **Looking after the website each month: $149 a month.** A test enquiry through your form every month and up to 30 minutes of small edits. Stop any month.
 
 Each package has a written boundary, and anything outside it is quoted in writing before any work starts. You can [see every package side by side](/pricing/).
@@ -58,8 +58,8 @@ The website packages are one-time prices. After launch you can look after the si
 
 ## Three examples
 
-- **A cleaning company** that needs a website and wants to show up on Google Maps: Website Launch ($1,950) and Local Visibility Setup ($650). See [websites for cleaning companies](/websites-for-cleaning-companies/).
-- **A salon** that wants clients to book online, with reminders: Website + Enquiry System ($3,350). See [websites for salons and spas](/websites-for-salons-and-spas/).
+- **A cleaning company** that needs a website and wants to show up on Google Maps: the Website package ($1,950) and Google Listing Setup ($650). See [websites for cleaning companies](/websites-for-cleaning-companies/).
+- **A salon** that wants clients to book online, with reminders: Website + Booking ($3,350). See [websites for salons and spas](/websites-for-salons-and-spas/).
 - **A business whose website mostly works**, but whose contact form doesn't reach the inbox: a Website Fix ($450–$850).
 
 ## How to compare website quotes

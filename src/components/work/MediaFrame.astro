@@ -1,7 +1,9 @@
 ---
 /**
  * The one frame for a project capture (design upgrade Phase 5, task 5.1; DESIGN.md → Imagery). Three kinds:
- *   browser  a desktop capture under a browser bar with the site's address
+ *   browser  a desktop capture: a plain figure, the media radius and shadow. 22 Nov 2026 (upgrade report R2.2): no drawn
+ *            browser bar (three dots and an address pill read as a generated tell); the real address, where it helps,
+ *            is a text link beside the capture instead
  *   phone    a phone capture in a bezel
  *   plain    a close-up on a white card with a hairline border
  * Browser and phone frames carry --shadow-media, the single shadow for mockups. Colours come from the --frame-* tokens.
@@ -18,8 +20,6 @@ interface Props {
   alt: string;
   widths: number[];
   sizes: string;
-  /** Shown in the browser bar. */
-  host?: string;
   /** The page's main image: eager, high priority (one per page). */
   priority?: boolean;
   loading?: 'eager' | 'lazy';
@@ -27,22 +27,12 @@ interface Props {
   quality?: number;
   class?: string;
 }
-const { kind, src, alt, widths, sizes, host, priority = false, loading = 'lazy', fetchpriority, quality = 55, class: cls } = Astro.props;
+const { kind, src, alt, widths, sizes, priority = false, loading = 'lazy', fetchpriority, quality = 55, class: cls } = Astro.props;
 // Never ask for a file wider than the source: the widest candidate is then the source itself.
 const usable = [...new Set(widths.map((w) => Math.min(w, src.width)))].sort((a, b) => a - b);
 ---
 
 <div class:list={['frame', `frame--${kind}`, cls]}>
-  {
-    kind === 'browser' && (
-      <span class="frame__bar" aria-hidden="true">
-        <i />
-        <i />
-        <i />
-        {host && <b>{host}</b>}
-      </span>
-    )
-  }
   <Picture
     src={src}
     alt={alt}
@@ -70,7 +60,7 @@ const usable = [...new Set(widths.map((w) => Math.min(w, src.width)))].sort((a, 
     height: auto;
   }
   .frame--browser {
-    border-radius: 12px;
+    border-radius: var(--r-md);
     box-shadow: var(--shadow-media);
   }
   .frame--phone {
@@ -81,28 +71,5 @@ const usable = [...new Set(widths.map((w) => Math.min(w, src.width)))].sort((a, 
   .frame--plain {
     border-radius: var(--r-md);
     border: 1px solid var(--line);
-  }
-  .frame__bar {
-    display: flex;
-    align-items: center;
-    gap: 0.3rem;
-    height: 1.6rem;
-    padding-inline: 0.7rem;
-    background: var(--frame-bar);
-  }
-  .frame__bar i {
-    width: 0.45rem;
-    height: 0.45rem;
-    border-radius: 50%;
-    background: var(--frame-dot);
-  }
-  .frame__bar b {
-    margin-left: auto;
-    margin-right: auto;
-    font-family: var(--font-mono);
-    font-size: var(--fs-label);
-    font-weight: var(--w-ui);
-    color: var(--frame-url);
-    transform: translateX(-1rem);
   }
 </style>

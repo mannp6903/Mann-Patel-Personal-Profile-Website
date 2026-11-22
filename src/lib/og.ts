@@ -1,7 +1,7 @@
 /**
  * Per-page sharing images (Nov 2026 audit fixes). Every page gets its own 1200 × 630 Open Graph image, made at build
  * time from its title by scripts/og-images.mjs (astro.config.mjs → `og-images`), instead of one /og/default.png for
- * all. The case studies keep their own cards (public/og/work-*.png, from their real captures: `npm run images`).
+ * all. The case studies keep their own cards (public/og/work-*.jpg, from their real captures: `npm run images`).
  *
  * Pure functions only: BaseLayout uses them for the meta tags, the build step uses them to draw the same image.
  */

@@ -120,7 +120,6 @@ const fmtDate = (iso: string) =>
   <section class="section section--rule" aria-labelledby="fit-title">
     <div class="container sp__split">
       <div class="stack" style="--stack: var(--s-4)">
-        <p class="eyebrow">Who it’s for</p>
         <h2 id="fit-title" class="sp__h2">A good fit if…</h2>
       </div>
       <div class="stack" style="--stack: var(--s-5)">
@@ -196,7 +195,6 @@ const fmtDate = (iso: string) =>
       <section class="section" aria-labelledby="demo-title">
         <div class="container stack" style="--stack: var(--s-6)">
           <div class="section-head">
-            <p class="eyebrow">See it work</p>
             <h2 id="demo-title" class="sp__h2">
               A sample workflow, <span class="accent">step by step.</span>
             </h2>
@@ -216,7 +214,6 @@ const fmtDate = (iso: string) =>
       <section class="section section--rule" id="videos" aria-labelledby="videos-title">
         <div class="container stack" style="--stack: var(--s-6)">
           <div class="section-head">
-            <p class="eyebrow">Watch it work</p>
             <h2 id="videos-title" class="sp__h2">
               Each workflow, <span class="accent">on a real screen.</span>
             </h2>
@@ -267,7 +264,6 @@ const fmtDate = (iso: string) =>
       <section class="section section--rule" aria-labelledby="proof-title">
         <div class="container stack" style="--stack: var(--s-6)">
           <div class="section-head">
-            <p class="eyebrow">Evidence</p>
             <h2 id="proof-title" class="sp__h2">
               {work.length ? 'Real work, ' : 'What you get, '}
               <span class="accent">{work.length ? 'clearly labelled.' : 'shown plainly.'}</span>
@@ -304,7 +300,7 @@ const fmtDate = (iso: string) =>
           {samples.map((sample) => (
             <div class="sp__sample" id={sample.id}>
               <div class="sp__sample-head">
-                <span class="sp__badge">{sample.badge ?? 'Sample · fictional business'}</span>
+                <span class="sp__badge">{sample.badge ?? 'Sample, fictional business'}</span>
                 <h3>{sample.title}</h3>
                 <p class="muted small">{sample.intro}</p>
               </div>
@@ -387,7 +383,6 @@ const fmtDate = (iso: string) =>
   <section class="section" aria-labelledby="sp-faq-title">
     <div class="container sp__split">
       <div class="stack" style="--stack: var(--s-4)">
-        <p class="eyebrow">Questions</p>
         <h2 id="sp-faq-title" class="sp__h2">Asked <span class="accent">before buying.</span></h2>
         <a class="link-arrow" href="/pricing/#pr-faq">Prices, payments and ownership <Icon name="arrow" /></a>
         {
@@ -625,7 +620,6 @@ const fmtDate = (iso: string) =>
     padding: 0.15rem 0.6rem;
     border: 1px solid var(--line);
     border-radius: var(--r-pill);
-    font-family: var(--font-mono);
     font-size: var(--fs-label);
     color: var(--text-2);
   }
@@ -663,7 +657,6 @@ const fmtDate = (iso: string) =>
     padding: 0.2rem 0.6rem;
     border: 1px dashed var(--control);
     border-radius: var(--r-pill);
-    font-family: var(--font-mono);
     font-size: var(--fs-label);
     color: var(--text-2);
   }
@@ -693,11 +686,8 @@ const fmtDate = (iso: string) =>
     border-bottom: 0;
   }
   .sp__table thead th {
-    font-family: var(--font-mono);
     font-size: var(--fs-label);
     font-weight: var(--w-ui);
-    text-transform: uppercase;
-    letter-spacing: var(--track-label);
     color: var(--text-3);
   }
   .sp__table tbody th {

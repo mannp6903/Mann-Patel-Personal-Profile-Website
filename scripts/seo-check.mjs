@@ -10,6 +10,23 @@ import { readFileSync, readdirSync, existsSync, statSync } from 'node:fs';
 import { join, relative, sep } from 'node:path';
 
 const DIST = process.argv[2] || 'dist/client';
+
+/**
+ * Width and height from a PNG's IHDR or a JPEG's start-of-frame marker (case-study cards are JPEG since 22 Nov 2026,
+ * upgrade report R2.4). null for anything else.
+ */
+function imageSize(b) {
+  if (b.subarray(1, 4).toString() === 'PNG') return [b.readUInt32BE(16), b.readUInt32BE(20)];
+  if (b[0] !== 0xff || b[1] !== 0xd8) return null;
+  let i = 2;
+  while (i + 9 < b.length) {
+    if (b[i] !== 0xff) return null;
+    const marker = b[i + 1];
+    if (marker >= 0xc0 && marker <= 0xcf && ![0xc4, 0xc8, 0xcc].includes(marker)) return [b.readUInt16BE(i + 7), b.readUInt16BE(i + 5)];
+    i += 2 + b.readUInt16BE(i + 2);
+  }
+  return null;
+}
 const SITE = 'https://mannpatel.me';
 
 // ── What the pages must say (SEO audit, 14 Nov 2026). Exact, after decoding entities and collapsing spaces.
@@ -259,9 +276,8 @@ for (const [path, p] of pages) {
     if (ogPath === '/og/default.png') err('sharing images', `${path}: still uses the shared /og/default.png`);
     else if (!existsSync(file)) err('sharing images', `${path}: ${ogPath} is not in the build`);
     else {
-      const png = readFileSync(file);
-      const size = png.subarray(1, 4).toString() === 'PNG' ? [png.readUInt32BE(16), png.readUInt32BE(20)] : null;
-      if (!size || size[0] !== 1200 || size[1] !== 630) err('sharing images', `${path}: ${ogPath} is ${size ? size.join(' × ') : 'not a PNG'}, not 1200 × 630`);
+      const size = imageSize(readFileSync(file));
+      if (!size || size[0] !== 1200 || size[1] !== 630) err('sharing images', `${path}: ${ogPath} is ${size ? size.join(' × ') : 'not a PNG or JPEG'}, not 1200 × 630`);
     }
     if (isPublished) ogImages.set(ogPath, [...(ogImages.get(ogPath) ?? []), path]);
   }

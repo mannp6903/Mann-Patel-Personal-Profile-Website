@@ -3,7 +3,7 @@ title: Nest & Rest Cleaning
 seoTitle: Nest & Rest Cleaning Website Case Study
 order: 2
 status: launched
-kind: Own business · opening summer 2027
+kind: My own business, opening summer 2027
 year: '2026'
 summary: My own home-cleaning business in Scarborough and North York, and the website I built from scratch to price it, explain it and, at launch, take booking requests. Until bookings open in summer 2027, the site says “Opening soon”.
 role: My business, getting ready to open. I built the website myself, from scratch. When bookings open in summer 2027, I'll clean every home myself.

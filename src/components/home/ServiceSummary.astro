@@ -14,10 +14,16 @@
  * decoration (aria-hidden), built by the script only when the section is near, so Home keeps its element budget (gate
  * P3); its grid column is sized by CSS from the first paint, so nothing shifts. Phones, tablets, reduced motion and no
  * JavaScript keep the bento exactly as before.
+ *
+ * 22 Nov 2026 (upgrade report R5.1, R10.1, §9; Phase 2): "What I do, and what it costs". Home's separate Prices section is
+ * gone; each tile now leads with its package and price and says what the price covers, and the other two packages
+ * (Website Fix, Website Care) and the add-ons sit under the tiles. One decision surface instead of two, with the prices
+ * said once on the page (the hero keeps one compact price line).
  */
 import { groups, addOns } from '../../data/services';
 import { servicePageForGroup } from '../../data/service-pages';
 import { packageById, priceLabel } from '../../data/packages';
+import Button from '../ui/Button.astro';
 import Icon from '../ui/Icon.astro';
 
 // The package that matches each area (package preview, audit 8 Nov 2026).
@@ -26,16 +32,19 @@ const packageFor: Record<string, ReturnType<typeof packageById>> = {
   answered: packageById('website-enquiry'),
   booked: packageById('website-launch'),
 };
+// The two packages that aren't a step of the path: under the tiles.
+const more = [packageById('website-fix')!, packageById('care')!];
 ---
 
 <section class="ss section" id="what-i-do" aria-labelledby="ss-title">
   <div class="container ss__grid">
     <div class="ss__head">
-      <!-- 16 Nov 2026: a descriptive heading people search for. 22 Nov 2026 (upgrade report R4.2): no numbered eyebrow. -->
-      <h2 id="ss-title" class="ss__title">Web design, local SEO <span class="accent">and booking services.</span></h2>
-      <!-- 19 Nov 2026 (answer extractability): the lead names the three services, so it answers on its own. -->
+      <h2 id="ss-title" class="ss__title">What I do, <span class="accent">and what it costs.</span></h2>
+      <!-- 19 Nov 2026 (answer extractability): the lead names the three services, so it answers on its own. 22 Nov 2026:
+           and the price terms, said once. -->
       <p class="ss__lead muted">
-        I offer three services for small businesses in Toronto and the GTA: local SEO, enquiry follow-up and booking, and websites. Each fixes one point where customers get stuck: finding you, reaching you or booking you.
+        Local SEO, online booking and websites for small businesses in Toronto and the GTA, at fixed prices in Canadian
+        dollars, plus tax. Anything outside a package is quoted in writing before I start.
       </p>
     </div>
 
@@ -90,13 +99,12 @@ const packageFor: Record<string, ReturnType<typeof packageById>> = {
               </span>
               <span class="eyebrow eyebrow--plain">{g.verb}</span>
             </p>
-            <h3 class="ss__name">{servicePageForGroup(g.id)?.name ?? g.title}</h3>
+            <div class="ss__top">
+              <h3 class="ss__name">{packageFor[g.id]?.name ?? g.title}</h3>
+              {packageFor[g.id] && <p class="ss__price"><b data-price>{priceLabel(packageFor[g.id]!).text}</b></p>}
+            </div>
             <p class="muted ss__intro">{g.intro}</p>
-            {packageFor[g.id] && (
-              <p class="ss__pkg small">
-                <span class="subtle">Package:</span> {packageFor[g.id]!.name} · <span class="subtle">{priceLabel(packageFor[g.id]!).text}</span>
-              </p>
-            )}
+            {packageFor[g.id] && <p class="ss__pkg small">{packageFor[g.id]!.boundary}</p>}
             <a class="link-arrow ss__link" href={servicePageForGroup(g.id) ? `/services/${servicePageForGroup(g.id)!.slug}/` : `/services/#${g.id}`}>
               {servicePageForGroup(g.id)?.short ?? g.title}: who it’s for and what’s included
               <Icon name="arrow-ne" />
@@ -108,10 +116,28 @@ const packageFor: Record<string, ReturnType<typeof packageById>> = {
       }
     </ol>
 
-    <p class="ss__extra small">
-      <span class="subtle">{addOns.title}, as add-ons.</span>
-      <a class="link-arrow" href="/services/">Every service and package <Icon name="arrow" /></a>
-    </p>
+    <div class="ss__extra">
+      <ul class="ss__more" role="list">
+        {
+          more.map((p) => (
+            <li>
+              <a href={`/pricing/#pkg-${p.id}`}>
+                <span class="ss__more-name">{p.name}</span>
+                <b class="ss__more-price" data-price>{priceLabel(p).text}</b>
+                <span class="ss__more-boundary">{p.boundary}</span>
+              </a>
+            </li>
+          ))
+        }
+      </ul>
+      <p class="small subtle ss__terms">
+        {addOns.title} are add-ons, quoted in writing. Websites are paid half at kickoff and half once the agreed launch
+        checks pass.
+      </p>
+      <div class="btn-row">
+        <Button href="/pricing/" variant="ghost">See every package</Button>
+      </div>
+    </div>
   </div>
 </section>
 
@@ -275,27 +301,87 @@ const packageFor: Record<string, ReturnType<typeof packageById>> = {
     color: var(--text);
     font-size: var(--fs-sm);
   }
+  /* The package and its price on one line (the price drops under the name when the tile is narrow). */
+  .ss__top {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: baseline;
+    justify-content: space-between;
+    gap: var(--s-1) var(--s-4);
+  }
   .ss__name {
     font-size: var(--fs-h3);
     letter-spacing: var(--track-head);
     line-height: 1.1;
     text-wrap: balance;
   }
+  /* Lime budget: prices are white, in tabular figures. */
+  .ss__price b {
+    font-size: var(--fs-h3);
+    font-weight: var(--w-head);
+    letter-spacing: var(--track-head);
+    line-height: 1.1;
+    font-variant-numeric: tabular-nums;
+    white-space: nowrap;
+  }
+  /* What the price covers, under a dashed rule: the body face (upgrade report R4.2: mono is for figures). */
   .ss__pkg {
     padding-top: var(--s-3);
     border-top: 1px dashed var(--line);
-    font-family: var(--font-mono);
-    font-size: var(--fs-label);
-    font-weight: var(--w-ui);
-    letter-spacing: 0.02em;
+    color: var(--text-2);
   }
   .ss__extra {
-    display: flex;
-    flex-wrap: wrap;
-    align-items: center;
-    justify-content: space-between;
-    gap: var(--s-2) var(--s-5);
-    margin-top: var(--s-5);
+    display: grid;
+    gap: var(--s-4);
+    margin-top: var(--s-6);
+  }
+  .ss__more {
+    display: grid;
+    border-top: 1px solid var(--line);
+  }
+  .ss__more a {
+    display: grid;
+    grid-template-columns: minmax(0, 1fr) auto;
+    gap: var(--s-1) var(--s-4);
+    padding-block: var(--s-4);
+    border-bottom: 1px solid var(--line);
+    color: inherit;
+    text-decoration: none;
+    transition: background-color var(--dur-1);
+  }
+  .ss__more a:hover,
+  .ss__more a:focus-visible {
+    background: linear-gradient(90deg, transparent, var(--surface));
+  }
+  .ss__more-name {
+    font-weight: var(--w-head);
+    font-size: var(--fs-lead);
+  }
+  .ss__more-price {
+    font-size: var(--fs-lead);
+    font-weight: var(--w-head);
+    font-variant-numeric: tabular-nums;
+    white-space: nowrap;
+  }
+  .ss__more-boundary {
+    grid-column: 1 / -1;
+    max-width: 60ch;
+    font-size: var(--fs-sm);
+    color: var(--text-2);
+  }
+  @media (min-width: 48em) {
+    /* One fixed price column, so the descriptions line up row to row. */
+    .ss__more a {
+      grid-template-columns: minmax(10rem, 0.5fr) minmax(0, 1.5fr) 10rem;
+      align-items: baseline;
+    }
+    .ss__more-price {
+      justify-self: end;
+    }
+    .ss__more-boundary {
+      grid-column: 2;
+      grid-row: 1;
+    }
   }
 
   /* ── Scenes: the agent graph's line style (its stroke tokens, round ends); lime marks only the signal (task 5.4). ── */

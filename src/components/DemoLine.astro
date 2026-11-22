@@ -21,7 +21,7 @@ const digits = normalizePhone(PUBLIC_DEMO_PHONE);
 {
   digits && (
     <aside class="tryit" aria-labelledby="tryit-title" data-demo-line>
-      <span class="tryit__tag">Demo line · fictional business</span>
+      <span class="tryit__tag">Demo line, fictional business</span>
       <h3 id="tryit-title" class="tryit__title">Try it from your own phone</h3>
       <p class="tryit__body">
         Call <a class="link" href={`tel:+${digits}`}>{formatPhone(digits)}</a> and let it ring out. You get the automatic text a customer of{' '}
@@ -50,7 +50,6 @@ const digits = normalizePhone(PUBLIC_DEMO_PHONE);
     padding: 0.2rem 0.6rem;
     border: 1px dashed var(--control);
     border-radius: var(--r-pill);
-    font-family: var(--font-mono);
     font-size: var(--fs-label);
     color: var(--text-2);
   }

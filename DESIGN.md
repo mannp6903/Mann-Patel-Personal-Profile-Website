@@ -1,5 +1,16 @@
 # DESIGN.md · "Signal" (round 5, Nov 2026), compact editorial portfolio (round 7)
 
+> **Upgrade report, Phase 2 (22 Nov 2026; `docs/30-upgrade-report-phase-2.md`).** Overrides the notes below where
+> they disagree.
+> - **Packages:** Google Listing Setup, Website, Website + Booking, Website Fix, Website Care (ids unchanged).
+> - **Home:** hero, work, "You work with me" (portrait 4:5, `--r-lg`, `--shadow-media`, no glow), "What I do, and what it
+>   costs" (the three package tiles with prices and the M5 phone, Fix and Care below), the free check, the process as a
+>   five-step line with the promises in one row, three questions.
+> - **Labels:** eyebrows only where they add a fact the heading doesn't; tags, table heads and card labels in the body
+>   face, sentence case, untracked; mono for figures only. No middle-dot meta strings.
+> - **Colour:** warm neutral surfaces (`--bg #0b0b0a` … `--control #74746c`); every alpha colour is a token.
+> - **Captures:** no drawn browser bar; the phone overlay sits inside its panel.
+>
 > **Upgrade report, Phase 1 (22 Nov 2026, before the 25 Nov launch; `docs/29-upgrade-report-phase-1.md`).** The
 > 22 Nov audit's standard: would a GTA small-business owner trust this enough to book a call? Most of the fixes subtract.
 > This block overrides the older notes below where they disagree.
@@ -247,12 +258,12 @@ Dark only (`color-scheme: dark`). Text contrast measured against `--bg`.
 
 | Token | Value | Role | Contrast |
 | --- | --- | --- | --- |
-| `--bg` | `#0B0B0C` | Page background ("night") | — |
-| `--bg-2` | `#111113` | Alternate sections, form fields | — |
-| `--surface` | `#18181B` | Raised panels, menus, phone screens | — |
-| `--surface-2` | `#212125` | Hover on surfaces | — |
-| `--line` | `#2A2A2F` | Hairlines and dividers (decorative only) | — |
-| `--control` | `#6F6F78` | Borders of inputs, checkboxes, outline buttons | 3.95:1 (≥ 3:1 for UI) |
+| `--bg` | `#0B0B0A` | Page background ("night"); warmed 22 Nov 2026 (upgrade report R4.1), as are the five below | — |
+| `--bg-2` | `#121211` | Alternate sections, form fields | — |
+| `--surface` | `#1A1A17` | Raised panels, menus, phone screens | — |
+| `--surface-2` | `#222220` | Hover on surfaces | — |
+| `--line` | `#2D2D29` | Hairlines and dividers (decorative only) | — |
+| `--control` | `#74746C` | Borders of inputs, checkboxes, outline buttons | 4.2:1 (≥ 3:1 for UI) |
 | `--text` | `#F2F1EC` | Headings and body text | 17.4:1 |
 | `--text-2` | `#B3B2AB` | Secondary text, descriptions | 9.3:1 |
 | `--text-3` | `#8D8C86` | Labels, captions, metadata | 5.8:1 |
@@ -260,6 +271,10 @@ Dark only (`color-scheme: dark`). Text contrast measured against `--bg`.
 | `--signal-strong` | `#E4FF73` | The footer wordmark's Λ's as they light near the pointer | — |
 | `--on-signal` | `#0B0B0C` | Text and icons on `--signal` | 16.2:1 |
 | `--signal-wash` | `rgb(212 248 74 / 0.12)` | Selected chips, soft highlights | — |
+| `--signal-*` (alphas) | `rgb(212 248 74 / 0.04)`, `rgb(212 248 74 / 0.15)`, `rgb(212 248 74 / 0.16)`, `rgb(212 248 74 / 0.25)`, `rgb(212 248 74 / 0.3)`, `rgb(212 248 74 / 0.6)`, `rgb(212 248 74 / 0.8)`, `rgb(212 248 74 / 0.9)` (`-a04` … `-a90`) | The agent graph's glow and core ring, the lime-tipped rule (upgrade report R4.1: lifted out of the components) | — |
+| `--scrim`, `--scrim-*` | `rgb(11 11 10 / 0.72)`, soft `rgb(11 11 10 / 0.55)` | Behind the phone menu and the quick menu | — |
+| `--ink-*` (alphas) | `rgb(11 11 12 / 0.25)`, `rgb(11 11 12 / 0.4)` (`-a25`, `-a40`) | Ink hairlines on the lime band and the free-check receipt | — |
+| `--dot-*` | grid `rgb(255 255 255 / 0.07)`, field `rgb(242 241 236 / 0.13)` | The hero's dot grid and the signal field | — |
 | `--focus` | `var(--signal)` | The focus ring; light surfaces set it to `--focus-on-light` | — |
 | `--focus-on-light` | `var(--ink)` (`#0B0B0C`) | The focus ring on light surfaces (the paper band, the free-check band), where lime is 1.2:1 | 17.4:1 on `--paper` |
 | `--accent-on-light` | `#637B05` | Lime-family text or icons on white, if one is ever needed (not used today) | 4.81:1 on white |
@@ -272,7 +287,7 @@ Dark only (`color-scheme: dark`). Text contrast measured against `--bg`.
 | `--paper-text` / `-2` / `-3` | `#181A13` / `#43473B` / `#575A50` | Text on the paper band | measured on `--paper-section` |
 | `--paper-line` | `#C7C8BA` | Hairlines on the paper band | — |
 | `--media-bg-1` / `-2` | `color-mix(in oklab, var(--paper-section) 80%, var(--surface))` / `color-mix(in oklab, var(--paper-section) 68%, var(--surface))` (about `#BFBFBA` / `#A3A3A0`) | Backdrops behind project mockups: two tints of the paper band toward the surface colour (Phase 3; were teal `#BFC9C9` and pink `#D5C4C9`) | — |
-| `--frame-*` | screen `#FFFFFF`, bar `#E9E9EC`, dots `#C4C4CA`, address `#5B5B63`, bezel `#1C1C20` | Browser and phone frames around captures | — |
+| `--frame-*` | screen `#FFFFFF`, bar `#E9E9EC` (the services phone's chrome), bezel `#1C1C20` | Capture and phone frames (no drawn browser bar since 22 Nov 2026, upgrade report R2.2) | — |
 | `--graph-*` | mesh `#3A3E2C`, spokes `#5B6236`, ring `#4A4F37`, nodes `#8D9A4A`, pill line `#3D3F33` | The agent graph's lime-tinted greys | — |
 
 Every hex colour lives in `tokens.css`; components use the tokens (gate C2, `tests/unit/design-tokens.test.ts`).

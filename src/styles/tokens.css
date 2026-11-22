@@ -37,12 +37,13 @@
   color-scheme: dark;
 
   /* ── Colour roles ── */
-  --bg: #0b0b0c;
-  --bg-2: #111113;
-  --surface: #18181b;
-  --surface-2: #212125;
-  --line: #2a2a2f;
-  --control: #6f6f78;
+  /* 22 Nov 2026 (upgrade report R4.1): the surfaces warmed to match the warm text greys (they were cool Tailwind zinc). */
+  --bg: #0b0b0a;
+  --bg-2: #121211;
+  --surface: #1a1a17;
+  --surface-2: #222220;
+  --line: #2d2d29;
+  --control: #74746c;
   --text: #f2f1ec;
   --text-2: #b3b2ab;
   --text-3: #8d8c86;
@@ -50,6 +51,25 @@
   --signal-strong: #e4ff73;
   --on-signal: #0b0b0c;
   --signal-wash: rgb(212 248 74 / 0.12);
+  /* Lime at set strengths, for the agent graph's glow, its core ring and the lime-tipped rule (upgrade report R4.1: these
+     were literals in the components). */
+  --signal-a04: rgb(212 248 74 / 0.04);
+  --signal-a15: rgb(212 248 74 / 0.15);
+  --signal-a16: rgb(212 248 74 / 0.16);
+  --signal-a25: rgb(212 248 74 / 0.25);
+  --signal-a30: rgb(212 248 74 / 0.3);
+  --signal-a60: rgb(212 248 74 / 0.6);
+  --signal-a80: rgb(212 248 74 / 0.8);
+  --signal-a90: rgb(212 248 74 / 0.9);
+  /* Behind the phone menu and the quick menu. */
+  --scrim: rgb(11 11 10 / 0.72);
+  --scrim-soft: rgb(11 11 10 / 0.55);
+  /* Ink hairlines on the lime band and the free-check receipt. */
+  --ink-a25: rgb(11 11 12 / 0.25);
+  --ink-a40: rgb(11 11 12 / 0.4);
+  /* The faint dot patterns: the hero's graph paper and the signal field. */
+  --dot-grid: rgb(255 255 255 / 0.07);
+  --dot-field: rgb(242 241 236 / 0.13);
   --error: #ff6b57;
   --error-wash: rgb(255 107 87 / 0.1);
   --warn: #f5c451;
@@ -79,8 +99,6 @@
   /* Browser and phone frames around project captures. */
   --frame-screen: #ffffff;
   --frame-bar: #e9e9ec;
-  --frame-dot: #c4c4ca;
-  --frame-url: #5b5b63;
   --frame-bezel: #1c1c20;
   /* The one shadow for mockups: project captures, the portrait core and the free-check receipt (design upgrade Phase
      5, task 5.1). The single exception to "depth comes from surfaces" (DESIGN.md → Shape and depth); floating UI keeps

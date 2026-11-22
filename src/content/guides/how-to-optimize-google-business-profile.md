@@ -67,4 +67,4 @@ Your name, phone number and website should match, character for character, on yo
 
 ## Want it done for you?
 
-[Local Visibility Setup](/services/local-visibility/) ($650 CAD) covers all of the above for one eligible profile: an eligibility check, the profile set up or cleaned up, your other listings made to match, a review routine, and a before-and-after snapshot so you can see what changed. Google decides rankings, so no one can promise a position. Not sure where you stand? Start with the [free website and Google check](/contact/?package=check-up#check).
+[Google Listing Setup](/services/local-visibility/) ($650 CAD) covers all of the above for one eligible profile: an eligibility check, the profile set up or cleaned up, your other listings made to match, a review routine, and a before-and-after snapshot so you can see what changed. Google decides rankings, so no one can promise a position. Not sure where you stand? Start with the [free website and Google check](/contact/?package=check-up#check).

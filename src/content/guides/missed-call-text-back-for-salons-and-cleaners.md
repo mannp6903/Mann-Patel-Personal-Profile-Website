@@ -42,7 +42,7 @@ Short, plain and true. Don't promise a call-back time you can't keep.
 
 ## What it costs
 
-- **Setting it up with me:** missed-call text-back is one of the follow-up workflows in Website + Enquiry System ($3,350), with the website and one booking integration. Adding a workflow to a website that already works is quoted on its own. See [enquiry follow-up and online booking](/services/enquiry-follow-up/).
+- **Setting it up with me:** missed-call text-back is one of the follow-up workflows in Website + Booking ($3,350), with the website and one booking integration. Adding a workflow to a website that already works is quoted on its own. See [enquiry follow-up and online booking](/services/enquiry-follow-up/).
 - **Running it:** your phone provider bills the number and the text messages directly, at its own rates. Ask for the monthly fee for the number and the price per text before you choose a provider.
 
 ## Test it before it goes live
