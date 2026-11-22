@@ -2511,8 +2511,9 @@ test.describe('Website Playbook, accessibility and brand (16 Nov 2026)', () => {
     const btn = page.locator('main a.btn:has(.btn__icon)').first();
     await btn.hover();
     expect(await btn.locator('.btn__icon').first().evaluate((e) => getComputedStyle(e).transform)).toBe('none');
-    // Scroll-linked progress (the free-check badge on the home page) holds still at its end state.
-    await page.goto('/');
+    // Scroll-linked progress (the process track on About; the home free-check ring was removed on 22 Nov 2026) holds still
+    // at its end state.
+    await page.goto('/about/');
     const progress = page.locator('[data-progress]').first();
     await expect(progress).toHaveAttribute('style', /--p:\s*1/);
     await page.mouse.wheel(0, 2000);
