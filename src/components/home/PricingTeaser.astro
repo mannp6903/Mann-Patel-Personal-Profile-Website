@@ -129,6 +129,11 @@ const enquiry = packageById('website-enquiry')!;
     color: var(--text);
     white-space: nowrap;
   }
+  /* M7: while the overlay turns, the plain price keeps its place but is not painted. Scoped, like the rule above, so it
+     outranks it (a global rule lost to the scoped one on 22 Nov and both showed mid-turn). */
+  .pt__price b.is-rolling {
+    color: transparent;
+  }
   .pt__price span {
     font-size: var(--fs-label);
     color: var(--text-3);
@@ -190,9 +195,6 @@ const enquiry = packageById('website-enquiry')!;
      0–9 twice starts on the digit's own figure and turns one lap. */
   .pt__price {
     position: relative;
-  }
-  .pt__price b.is-rolling {
-    color: transparent;
   }
   .pt-odo {
     position: absolute;
