@@ -1430,14 +1430,14 @@ test.describe('direct contact', () => {
     // Twice since 16 Nov 2026: the button by the intro, and the "Find me elsewhere" list.
     await expect(page.locator('main').getByRole('link', { name: 'Mann Patel on LinkedIn' })).toHaveCount(2);
     await expect(page.locator('main').getByRole('link', { name: 'Mann Patel on LinkedIn' }).first()).toBeVisible();
-    // Only confirmed profiles: Instagram since 22 Nov 2026 (aiwithmannpatel, supplied by Mann); no Facebook button until
+    // Only confirmed profiles: Instagram since 22 Nov 2026 (mannpatel.frames, confirmed by Mann); no Facebook button until
     // a link is set.
-    await expect(page.locator('main a[data-contact="instagram"]').first()).toHaveAttribute('href', 'https://www.instagram.com/aiwithmannpatel/');
+    await expect(page.locator('main a[data-contact="instagram"]').first()).toHaveAttribute('href', 'https://www.instagram.com/mannpatel.frames/');
     await expect(page.locator('a[data-contact="facebook"]')).toHaveCount(0);
     // Structured data lists the confirmed profiles.
     const ld = (await page.$$eval('script[type="application/ld+json"]', (s) => s.map((x) => x.textContent || ''))).join(' ');
     expect(ld).toContain('https://www.linkedin.com/in/mannp6903/');
-    expect(ld).toContain('https://www.instagram.com/aiwithmannpatel/');
+    expect(ld).toContain('https://www.instagram.com/mannpatel.frames/');
   });
 
   // 14 Nov 2026 (SEO audit, Mann's decision): the full number is shown and listed in the business structured

@@ -102,9 +102,9 @@ export const bookingUrl: string | null = null;
 export const social: { id: 'github' | 'instagram' | 'facebook' | 'linkedin' | 'youtube'; label: string; url: string | null }[] = [
   // LinkedIn supplied by Mann, 9 Nov 2026 (tracking parameters removed).
   { id: 'linkedin', label: 'LinkedIn', url: 'https://www.linkedin.com/in/mannp6903/' },
-  // Instagram: aiwithmannpatel, Mann's page for the site's AI and web content (supplied by Mann, 17 Nov 2026; set for
-  // the 25 Nov 2026 launch). It shows as a button and joins the Person structured data (sameAs).
-  { id: 'instagram', label: 'Instagram', url: 'https://www.instagram.com/aiwithmannpatel/' },
+  // Instagram: mannpatel.frames, Mann's account (confirmed by Mann, 22 Nov 2026, for the 25 Nov 2026 launch). It shows
+  // as a button and joins the Person structured data (sameAs).
+  { id: 'instagram', label: 'Instagram', url: 'https://www.instagram.com/mannpatel.frames/' },
   { id: 'github', label: 'GitHub', url: 'https://github.com/mannp6903' },
   // TODO(Mann): Facebook Page URL. It then appears as a button, in About's "Find me elsewhere" list and in the business
   // structured data (sameAs).
