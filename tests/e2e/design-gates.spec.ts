@@ -666,7 +666,8 @@ test.describe('design gates: motion (Phase 4)', () => {
       await page.goto('/');
       await expect(page.locator('.hp__photo')).toBeVisible();
       expect(await page.locator('.hp__photo').evaluate((e) => getComputedStyle(e).opacity)).toBe('1');
-      expect(await page.locator('.hp__print').evaluate((e) => getComputedStyle(e).opacity)).toBe('0');
+      // The print is only ever fetched with motion on (it waits in a <template>).
+      await expect(page.locator('.hp__print')).toHaveCount(0);
       await ctx.close();
     }
   });

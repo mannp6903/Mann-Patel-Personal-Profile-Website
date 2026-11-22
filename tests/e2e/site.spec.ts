@@ -553,14 +553,19 @@ test.describe('home interactions', () => {
     await expect(page.locator('[data-agent-graph], [data-ag-toggle], [data-tune], [data-signal-sculpture]')).toHaveCount(0);
   });
 
-  test('the portrait arrives once: the halftone print develops into the photo, then nothing moves', async ({ page }) => {
+  test('the portrait arrives once: a halftone print is laid over the photo and develops away, then nothing moves', async ({ page }) => {
     await page.setViewportSize({ width: 1440, height: 900 });
     await page.goto('/');
-    // The print is decoration over the photo: no name, hidden from assistive technology.
+    // The photo is in the page from the first frame; the print is not. It waits in an inert <template> and the script
+    // fetches it only after the photo has painted, so it never counts toward the largest paint (CI, PR #69).
     const print = page.locator('.hp__print');
+    await expect(print).toHaveCount(1, { timeout: 5000 });
+    // The print is decoration over the photo: no name, hidden from assistive technology.
     await expect(print).toHaveAttribute('alt', '');
     await expect(print).toHaveAttribute('aria-hidden', 'true');
-    // It shows first (the photo is under it from the first frame), then fades for good.
+    // It comes up over the photo, then fades for good; the photo is never hidden.
+    await expect(page.locator('[data-hero-portrait]')).toHaveClass(/is-printing/);
+    expect(await page.locator('.hp__photo').evaluate((e) => getComputedStyle(e).opacity)).toBe('1');
     await expect.poll(() => print.evaluate((e) => getComputedStyle(e).opacity), { timeout: 5000 }).toBe('0');
     const onClock = () =>
       page.evaluate(
@@ -577,7 +582,7 @@ test.describe('home interactions', () => {
   test('scrolling the hero away brings the portrait forward without lifting its base off the panel', async ({ page }) => {
     await page.setViewportSize({ width: 1440, height: 900 });
     await page.goto('/');
-    await expect.poll(() => page.locator('.hp__print').evaluate((e) => getComputedStyle(e).opacity), { timeout: 5000 }).toBe('0');
+    await page.waitForFunction(() => performance.now() >= 1800); // the entrance (and the print) are over
     const top = await page.evaluate(() => document.querySelector('.hp')!.getBoundingClientRect().top + scrollY);
     // Halfway through the hero's exit. (A slide up opened a 28px gap here, found 22 Nov 2026; it is a scale now.)
     await page.evaluate((y) => scrollTo(0, y), top + 250);
@@ -594,14 +599,16 @@ test.describe('home interactions', () => {
     }
   });
 
-  test('reduced motion and no JavaScript: the finished portrait, still, with no print over it', async ({ browser }) => {
+  test('reduced motion and no JavaScript: the finished portrait, still, and the print is never downloaded', async ({ browser }) => {
     for (const opts of [{ reducedMotion: 'reduce' as const }, { javaScriptEnabled: false }]) {
       const ctx = await browser.newContext({ ...opts, viewport: { width: 390, height: 844 } });
       const page = await ctx.newPage();
       await page.goto('/');
       await expect(page.locator('.hp__photo')).toBeVisible();
-      expect(await page.locator('.hp__print').evaluate((e) => getComputedStyle(e).opacity)).toBe('0');
-      for (const sel of ['.hp__stage', '.hp__clip', '.hp__figure', '.hp__print'])
+      await page.waitForTimeout(1500); // longer than the print would take to arrive
+      await expect(page.locator('.hp__print'), JSON.stringify(opts)).toHaveCount(0);
+      expect(await page.evaluate(() => performance.getEntriesByType('resource').some((r) => /halftone/.test(r.name))), JSON.stringify(opts)).toBe(false);
+      for (const sel of ['.hp__stage', '.hp__clip', '.hp__figure'])
         expect(await page.locator(sel).evaluate((e) => getComputedStyle(e).animationName), `${sel}: ${JSON.stringify(opts)}`).toBe('none');
       await ctx.close();
     }
@@ -765,9 +772,9 @@ test.describe('home interactions', () => {
     await page.goto('/');
     await expect(page.locator('.hdr__nav').getByRole('link', { name: 'Services' })).toBeVisible();
     await expect(page.locator('[data-menu-open]')).toBeHidden();
-    // The portrait needs no script: the finished photo, with the print hidden.
+    // The portrait needs no script: the finished photo, and no print.
     await expect(page.locator('.hp__photo')).toBeVisible();
-    expect(await page.locator('.hp__print').evaluate((e) => getComputedStyle(e).opacity)).toBe('0');
+    await expect(page.locator('.hp__print')).toHaveCount(0);
     await ctx.close();
   });
 });

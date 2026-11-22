@@ -21,17 +21,28 @@ profile picture, with a unique animation, and no wires. This replaces `AgentGrap
   His head breaks out above the panel's top edge, so the photo has depth without any lines or labels. No lime: the
   hero's one lime mark stays the button. About 480px across at 1440, up to 22rem on phones (after the buttons, with his
   face on the first screen, so the small greeting avatar is gone).
-- **The signature moment: a print that develops.** On load the panel rises, Mann rises into frame from behind its
-  bottom edge, and he arrives as a **halftone print** (warm white dots, the site's dot grid made into a picture) that
-  fades to reveal the real photo, like a print developing. A nod to his photography. About 1.3 s, once, transform and
-  opacity only; then nothing moves on its own (gate M2).
+- **The signature moment: a print that develops.** On load the panel rises and Mann rises into frame from behind its
+  bottom edge. A **halftone print** (warm white dots over a 60% dark veil, the site's dot grid made into a picture) is
+  then laid over the photo and fades away, like a print developing. A nod to his photography. About 1.3 s, once,
+  transform and opacity only; then nothing moves on its own (gate M2). The photo is never hidden, so there is no
+  photo, dots, photo double-take.
 - **Depth on scroll.** As the hero leaves, he comes a little forward (`scale(1.06)` from the panel's bottom edge, on a
   CSS view timeline). A scale, not a slide: sliding him up opened a 28px gap between his cut-off base and the panel's
   edge, caught in review. Browsers without scroll-driven animations show it still.
 - **Reduced motion and no JavaScript:** the finished photo, still, with the print hidden.
-- **Speed:** the photo is the page's one `fetchpriority="high"` image and is painted from the first frame, under the
-  print (gate H6 accepts it as the LCP element). Both images are AVIF with a WebP fallback and a full srcset (gate G2).
-  The print is made by `scripts/make-halftone.py` (Pillow) from the cut-out; re-run it if the cut-out changes.
+- **Speed:** the photo is the page's one `fetchpriority="high"` image and is painted from the first frame (gate H6
+  accepts it as the LCP element). Both images are AVIF with a WebP fallback and a full srcset (gate G2), and the photo
+  is quality 50 (11 KB at 640w, 17 KB at quality 62; the difference is hard to see). The print is made by
+  `scripts/make-halftone.py` (Pillow) from the cut-out; re-run it if the cut-out changes.
+- **The print is fetched after the first paint, not with the page.** The first version had it in the markup, covering
+  the photo from the first frame. CI's Lighthouse then measured Home's largest contentful paint at 2.26 s against the
+  1.8 s budget: its simulation counts every request that starts before the paint, and the print is 48 KB (about 0.3 s
+  at its throttled 1.6 Mbps). Now the print sits in an inert `<template>`; a script clones it in once the browser has
+  reported the first paint (a `largest-contentful-paint` performance entry), so it can never start before the
+  recorded paint (starting it after the decode and two frames did, in about one run in three). If the paint comes
+  after 0.8 s (a slow connection), or with reduced motion, or without JavaScript, the print is not downloaded at all.
+  Measured with Lighthouse CI's own config, locally, median of three: 2.12 s with the print in the page; 1.70 to 1.75 s
+  now, against 1.69 to 1.72 s for the site as it was before this change.
 
 ## Removed
 
@@ -44,7 +55,8 @@ ping), and the line-art greys and stroke weights stay for the services scenes.
 | Check | Result |
 |---|---|
 | Unit tests (`npx vitest run`) | 177 passed |
-| End-to-end, full suite | 252 of 252 passed on a clean run. A first run had 7 failures: 6 were form tests hitting a test server left running from before the rebuild (its server code pointed at old files); 1 was real and older than this change: the wide-screen service tiles faded their colours when they became active, against the transform-and-opacity rule. They now fade a highlight layer in. |
+| End-to-end, full suite | 252 of 252 passed on a clean run, before the print was moved out of the first load; re-run after (see the PR). A first run had 7 failures: 6 were form tests hitting a test server left running from before the rebuild (its server code pointed at old files); 1 was real and older than this change: the wide-screen service tiles faded their colours when they became active, against the transform-and-opacity rule. They now fade a highlight layer in. |
+| Lighthouse CI on Home (PR #69's own run) | Failed: LCP 2.26 s against 1.8 s with the print in the first load. Fixed as above; Lighthouse CI's config run locally gives 1.70 to 1.75 s |
 | Hero and portrait tests, with the new scroll test (the base stays on the panel) | 26 passed |
 | Production build and pre-launch check (`npm run build:cloudflare`) | 0 errors; 2 warnings for Cloudflare secrets a local build can't see |
 | SEO check (`scripts/seo-check.mjs`) | 0 errors; the same 2 warnings as before (/privacy/ description length, /services/ word count) |

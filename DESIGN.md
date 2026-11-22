@@ -7,13 +7,18 @@
 >   head breaking out above the panel's top edge. No lines, labels, pills, lime or pause button. About 480px across at
 >   1440, up to 22rem on phones, after the buttons.
 > - **Motion, once, about 1.3 s, transform and opacity only:** the panel rises; Mann rises into frame from behind its
->   bottom edge; he arrives as a **halftone print** (warm white dots, `assets/mann-patel-halftone.png`, made by
->   `scripts/make-halftone.py`) that **develops** into the photo. Then nothing moves on its own. Scrolling the hero away
+>   bottom edge; a **halftone print** (warm white dots over a 60% dark veil, `assets/mann-patel-halftone.png`, made by
+>   `scripts/make-halftone.py`) is laid over the photo and **develops** away (about 0.3 to 1.1 s; the photo is never
+>   hidden). Then nothing moves on its own. Scrolling the hero away
 >   brings him 6% forward, scaled from the panel's bottom edge so his base stays on it (CSS scroll-driven, where
 >   supported). Reduced motion and no JavaScript:
 >   the finished photo, still.
 > - **Speed:** the photo is the page's one `fetchpriority="high"` image and is painted from the first frame; the print
->   only covers it. The phone avatar beside the greeting is gone: the portrait shows his face on the first screen.
+>   is never delayed. The print is **not in the first load**: it waits in an inert `<template>` and a small script
+>   fetches it only after the browser has reported the first paint (a `largest-contentful-paint` entry); later than
+>   0.8 s, or with reduced motion or no JavaScript, it is never downloaded. Loaded with the page it put Home's
+>   Lighthouse LCP at about 2.26 s against the 1.8 s budget (PR #69's CI). The photo is AVIF at quality 50.
+>   The phone avatar beside the greeting is gone: the portrait shows his face on the first screen.
 > - Removed with the graph: `AgentGraph.astro`, its pause button, its lime exemption in gate C1, `--signal-a15` …
 >   `-a90` but `-a60`, `--graph-ring` and `--graph-pill-line`. `--dur-loop` stays for the live dot's ping.
 >

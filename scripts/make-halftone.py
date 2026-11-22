@@ -1,12 +1,13 @@
 """
 The hero portrait's halftone print (22 Nov 2026): Mann's cut-out drawn as a field of round dots, bigger where the photo
-is brighter, the same size as the cut-out so the two stack exactly. On Home the print shows for a moment as he rises
-into frame, then fades to reveal the real photo ("developing"; src/components/home/HeroPortrait.astro).
+is brighter, the same size as the cut-out so the two stack exactly. On Home the print is laid over the photo for a
+moment, as a dotted veil, then fades to leave the real photo ("developing"; src/components/home/HeroPortrait.astro).
+It is fetched only after the photo has painted, so it never delays the largest paint.
 
 Run after changing the cut-out:
     python3 scripts/make-halftone.py
 Needs Pillow (pip install pillow). Writes src/assets/mann-patel-halftone.png: warm white dots on the silhouette, which
-is filled in the page's dark, so the print covers the photo exactly until it fades.
+is veiled in the page's dark at 60%, so the dots read against the photo while it stays visible underneath.
 """
 from pathlib import Path
 
@@ -39,10 +40,11 @@ for cy in range(CELL // 2, h, CELL):
 lums = sorted(c[3] for c in cells)
 lo, hi = lums[int(len(lums) * 0.05)], lums[int(len(lums) * 0.97)]
 
-# The silhouette is filled in the page's dark (--bg-2), so while the print shows, the photo under it doesn't.
+# The silhouette is veiled in the page's dark (--bg-2) at 60%: the dots stand out and the photo stays in view under them.
 FILL = (18, 18, 17)
+VEIL = 0.6
 base = Image.new('RGBA', (w, h), FILL + (0,))
-base.putalpha(alpha)
+base.putalpha(alpha.point(lambda v: int(v * VEIL)))
 big = base.resize((w * SCALE, h * SCALE), Image.LANCZOS)
 draw = ImageDraw.Draw(big)
 for cx, cy, a, lum in cells:
