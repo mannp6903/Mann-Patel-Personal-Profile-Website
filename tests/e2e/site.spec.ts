@@ -574,6 +574,26 @@ test.describe('home interactions', () => {
   });
 
 
+  test('scrolling the hero away brings the portrait forward without lifting its base off the panel', async ({ page }) => {
+    await page.setViewportSize({ width: 1440, height: 900 });
+    await page.goto('/');
+    await expect.poll(() => page.locator('.hp__print').evaluate((e) => getComputedStyle(e).opacity), { timeout: 5000 }).toBe('0');
+    const top = await page.evaluate(() => document.querySelector('.hp')!.getBoundingClientRect().top + scrollY);
+    // Halfway through the hero's exit. (A slide up opened a 28px gap here, found 22 Nov 2026; it is a scale now.)
+    await page.evaluate((y) => scrollTo(0, y), top + 250);
+    const m = await page.evaluate(() => ({
+      panel: document.querySelector('.hp__stage')!.getBoundingClientRect().bottom,
+      photo: document.querySelector('.hp__photo')!.getBoundingClientRect().bottom,
+      depth: getComputedStyle(document.querySelector('.hp__clip')!).animationName,
+    }));
+    expect(Math.abs(m.photo - m.panel)).toBeLessThanOrEqual(1);
+    // Where scroll-driven animations run, he has come forward.
+    if (m.depth === 'hp-depth') {
+      const scale = await page.locator('.hp__clip').evaluate((e) => new DOMMatrix(getComputedStyle(e).transform).a);
+      expect(scale).toBeGreaterThan(1);
+    }
+  });
+
   test('reduced motion and no JavaScript: the finished portrait, still, with no print over it', async ({ browser }) => {
     for (const opts of [{ reducedMotion: 'reduce' as const }, { javaScriptEnabled: false }]) {
       const ctx = await browser.newContext({ ...opts, viewport: { width: 390, height: 844 } });
