@@ -85,9 +85,10 @@ describe('design tokens (DESIGN_UPGRADE_PLAN.md §5)', () => {
     expect(offenders).toEqual([]);
     // The `font` shorthand can set a size too: only `inherit` is used.
     expect(DECLS.filter((d) => d.prop === 'font' && d.value !== 'inherit').map(where)).toEqual([]);
-    // SVG <text font-size> is allowed only in the agent graph, which sizes its labels in its own viewBox units.
+    // No SVG <text font-size>: the agent graph, the one place that sized labels in its own viewBox units, was removed
+    // on 22 Nov 2026 (the hero is Mann's photo now).
     const svgSizes = [...SCANNED_DIRS.flatMap(walk)].filter((f) => / font-size=\{/.test(readFileSync(join(ROOT, f), 'utf8')));
-    expect(svgSizes).toEqual(['src/components/home/AgentGraph.astro']);
+    expect(svgSizes).toEqual([]);
   });
 
   it('T1: the type scale exists in tokens.css with the plan’s values', () => {
@@ -178,8 +179,8 @@ describe('design tokens (DESIGN_UPGRADE_PLAN.md §5)', () => {
       for (const m of code.matchAll(/style\.(?:transition|animation)\w*\s*=\s*[`'"][^`'"]*?\d+m?s/g)) offenders.push(`${file}: ${m[0]}`);
     }
     expect(offenders).toEqual([]);
-    // Sanity: the agent graph's loop is in scope.
-    expect(scripts.some((s) => s.file.endsWith('AgentGraph.astro') && /\.animate\(/.test(s.code))).toBe(true);
+    // Sanity: the scripts are in scope (the agent graph, the last .animate() caller, was removed on 22 Nov 2026).
+    expect(scripts.length).toBeGreaterThan(5);
   });
 
   it('M4: page transitions take at most 450ms and read only the page-transition tokens', () => {
@@ -231,12 +232,12 @@ describe('design tokens (DESIGN_UPGRADE_PLAN.md §5)', () => {
     for (const f of readers) expect(readFileSync(join(ROOT, f), 'utf8'), f).not.toMatch(/<(Image|Picture)\b/);
   });
 
-  it('G4: the graph, the services scenes and the promise icons draw with the graph’s stroke tokens', () => {
+  it('G4: the services scenes and the promise icons draw with the graph’s stroke tokens', () => {
     const tokens = readFileSync(join(ROOT, 'src/styles/tokens.css'), 'utf8');
     for (const name of ['--graph-stroke-fine', '--graph-stroke', '--graph-stroke-bold', '--graph-stroke-signal']) expect(tokens, name).toMatch(new RegExp(`${name}:\\s*[\\d.]+;`));
-    const files = ['src/components/home/AgentGraph.astro', 'src/components/home/ServiceSummary.astro', 'src/components/home/HowIWork.astro'];
+    const files = ['src/components/home/ServiceSummary.astro', 'src/components/home/HowIWork.astro'];
     const widths = DECLS.filter((d) => files.includes(d.file) && d.prop === 'stroke-width');
-    expect(widths.length).toBeGreaterThan(10);
+    expect(widths.length).toBeGreaterThanOrEqual(4);
     expect(widths.filter((d) => !/^var\(--graph-stroke(-fine|-bold|-signal)?\)$/.test(d.value)).map(where)).toEqual([]);
     // Round ends, like the graph's lines.
     for (const f of ['src/components/home/ServiceSummary.astro', 'src/components/home/HowIWork.astro'])

@@ -1,9 +1,34 @@
 # DESIGN.md · "Signal" (round 5, Nov 2026), compact editorial portfolio (round 7)
 
+> **Hero portrait (22 Nov 2026, later; `docs/31-hero-portrait.md`).** Overrides every note below about the agent graph.
+> - **The hero visual is Mann's photo, not a diagram** (Mann: the "wired signal" graph looked complicated).
+>   `components/home/HeroPortrait.astro`: the cut-out (`assets/mann-patel-cutout.png`) standing in a plain studio panel
+>   (the page's surface, a 1px `--line` border, `--r-lg`, a soft light behind his head and the hero's dot grid), his
+>   head breaking out above the panel's top edge. No lines, labels, pills, lime or pause button. About 480px across at
+>   1440, up to 22rem on phones, after the buttons.
+> - **Motion, once, about 1.3 s, transform and opacity only:** the panel rises; Mann rises into frame from behind its
+>   bottom edge; a **halftone print** (warm white dots over a 60% dark veil, `assets/mann-patel-halftone.png`, made by
+>   `scripts/make-halftone.py`) is laid over the photo and **develops** away (about 0.3 to 1.1 s; the photo is never
+>   hidden). Then nothing moves on its own. Scrolling the hero away
+>   brings him 6% forward, scaled from the panel's bottom edge so his base stays on it (CSS scroll-driven, where
+>   supported). Reduced motion and no JavaScript:
+>   the finished photo, still.
+> - **Speed:** the photo is the page's one `fetchpriority="high"` image and is painted from the first frame; the print
+>   is never delayed. The print is **not in the first load**: it waits in an inert `<template>` and a small script
+>   fetches it only after the browser has reported the first paint (a `largest-contentful-paint` entry); later than
+>   0.8 s, or with reduced motion or no JavaScript, it is never downloaded. Loaded with the page it put Home's
+>   Lighthouse LCP at about 2.26 s against the 1.8 s budget (PR #69's CI). The photo is AVIF at quality 50.
+>   The phone avatar beside the greeting is gone: the portrait shows his face on the first screen.
+> - Removed with the graph: `AgentGraph.astro`, its pause button, its lime exemption in gate C1, `--signal-a15` …
+>   `-a90` but `-a60`, `--graph-ring` and `--graph-pill-line`. `--dur-loop` stays for the live dot's ping.
+>
 > **Upgrade report, Phase 2 (22 Nov 2026; `docs/30-upgrade-report-phase-2.md`).** Overrides the notes below where
 > they disagree.
 > - **Packages:** Google Listing Setup, Website, Website + Booking, Website Fix, Website Care (ids unchanged).
-> - **Home:** hero, work, "You work with me" (portrait 4:5, `--r-lg`, `--shadow-media`, no glow), "What I do, and what it
+> - **One portrait per page** (22 Nov 2026, Mann: the same photo showed twice on Home). Home's is the hero's (now the
+>   portrait above, in place of the agent graph's core). "You work with me" carries no photo: a roster of every job in
+>   a project, with one name against each.
+> - **Home:** hero, work, "You work with me" (statement and roster), "What I do, and what it
 >   costs" (the three package tiles with prices and the M5 phone, Fix and Care below), the free check, the process as a
 >   five-step line with the promises in one row, three questions.
 > - **Labels:** eyebrows only where they add a fact the heading doesn't; tags, table heads and card labels in the body
@@ -271,7 +296,7 @@ Dark only (`color-scheme: dark`). Text contrast measured against `--bg`.
 | `--signal-strong` | `#E4FF73` | The footer wordmark's Λ's as they light near the pointer | — |
 | `--on-signal` | `#0B0B0C` | Text and icons on `--signal` | 16.2:1 |
 | `--signal-wash` | `rgb(212 248 74 / 0.12)` | Selected chips, soft highlights | — |
-| `--signal-*` (alphas) | `rgb(212 248 74 / 0.04)`, `rgb(212 248 74 / 0.15)`, `rgb(212 248 74 / 0.16)`, `rgb(212 248 74 / 0.25)`, `rgb(212 248 74 / 0.3)`, `rgb(212 248 74 / 0.6)`, `rgb(212 248 74 / 0.8)`, `rgb(212 248 74 / 0.9)` (`-a04` … `-a90`) | The agent graph's glow and core ring, the lime-tipped rule (upgrade report R4.1: lifted out of the components) | — |
+| `--signal-*` (alphas) | `rgb(212 248 74 / 0.6)` (`-a60`) | The lime-tipped rule (upgrade report R4.1: lifted out of the component) | — |
 | `--scrim`, `--scrim-*` | `rgb(11 11 10 / 0.72)`, soft `rgb(11 11 10 / 0.55)` | Behind the phone menu and the quick menu | — |
 | `--ink-*` (alphas) | `rgb(11 11 12 / 0.25)`, `rgb(11 11 12 / 0.4)` (`-a25`, `-a40`) | Ink hairlines on the lime band and the free-check receipt | — |
 | `--dot-*` | grid `rgb(255 255 255 / 0.07)`, field `rgb(242 241 236 / 0.13)` | The hero's dot grid and the signal field | — |
@@ -288,19 +313,19 @@ Dark only (`color-scheme: dark`). Text contrast measured against `--bg`.
 | `--paper-line` | `#C7C8BA` | Hairlines on the paper band | — |
 | `--media-bg-1` / `-2` | `color-mix(in oklab, var(--paper-section) 80%, var(--surface))` / `color-mix(in oklab, var(--paper-section) 68%, var(--surface))` (about `#BFBFBA` / `#A3A3A0`) | Backdrops behind project mockups: two tints of the paper band toward the surface colour (Phase 3; were teal `#BFC9C9` and pink `#D5C4C9`) | — |
 | `--frame-*` | screen `#FFFFFF`, bar `#E9E9EC` (the services phone's chrome), bezel `#1C1C20` | Capture and phone frames (no drawn browser bar since 22 Nov 2026, upgrade report R2.2) | — |
-| `--graph-*` | mesh `#3A3E2C`, spokes `#5B6236`, ring `#4A4F37`, nodes `#8D9A4A`, pill line `#3D3F33` | The agent graph's lime-tinted greys | — |
+| `--graph-*` | mesh `#3A3E2C`, spokes `#5B6236`, nodes `#8D9A4A` | Lime-tinted greys for line art: the services scenes and phone (first drawn for the agent graph, removed 22 Nov 2026) | — |
 
 Every hex colour lives in `tokens.css`; components use the tokens (gate C2, `tests/unit/design-tokens.test.ts`).
 
 **Lime budget (design upgrade Phase 1, 17 Nov 2026).** Lime marks only: the Λ's (wordmark and eyebrows), the one
-primary button on screen, the agent graph's live signal, live markers (the status dot, "Website live"), focus rings and
+primary button on screen, live markers (the status dot, "Website live"), focus rings and
 the free-check band. Everything else is white or grey: prices (white, tabular figures), chip dots (gone), step numbers,
 icons and arrows in lists, rail dots. A heading's only lime is its full stop (`<span class="stop">.</span>`, made by
 `accentLine()` in `src/lib/headline.ts` for data-driven headings); whole phrases are never lime. On the paper band lime
 is never text: the live tag is a lime fill with ink text (16.2:1) and accents are ink. Checked on Home one screen at a
 time at 375, 768 and 1440 (gate C1, `tests/e2e/design-gates.spec.ts`): at most one lime mark per screen, not counting
-the sticky header (its button follows gate U2), the wordmark and Λ's, the agent graph, the free-check band, headline
-full stops and live markers. Lime is never a background for long text. No gradients on text, no purple, no glass.
+the sticky header (its button follows gate U2), the phone action bar, the wordmark and Λ's, the free-check band,
+headline full stops and live markers. Lime is never a background for long text. No gradients on text, no purple, no glass.
 
 **Forced colours (design upgrade Phase 8).** In a Windows contrast theme the browser swaps every colour for the
 visitor's system colours and drops background fills. So nothing may rely on a fill or on lime alone: buttons carry a
@@ -347,8 +372,8 @@ budget). On the lime free-check band the accent is a dark olive (5.9:1).
 Self-hosted, SIL OFL 1.1, `font-display: swap`, metric-adjusted Arial fallback (`Geist Fallback`).
 
 **Type scale (design upgrade Phase 1, 17 Nov 2026).** A component picks one of these tokens and never a raw size (gate
-T1, `tests/unit/design-tokens.test.ts`). The one exception is the agent graph's SVG labels, sized in the graph's own
-units; the footer wordmark is an outline sized by width. The hierarchy holds at every width: hero ≥ h1 > h2 > h3 > lead.
+T1, `tests/unit/design-tokens.test.ts`). There are no SVG text labels since the agent graph was removed (22 Nov
+2026); the footer wordmark is an outline sized by width. The hierarchy holds at every width: hero ≥ h1 > h2 > h3 > lead.
 
 | Token | Size, 375 → 1440px | Line height | Weight | Tracking | Use |
 | --- | --- | --- | --- | --- | --- |
@@ -447,8 +472,8 @@ phone), `--r-pill` 999px (buttons). Depth comes from surface steps and hairlines
 each for one job:
 
 - `--shadow-pop` for floating layers (menu, ⌘K palette, toast, consent bar).
-- `--shadow-media` (design upgrade Phase 5) for mockups: the capture frames, the portrait core in the agent graph and the
-  free-check receipt. It is the single exception to "depth comes from surfaces". It is one plain shadow with no spread,
+- `--shadow-media` (design upgrade Phase 5) for mockups: the capture frames, the services phone and the free-check
+  receipt. It is the single exception to "depth comes from surfaces". It is one plain shadow with no spread,
   so it works as a `box-shadow` and in `filter: drop-shadow()`.
 
 Besides these, a component may draw only focus rings (`0 0 0 Npx`), the lime button glow (`--signal-glow`) and lime
@@ -498,7 +523,7 @@ glows on live marks (gate G3).
   (`scripts/make-avatar.mjs`).
 - Example screens (phone mock-ups) are built in HTML, labelled "Example", and use fictional names.
 - Icons: one inline SVG set, 24px grid, 1.75px stroke, round caps. No emoji.
-- **Line weights** (design upgrade Phase 5, task 5.4): the agent graph, the services scenes and the promise icons draw with
+- **Line weights** (design upgrade Phase 5, task 5.4): the services scenes and the promise icons draw with
   `--graph-stroke-fine` (1: mesh, outlines), `--graph-stroke` (1.5: nodes, spokes, drawings, the promise icons),
   `--graph-stroke-bold` (2: one highlighted mark) and `--graph-stroke-signal` (3: a lit route), with round ends.
   - Lines use the `--graph-*` greys, the objects `--text-2`/`--text`, and lime marks only the signal (the pin's dot, the
@@ -521,7 +546,7 @@ CSS first, longhand `animation-*` properties wherever `animation-timeline` is us
 | `--dur-1` / `--dur-2` / `--dur-3` | 120 / 200 / 320 ms | Colour and press / small UI and exits / menus, accordions, toasts |
 | `--dur-4` / `--dur-5` | 560 / 800 ms | Element reveals and the label roll / hero headline lines |
 | `--stagger` | 60 ms | Lists and lines (`--d` on a load reveal counts steps of it) |
-| `--dur-loop` | 4200 ms | One agent-graph cycle |
+| `--dur-loop` | 4200 ms | A slow loop: the live dot's ping is half of one, four times (the agent graph's cycle until 22 Nov 2026) |
 | `--dur-page-out` / `--dur-page-in` | 220 / 420 ms | Page transitions (gate M4: at most 450) |
 
 All are 0 under `prefers-reduced-motion`. No component writes a raw duration, and scripts read these tokens (gate M1).

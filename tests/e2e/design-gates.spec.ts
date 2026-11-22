@@ -51,7 +51,7 @@ async function overText(page: Page, check: Check): Promise<string[]> {
         const ls = cs.letterSpacing === 'normal' ? 0 : parseFloat(cs.letterSpacing);
         if (fs && ls / fs < -0.0355) out.push(`${describe(el)} ${(ls / fs).toFixed(3)}em`);
       }
-      // Decoration inside aria-hidden (the agent graph's labels, mockup address bars) is left out, as gate T5 says.
+      // Decoration inside aria-hidden (mockup address bars, drawn labels) is left out, as gate T5 says.
       if (check === 'size' && !el.closest('[aria-hidden="true"]') && fs < 12.99) out.push(`${describe(el)} ${cs.fontSize}`);
     }
     return out;
@@ -94,10 +94,10 @@ test.describe('design gates: colour (Phase 1)', () => {
         const marks = await page.evaluate(() => {
           const LIME = new Set(['rgb(212, 248, 74)', 'rgb(228, 255, 115)']);
           // Not counted (plan C1 and the 17 Nov 2026 decision): the sticky header (gate U2 rules its button), the wordmark
-          // and Λ glyphs, the agent graph, the free-check band, a headline's lime full stop, and live markers. 22 Nov 2026:
-          // the phone action bar too, the header button's phone counterpart (upgrade report R7.3; its own test checks it
-          // leaves before the footer's lime button arrives).
-          const EXEMPT = '.hdr, .abar, .wm, .ag, .fc, .status__dot, .sw__state--live, h1 .stop, h2 .stop';
+          // and Λ glyphs, the free-check band, a headline's lime full stop, and live markers. 22 Nov 2026: the phone action
+          // bar too, the header button's phone counterpart (upgrade report R7.3; its own test checks it leaves before the
+          // footer's lime button arrives). The agent graph was exempt until it was replaced by the portrait (no lime).
+          const EXEMPT = '.hdr, .abar, .wm, .fc, .status__dot, .sw__state--live, h1 .stop, h2 .stop';
           const inView = (r: DOMRect) => r.bottom > 0 && r.top < innerHeight && r.right > 0 && r.left < innerWidth && r.width * r.height > 4;
           const ownText = (el: Element) => [...el.childNodes].some((n) => n.nodeType === 3 && n.textContent!.trim());
           const hits: Element[] = [];
@@ -258,9 +258,10 @@ test.describe('design gates: hero (Phase 2)', () => {
           const h = Math.max(0, Math.min(r.bottom, innerHeight) - Math.max(r.top, 0));
           return r.height ? h / r.height : 0;
         };
-        return { avatar: visible(document.querySelector('.hero__avatar')), core: visible(document.querySelector('.ag__core')) };
+        // 22 Nov 2026: the hero portrait (HeroPortrait.astro); its top third is his head and shoulders.
+        return visible(document.querySelector('.hp__photo'));
       });
-      expect(photo.avatar === 1 || photo.core >= 0.5, `${width}x${height}: avatar ${photo.avatar}, graph core ${photo.core}`).toBe(true);
+      expect(photo, `${width}x${height}: share of the portrait on the first screen`).toBeGreaterThanOrEqual(0.3);
     }
   });
 
@@ -276,7 +277,9 @@ test.describe('design gates: hero (Phase 2)', () => {
     }
   });
 
-  test('H6: the H1 is the LCP element, nothing shifts, and the hero entrance has finished by 1.7 s', async ({ browser }) => {
+  // 22 Nov 2026: the largest paint is the H1 or the hero portrait, which is the hero's one priority image and is painted
+  // from the first frame (its halftone print only covers it for the entrance).
+  test('H6: the H1 or the hero portrait is the LCP element, nothing shifts, and the hero entrance has finished by 1.7 s', async ({ browser }) => {
     for (const [width, height] of [MATRIX[2], MATRIX[7]]) {
       const ctx = await browser.newContext({ viewport: { width, height } });
       await ctx.addInitScript(() => {
@@ -294,7 +297,7 @@ test.describe('design gates: hero (Phase 2)', () => {
       await page.waitForTimeout(1200);
       const r = await page.evaluate(() => {
         const m = (window as unknown as { __h6: { lcp: Element | null; cls: number } }).__h6;
-        return { inH1: Boolean(m.lcp && m.lcp.closest('h1')), cls: m.cls };
+        return { inH1: Boolean(m.lcp && (m.lcp.closest('h1') || m.lcp.matches('.hp__photo'))), cls: m.cls };
       });
       expect(r.inH1, `${width}px: LCP element`).toBe(true);
       expect(r.cls, `${width}px: CLS`).toBeLessThan(0.01);
@@ -302,7 +305,7 @@ test.describe('design gates: hero (Phase 2)', () => {
     }
   });
 
-  test('H7: the consent prompt never covers the hero buttons or the pause button, open or closed', async ({ page }) => {
+  test('H7: the consent prompt never covers the hero buttons, open or closed', async ({ page }) => {
     for (const [width, height] of MATRIX) {
       await page.setViewportSize({ width, height });
       for (const open of [false, true]) {
@@ -313,7 +316,7 @@ test.describe('design gates: hero (Phase 2)', () => {
         await page.waitForFunction(() => performance.now() >= 1800);
         if (open) await openConsent(page);
         // The second action is "See prices" until bookingUrl is set, then "Book a 15-minute call" (22 Nov 2026).
-        for (const target of ['[data-hero-cta]', ':is(.hero__price-link, .hero__book)', '[data-ag-toggle]']) {
+        for (const target of ['[data-hero-cta]', ':is(.hero__price-link, .hero__book)']) {
           const hit = await page.locator(target).evaluate((el) => {
             const inView = () => {
               const r = el.getBoundingClientRect();
@@ -593,7 +596,7 @@ test.describe('design gates: motion (Phase 4)', () => {
   // P4 (Phase 7) is the same check as M2, so the one test covers both.
   test('M2 and P4: 15 s after load, with no input, nothing animates on the page’s own clock (scroll-driven reveals excluded)', async ({ browser }) => {
     test.setTimeout(120_000);
-    // All loaded at once, then one 15 s wait: Home at both graph layouts, and the other pages at laptop size.
+    // All loaded at once, then one 15 s wait: Home on a laptop and a phone, and the other pages at laptop size.
     const runs = [
       { path: '/', size: [1440, 900] },
       { path: '/', size: [390, 844] },
@@ -614,7 +617,7 @@ test.describe('design gates: motion (Phase 4)', () => {
     }
   });
 
-  test('M3: the hero entrance (text, graph and the wordmark’s first-visit lock-on) has finished by 1.7 s', async ({ browser }) => {
+  test('M3: the hero entrance (text, the portrait’s print developing, and the wordmark’s first-visit lock-on) has finished by 1.7 s', async ({ browser }) => {
     for (const [width, height] of [MATRIX[2], MATRIX[7]]) {
       // A new context is a new visit, so the wordmark's once-per-visit lock-on plays too.
       const ctx = await browser.newContext({ viewport: { width, height } });
@@ -638,7 +641,7 @@ test.describe('design gates: motion (Phase 4)', () => {
     }
   });
 
-  test('M5: with reduced motion nothing animates, all content shows, and the graph is still with its two routes lit', async ({ browser }) => {
+  test('M5: with reduced motion nothing animates, all content shows, and the hero portrait is the finished photo', async ({ browser }) => {
     test.setTimeout(90_000);
     for (const [width, height] of [
       [390, 844],
@@ -661,11 +664,10 @@ test.describe('design gates: motion (Phase 4)', () => {
         expect(await hiddenContent(page), `${path} at ${width}px`).toEqual([]);
       }
       await page.goto('/');
-      const layout = width >= 1024 ? 'wide' : 'tall';
-      const lit = page.locator(`.ag__svg--${layout} .ag__pulse:visible`);
-      await expect(lit).toHaveCount(4);
-      for (const o of await lit.evaluateAll((els) => els.map((e) => getComputedStyle(e).opacity))) expect(Number(o)).toBeGreaterThan(0.4);
-      await expect(page.locator('.ag__spark')).toHaveCount(0);
+      await expect(page.locator('.hp__photo')).toBeVisible();
+      expect(await page.locator('.hp__photo').evaluate((e) => getComputedStyle(e).opacity)).toBe('1');
+      // The print is only ever fetched with motion on (it waits in a <template>).
+      await expect(page.locator('.hp__print')).toHaveCount(0);
       await ctx.close();
     }
   });
@@ -787,7 +789,7 @@ test.describe('design gates: imagery (Phase 5)', () => {
   test('G1: every image has width, height and alt text, is lazy below the first screen, and is not oversized for the screen', async ({ browser }) => {
     test.setTimeout(300_000);
     // Decorative images with empty alt text, each with its reason (alt="" is right for them).
-    const DECORATIVE = ['hero__avatar', 'nf__img'];
+    const DECORATIVE = ['hp__print', 'nf__img'];
     // Mann's choices (17 Nov 2026): lazy below the first screen (images in it may load at once; at most one has high
     // priority, the existing image test); size judged as Lighthouse's older "properly size images" did, the displayed
     // size × the screen's density (Lighthouse 13's "Improve image delivery" ignores density).
@@ -1075,7 +1077,7 @@ test.describe('design gates: performance (Phase 7)', () => {
     await ctx.close();
   });
 
-  test('P3: Home has at most 950 elements, on a phone and on a laptop (one graph layout, closed menus empty)', async ({ browser }) => {
+  test('P3: Home has at most 950 elements, on a phone and on a laptop (closed menus empty)', async ({ browser }) => {
     for (const [width, height] of [
       [375, 812],
       [1440, 900],
