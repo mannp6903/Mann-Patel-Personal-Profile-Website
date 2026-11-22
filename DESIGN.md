@@ -1,5 +1,23 @@
 # DESIGN.md · "Signal" (round 5, Nov 2026), compact editorial portfolio (round 7)
 
+> **Upgrade report, Phase 1 (22 Nov 2026, before the 25 Nov launch; `docs/29-upgrade-report-phase-1.md`).** The
+> 22 Nov audit's standard: would a GTA small-business owner trust this enough to book a call? Most of the fixes subtract.
+> This block overrides the older notes below where they disagree.
+> - **One set of action labels** (`cta` in `src/data/site.ts`): primary **"Get a free website check"** (lime), secondary
+>   **"Book a 15-minute call"** (ghost, `components/ui/BookingButton.astro`, only once `bookingUrl` is set), header
+>   **"Free check"**. "Start a project", "Request the free check" and the "Contact" button are retired (Contact stays a
+>   link; the brief is "Send a short brief").
+> - **Phone action bar** (`components/ActionBar.astro`): under 48em, "Free check" plus "Book a call" (or "Call"), after
+>   the first section and away from the footer and the consent prompt.
+> - **Motion cut:** M7 odometer prices, the rotating "FREE CHECK" ring, the magnetic pull and the cursor spotlight
+>   (`scripts/fx/pointer.ts`) are gone. Prices are plain text; buttons stay where you aim.
+> - **Labels:** `.eyebrow` is the body face at `--fs-sm`, sentence case, untracked, `--text-2`, with no Λ before it (the Λ
+>   stays in the wordmark, favicon and footer name). Home's numbered eyebrows ("01 / Work in the wild" …) are removed.
+> - **Home:** hero copy Option A ("Websites and Google listings for Toronto small businesses."), no graph caption (the
+>   pause control is a 44px icon button), the greeting on the H1's edge; Samp Hair & Spa leads the work; the "at a
+>   glance" summary is gone and three questions show. The services phone's website screen has its sections as rows in
+>   place of an empty grey "photo".
+>
 > **Launch motion (22 Nov 2026, for the 25 Nov launch; Mann's request after the 21 Nov SEO and design audit).** Two new
 > moments, both driven by the visitor (scroll), both inside the existing rules: transform and opacity only, tokens only,
 > nothing on a clock, nothing that loops, a complete reduced-motion and no-JavaScript path, and Home's element budget
@@ -529,7 +547,7 @@ on JavaScript.
 | Moment | Where | Trigger | What moves | Without motion or JavaScript |
 | --- | --- | --- | --- | --- |
 | **M5 Search to booked** | Home, What I do, from 64em | Scroll: the tile at the reading line (62% down the screen) picks the scene; past 45% of that tile, its second beat | Scenes cross-fade and rise (`--dur-3`/`--dur-4`); the pin drops (`--ease-spring`), the bubbles pop, the Book button's tap ripples, the confirmation slides up and its tick pops | The bento with its three small scenes, as before |
-| **M7 Odometer prices** | Home, Prices | Once, when the list is 35% in view | Each digit's column turns one lap (`--dur-5` × 2, staggered by `--stagger`) and lands on the same figure | The plain prices |
+| ~~**M7 Odometer prices**~~ (removed 22 Nov 2026, upgrade report R8.2) | Home, Prices | n/a | Prices that spin work against "fixed price, in writing" | The plain prices, always |
 
 ### The three words act out what they say (round 9; in the process strip since 10 Nov 2026)
 
@@ -592,8 +610,8 @@ only for a mouse or trackpad. Round 7 kept one effect per job, after the audit a
 | Kept | Where | Behaviour |
 | --- | --- | --- |
 | **Signal field** (`Field.astro`, `field.ts`) | Home hero, 404 | WebGL dot map with a faint aurora toward the portrait; dots swell near the pointer; a click or tap sends a radar ping, and so does the tuner when it locks (`signal:ping`). Static CSS dots without a GPU or with reduced motion. Time stops a few seconds after the last interaction. |
-| **Magnetic buttons** (`pointer.ts`) | `[data-magnetic]`: the hero and footer buttons (design upgrade Phase 4) | Lean toward the pointer by at most 6px and spring back (CSS `translate`). |
-| **Spotlight** | `[data-spotlight]`: project cards, work rows, packages, contact panels | A soft light and a lit border follow the pointer. |
+| ~~**Magnetic buttons**~~ (removed 22 Nov 2026, upgrade report R8.1) | (was `[data-magnetic]`: the hero and footer buttons) | It moved the target you were aiming at. |
+| ~~**Spotlight**~~ (removed 22 Nov 2026, upgrade report R8.1) | (was `[data-spotlight]`: project cards, work rows, packages, contact panels) | A lime glow, not proof of work. |
 | **Decoding** (`text.ts`) | `[data-scramble]` only: the coordinates on the tuner | Glyphs lock in left to right; screen readers get the real text. |
 | **Reading line** | Header | 2 px lime scroll progress (CSS scroll timeline). |
 | **Page transitions** | Between pages | Old page fades out (220 ms), new one rises in (420 ms), header holds still (Phase 4). |

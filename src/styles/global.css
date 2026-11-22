@@ -177,33 +177,19 @@ p {
 .mono {
   font-family: var(--font-mono);
 }
+/* The few labels that stay above a heading (upgrade report R4.2, 22 Nov 2026): the body face, a step smaller, sentence
+   case and untracked. They were Geist Mono 13px in tracked capitals with a Λ before each, the most common generated-page
+   tell; the Λ now lives only in the wordmark, the favicon and the footer name. Mono stays for figures (.num). */
 .eyebrow {
   display: inline-flex;
   align-items: center;
-  gap: 0.6em;
-  font-family: var(--font-mono);
-  font-size: var(--fs-label);
+  font-family: var(--font-sans);
+  font-size: var(--fs-sm);
   font-weight: var(--w-ui);
-  letter-spacing: var(--track-label);
-  text-transform: uppercase;
-  color: var(--text-3);
+  letter-spacing: 0;
+  text-transform: none;
+  color: var(--text-2);
   line-height: 1.4;
-}
-/* The Λ from the wordmark marks every eyebrow (design upgrade Phase 1, task 1.8): the brand's own glyph instead of a
-   generic dot. The round dot stays only where it means "live" (.status__dot). */
-.eyebrow::before {
-  content: '';
-  width: 0.62em;
-  height: 0.7em;
-  flex: none;
-  margin-top: -0.1em;
-  /* Lime on dark; light sections set --eyebrow-mark to ink, since lime on paper is about 1.2:1. */
-  background: var(--eyebrow-mark, var(--signal));
-  -webkit-mask: var(--lambda) center / contain no-repeat;
-  mask: var(--lambda) center / contain no-repeat;
-}
-.eyebrow--plain::before {
-  content: none;
 }
 .num {
   font-family: var(--font-mono);
@@ -1300,56 +1286,6 @@ fieldset > legend + * {
 }
 .fx-field.is-gl .fx-field__gl {
   opacity: 1;
-}
-
-/* Magnetic pull (fx/pointer.ts sets `translate`; it composes with hover and press transforms). Design upgrade Phase 4:
-   only the hero and footer buttons ([data-magnetic]), at most 6px. */
-[data-magnetic] {
-  translate: 0 0;
-}
-[data-magnetic],
-[data-magnetic] .btn__icon {
-  transition-property: transform, background-color, color, border-color, translate;
-}
-[data-magnetic] {
-  transition-duration: var(--dur-1), var(--dur-3), var(--dur-3), var(--dur-3), var(--dur-4);
-  transition-timing-function: var(--ease-out), var(--ease-out), var(--ease-out), var(--ease-out), var(--ease-spring);
-}
-[data-magnetic] .btn__icon {
-  transition-duration: var(--dur-4), var(--dur-3), var(--dur-3), var(--dur-3), var(--dur-4);
-  transition-timing-function: var(--ease-out), var(--ease-out), var(--ease-out), var(--ease-out), var(--ease-spring);
-}
-.is-pulled,
-.is-pulled .btn__icon {
-  transition-duration: var(--dur-1), var(--dur-3), var(--dur-3), var(--dur-3), var(--dur-2);
-  transition-timing-function: var(--ease-out);
-}
-
-/* Spotlight panels: a light and a lit border follow the pointer (fx/pointer.ts sets --mx/--my).
-   One layer: the mask shows the gradient fully on a 1px ring and at 14% inside, under the content. */
-[data-spotlight] {
-  position: relative;
-  isolation: isolate;
-}
-[data-spotlight]::after {
-  content: '';
-  position: absolute;
-  inset: 0;
-  z-index: -1;
-  padding: 1px;
-  border-radius: inherit;
-  background: radial-gradient(22rem circle at var(--mx, 50%) var(--my, 0%), rgb(212 248 74 / 0.72), transparent 70%);
-  -webkit-mask: linear-gradient(rgb(0 0 0 / 0.86) 0 0) content-box, linear-gradient(black 0 0);
-  -webkit-mask-composite: xor;
-  mask: linear-gradient(rgb(0 0 0 / 0.86) 0 0) content-box exclude, linear-gradient(black 0 0);
-  opacity: 0;
-  pointer-events: none;
-  transition: opacity var(--dur-4) var(--ease-out);
-}
-@media (hover: hover) and (pointer: fine) and (prefers-reduced-motion: no-preference) {
-  [data-spotlight]:hover::after {
-    opacity: 1;
-  }
 }
 
 /* Images that open from a frame as they scroll into view (CSS scroll-driven, no JavaScript). Transform only (SEO

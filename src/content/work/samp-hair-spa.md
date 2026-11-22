@@ -1,7 +1,7 @@
 ---
 title: Samp Hair & Spa
 seoTitle: Samp Hair & Spa Website Preview
-order: 2
+order: 1
 status: in-progress
 kind: Client website · Scarborough salon & spa
 year: '2026'

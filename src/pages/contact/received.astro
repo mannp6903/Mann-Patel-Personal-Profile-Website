@@ -2,6 +2,8 @@
 // Confirmation page for the no-JavaScript form path (the API redirects here after acceptance).
 import BaseLayout from '../../layouts/BaseLayout.astro';
 import Button from '../../components/ui/Button.astro';
+import Icon from '../../components/ui/Icon.astro';
+import { bookingUrl, cta } from '../../data/site';
 ---
 
 <BaseLayout title="Brief accepted" description="Your brief was accepted by the website." noindex footerCta={false}>
@@ -17,6 +19,17 @@ import Button from '../../components/ui/Button.astro';
         The website accepted it and the email service took it for delivery to my inbox. I read every one myself and will reply
         by email.
       </p>
+      {
+        // Upgrade report §7 (22 Nov 2026): the 15-minute call, once Mann adds his booking link (src/data/site.ts).
+        bookingUrl && (
+          <p>
+            Want to talk sooner?{' '}
+            <a class="link-arrow" href={bookingUrl} target="_blank" rel="noopener" aria-label={`${cta.booking} (opens in a new tab)`} data-booking>
+              {cta.booking} <Icon name="arrow-ne" />
+            </a>
+          </p>
+        )
+      }
       <div class="btn-row">
         <Button href="/work/">See my work</Button>
         <Button href="/" variant="ghost">Back to the home page</Button>

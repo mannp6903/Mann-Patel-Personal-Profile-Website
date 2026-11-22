@@ -21,7 +21,7 @@ const upgrade = upgradeNote(p);
 const here = Astro.url.pathname === p.page;
 ---
 
-<li class="pkg" id={`pkg-${p.id}`} data-spotlight>
+<li class="pkg" id={`pkg-${p.id}`}>
   <H class="pkg__name">{p.name}</H>
   <p class="pkg__cost">
     <span class:list={['pkg__price', { 'pkg__price--tbc': !price.approved }]} data-price>{price.text}</span>

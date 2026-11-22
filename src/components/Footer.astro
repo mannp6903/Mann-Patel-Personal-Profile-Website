@@ -4,12 +4,13 @@
  * MΛNN PΛTEL wordmark (letters lift and turn lime near the pointer) and the bottom bar with the
  * Toronto clock.
  */
-import { profile, businesses, gbp, footerPages } from '../data/site';
+import { profile, businesses, gbp, footerPages, bookingUrl, cta as labels } from '../data/site';
 import { groups } from '../data/services';
 import { moreServicePages, servicePageForGroup } from '../data/service-pages';
 import { pricesPublished } from '../data/packages';
 import { contact, emailHref } from '../lib/contact';
 import Button from './ui/Button.astro';
+import BookingButton from './ui/BookingButton.astro';
 import Heading from './ui/Heading.astro';
 import Icon from './ui/Icon.astro';
 import ContactActions from './ContactActions.astro';
@@ -49,11 +50,11 @@ const footerMore = moreServicePages.filter((sp) => sp.slug === 'website-care' ||
             suggested first step</span>.
           </p>
           <div class="ftr__actions">
+            {/* 22 Nov 2026 (upgrade report R7.2): the site-wide pair. The free check leads; the 15-minute call follows once
+                Mann adds his booking link, and until then the short brief does. */}
             <div class="btn-row">
-              <Button href="/contact/" data-magnetic>Start a project</Button>
-              <Button href="/contact/?package=check-up#check" variant="ghost">
-                Request the free check
-              </Button>
+              <Button href={labels.checkHref}>{labels.check}</Button>
+              {bookingUrl ? <BookingButton /> : <Button href={labels.briefHref} variant="ghost">{labels.brief}</Button>}
             </div>
             <ContactActions label="Or reach me directly" class="ftr__reach" />
           </div>

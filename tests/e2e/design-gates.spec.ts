@@ -310,7 +310,8 @@ test.describe('design gates: hero (Phase 2)', () => {
         // The steady state: after the hero's entrance (finished by 1.7 s, gate H6).
         await page.waitForFunction(() => performance.now() >= 1800);
         if (open) await openConsent(page);
-        for (const target of ['[data-hero-cta]', '.hero__price-link', '[data-ag-toggle]']) {
+        // The second action is "See prices" until bookingUrl is set, then "Book a 15-minute call" (22 Nov 2026).
+        for (const target of ['[data-hero-cta]', ':is(.hero__price-link, .hero__book)', '[data-ag-toggle]']) {
           const hit = await page.locator(target).evaluate((el) => {
             const inView = () => {
               const r = el.getBoundingClientRect();
@@ -418,11 +419,12 @@ test.describe('design gates: header and consent (Phase 2)', () => {
 
 // ── Phase 3 (17 Nov 2026): sections and flow ──────────────────────────────────────────────────────────────────────
 test.describe('design gates: structure and layout (Phase 3)', () => {
-  test('S1: Home runs hero, work, (reviews), services, prices, free check, how I work, summary, questions; at most three lime-tipped rules', async ({ page }) => {
+  test('S1: Home runs hero, work, (reviews), services, prices, free check, how I work, questions; at most three lime-tipped rules', async ({ page }) => {
     await page.goto('/');
     const ids = await page.locator('main > section[id]').evaluateAll((els) => els.map((e) => e.id));
-    // 19 Nov 2026 (answer extractability): + the "at a glance" summary before the questions.
-    const expected = ['hero', 'work', 'what-i-do', 'prices', 'check', 'how-i-work', 'summary', 'faq'];
+    // 19 Nov 2026 (answer extractability): + the "at a glance" summary before the questions. 22 Nov 2026 (upgrade
+    // report R1.1): it is gone again; it repeated the hero and the prices.
+    const expected = ['hero', 'work', 'what-i-do', 'prices', 'check', 'how-i-work', 'faq'];
     // Real reviews only (src/data/reviews.ts): the strip sits right after Selected Work once there are some.
     expect(ids.filter((id) => id !== 'reviews')).toEqual(expected);
     if (ids.includes('reviews')) expect(ids[ids.indexOf('work') + 1]).toBe('reviews');
@@ -477,12 +479,12 @@ test.describe('design gates: structure and layout (Phase 3)', () => {
     });
   }
 
-  // 19 Nov 2026 (answer extractability, docs/28-answer-extractability.md): 11.75, was 11 (D9). The "at a glance"
-  // summary (about 490px at 390) and the self-contained section intros (about 130px) measured 11.67.
-  test('S4: Home is at most 11.75 screens at 390×844 (D9, plus the summary)', async ({ page }) => {
+  // 19 Nov 2026 (answer extractability, docs/28-answer-extractability.md): 11.75, was 11 (D9). 22 Nov 2026 (upgrade
+  // report R1.1): the summary is gone and Home shows three questions (10.8 measured), so D9's 11 again.
+  test('S4: Home is at most 11 screens at 390×844 (D9)', async ({ page }) => {
     await page.setViewportSize({ width: 390, height: 844 });
     await page.goto('/');
-    expect(await page.evaluate(() => document.documentElement.scrollHeight / innerHeight)).toBeLessThanOrEqual(11.75);
+    expect(await page.evaluate(() => document.documentElement.scrollHeight / innerHeight)).toBeLessThanOrEqual(11);
   });
 
   test('L1: from 1440 the heads of How I work, Prices and the questions stay in view (sticky)', async ({ page }) => {
@@ -500,7 +502,8 @@ test.describe('design gates: structure and layout (Phase 3)', () => {
       for (const s of document.querySelectorAll('main > section[id], footer .ftr__cta')) {
         const c = s.querySelector('.container') ?? s;
         const edge = c.getBoundingClientRect().left + parseFloat(getComputedStyle(c).paddingLeft);
-        for (const el of [s.querySelector('.eyebrow, .fc__label'), s.querySelector('h1, h2')]) {
+        // (22 Nov 2026: plain labels inside cards, .eyebrow--plain, are not section eyebrows.)
+        for (const el of [s.querySelector('.eyebrow:not(.eyebrow--plain), .fc__label'), s.querySelector('h1, h2')]) {
           if (!el) continue;
           const left = el.getBoundingClientRect().left;
           if (Math.abs(left - edge) > 1) out.push(`${s.id || s.className.split(' ')[0]} ${el.tagName.toLowerCase()}: ${Math.round(left)} vs ${Math.round(edge)}`);
@@ -513,11 +516,13 @@ test.describe('design gates: structure and layout (Phase 3)', () => {
 });
 
 test.describe('design gates: navigation and buttons (Phase 3)', () => {
-  test('U1: the main menu has at most five links plus the Contact button', async ({ page }) => {
+  // 22 Nov 2026 (upgrade report R7.2): the button is the free check's short form, "Free check" (it was "Contact").
+  test('U1: the main menu has at most five links plus the Free check button', async ({ page }) => {
     await page.setViewportSize({ width: 1440, height: 900 });
     await page.goto('/');
     expect(await page.locator('.hdr__nav a').count()).toBeLessThanOrEqual(5);
-    await expect(page.locator('[data-hdr-cta]')).toHaveAttribute('href', '/contact/');
+    await expect(page.locator('[data-hdr-cta]')).toHaveAttribute('href', '/contact/?package=check-up#check');
+    await expect(page.locator('[data-hdr-cta]')).toHaveText('Free check');
   });
 
   test('U4: every public page shows a lime main button within its first two screens at 390×844', async ({ page }) => {
@@ -1478,33 +1483,16 @@ test.describe('launch motion (22 Nov 2026, DESIGN.md → Motion → Search to bo
     }
   });
 
-  test('M7: the Home prices turn one lap when they come into view and the plain prices come back; reduced motion keeps them still', async ({ browser }) => {
-    const want = ['$450–$850', '$1,950', '$3,350', '$650', '$149 a month'];
-    const ctx = await browser.newContext({ viewport: { width: 1440, height: 900 } });
-    const page = await ctx.newPage();
+  // M7 (the price odometer) was removed on 22 Nov 2026 (upgrade report R8.2): prices that spin work against "fixed
+  // price, in writing". The "removed effects stay removed" test in site.spec.ts checks the prices stay plain text.
+  test('M7 (removed): the Home prices are plain text, with no rolling overlay or its code', async ({ page }) => {
+    const scripts: string[] = [];
+    page.on('request', (r) => r.resourceType() === 'script' && scripts.push(r.url()));
+    await page.setViewportSize({ width: 1440, height: 900 });
     await page.goto('/');
-    await expect(page.locator('#prices .pt-odo')).toHaveCount(0);
     await page.locator('#prices .pt__list').scrollIntoViewIfNeeded();
-    await expect(page.locator('#prices .pt-odo').first()).toBeAttached();
-    await expect(page.locator('#prices .pt-odo').first()).toHaveAttribute('aria-hidden', 'true');
-    // The prices themselves never change, even mid-turn.
-    expect(await page.locator('#prices [data-price]').allTextContents()).toEqual(want);
-    // Mid-turn only the overlay is painted: the plain price under it is transparent (22 Nov 2026, live: a global rule
-    // lost to the scoped price colour and both showed at once).
-    const colours = await page.locator('#prices [data-price].is-rolling').evaluateAll((els) => els.map((el) => getComputedStyle(el).color));
-    expect(colours.length).toBe(want.length);
-    expect(colours.filter((c) => !/^rgba\(.*,\s*0\)$|^transparent$/.test(c))).toEqual([]);
-    await expect(page.locator('#prices .pt-odo')).toHaveCount(0, { timeout: 6000 });
-    await expect(page.locator('#prices [data-price].is-rolling')).toHaveCount(0);
-    expect(await page.locator('#prices [data-price]').allInnerTexts()).toEqual(want);
-    await ctx.close();
-
-    const still = await browser.newContext({ viewport: { width: 1440, height: 900 }, reducedMotion: 'reduce' });
-    const p = await still.newPage();
-    await p.goto('/');
-    await p.locator('#prices .pt__list').scrollIntoViewIfNeeded();
-    await p.waitForTimeout(500);
-    await expect(p.locator('#prices .pt-odo')).toHaveCount(0);
-    await still.close();
+    await page.waitForTimeout(800);
+    await expect(page.locator('#prices .pt-odo, #prices [data-odometer]')).toHaveCount(0);
+    expect(scripts.filter((u) => /odometer/i.test(u))).toEqual([]);
   });
 });

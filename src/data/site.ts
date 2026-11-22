@@ -40,7 +40,8 @@ export const profile = {
     'I’m Mann Patel, a Toronto web designer and AI automation builder. I help local businesses get found on Google, reply to enquiries faster, and turn website visits into booking requests.',
   /**
    * The one-sentence definition answer engines can quote (answer extractability, 19 Nov 2026). Third person and
-   * self-contained, so it still reads right when lifted out of the page. Shown in Home's "at a glance" summary. It matches
+   * self-contained, so it still reads right when lifted out of the page. (Home's "at a glance" summary that showed it was
+   * removed on 22 Nov 2026, upgrade report R1.1.) It matches
    * the summary that opens public/llms.txt and the Person and business descriptions in the structured data
    * (src/lib/seo.ts): change them together.
    */
@@ -89,9 +90,12 @@ export const profile = {
 const youtubeUrl: string | null = 'https://www.youtube.com/@mannpatel.frames';
 
 /**
- * A free 15-minute call (competitor gap work, 16 Nov 2026): a "Book a free 15-minute call" button on /contact/,
- * /pricing/ and the area pages, opening in a new tab. A plain link: no embed, script or extra dependency.
- * TODO(Mann): your Google Calendar appointment schedule or Cal.com link. null = no button anywhere.
+ * A free 15-minute call (competitor gap work, 16 Nov 2026; upgrade report R7.1, 22 Nov 2026): a "Book a 15-minute
+ * call" button (src/components/ui/BookingButton.astro) beside the main action in the hero and the footer close, in the
+ * phone action bar, and on /contact/, /contact/received/, /pricing/ and the area pages, opening in a new tab. A plain
+ * link: no embed, script or extra dependency.
+ * TODO(Mann): your Google Calendar appointment schedule or Cal.com link ("15-minute intro call", 15 minutes, a
+ * 15-minute buffer, at least 24 hours' notice). null = no booking button anywhere (the phone bar offers "Call" instead).
  */
 export const bookingUrl: string | null = null;
 
@@ -204,4 +208,19 @@ export const footerPages = [
   { href: '/vision/', label: 'Vision' },
 ] as const;
 
-export const primaryCta = { href: '/contact/', label: 'Contact' } as const;
+/**
+ * One set of action labels, word for word everywhere (upgrade report R7.2, 22 Nov 2026). The primary action is the free
+ * check (lime); the secondary is the 15-minute call (ghost, only once bookingUrl is set); the header uses the primary's
+ * short form. "Start a project", "Request the free check" and a "Contact" button are retired (Contact stays a link).
+ */
+export const cta = {
+  check: 'Get a free website check',
+  checkShort: 'Free check',
+  checkHref: '/contact/?package=check-up#check',
+  booking: 'Book a 15-minute call',
+  brief: 'Send a short brief',
+  briefHref: '/contact/#brief',
+} as const;
+
+/** The header's button (short label) and the phone menu's (full label). */
+export const primaryCta = { href: cta.checkHref, label: cta.check, short: cta.checkShort } as const;

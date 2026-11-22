@@ -4,6 +4,7 @@ import Header from '../components/Header.astro';
 import Footer from '../components/Footer.astro';
 import QuickMenu from '../components/QuickMenu.astro';
 import Analytics from '../components/Analytics.astro';
+import ActionBar from '../components/ActionBar.astro';
 import { profile } from '../data/site';
 import { absoluteUrl, indexing } from '../lib/mode';
 import { ogAlt as defaultOgAlt, ogImagePath } from '../lib/og';
@@ -112,6 +113,8 @@ const ld = jsonLd ? (Array.isArray(jsonLd) ? jsonLd : [jsonLd]) : [];
       <slot />
     </main>
     <Footer cta={footerCta} />
+    {/* Phones: the two actions stay one tap away after the first screen (upgrade report R7.3, 22 Nov 2026). */}
+    {footerCta && <ActionBar />}
     <QuickMenu />
     <script>
       import '../scripts/motion';

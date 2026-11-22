@@ -1,4 +1,9 @@
 ---
+/**
+ * Home: the work. 22 Nov 2026 (upgrade report R12.3, R4.2, §9): the client project leads (Samp Hair & Spa, order 1),
+ * then Mann's own business, tagged "My own business". No numbered eyebrow and no "01 / 02" counters: the heading names
+ * the section.
+ */
 import { getCollection } from 'astro:content';
 import Icon from '../ui/Icon.astro';
 import ProjectMedia from '../work/ProjectMedia.astro';
@@ -12,28 +17,27 @@ const fmtDate = (iso: string) =>
 <section class="sw section" id="work" aria-labelledby="work-title">
   <div class="container">
     <div class="sw__head">
-      <!-- 16 Nov 2026: a descriptive heading people search for; the slogan is the eyebrow. -->
-      <p class="eyebrow">01 / Work in the wild</p>
+      <!-- 16 Nov 2026: a descriptive heading people search for. -->
       <h2 id="work-title" class="sw__title">Website projects in Scarborough<span>.</span></h2>
       <a class="link-arrow sw__all" href="/work/">All work <Icon name="arrow-ne" /></a>
-      <!-- 19 Nov 2026 (answer extractability): names both projects, so the intro still answers on its own. -->
-      <p class="sw__intro">Nest & Rest Cleaning is a home-cleaning business I’m starting, and Samp Hair & Spa is a salon whose new site I’m building. Each case study shows what the business needed, what I built and how I tested it.</p>
+      <!-- 19 Nov 2026 (answer extractability): names both projects, so the intro still answers on its own. 22 Nov 2026:
+           the client first, as the cards are. -->
+      <p class="sw__intro">A salon website for a client, Samp Hair & Spa, and the website for my own cleaning business, Nest & Rest Cleaning. Each case study shows what I built and how I tested it.</p>
     </div>
 
     <ol class="sw__list" role="list">
       {
-        work.map((entry, index) => {
+        work.map((entry) => {
           const project = entry.data;
           const site = projectSite(project);
           const href = `/work/${entry.id}/`;
           return (
             <li>
-              <article class="sw__card" aria-labelledby={`sw-${entry.id}`} data-spotlight>
+              <article class="sw__card" aria-labelledby={`sw-${entry.id}`}>
                 <a class="sw__media" href={href} tabindex="-1" aria-hidden="true">
                   <ProjectMedia scene={project.scene} sizes="(min-width: 90em) 700px, (min-width: 64em) 49vw, 84vw" phoneSizes="(min-width: 90em) 168px, (min-width: 64em) 12vw, 22vw" />
                 </a>
                 <div class="sw__body">
-                  <p class="sw__index num" aria-hidden="true">{String(index + 1).padStart(2, '0')} / {String(work.length).padStart(2, '0')}</p>
                   <h3 class="sw__name" id={`sw-${entry.id}`}>
                     <a href={href}>{project.title}</a>
                   </h3>
@@ -74,7 +78,6 @@ const fmtDate = (iso: string) =>
     --text-3: var(--paper-text-3);
     --line: var(--paper-line);
     --focus: var(--focus-on-light);
-    --eyebrow-mark: var(--paper-text);
     /* Real work starts by y=1150 on a 1440px desktop (acceptance target, tests/e2e/site.spec.ts). */
     padding-block: var(--section-tight);
     background: var(--paper-section);
@@ -90,8 +93,7 @@ const fmtDate = (iso: string) =>
     /* D9 (design upgrade Phase 2): no hairline above the head; the paper band's own edge divides it from the hero, so
        the heading starts by y=1,000 at 1440×900. */
   }
-  .sw__head .eyebrow, .sw__intro { grid-column: 1 / -1; }
-  .sw__head .eyebrow { margin-bottom: calc(var(--head-gap-1) - var(--head-gap-2)); }
+  .sw__intro { grid-column: 1 / -1; }
   .sw__title {
     font-size: var(--fs-h2);
     letter-spacing: var(--track-head);
@@ -124,7 +126,7 @@ const fmtDate = (iso: string) =>
     min-width: 0;
     gap: var(--s-3);
   }
-  .sw__index, .sw__date {
+  .sw__date {
     color: var(--text-3);
     font-size: var(--fs-label);
   }
@@ -190,8 +192,7 @@ const fmtDate = (iso: string) =>
   @media (max-width: 39.99em) {
     .sw__head { grid-template-columns: 1fr; }
     .sw__intro, .sw__facts dd { font-size: var(--fs-sm); }
-    .sw__index { display: none; }
     .sw__body { gap: var(--s-2); }
-    .sw__all { grid-row: 4; justify-self: start; }
+    .sw__all { grid-row: 3; justify-self: start; }
   }
 </style>

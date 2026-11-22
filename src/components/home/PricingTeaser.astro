@@ -4,11 +4,9 @@
  * costs and the one-line boundary of what that price covers. Full detail lives on /pricing/.
  * Everything reads from src/data/packages.ts.
  *
- * Launch motion (22 Nov 2026, M7 "odometer prices"): when the list scrolls into view, a script lays rolling digit columns
- * over each price, resting on the real figure; every digit turns one lap and lands on the same number, then the overlay
- * is removed. The prices themselves never change (they stay the text of [data-price], for readers, tests and search),
- * so Home keeps its element budget (gate P3). Transform only, tokens only, once; reduced motion and no JavaScript skip it.
- * The overlay's code and styles load on demand (scripts/odometer.ts, styles/odometer.css), as the list approaches.
+ * 22 Nov 2026 (upgrade report R8.2): the M7 "odometer" is gone. Prices that spin like a slot machine work against
+ * "fixed price, in writing", so they are plain text from the first frame. The numbered eyebrow is gone too (R4.2): the
+ * heading names the section.
  */
 import { packageById, packages, priceLabel, priceTerms } from '../../data/packages';
 import Button from '../ui/Button.astro';
@@ -22,8 +20,6 @@ const enquiry = packageById('website-enquiry')!;
 <section class="pt section rule-signal" id="prices" aria-labelledby="pt-title">
   <div class="container pt__grid">
     <div class="pt__head">
-      <!-- 16 Nov 2026: a descriptive heading people search for; the slogan is the eyebrow. -->
-      <p class="eyebrow">03 / Prices you can see before you call</p>
       <h2 id="pt-title" class="pt__title">Website prices <span class="accent">in Toronto (CAD).</span></h2>
       <p class="muted pt__lead">
         {
@@ -36,11 +32,11 @@ const enquiry = packageById('website-enquiry')!;
       </p>
       <p class="small subtle">All prices in Canadian dollars, plus applicable tax. Websites: half at kickoff, half once the agreed launch checks pass.</p>
       <div class="btn-row">
-        <Button href="/pricing/" variant="ghost">Full pricing and what’s included</Button>
+        <Button href="/pricing/" variant="ghost">See every package</Button>
       </div>
     </div>
 
-    <ul class="pt__list" role="list" data-odometer>
+    <ul class="pt__list" role="list">
       {
         packages.map((p) => {
           const price = priceLabel(p);
@@ -79,7 +75,6 @@ const enquiry = packageById('website-enquiry')!;
     align-content: start;
     justify-items: start;
   }
-  .pt__head .eyebrow { margin-bottom: calc(var(--head-gap-1) - var(--head-gap-2)); }
   .pt__title {
     font-size: var(--fs-h2);
     letter-spacing: var(--track-head);
@@ -129,11 +124,6 @@ const enquiry = packageById('website-enquiry')!;
     font-variant-numeric: tabular-nums;
     color: var(--text);
     white-space: nowrap;
-  }
-  /* M7: while the overlay turns, the plain price keeps its place but is not painted. Scoped, like the rule above, so it
-     outranks it (a global rule lost to the scoped one on 22 Nov and both showed mid-turn). */
-  .pt__price b.is-rolling {
-    color: transparent;
   }
   .pt__price span {
     font-size: var(--fs-label);
@@ -191,30 +181,3 @@ const enquiry = packageById('website-enquiry')!;
   }
 </style>
 
-<script>
-  // M7: once, when the price list is well into view. The overlay's code and styles (scripts/odometer.ts) are fetched as
-  // the list approaches, so a phone's first load doesn't carry them (gate P2).
-  const list = document.querySelector<HTMLElement>('[data-odometer]');
-  if (list && document.documentElement.classList.contains('js-motion') && !matchMedia('(prefers-reduced-motion: reduce)').matches) {
-    let odometer: Promise<typeof import('../../scripts/odometer')> | undefined;
-    const load = () => (odometer ??= import('../../scripts/odometer'));
-    const near = new IntersectionObserver(
-      (entries) => {
-        if (!entries.some((e) => e.isIntersecting)) return;
-        near.disconnect();
-        load();
-      },
-      { rootMargin: '0px 0px 50% 0px' },
-    );
-    const inView = new IntersectionObserver(
-      (entries) => {
-        if (!entries.some((e) => e.isIntersecting)) return;
-        inView.disconnect();
-        load().then(({ roll }) => roll(list), () => {});
-      },
-      { threshold: 0.35 },
-    );
-    near.observe(list);
-    inView.observe(list);
-  }
-</script>

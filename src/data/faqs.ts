@@ -3,7 +3,8 @@
  * which he has not confirmed yet. The production build refuses to render it.
  *
  * SEO audit Phase 2 (14 Nov 2026): the long /services/ page used to list fifteen questions. Each now lives in
- * one place (docs/seo/PLAN.md, "/services/ inventory"): the five here are the home page's questions;
+ * one place (docs/seo/PLAN.md, "/services/ inventory"): the five here are the home page's questions (since 22 Nov 2026,
+ * upgrade report R1.1, Home shows the first three: order matters);
  * `overviewFaqs` is the question on /services/; questions about one service moved to that service page
  * (src/data/service-pages.ts); questions already answered on /pricing/ or a service page were not repeated.
  */

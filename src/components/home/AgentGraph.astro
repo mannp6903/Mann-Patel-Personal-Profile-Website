@@ -255,16 +255,17 @@ const pt = pct(tall);
     }
   </div>
 
-  <figcaption class="ag__caption">
-    <span class="ag__who"><b>Mann Patel</b> connects the middle: your Google profile, website and AI automation, so a search becomes a booking.</span>
+  {/* 22 Nov 2026 (upgrade report R6.2): no caption under the graph (it restated the subline). The pause control stays, as
+      a 44px icon button at the graph's bottom right; its name is the visually hidden label the script keeps current. */}
+  <div class="ag__controls">
     <button type="button" class="ag__toggle" data-ag-toggle aria-pressed="false" hidden>
       <svg viewBox="0 0 16 16" width="14" height="14" aria-hidden="true" focusable="false">
         <path class="ag__i-pause" d="M5.5 3.5v9m5-9v9" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" fill="none" />
         <path class="ag__i-play" d="m5.5 3.5 7 4.5-7 4.5z" fill="currentColor" />
       </svg>
-      <span data-ag-label>Pause animation</span>
+      <span class="visually-hidden" data-ag-label>Pause animation</span>
     </button>
-  </figcaption>
+  </div>
 </figure>
 {/*
   Design upgrade Phase 7 (task 7.2): swap in the wide layout where it is used, before the first paint (this runs as
@@ -304,7 +305,7 @@ const pt = pct(tall);
    *   - Pointer, focus or a tap on the graph wakes it for another three cycles; the pause button stops it (WCAG 2.2.2)
    *     and, once it rests, plays it again. Off screen it pauses.
    *   - Hovering or tapping an input pill lights that pill's two routes and dims the rest to 30% (pointer only: the
-   *     graph is decorative and its caption carries the meaning).
+   *     graph is decorative and the hero text beside it carries the meaning).
    * Reduced motion, or no script: the still diagram with routes 0 and 4 lit.
    * Every duration comes from the motion tokens in tokens.css (gate M1).
    */
@@ -584,7 +585,7 @@ const pt = pct(tall);
 
   if (!matchMedia('(prefers-reduced-motion: reduce)').matches && 'animate' in Element.prototype)
     document.querySelectorAll<HTMLElement>('[data-agent-graph]').forEach((root) => {
-      // The pause button shows and works straight away (so the caption never changes height later, and a press is
+      // The pause button shows and works straight away (so the controls row never changes height later, and a press is
       // never lost); until the loop is set up, it just records the choice, and the CSS entrance pauses with it.
       const early: Early = { paused: false, toggle: null };
       const btn = root.querySelector<HTMLButtonElement>('[data-ag-toggle]');
@@ -760,28 +761,18 @@ const pt = pct(tall);
     background: var(--surface);
   }
 
-  .ag__caption {
+  .ag__controls {
     display: flex;
-    align-items: center;
-    justify-content: space-between;
-    gap: var(--s-3);
-    padding-top: var(--s-3);
-    border-top: 1px solid var(--line);
-    font-size: var(--fs-label);
-    color: var(--text-3);
-    line-height: 1.45;
-  }
-  .ag__who b {
-    color: var(--text);
-    font-weight: var(--w-head);
+    justify-content: flex-end;
   }
   .ag__toggle {
     flex: none;
     display: inline-flex;
     align-items: center;
-    gap: var(--s-2);
-    min-height: var(--tap);
-    padding-inline: var(--s-3);
+    justify-content: center;
+    width: var(--tap);
+    height: var(--tap);
+    padding: 0;
     border: 1px solid var(--line);
     border-radius: var(--r-pill);
     background: transparent;
@@ -801,22 +792,6 @@ const pt = pct(tall);
   .ag__toggle[aria-pressed='true'] .ag__i-play {
     display: inline;
   }
-  @media (max-width: 39.99em) {
-    .ag__toggle [data-ag-label] {
-      position: absolute;
-      width: 1px;
-      height: 1px;
-      overflow: hidden;
-      clip: rect(0 0 0 0);
-      white-space: nowrap;
-    }
-    .ag__toggle {
-      width: var(--tap);
-      justify-content: center;
-      padding: 0;
-    }
-  }
-
   /* ── Explore (design upgrade Phase 4): an input pill lights its two routes and the pills they reach; the rest dims. ── */
   .ag__mesh,
   .ag__spokes,

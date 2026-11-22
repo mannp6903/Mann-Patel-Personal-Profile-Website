@@ -1,6 +1,7 @@
 ---
 /**
- * Sticky header. Desktop: wordmark + Toronto clock, links, ⌘K quick menu, "Start a project".
+ * Sticky header. Desktop: wordmark + Toronto clock, links, ⌘K quick menu, the "Free check" button (upgrade report R7.2,
+ * 22 Nov 2026: the short form of the site-wide primary action; it was "Contact").
  * Phones: a "Menu" button opens a focused side panel (native <dialog>: focus is contained,
  * Esc closes, focus returns). Without JavaScript the links show as a plain row instead.
  */
@@ -15,7 +16,8 @@ const path = Astro.url.pathname;
 const isCurrent = (href: string) => (href === '/' ? path === '/' : path.startsWith(href));
 // Pricing is in the menu only while at least one price is published, Guides while at least one guide is.
 const nav = await visibleNav();
-const sheetLinks = [{ href: '/', label: 'Home' }, ...nav];
+// 22 Nov 2026 (R7.2): Contact is a link here, now that the menu's button is the free check.
+const sheetLinks = [{ href: '/', label: 'Home' }, ...nav, { href: '/contact/', label: 'Contact' }];
 ---
 
 <header class="hdr" data-header>
@@ -53,7 +55,7 @@ const sheetLinks = [{ href: '/', label: 'Home' }, ...nav];
       </button>
       {/* D5 (design upgrade Phase 2): on Home the button starts as an outline, so the hero's lime button is the only lime
           one on the first screen; it turns lime once the hero button scrolls away (script below). */}
-      <Button href={primaryCta.href} size="sm" class:list={['hdr__cta', path === '/' && 'is-quiet']} data-hdr-cta>{primaryCta.label}</Button>
+      <Button href={primaryCta.href} size="sm" class:list={['hdr__cta', path === '/' && 'is-quiet']} data-hdr-cta>{primaryCta.short}</Button>
       <button class="menu-btn" type="button" data-menu-open aria-haspopup="dialog" aria-controls="site-menu" aria-expanded="false">
         <span class="menu-btn__lines" aria-hidden="true"><i></i><i></i></span>
         <span class="menu-btn__text">Menu</span>

@@ -16,12 +16,18 @@
  * 19 Nov 2026 (answer extractability, docs/28-answer-extractability.md): the subline is a direct answer, "I’m a web
  * designer who…", instead of a slogan, and the greeting's role line carries the place ("Based in Scarborough") so the
  * two don't both say "web designer". Both stay two lines from 375px, so the hero is no taller (gate R3).
+ *
+ * 22 Nov 2026 (upgrade report §6, Option A, for the 25 Nov launch): plain words an owner uses. "Google listings" for
+ * local SEO (the title tag and the services heading keep "local SEO"), no middle-dot strings, one greeting line, the
+ * site-wide primary label (R7.2) and, once bookingUrl is set, "Book a 15-minute call" beside it (R7.1). The greeting's
+ * <picture> is hidden with the photo from 64em, so the text no longer starts 12px off the H1's edge (R6.1).
  */
 import { Picture } from 'astro:assets';
 import avatar from '../../assets/mann-patel-avatar.jpg';
-import { profile } from '../../data/site';
+import { bookingUrl, cta, profile } from '../../data/site';
 import { packageById, priceLabel } from '../../data/packages';
 import Button from '../ui/Button.astro';
+import BookingButton from '../ui/BookingButton.astro';
 import Icon from '../ui/Icon.astro';
 import AgentGraph from './AgentGraph.astro';
 
@@ -36,30 +42,28 @@ const portrait = profile.portrait;
       <div class="hero__hello">
         {
           portrait && (
-            <Picture src={avatar} alt="" data-src-w={avatar.width} widths={[80, 120]} sizes="40px" width={40} height={40} formats={['avif']} fallbackFormat="webp" quality={55} loading="lazy" decoding="async" class="hero__avatar" />
+            <Picture src={avatar} alt="" data-src-w={avatar.width} widths={[80, 120]} sizes="40px" width={40} height={40} formats={['avif']} fallbackFormat="webp" quality={55} loading="lazy" decoding="async" class="hero__avatar" pictureAttributes={{ class: 'hero__pic' }} />
           )
         }
-        <p>
-          <span class="hero__hi">Hi, I’m {profile.name}.</span>
-          <span class="hero__role">Based in Scarborough · local SEO and AI automation<span class="hero__status"> · Taking new projects</span></span>
-        </p>
+        <p class="hero__hi">Hi, I’m {profile.name.split(' ')[0]}. Web designer in {profile.location}.</p>
       </div>
 
       <!-- 14 Nov 2026 (SEO audit): the H1 names the place and the customer. Phase 2: its full stop is the one lime mark. -->
       <h1 class="hero__title" id="hero-title">
-        <span class="hero__line">Websites and local SEO</span> <br /><span class="hero__line">for Toronto small businesses<span class="stop">.</span></span>
+        <span class="hero__line">Websites and Google listings</span> <br /><span class="hero__line">for Toronto small businesses<span class="stop">.</span></span>
       </h1>
-      <p class="hero__place">I’m a web designer who gets you found on Google and in AI answers, then booked.</p>
+      <p class="hero__place">I build fast websites and set up your Google profile, so people nearby find you, call you and book. Fixed prices, in writing.</p>
 
       <div class="hero__actions">
         <div class="btn-row">
-          <Button href="/contact/?package=check-up#check" class="hero__cta" data-hero-cta data-magnetic>Get a free website and Google check</Button>
-          <a class="link-arrow hero__price-link" href="/pricing/">See prices <Icon name="arrow" /></a>
+          <Button href={cta.checkHref} class="hero__cta" data-hero-cta>{cta.check}</Button>
+          {/* The second action: the 15-minute call once Mann adds his booking link, until then the prices. */}
+          {bookingUrl ? <BookingButton class="hero__book" /> : <a class="link-arrow hero__price-link" href="/pricing/">See prices <Icon name="arrow" /></a>}
         </div>
       </div>
 
       <p class="hero__price">
-        <span class="hero__n">{priceLabel(local).text}</span> Google and AI visibility setup · <span class="hero__n">{priceLabel(launch).text}</span> website · CAD, plus tax.
+        Websites <span class="hero__n">{priceLabel(launch).text}</span>. Google setup <span class="hero__n">{priceLabel(local).text}</span>. CAD, plus tax.
       </p>
     </div>
 
@@ -121,17 +125,10 @@ const portrait = profile.portrait;
     object-position: 50% 50%;
     box-shadow: 0 0 0 1px var(--line);
   }
-  .hero__hello p {
-    display: grid;
-    line-height: 1.3;
-    min-width: 0;
-  }
   .hero__hi {
-    font-weight: var(--w-head);
-    color: var(--text);
-  }
-  .hero__role {
-    font-size: var(--fs-label);
+    min-width: 0;
+    line-height: 1.3;
+    font-weight: var(--w-ui);
     color: var(--text-2);
   }
 
@@ -226,7 +223,6 @@ const portrait = profile.portrait;
     /* The smallest phones (320 px): tighter spacing, and both links straight after the H1, so they sit on the first
        screen above the consent bar (gates H4, H7). */
     .hero__text { gap: var(--s-3); }
-    .hero__status { display: none; }
     .hero__actions { order: 1; }
     .hero__place { order: 2; }
     .hero__price { order: 3; }
@@ -254,7 +250,8 @@ const portrait = profile.portrait;
       min-height: calc(100vh - var(--header-h));
       min-height: calc(100svh - var(--header-h));
     }
-    .hero__avatar { display: none; }
+    /* R6.1: the whole <picture>, not just its <img>, so the flex gap goes with it. */
+    .hero__hello :global(.hero__pic) { display: none; }
   }
   @media (min-width: 64em) and (max-height: 56em) {
     /* Laptop screens up to about 900px tall: a little less space between the five parts, so the button and prices sit
@@ -269,7 +266,9 @@ const portrait = profile.portrait;
     .hero__inner { grid-template-columns: minmax(0, 1fr); }
     .hero__text { gap: var(--s-3); }
     .hero__hello { display: none; }
-    .hero__title { max-width: none; }
+    /* 22 Nov 2026: the longer H1 ("…Google listings…") takes the page-title size here, so each of its two lines stays one
+       line (four at the hero size) and the button clears the consent bar; still 1.28× the largest H2 (gate H1). */
+    .hero__title { max-width: none; font-size: var(--fs-h1); }
     .hero__actions { order: 1; }
     .hero__place { order: 2; }
     .hero__price { order: 3; }

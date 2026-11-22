@@ -31,8 +31,7 @@ const packageFor: Record<string, ReturnType<typeof packageById>> = {
 <section class="ss section" id="what-i-do" aria-labelledby="ss-title">
   <div class="container ss__grid">
     <div class="ss__head">
-      <!-- 16 Nov 2026: a descriptive heading people search for; the slogan is the eyebrow. -->
-      <p class="eyebrow">02 / From search to booked</p>
+      <!-- 16 Nov 2026: a descriptive heading people search for. 22 Nov 2026 (upgrade report R4.2): no numbered eyebrow. -->
       <h2 id="ss-title" class="ss__title">Web design, local SEO <span class="accent">and booking services.</span></h2>
       <!-- 19 Nov 2026 (answer extractability): the lead names the three services, so it answers on its own. -->
       <p class="ss__lead muted">
@@ -186,7 +185,6 @@ const packageFor: Record<string, ReturnType<typeof packageById>> = {
     row-gap: var(--head-gap-2);
     margin-bottom: clamp(var(--s-6), 4vw, var(--s-8));
   }
-  .ss__head .eyebrow { margin-bottom: calc(var(--head-gap-1) - var(--head-gap-2)); }
   .ss__title {
     font-size: var(--fs-h2);
     letter-spacing: var(--track-head);
@@ -204,13 +202,12 @@ const packageFor: Record<string, ReturnType<typeof packageById>> = {
       align-items: end;
       column-gap: var(--s-8);
     }
-    .ss__head .eyebrow,
     .ss__title {
       grid-column: 1;
     }
     .ss__lead {
       grid-column: 2;
-      grid-row: 1 / span 2;
+      grid-row: 1;
       align-self: end;
     }
   }

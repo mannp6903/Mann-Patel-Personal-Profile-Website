@@ -1,0 +1,116 @@
+---
+/**
+ * The phone action bar (upgrade report R7.3, 22 Nov 2026). On a phone the header has no button (it waits for 64em), so
+ * after the first screen there used to be no visible action until the footer, about 9,000px later on Home.
+ *
+ * Under 48em only: a fixed bar with the site's two actions, "Free check" (lime) and "Book a call" (ghost), or "Call"
+ * while bookingUrl is unset. It slides up once the page's first section has scrolled away, and hides again from about a
+ * screen before the footer (its own close and links) and while the consent prompt is open, so it never covers either. 64px plus the
+ * safe area, buttons 48px tall. Enter 320ms ease-out, exit 200ms ease-in; reduced motion just shows and hides it.
+ * Without JavaScript it stays hidden (the page is complete without it). Pages without the footer's call to action
+ * (/contact/, the free-check landing page) leave it out: their form is the action.
+ */
+import { bookingUrl, cta } from '../data/site';
+import { contact } from '../lib/contact';
+import Button from './ui/Button.astro';
+
+const phone = contact.phone;
+---
+
+<div class="abar" data-abar hidden>
+  <Button href={cta.checkHref} icon={false} class="abar__btn">{cta.checkShort}</Button>
+  {
+    bookingUrl ? (
+      <Button href={bookingUrl} variant="ghost" icon={false} class="abar__btn" target="_blank" rel="noopener" aria-label={`${cta.booking} (opens in a new tab)`} data-booking>
+        Book a call
+      </Button>
+    ) : (
+      phone && (
+        <Button href="/contact/#reach" variant="ghost" icon={false} class="abar__btn" data-reach="call" data-k={phone.key} data-contact="phone" aria-label={`Call Mann at ${phone.display}`}>
+          Call
+        </Button>
+      )
+    )
+  }
+</div>
+
+<script>
+  const bar = document.querySelector<HTMLElement>('[data-abar]');
+  const first = document.querySelector<HTMLElement>('main section');
+  const footer = document.querySelector<HTMLElement>('footer');
+  if (bar && first && footer && 'IntersectionObserver' in window) {
+    const phone = matchMedia('(max-width: 47.99em)');
+    const consent = document.querySelector<HTMLElement>('[data-consent]');
+    const root = document.documentElement;
+    let past = false;
+    let foot = false;
+    let on = false;
+    const update = () => {
+      const show = phone.matches && past && !foot && (!consent || consent.hidden);
+      if (show === on) return;
+      on = show;
+      bar.classList.toggle('is-on', on);
+      bar.toggleAttribute('inert', !on);
+      // Keyboard focus and in-page jumps stop above the bar while it shows (the consent prompt does the same).
+      if (!consent || consent.hidden) root.style.scrollPaddingBottom = on ? `${bar.offsetHeight + 16}px` : '';
+    };
+    new IntersectionObserver(([e]) => {
+      past = !e.isIntersecting;
+      update();
+    }).observe(first);
+    // It starts leaving a screen before the footer arrives, so it is gone (not still sliding out) by the time the footer's
+    // own lime button is on screen: one lime action per screen (gate C1).
+    new IntersectionObserver(
+      ([e]) => {
+        foot = e.isIntersecting;
+        update();
+      },
+      { rootMargin: '0px 0px 100% 0px' },
+    ).observe(footer);
+    if (consent) new MutationObserver(update).observe(consent, { attributes: true, attributeFilter: ['hidden'] });
+    phone.addEventListener('change', update);
+    bar.toggleAttribute('inert', true);
+    bar.hidden = false;
+  }
+</script>
+
+<style>
+  .abar {
+    position: fixed;
+    z-index: 55;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(0, 1fr));
+    align-items: center;
+    gap: var(--s-2);
+    min-height: calc(4rem + env(safe-area-inset-bottom));
+    padding: var(--s-2) var(--gutter) calc(var(--s-2) + env(safe-area-inset-bottom));
+    background: color-mix(in oklab, var(--bg-2) 96%, transparent);
+    border-top: 1px solid var(--line);
+    transform: translateY(100%);
+    visibility: hidden;
+    transition:
+      transform var(--dur-2) var(--ease-in),
+      visibility 0s linear var(--dur-2);
+  }
+  .abar.is-on {
+    transform: none;
+    visibility: visible;
+    transition:
+      transform var(--dur-3) var(--ease-out),
+      visibility 0s;
+  }
+  .abar :global(.abar__btn) {
+    min-height: 3rem;
+    padding-inline: var(--s-3);
+    justify-content: center;
+    font-size: var(--fs-sm);
+  }
+  @media (min-width: 48em) {
+    .abar {
+      display: none;
+    }
+  }
+</style>

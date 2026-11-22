@@ -8,7 +8,7 @@ import { SERVICE_OPTIONS, PACKAGE_OPTIONS, BUDGET_OPTIONS, TIMEFRAME_OPTIONS } f
 import { LIMITS } from '../lib/enquiry/validate';
 import { HONEYPOT_FIELD } from '../lib/enquiry/spam';
 import { PUBLIC_TURNSTILE_SITE_KEY } from 'astro:env/client';
-import { bookingUrl, profile } from '../data/site';
+import { bookingUrl, cta, profile } from '../data/site';
 import Button from './ui/Button.astro';
 import Icon from './ui/Icon.astro';
 
@@ -255,8 +255,9 @@ const tick = '<svg viewBox="0 0 16 16"><path d="m3.5 8.5 3 3 6-7" /></svg>';
         // Website Playbook (16 Nov 2026): the booking link, only once Mann adds it (src/data/site.ts → bookingUrl).
         bookingUrl && (
           <p>
-            <a class="link-arrow" href={bookingUrl} target="_blank" rel="noopener" aria-label="Book a free 15-minute call (opens in a new tab)" data-booking>
-              Book a free 15-minute call <Icon name="arrow-ne" />
+            Want to talk sooner?{' '}
+            <a class="link-arrow" href={bookingUrl} target="_blank" rel="noopener" aria-label={`${cta.booking} (opens in a new tab)`} data-booking>
+              {cta.booking} <Icon name="arrow-ne" />
             </a>
           </p>
         )

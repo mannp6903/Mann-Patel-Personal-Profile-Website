@@ -21,8 +21,9 @@ const groups: { title: string; items: Item[] }[] = [
   {
     title: 'Actions',
     items: [
-      { id: 'start', label: 'Start a project', hint: 'Send a short brief', icon: 'arrow', href: '/contact/#brief', keywords: 'contact hire quote brief form' },
-      { id: 'check', label: 'Request the free check', hint: 'Website and Google check', icon: 'sparkle', href: '/contact/?package=check-up#check', keywords: 'free audit review' },
+      // 22 Nov 2026 (upgrade report R7.2): the site-wide labels. The free check first, as everywhere else.
+      { id: 'check', label: 'Get a free website check', hint: 'Website and Google check', icon: 'sparkle', href: '/contact/?package=check-up#check', keywords: 'free audit review google' },
+      { id: 'start', label: 'Send a short brief', hint: 'Start a project', icon: 'arrow', href: '/contact/#brief', keywords: 'contact hire quote brief form project start' },
       ...(contact.email
         ? [
             { id: 'copy', label: 'Copy email address', hint: contact.email, icon: 'copy' as IconName, action: 'copy-email', keywords: 'email mail address' },
@@ -293,8 +294,13 @@ const groups: { title: string; items: Item[] }[] = [
     font-size: var(--fs-base);
     color: var(--text);
   }
+  /* Upgrade report R13.1 (22 Nov 2026): a visible focus mark. The field's row gets a 2px ring in the focus colour (the
+     outline itself is transparent, so Windows high-contrast mode still draws one). */
   .qm__input:focus {
-    outline: none;
+    outline: 2px solid transparent;
+  }
+  .qm__search:focus-within {
+    box-shadow: inset 0 0 0 2px var(--focus);
   }
   .qm__list {
     overflow-y: auto;

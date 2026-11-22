@@ -1,7 +1,7 @@
 ---
 title: Nest & Rest Cleaning
 seoTitle: Nest & Rest Cleaning Website Case Study
-order: 1
+order: 2
 status: launched
 kind: Own business · opening summer 2027
 year: '2026'
@@ -17,7 +17,7 @@ scene: nest-and-rest
 links:
   - label: Visit Nest & Rest Cleaning
     url: https://nestnrestcleaning.com/
-relationship: Own business
+relationship: My own business
 websiteStatus: Website live
 businessStatus: Business opens summer 2027
 checked: '2026-11-08'
