@@ -2712,7 +2712,7 @@ test.describe('upgrade report Phase 1 (22 Nov 2026)', () => {
     await page.setViewportSize({ width: 390, height: 844 });
     await page.goto('/');
     const bar = page.locator('[data-abar]');
-    const shown = () => bar.evaluate((e) => e.classList.contains('is-on') && getComputedStyle(e).visibility === 'visible');
+    const shown = () => bar.evaluate((e) => e.classList.contains('is-on') && !e.hasAttribute('inert') && e.getBoundingClientRect().top < innerHeight - 1);
     await page.waitForTimeout(300);
     expect(await shown()).toBe(false);
     await page.evaluate(() => scrollTo({ top: document.getElementById('what-i-do')!.offsetTop, behavior: 'instant' }));
