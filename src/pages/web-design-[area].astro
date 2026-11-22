@@ -15,10 +15,11 @@ import Crumbs from '../components/Crumbs.astro';
 import DraftNote from '../components/DraftNote.astro';
 import Confirm from '../components/Confirm.astro';
 import Button from '../components/ui/Button.astro';
+import BookingButton from '../components/ui/BookingButton.astro';
 import Icon from '../components/ui/Icon.astro';
 import FreeCheck from '../components/home/FreeCheck.astro';
 import ReviewsStrip from '../components/ReviewsStrip.astro';
-import { bookingUrl, gbp, profile } from '../data/site';
+import { gbp, profile } from '../data/site';
 import { areaIsDraft, areaPath, type Area } from '../data/areas';
 import { servicePages } from '../data/service-pages';
 import { industryPages } from '../data/industry-pages';
@@ -73,14 +74,8 @@ const crumbs = breadcrumbJsonLd([
       <div class="btn-row">
         <Button href="/contact/#brief">Request a quote</Button>
         <Button href="/contact/?package=check-up#check" variant="ghost">Start with the free check</Button>
-        {
-          // 16 Nov 2026: a plain link to Mann's booking page, once he adds it (src/data/site.ts → bookingUrl).
-          bookingUrl && (
-            <Button href={bookingUrl} variant="ghost" icon="arrow-ne" target="_blank" rel="noopener" aria-label="Book a free 15-minute call (opens in a new tab)" data-booking>
-              Book a free 15-minute call
-            </Button>
-          )
-        }
+        {/* 16 Nov 2026: Mann's booking page, once he adds it (src/data/site.ts → bookingUrl). */}
+        <BookingButton />
       </div>
       <a class="link-arrow small" href={gbp.url} rel="noopener">
         {profile.name} on Google Maps <Icon name="arrow-ne" />

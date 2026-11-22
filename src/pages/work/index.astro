@@ -30,7 +30,7 @@ const crumbs = breadcrumbJsonLd([
 
   >
     {/* U4 (design upgrade Phase 3): a main button within the first two phone screens. */}
-    <div class="btn-row" data-reveal="load" style="--d:5"><Button href="/contact/?package=check-up#check">Get a free website and Google check</Button></div>
+    <div class="btn-row" data-reveal="load" style="--d:5"><Button href="/contact/?package=check-up#check">Get a free website check</Button></div>
   </PageHead>
 
   <section class="section section--tight" aria-label="Projects">
@@ -39,7 +39,7 @@ const crumbs = breadcrumbJsonLd([
         {
           work.map((w, i) => (
             <li class="row">
-              <a class="row__link" href={`/work/${w.id}/`} data-spotlight data-cursor="Open">
+              <a class="row__link" href={`/work/${w.id}/`} data-cursor="Open">
                 <div class="row__text">
                   <div class="row__meta">
                     <span class="num subtle">{String(i + 1).padStart(2, '0')}</span>

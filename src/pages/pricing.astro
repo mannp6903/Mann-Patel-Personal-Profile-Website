@@ -7,6 +7,7 @@ import BaseLayout from '../layouts/BaseLayout.astro';
 import PageHead from '../components/PageHead.astro';
 import Icon from '../components/ui/Icon.astro';
 import Button from '../components/ui/Button.astro';
+import BookingButton from '../components/ui/BookingButton.astro';
 import PackageCard from '../components/packages/PackageCard.astro';
 import PackageCompare from '../components/packages/PackageCompare.astro';
 import { packages, checkUp, pricesPublished, packageById, priceLabel } from '../data/packages';
@@ -42,7 +43,7 @@ const fits = [
     t: 'I’m not sure what I need',
     d: 'Start with the free website and Google check: a short written list of fixes, most important first, with no obligation.',
     href: '/contact/?package=check-up#check',
-    link: 'Request the free check',
+    link: 'Get a free website check',
   },
 ];
 
@@ -110,7 +111,7 @@ const faqLd = {
 
   >
     {/* U4 (design upgrade Phase 3): a main button within the first two phone screens. */}
-    <div class="btn-row" data-reveal="load" style="--d:5"><Button href="/contact/">Start a project</Button></div>
+    <div class="btn-row" data-reveal="load" style="--d:5"><Button href="/contact/#brief">Send a short brief</Button></div>
   </PageHead>
 
   <section class="section section--rule" aria-labelledby="pr-packages">
@@ -140,15 +141,9 @@ const faqLd = {
           </ul>
           <p class="small subtle">Not included: {checkUp.notIncluded[0].charAt(0).toLowerCase() + checkUp.notIncluded[0].slice(1)}.</p>
           <div class:list={['pr__free-cta', bookingUrl && 'btn-row']}>
-            <Button href="/contact/?package=check-up#check" variant="ghost" size="sm">Request the free check</Button>
-            {
-              // 16 Nov 2026: a plain link to Mann's booking page, once he adds it (src/data/site.ts → bookingUrl).
-              bookingUrl && (
-                <Button href={bookingUrl} variant="ghost" icon="arrow-ne" target="_blank" rel="noopener" aria-label="Book a free 15-minute call (opens in a new tab)" data-booking size="sm">
-                  Book a free 15-minute call
-                </Button>
-              )
-            }
+            <Button href="/contact/?package=check-up#check" variant="ghost" size="sm">Get a free website check</Button>
+            {/* 16 Nov 2026: Mann's booking page, once he adds it (src/data/site.ts → bookingUrl). */}
+            <BookingButton size="sm" />
           </div>
         </li>
       </ol>

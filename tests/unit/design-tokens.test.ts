@@ -244,9 +244,9 @@ describe('design tokens (DESIGN_UPGRADE_PLAN.md §5)', () => {
   });
 
   it('M8: every hover state has a keyboard twin (:focus-visible, :focus-within or :focus)', () => {
-    // Hover-only by design (Phase 4's review): the pointer spotlight, the vision page's rows (not controls) and form
-    // fields, which have their own :focus styles.
-    const HOVER_ONLY = ['[data-spotlight]:hover', '.vi-venture:hover', '.input:hover', '.textarea:hover', '.select:hover'];
+    // Hover-only by design (Phase 4's review): the vision page's rows (not controls) and form fields, which have their
+    // own :focus styles. (The pointer spotlight was removed on 22 Nov 2026, upgrade report R8.1.)
+    const HOVER_ONLY = ['.vi-venture:hover', '.input:hover', '.textarea:hover', '.select:hover'];
     const splitTop = (sel: string) => {
       const parts: string[] = [];
       let depth = 0;

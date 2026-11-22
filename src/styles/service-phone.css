@@ -294,11 +294,6 @@
   height: 0.6rem;
   border-block: 2px solid var(--ink);
 }
-.ssp__photo {
-  height: 8rem;
-  border-radius: var(--r-md);
-  background: linear-gradient(160deg, var(--media-bg-1), var(--media-bg-2));
-}
 .ssp__site-h {
   font-size: var(--fs-lead);
   font-weight: var(--w-head);
@@ -326,6 +321,30 @@
   border-radius: 50%;
   background: color-mix(in oklab, var(--signal) 70%, transparent);
   opacity: 0;
+}
+/* The site's sections, as plain rows (upgrade report R8.3: in place of an empty "photo" box). */
+.ssp__rows {
+  display: grid;
+  margin: var(--s-2) 0 0;
+  padding: 0;
+  list-style: none;
+  border-top: 1px solid var(--paper-line);
+}
+.ssp__rows li {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  min-height: 2.75rem;
+  border-bottom: 1px solid var(--paper-line);
+  color: var(--paper-text-2);
+}
+.ssp__rows li::after {
+  content: '';
+  width: 0.45rem;
+  height: 0.45rem;
+  border-top: 1.5px solid currentColor;
+  border-right: 1.5px solid currentColor;
+  rotate: 45deg;
 }
 .ssp__done {
   position: absolute;

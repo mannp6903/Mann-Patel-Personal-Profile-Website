@@ -2,6 +2,20 @@
 
 Everything below is tracked in code. Unverified **claims** are wrapped in `<Confirm>` (production builds fail until they're resolved). Missing **optional** items use `<PreviewNote>` (shown in previews only). Run `grep -rn "Confirm note\|confirm:\|Confirm:\|PreviewNote note" src` to list them.
 
+## Before the 25 Nov 2026 launch (upgrade report, Phase 1)
+
+Detail and a draft message: [`docs/29-upgrade-report-phase-1.md`](29-upgrade-report-phase-1.md#what-only-mann-can-do-phase-1).
+
+1. **Book a 15-minute call:** create the link (Cal.com or a Google Calendar appointment schedule) and paste it into
+   `bookingUrl` in `src/data/site.ts`. The button then appears in the hero, the footer, the phone bar, /contact/,
+   /pricing/ and the area pages (until then the phone bar offers "Call").
+2. **Message the Samp owner today** for words you may publish and permission to photograph the salon.
+3. **Fix the Samp preview's 31 contrast items and 1 ARIA attribute**, re-test, and update the case study row.
+4. **Recapture Samp** after the fixes (desktop and phone).
+5. **Set `gbp.reviewUrl`** from Google Business Profile → "Ask for reviews".
+6. **Decide the services phone:** keep "Your business" (the reader's own), or show the Samp screen for the website step
+   with an honest "Request sent" ending (its site takes appointment requests, not instant bookings).
+
 ## The short set of questions (highest impact first)
 
 0. **Switch on direct enquiry delivery (the main blocker, 8 Nov 2026 audit).** The live form reports

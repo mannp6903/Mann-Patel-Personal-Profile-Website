@@ -155,7 +155,7 @@ const svcHrefs = Object.fromEntries(services.map((s) => [s.id, serviceHref(s.id)
       );
       cta.href = sitePath(briefHref(rec));
       cta.querySelectorAll('[data-text]').forEach((el) => {
-        const label = rec.packageId === 'check-up' ? 'Request the free check' : `Start with ${pkg[rec.packageId] ?? 'this'}`;
+        const label = rec.packageId === 'check-up' ? 'Get a free website check' : `Start with ${pkg[rec.packageId] ?? 'this'}`;
         el.textContent = label;
         el.setAttribute('data-text', label);
       });

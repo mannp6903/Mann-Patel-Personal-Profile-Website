@@ -19,7 +19,8 @@ const EXACT = {
     title: 'Web Design & Local SEO in Scarborough, Toronto | Mann Patel',
     description:
       'Websites, local SEO and Google Business Profile setup for Toronto small businesses. Published prices: websites from $1,950 CAD. Free website check.',
-    h1: 'Websites and local SEO for Toronto small businesses.',
+    // 22 Nov 2026 (upgrade report §6, Option A): "Google listings", the owner's word; the title keeps "Local SEO".
+    h1: 'Websites and Google listings for Toronto small businesses.',
   },
   '/pricing/': {
     title: 'Web Design & Local SEO Pricing in Toronto | Mann Patel',

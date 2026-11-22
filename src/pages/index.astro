@@ -6,7 +6,6 @@ import ServiceSummary from '../components/home/ServiceSummary.astro';
 import PricingTeaser from '../components/home/PricingTeaser.astro';
 import FreeCheck from '../components/home/FreeCheck.astro';
 import HowIWork from '../components/home/HowIWork.astro';
-import Summary from '../components/home/Summary.astro';
 import Faq from '../components/Faq.astro';
 import ReviewsStrip from '../components/ReviewsStrip.astro';
 import { packageById, priceLabel } from '../data/packages';
@@ -16,7 +15,9 @@ import { businessJsonLd, personJsonLd, websiteJsonLd } from '../lib/seo';
 // SEO audit copy (14 Nov 2026, 147 characters). The price comes from src/data/packages.ts.
 const launch = packageById('website-launch')!;
 // FAQPage for the questions this page shows (SEO audit Phase 2: they used to be marked up only on /services/).
-const homeFaqs = faqs.slice(0, 5).filter((f) => !f.confirm); // the same five <Faq limit={5}> shows
+// 22 Nov 2026 (upgrade report R1.1): three on Home; the full list is on /pricing/ and /services/.
+const HOME_FAQS = 3;
+const homeFaqs = faqs.slice(0, HOME_FAQS).filter((f) => !f.confirm); // the same three <Faq limit={HOME_FAQS}> shows
 const faqLd = {
   '@context': 'https://schema.org',
   '@type': 'FAQPage',
@@ -39,7 +40,7 @@ const description = `Websites, local SEO and Google Business Profile setup for T
   <PricingTeaser />
   <FreeCheck />
   <HowIWork />
-  <!-- 19 Nov 2026 (answer extractability): the definition and the core answer, restated before the questions. -->
-  <Summary />
-  <Faq limit={5} more rule />
+  <!-- 22 Nov 2026 (upgrade report R1.1, R1.2): the "at a glance" summary is gone. It repeated the hero and the prices;
+       the definition still opens public/llms.txt (src/data/site.ts → profile.definition). -->
+  <Faq limit={HOME_FAQS} more rule />
 </BaseLayout>

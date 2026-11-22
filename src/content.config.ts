@@ -29,7 +29,7 @@ const work = defineCollection({
     links: z.array(z.object({ label: z.string(), url: z.url() })).default([]),
     description: z.string(),
     /** Summary shown on cards and at the top of the case study (round 7). */
-    relationship: z.enum(['Own business', 'Client website']),
+    relationship: z.enum(['My own business', 'Client website']),
     /** Website status, kept separate from whether the business itself is trading. */
     websiteStatus: z.string(),
     businessStatus: z.string().optional(),

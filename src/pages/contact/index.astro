@@ -5,9 +5,9 @@ import ContactForm from '../../components/ContactForm.astro';
 import CheckForm from '../../components/CheckForm.astro';
 import ContactActions from '../../components/ContactActions.astro';
 import Icon from '../../components/ui/Icon.astro';
-import Button from '../../components/ui/Button.astro';
+import BookingButton from '../../components/ui/BookingButton.astro';
 import { contact, emailHref } from '../../lib/contact';
-import { profile, bookingUrl } from '../../data/site';
+import { profile } from '../../data/site';
 import Crumbs from '../../components/Crumbs.astro';
 import { breadcrumbJsonLd, businessJsonLd } from '../../lib/seo';
 
@@ -65,17 +65,11 @@ const description = contact.phone
       </div>
 
       <aside class="contact__aside" id="reach" aria-labelledby="reach-title">
-        <div class="aside__card" data-spotlight>
+        <div class="aside__card">
           <h2 id="reach-title" class="aside__title">Prefer to talk?</h2>
+          {/* Mann's booking page first, once he adds it (upgrade report §7, 22 Nov 2026; src/data/site.ts → bookingUrl). */}
+          <BookingButton size="sm" />
           <ContactActions showNumber />
-          {
-            // 16 Nov 2026: a plain link to Mann's booking page, once he adds it (src/data/site.ts → bookingUrl).
-            bookingUrl && (
-              <Button href={bookingUrl} variant="ghost" icon="arrow-ne" target="_blank" rel="noopener" aria-label="Book a free 15-minute call (opens in a new tab)" data-booking size="sm">
-                Book a free 15-minute call
-              </Button>
-            )
-          }
           {
             contact.email && (
               <p class="aside__email">
@@ -95,7 +89,7 @@ const description = contact.phone
           </p>
         </div>
 
-        <div class="aside__card" data-spotlight>
+        <div class="aside__card">
           <h2 class="aside__title">What happens next</h2>
           <ol class="aside__steps" role="list">
             <li><span class="num">01</span><span>I read your brief and reply by email, usually with a few questions.</span></li>

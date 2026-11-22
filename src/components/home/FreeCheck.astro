@@ -1,23 +1,22 @@
 ---
 /**
  * The free website and Google check: the one full-bleed signal-colour moment on the page.
- * The circular badge turns as you scroll (user-driven, never on its own).
+ * 22 Nov 2026 (upgrade report R8.1): the rotating "FREE CHECK · NO OBLIGATION" ring is gone (decoration text that
+ * moved with the scroll), and the button uses the site-wide primary label (R7.2).
  */
 import { checkUp } from '../../data/packages';
 import Button from '../ui/Button.astro';
-import Icon from '../ui/Icon.astro';
 
 interface Props {
   id?: string;
 }
 const { id = 'check' } = Astro.props;
-const ring = 'FREE CHECK · NO OBLIGATION · ';
 ---
 
-<section class="fc" id={id} aria-labelledby={`${id}-title`} data-progress>
+<section class="fc" id={id} aria-labelledby={`${id}-title`}>
   <div class="fc__inner container">
     <div class="fc__copy">
-      <p class="fc__label">Free · no obligation</p>
+      <p class="fc__label">Free, no obligation</p>
       <h2 id={`${id}-title`} class="fc__title" data-split>
         <span class="line-mask" style="--i:0"><span>Not sure what to fix first?</span></span>
         <span class="line-mask" style="--i:1"><span>Get a free <em>website and Google</em> check.</span></span>
@@ -27,7 +26,7 @@ const ring = 'FREE CHECK · NO OBLIGATION · ';
         businesses in Toronto and the GTA.
       </p>
       <div class="btn-row">
-        <Button href="/contact/?package=check-up#check" variant="ink">Request the free check</Button>
+        <Button href="/contact/?package=check-up#check" variant="ink">Get a free website check</Button>
       </div>
       <p class="fc__alt">
         Rather work it out yourself? <a href="/services/#finder">Answer three questions</a> and get a suggested starting point.
@@ -46,16 +45,6 @@ const ring = 'FREE CHECK · NO OBLIGATION · ';
         }
       </ol>
       <p class="fc__small">Not included: {checkUp.notIncluded.join('; ')}.</p>
-    </div>
-
-    <div class="fc__badge" aria-hidden="true">
-      <svg viewBox="0 0 200 200">
-        <defs>
-          <path id={`${id}-ring`} d="M100,100 m-78,0 a78,78 0 1,1 156,0 a78,78 0 1,1 -156,0"></path>
-        </defs>
-        <text><textPath href={`#${id}-ring`} textLength="488" lengthAdjust="spacing">{ring}{ring}</textPath></text>
-      </svg>
-      <span class="fc__badge-icon"><Icon name="arrow-ne" /></span>
     </div>
   </div>
 </section>
@@ -82,11 +71,9 @@ const ring = 'FREE CHECK · NO OBLIGATION · ';
     gap: var(--s-5);
     align-content: start;
   }
+  /* Upgrade report R4.2 (22 Nov 2026): set like the site's other labels: the body face, sentence case, untracked. */
   .fc__label {
-    font-family: var(--font-mono);
-    font-size: var(--fs-label);
-    letter-spacing: var(--track-label);
-    text-transform: uppercase;
+    font-size: var(--fs-sm);
     font-weight: var(--w-ui);
   }
   .fc__title {
@@ -152,40 +139,6 @@ const ring = 'FREE CHECK · NO OBLIGATION · ';
     outline-color: var(--focus-on-light);
   }
 
-  .fc__badge {
-    position: absolute;
-    right: var(--gutter);
-    top: calc(var(--section) * 0.4);
-    width: clamp(7rem, 12vw, 11rem);
-    aspect-ratio: 1;
-    display: none;
-  }
-  .fc__badge svg {
-    width: 100%;
-    height: 100%;
-    fill: var(--ink);
-    font-family: var(--font-mono);
-    font-size: var(--fs-label);
-    font-weight: var(--w-ui);
-  }
-  .fc__badge svg {
-    transform: rotate(calc(var(--p, 0) * 300deg));
-  }
-  .fc__badge-icon {
-    position: absolute;
-    inset: 32%;
-    display: grid;
-    place-items: center;
-    border-radius: 50%;
-    background: var(--ink);
-    color: var(--signal);
-  }
-  .fc__badge-icon :global(.icon) {
-    width: 45%;
-    height: 45%;
-    stroke-width: 2;
-  }
-
   @media (min-width: 64em) {
     .fc__inner {
       grid-template-columns: minmax(0, 1.1fr) minmax(0, 1fr);
@@ -193,9 +146,6 @@ const ring = 'FREE CHECK · NO OBLIGATION · ';
     }
     .fc__side {
       padding-top: calc(var(--s-9) + var(--s-6));
-    }
-    .fc__badge {
-      display: block;
     }
   }
   @media (max-width: 47.99em) {

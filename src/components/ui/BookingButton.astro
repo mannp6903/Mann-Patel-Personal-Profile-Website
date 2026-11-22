@@ -1,0 +1,24 @@
+---
+/**
+ * "Book a 15-minute call" (upgrade report R7.1 and R7.2, 22 Nov 2026): the site's secondary action, word for word
+ * everywhere. A plain link out to Mann's booking page (src/data/site.ts → bookingUrl), opening in a new tab: no embed,
+ * script or extra dependency, so the Content Security Policy needs nothing new. Renders nothing while bookingUrl is
+ * null. `data-booking` names the click `booking_click` for analytics (src/lib/click-events.ts).
+ */
+import { bookingUrl, cta } from '../../data/site';
+import Button from './Button.astro';
+
+interface Props {
+  size?: 'md' | 'sm';
+  class?: string;
+}
+const { size = 'md', class: cls } = Astro.props;
+---
+
+{
+  bookingUrl && (
+    <Button href={bookingUrl} variant="ghost" icon="arrow-ne" size={size} class={cls} target="_blank" rel="noopener" aria-label={`${cta.booking} (opens in a new tab)`} data-booking>
+      {cta.booking}
+    </Button>
+  )
+}

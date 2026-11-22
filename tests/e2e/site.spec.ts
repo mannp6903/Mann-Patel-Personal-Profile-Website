@@ -8,6 +8,8 @@ import { readFileSync } from 'node:fs';
 const NEST_URL = 'https://nestnrestcleaning.com/';
 const NEST_LIVE = /siteLive: true/.test(readFileSync('src/data/site.ts', 'utf8'));
 const NEST_STATUS = NEST_LIVE ? 'Website live' : 'Launched Oct 2026 · live link paused';
+/** Has Mann added his booking link (src/data/site.ts → bookingUrl)? The hero's second action depends on it. */
+const BOOKING_SET = !/export const bookingUrl: string \| null = null;/.test(readFileSync('src/data/site.ts', 'utf8'));
 
 // Drafts follow their switches in the source, so publishing (Mann's job) never turns these tests red:
 // a guide is a draft while its front matter says `draft: true`; the Scarborough page while `neighbourhoods: null`.
@@ -174,7 +176,7 @@ test.describe('pages', () => {
   // The copy map from the growth report (10 Nov 2026), updated by the SEO audit (14 Nov 2026,
   // docs/seo/PLAN.md): each page names its service and the place.
   const COPY: [string, string, string, string][] = [
-    ['/', 'Web Design & Local SEO in Scarborough, Toronto | Mann Patel', 'Websites and local SEO for Toronto small businesses.', 'Websites, local SEO and Google Business Profile setup for Toronto small businesses. Published prices: websites from $1,950 CAD. Free website check.'],
+    ['/', 'Web Design & Local SEO in Scarborough, Toronto | Mann Patel', 'Websites and Google listings for Toronto small businesses.', 'Websites, local SEO and Google Business Profile setup for Toronto small businesses. Published prices: websites from $1,950 CAD. Free website check.'],
     ['/services/', 'Website, Local SEO & Booking Services | Mann Patel', 'Website, local SEO and enquiry services', 'Compare web design, local SEO, Google Business Profile setup and enquiry automation for Toronto service businesses. See packages and request a quote.'],
     ['/services/web-design/', 'Toronto Small Business Web Design | Mann Patel', 'Web design for Toronto small businesses', 'Get a mobile-friendly website or redesign with clear service pages, a tested enquiry path and a written handover. See projects and ask for a quote.'],
     ['/services/local-visibility/', 'Local SEO & Google Business Profile Toronto | Mann Patel', 'Local SEO and Google Business Profile setup in Toronto', 'Improve your Google presence with eligible profile setup, listing updates and a review workflow. Ask about SEO foundations and an AI search check.'],
@@ -328,17 +330,18 @@ test.describe('layout', () => {
       await page.goto('/');
       // The H1 names the service and the place (growth report, 10 Nov 2026); the slogan moved to the process strip.
       const h1 = page.locator('h1');
-      expect((await h1.innerText()).replace(/\s+/g, ' ').trim()).toBe('Websites and local SEO for Toronto small businesses.');
+      // 22 Nov 2026 (upgrade report §6, Option A): "Google listings", the owner's word; the title keeps "Local SEO".
+      expect((await h1.innerText()).replace(/\s+/g, ' ').trim()).toBe('Websites and Google listings for Toronto small businesses.');
       await expect(h1).toBeInViewport();
       const hero = page.locator('.hero');
       // 14 Nov 2026: who you're dealing with comes first (round 3: no small face; the photo is the graph's core).
-      await expect(hero.locator('.hero__hi')).toHaveText('Hi, I’m Mann Patel.');
+      await expect(hero.locator('.hero__hi')).toHaveText('Hi, I’m Mann. Web designer in Scarborough.');
       await expect(hero.locator('.hero__face')).toHaveCount(0);
-      const cta = hero.getByRole('link', { name: 'Get a free website and Google check' });
+      const cta = hero.getByRole('link', { name: 'Get a free website check' });
       await expect(cta).toBeInViewport();
       await expect(cta).toHaveAttribute('href', '/contact/?package=check-up#check');
-      await expect(hero.getByRole('link', { name: 'See prices' })).toHaveAttribute('href', '/pricing/');
-      await expect(hero.locator('.hero__price')).toContainText('$1,950 website');
+      if (!BOOKING_SET) await expect(hero.getByRole('link', { name: 'See prices' })).toHaveAttribute('href', '/pricing/');
+      await expect(hero.locator('.hero__price')).toHaveText('Websites $1,950. Google setup $650. CAD, plus tax.');
       // D1 (design upgrade, 17 Nov 2026): no service chips in the hero; the services section right below links all three
       // core services (was: three chips in the hero, 14 Nov 2026).
       await expect(hero.locator('.hero__services')).toHaveCount(0);
@@ -351,10 +354,10 @@ test.describe('layout', () => {
       expect(await page.evaluate(() => document.getElementById('hero')!.nextElementSibling?.id)).toBe('work');
       await expect(page.locator('#work a[href="/work/samp-hair-spa/"]').first()).toBeAttached();
       await expect(page.locator('#work a[href="/work/nest-and-rest-cleaning/"]').first()).toBeAttached();
-      // The two actions sit side by side, in this order.
+      // The two actions sit side by side, in this order: the 15-minute call once bookingUrl is set, until then the prices.
       const actions = await hero.locator('.hero__actions .btn-row a').evaluateAll((els) => els.map((e) => e.textContent!.replace(/\s+/g, ' ').trim()));
-      expect(actions[0]).toContain('Get a free website and Google check');
-      expect(actions[1]).toContain('See prices');
+      expect(actions[0]).toContain('Get a free website check');
+      expect(actions[1]).toContain(BOOKING_SET ? 'Book a 15-minute call' : 'See prices');
     });
   }
 
@@ -394,8 +397,11 @@ test.describe('navigation', () => {
     await expect(sheet).toBeVisible();
     await expect(btn).toHaveAttribute('aria-expanded', 'true');
     // Home + Work, Services, Pricing, Guides, About (Guides joined in the Nov 2026 audit fixes). D3 (design upgrade,
-    // 17 Nov 2026): Vision moved from the menu to the footer (was 7 links).
-    await expect(sheet.getByRole('navigation', { name: 'Menu' }).getByRole('link')).toHaveCount(6);
+    // 17 Nov 2026): Vision moved from the menu to the footer. 22 Nov 2026 (upgrade report R7.2): + Contact, as a link,
+    // now that the menu's button is the free check.
+    await expect(sheet.getByRole('navigation', { name: 'Menu' }).getByRole('link')).toHaveCount(7);
+    await expect(sheet.getByRole('link', { name: 'Contact', exact: true })).toHaveAttribute('href', '/contact/');
+    await expect(sheet.locator('.sheet__cta')).toHaveAttribute('href', '/contact/?package=check-up#check');
     await expect(sheet.getByRole('link', { name: 'Guides', exact: true })).toHaveAttribute('href', '/guides/');
     await expect(sheet.getByRole('link', { name: 'Pricing', exact: true })).toHaveAttribute('href', '/pricing/');
     await expect(sheet.getByRole('link', { name: 'Vision', exact: true })).toHaveCount(0);
@@ -610,7 +616,8 @@ test.describe('home interactions', () => {
       await expect(row.locator('.pt__boundary')).not.toBeEmpty();
     }
     await expect(prices).toContainText('plus applicable tax');
-    await expect(prices.getByRole('link', { name: 'Full pricing and what’s included' })).toHaveAttribute('href', '/pricing/');
+    // 22 Nov 2026 (upgrade report R7.2): verb plus object.
+    await expect(prices.getByRole('link', { name: 'See every package' })).toHaveAttribute('href', '/pricing/');
   });
 
   test('finder recommends a starting point live and pre-fills the brief', async ({ page }) => {
@@ -695,8 +702,8 @@ test.describe('home interactions', () => {
       await page.setViewportSize({ width: w, height: h });
       await page.goto('/');
       await expect(page.locator('h1')).toBeInViewport({ ratio: 1 });
-      await expect(page.locator('.hero').getByRole('link', { name: 'Get a free website and Google check' })).toBeInViewport({ ratio: 1 });
-      await expect(page.locator('.hero').getByRole('link', { name: 'See prices' })).toBeInViewport({ ratio: 1 });
+      await expect(page.locator('.hero').getByRole('link', { name: 'Get a free website check' })).toBeInViewport({ ratio: 1 });
+      await expect(page.locator('.hero .hero__actions .btn-row > a').nth(1)).toBeInViewport({ ratio: 1 });
       await noHorizontalOverflow(page);
     }
   });
@@ -747,7 +754,8 @@ test.describe('phones: short pages', () => {
     // D9 (design upgrade, 17 Nov 2026; applied in Phase 3 with gate S4, Mann's choice): 11 screens, was 13.5. The slimmer
     // hero (Phase 2) and the service and promise bentos as swipe rails on phones (Phase 3) make the room.
     // 19 Nov 2026 (answer extractability): + the "at a glance" summary and self-contained section intros (11.67). Was 11.
-    '/': 11.75,
+    // 22 Nov 2026 (upgrade report R1.1): the summary is gone and Home shows three questions (10.8 measured): 11 again.
+    '/': 11,
     // 14 Nov 2026 (SEO audit Phase 2): /services/ is a short overview now; each service's details moved
     // to its service page as closed "Service by service" accordions (plus the redesign section on web design).
     '/services/': 9,
@@ -814,9 +822,13 @@ test.describe('phones: short pages', () => {
       }
       expect(boxes[1].top).toBeGreaterThan(boxes[0].top);
       await expect(page.locator('#work [data-rail]')).toHaveCount(0);
-      await expect(cards.first()).toContainText(NEST_STATUS);
-      await expect(cards.first()).toContainText('Business opens summer 2027');
-      await expect(cards.nth(1)).toContainText('In progress');
+      // 22 Nov 2026 (upgrade report R12.3): the client project leads; Mann's own business follows, labelled as his.
+      await expect(cards.first()).toContainText('Samp Hair & Spa');
+      await expect(cards.first()).toContainText('Client website');
+      await expect(cards.first()).toContainText('In progress');
+      await expect(cards.nth(1)).toContainText('My own business');
+      await expect(cards.nth(1)).toContainText(NEST_STATUS);
+      await expect(cards.nth(1)).toContainText('Business opens summer 2027');
       await noHorizontalOverflow(page);
     }
   });
@@ -888,7 +900,7 @@ test.describe('new pages (SEO audit Phase 3)', () => {
   const lastSectionId = (page: Page) => page.evaluate(() => document.querySelector('main')?.lastElementChild?.id);
 
   const INDUSTRY: [string, string, string[], [string, string][]][] = [
-    ['/websites-for-cleaning-companies/', 'nest-and-rest-cleaning', ['Own business', NEST_STATUS, 'Business opens summer 2027'], [['Website Launch', '$1,950'], ['Local Visibility Setup', '$650']]],
+    ['/websites-for-cleaning-companies/', 'nest-and-rest-cleaning', ['My own business', NEST_STATUS, 'Business opens summer 2027'], [['Website Launch', '$1,950'], ['Local Visibility Setup', '$650']]],
     ['/websites-for-salons-and-spas/', 'samp-hair-spa', ['Client website', 'In progress'], [['Website + Enquiry System', '$3,350'], ['Website Launch', '$1,950']]],
   ];
   for (const [path, study, labels, pkgs] of INDUSTRY) {
@@ -1735,25 +1747,28 @@ test.describe('motion (restrained in round 7)', () => {
     await expect(toggle).toHaveAttribute('aria-pressed', 'false');
   });
 
-  test('removed effects stay removed: no marquee, cursor follower, tilt or scroll-lit text', async ({ page }) => {
+  // 22 Nov 2026 (upgrade report R8.1): + the magnetic pull, the cursor spotlight, the price odometer and the rotating
+  // "FREE CHECK" ring.
+  test('removed effects stay removed: no marquee, cursor follower, tilt, scroll-lit text, magnetic pull, spotlight, odometer or ring', async ({ page }) => {
     await page.setViewportSize({ width: 1440, height: 900 });
-    for (const path of ['/', '/work/', '/about/']) {
+    for (const path of ['/', '/work/', '/about/', '/pricing/', '/contact/']) {
       await page.goto(path);
       await page.mouse.move(300, 300);
       await page.mouse.move(320, 320);
-      await expect(page.locator('[data-marquee], .cursor, .cursor-tag, [data-tilt], [data-scrub]')).toHaveCount(0);
+      await expect(page.locator('[data-marquee], .cursor, .cursor-tag, [data-tilt], [data-scrub], [data-magnetic], [data-spotlight], [data-odometer], .fc__badge')).toHaveCount(0);
     }
-  });
-
-  test('buttons lean toward the pointer and settle back when it leaves', async ({ page }) => {
-    await page.setViewportSize({ width: 1440, height: 900 });
+    // The hero button stays where you aim at it.
     await page.goto('/');
-    const btn = page.locator('.hero').getByRole('link', { name: 'Get a free website and Google check' });
+    const btn = page.locator('.hero').getByRole('link', { name: 'Get a free website check' });
     const box = (await btn.boundingBox())!;
     await page.mouse.move(box.x + box.width * 0.9, box.y + box.height * 0.8, { steps: 4 });
-    await expect.poll(() => btn.evaluate((e) => (e as HTMLElement).style.translate)).not.toBe('');
-    await page.mouse.move(10, 600, { steps: 4 });
-    await expect.poll(() => btn.evaluate((e) => (e as HTMLElement).style.translate)).toBe('');
+    await page.waitForTimeout(300);
+    expect(await btn.evaluate((e) => (e as HTMLElement).style.translate)).toBe('');
+    // The prices are plain text the whole way into view.
+    await page.locator('#prices .pt__list').scrollIntoViewIfNeeded();
+    await page.waitForTimeout(500);
+    expect(await page.locator('#prices [data-price]').allInnerTexts()).toEqual(['$450–$850', '$1,950', '$3,350', '$650', '$149 a month']);
+    await expect(page.locator('#prices .pt-odo, #prices .is-rolling')).toHaveCount(0);
   });
 
   test('the hero labels are plain text, with no decoding effect (round 10: fewer elements around the portrait)', async ({ page }) => {
@@ -1761,16 +1776,6 @@ test.describe('motion (restrained in round 7)', () => {
     await page.goto('/');
     await expect(page.locator('.hero [data-scramble]')).toHaveCount(0);
     expect(await page.locator('.hero__hi').evaluate((e) => e.children.length)).toBe(0);
-  });
-
-  test('project cards light up under the pointer', async ({ page }) => {
-    await page.setViewportSize({ width: 1440, height: 900 });
-    await page.goto('/');
-    const card = page.locator('#work article[data-spotlight]').first();
-    await card.scrollIntoViewIfNeeded();
-    const b = (await card.boundingBox())!;
-    await page.mouse.move(b.x + b.width / 2, b.y + b.height / 2, { steps: 3 });
-    await expect.poll(() => card.evaluate((e) => (e as HTMLElement).style.getPropertyValue('--mx'))).toMatch(/px$/);
   });
 
   test('page changes: the header holds still and the reading line tracks the scroll', async ({ page }) => {
@@ -1838,7 +1843,8 @@ test.describe('free check (short path)', () => {
     await page.goto('/contact/?package=check-up#check');
     await expect(panel(page)).toBeVisible();
     await expect(page.locator('[data-brief]')).toBeHidden();
-    await expect(page.getByRole('link', { name: /Free check/ })).toHaveAttribute('aria-current', 'true');
+    // (In main: the header's button is "Free check" too since 22 Nov 2026.)
+    await expect(page.locator('main').getByRole('link', { name: /Free check/ })).toHaveAttribute('aria-current', 'true');
     // Only what the check needs: no services, budget or timeframe, and the note is optional.
     await expect(panel(page).locator('input[name="services"], [name="budget"], [name="timeframe"]')).toHaveCount(0);
     await expect(panel(page).locator('#c-message')).not.toHaveAttribute('required', '');
@@ -1937,7 +1943,7 @@ test.describe('audit of 11 Nov 2026', () => {
 
   test('the free check has one name from the hero button to the form', async ({ page }) => {
     await page.goto('/');
-    await page.locator('.hero').getByRole('link', { name: 'Get a free website and Google check' }).click();
+    await page.locator('.hero').getByRole('link', { name: 'Get a free website check' }).click();
     await expect(page).toHaveURL(/\/contact\/\?package=check-up#check$/);
     await expect(page.locator('#check-title')).toHaveText('Free website and Google check');
     await page.goto('/');
@@ -1948,7 +1954,7 @@ test.describe('audit of 11 Nov 2026', () => {
   test('published prices agree everywhere, and the check stays optional', async ({ page }) => {
     await page.goto('/');
     await expect(page.locator('#what-i-do')).toContainText('Website Launch · $1,950');
-    await expect(page.locator('.hero__price')).toContainText('$650 Google and AI visibility setup');
+    await expect(page.locator('.hero__price')).toContainText('Google setup $650');
     await page.goto('/services/');
     await expect(page.locator('#packages')).toContainText('The free check is separate, with no obligation.');
     await page.goto('/pricing/');
@@ -1981,32 +1987,28 @@ test.describe('audit of 11 Nov 2026', () => {
   test('the headline keeps its service and place words', async ({ page }) => {
     await page.goto('/');
     const lines = page.locator('#hero-title .hero__line');
-    await expect(lines.nth(0)).toHaveText('Websites and local SEO');
+    await expect(lines.nth(0)).toHaveText('Websites and Google listings');
     await expect(lines.nth(1)).toHaveText('for Toronto small businesses.');
     // 14 Nov 2026 (founder profile): the outcome line sits under the H1 instead of inside it.
-    // 19 Nov 2026 (answer extractability): it is a direct answer now, not a slogan.
+    // 22 Nov 2026 (upgrade report §6, Option A): what he does in an owner's words, and the fixed-price promise.
     await expect(page.locator('#hero-title .hero__place')).toHaveCount(0);
-    await expect(page.locator('.hero .hero__place')).toHaveText('I’m a web designer who gets you found on Google and in AI answers, then booked.');
+    await expect(page.locator('.hero .hero__place')).toHaveText(
+      'I build fast websites and set up your Google profile, so people nearby find you, call you and book. Fixed prices, in writing.',
+    );
   });
 
-  test('Home is easy to quote: an answer-first opening, a definition and a summary that restates it', async ({ page }) => {
+  test('Home is easy to quote: an answer-first opening, the definition in the data, and self-contained intros', async ({ page }) => {
     await page.goto('/');
     // The first two paragraphs: who and where (the greeting), then what the work does (no slogan, no "welcome").
     const opening = await page.locator('.hero__hello p, .hero__place').allInnerTexts();
     expect(opening).toHaveLength(2);
-    expect(opening[0].replace(/\s+/g, ' ')).toContain('Based in Scarborough');
-    expect(opening[1]).toMatch(/^I’m a web designer who /);
-    // The summary: a heading that says what it is, the definition as it stands in src/data/site.ts, then prices from
-    // src/data/packages.ts and the first step.
-    const summary = page.locator('main > section#summary');
-    await expect(summary.locator('h2')).toHaveText('Mann Patel at a glance.');
-    await expect(summary.locator('.sum__def')).toHaveText(
-      'Mann Patel is an independent web designer in Scarborough, Toronto, who builds websites, sets up local SEO and Google Business Profiles, and connects enquiry follow-up and online booking for small businesses in Toronto and the GTA.',
-    );
-    await expect(summary).toContainText('Websites start at $1,950 and local search setup is $650 (CAD, plus tax)');
-    await expect(summary.getByRole('link', { name: 'free website and Google check' })).toHaveAttribute('href', '/contact/?package=check-up#check');
+    expect(opening[0].replace(/\s+/g, ' ')).toBe('Hi, I’m Mann. Web designer in Scarborough.');
+    expect(opening[1]).toMatch(/^I build fast websites /);
+    // 22 Nov 2026 (upgrade report R1.1): the "at a glance" summary is gone (it repeated the hero and the prices). The
+    // definition still opens public/llms.txt.
+    await expect(page.locator('#summary')).toHaveCount(0);
     // Every section intro answers on its own: it names its subject rather than leaning on the cards around it.
-    await expect(page.locator('.sw__intro')).toContainText('Nest & Rest Cleaning is a home-cleaning business');
+    await expect(page.locator('.sw__intro')).toContainText('A salon website for a client, Samp Hair & Spa, and the website for my own cleaning business');
     await expect(page.locator('.ss__lead')).toContainText('I offer three services for small businesses in Toronto and the GTA');
     await expect(page.locator('.pt__lead')).toContainText('A website costs $1,950 for up to five pages, or $3,350');
     await expect(page.locator('.about__lead')).toContainText('from a short brief to a written handover');
@@ -2082,7 +2084,7 @@ test.describe('desktop layout (14 Nov 2026)', () => {
     const tiles = await page.$$eval('.pr__grid > li', (els) => els.map((e) => Math.round(e.getBoundingClientRect().width)));
     expect(tiles).toHaveLength(6); // five offers and the free check
     expect(Math.max(...tiles) - Math.min(...tiles)).toBeLessThanOrEqual(1);
-    await expect(page.locator('#pkg-check-up').getByRole('link', { name: 'Request the free check' })).toHaveAttribute('href', '/contact/?package=check-up#check');
+    await expect(page.locator('#pkg-check-up').getByRole('link', { name: 'Get a free website check' })).toHaveAttribute('href', '/contact/?package=check-up#check');
     const table = page.getByRole('table', { name: 'Side by side' });
     const widths = await table.locator('thead th').evaluateAll((ths) => ths.map((t) => Math.round(t.getBoundingClientRect().width)));
     expect(widths).toHaveLength(5);
@@ -2143,26 +2145,39 @@ test.describe('North York page (Nov 2026 audit fixes)', () => {
 
 test.describe('competitor gap work (16 Nov 2026)', () => {
   const site = readFileSync('src/data/site.ts', 'utf8');
-  // The owner inputs are null until Mann sends them; these tests follow the source either way.
-  const BOOKING_SET = !/export const bookingUrl: string \| null = null;/.test(site);
+  // The owner inputs are null until Mann sends them; these tests follow the source either way (BOOKING_SET: top of file).
   const REVIEW_LINK_SET = !/\breviewUrl: null\b/.test(site);
   const YOUTUBE_SET = !/const youtubeUrl: string \| null = null;/.test(site);
   const FACEBOOK_SET = !/\{ id: 'facebook', label: 'Facebook', url: null \}/.test(site);
 
-  test('home: each section heading says what it is about; the slogan is the eyebrow, and the anchors stay', async ({ page }) => {
+  // 22 Nov 2026 (upgrade report R4.2): the numbered eyebrows ("01 / Work in the wild" and so on) are gone; the heading
+  // names each section. The questions keep a plain, sentence-case label.
+  test('home: each section heading says what it is about, with no numbered eyebrow, and the anchors stay', async ({ page }) => {
     await page.goto('/');
-    const sections: [string, string, string][] = [
-      ['#work', 'Website projects in Scarborough.', '01 / Work in the wild'],
-      ['#what-i-do', 'Web design, local SEO and booking services.', '02 / From search to booked'],
-      ['#prices', 'Website prices in Toronto (CAD).', '03 / Prices you can see before you call'],
-      ['#how-i-work', 'How a website project works.', '04 / Clear steps, no surprises'],
+    const sections: [string, string, string | null][] = [
+      ['#work', 'Website projects in Scarborough.', null],
+      ['#what-i-do', 'Web design, local SEO and booking services.', null],
+      ['#prices', 'Website prices in Toronto (CAD).', null],
+      ['#how-i-work', 'How a website project works.', null],
       ['#faq', 'Web design questions.', 'Straight answers'],
     ];
     for (const [id, h2, eyebrow] of sections) {
       const section = page.locator(id);
       await expect(section.getByRole('heading', { level: 2 }).first()).toHaveText(h2);
-      await expect(section.locator('.eyebrow').first()).toHaveText(eyebrow);
+      // (The services tiles' small step names are plain labels, not eyebrows over a heading.)
+      const head = section.locator('.eyebrow:not(.eyebrow--plain)');
+      if (eyebrow) await expect(head.first()).toHaveText(eyebrow);
+      else await expect(head).toHaveCount(0);
     }
+    // Labels are the body face, sentence case and untracked (no mono capitals).
+    const style = await page.locator('#faq .eyebrow').first().evaluate((e) => {
+      const cs = getComputedStyle(e);
+      return { transform: cs.textTransform, spacing: cs.letterSpacing, family: cs.fontFamily };
+    });
+    expect(style.transform).toBe('none');
+    expect(['normal', '0px']).toContain(style.spacing);
+    expect(style.family).not.toMatch(/mono/i);
+    expect(await page.locator('main').innerText()).not.toMatch(/\b0\d \/ /);
   });
 
   test('every FAQ question is an h3 inside its summary, set exactly like the summary', async ({ page }) => {
@@ -2190,7 +2205,7 @@ test.describe('competitor gap work (16 Nov 2026)', () => {
         await expect(booking).toHaveCount(1);
         await expect(booking).toHaveAttribute('target', '_blank');
         await expect(booking).toHaveAttribute('rel', /noopener/);
-        await expect(booking).toHaveAccessibleName('Book a free 15-minute call (opens in a new tab)');
+        await expect(booking).toHaveAccessibleName('Book a 15-minute call (opens in a new tab)');
       } else await expect(booking).toHaveCount(0);
     }
     await page.goto('/about/');
@@ -2496,8 +2511,9 @@ test.describe('Website Playbook, accessibility and brand (16 Nov 2026)', () => {
     const btn = page.locator('main a.btn:has(.btn__icon)').first();
     await btn.hover();
     expect(await btn.locator('.btn__icon').first().evaluate((e) => getComputedStyle(e).transform)).toBe('none');
-    // Scroll-linked progress (the free-check badge on the home page) holds still at its end state.
-    await page.goto('/');
+    // Scroll-linked progress (the process track on About; the home free-check ring was removed on 22 Nov 2026) holds still
+    // at its end state.
+    await page.goto('/about/');
     const progress = page.locator('[data-progress]').first();
     await expect(progress).toHaveAttribute('style', /--p:\s*1/);
     await page.mouse.wheel(0, 2000);
@@ -2654,5 +2670,100 @@ test.describe('enquiry page: calculator, demo line and videos (19 Nov 2026)', ()
       await page.goto(other);
       await expect(page.locator('#calculator, [data-demo-line], #videos')).toHaveCount(0);
     }
+  });
+});
+
+// ── Upgrade report, Phase 1 (22 Nov 2026, for the 25 Nov launch) ─────────────────────────────────────────────────
+test.describe('upgrade report Phase 1 (22 Nov 2026)', () => {
+  test('R6.1: at desktop the greeting starts on the H1’s left edge (the hidden photo takes its gap with it)', async ({ page }) => {
+    for (const width of [1024, 1440, 1920]) {
+      await page.setViewportSize({ width, height: 900 });
+      await page.goto('/');
+      const [hi, h1] = await Promise.all([page.locator('.hero__hi').boundingBox(), page.locator('.hero__title').boundingBox()]);
+      expect(Math.abs(hi!.x - h1!.x), `${width}px`).toBeLessThanOrEqual(1);
+    }
+  });
+
+  test('R6.2: no caption under the hero graph; the pause button stays, a 44px icon button with a name', async ({ page }) => {
+    await page.setViewportSize({ width: 1440, height: 900 });
+    await page.goto('/');
+    await expect(page.locator('.ag figcaption, .ag__caption')).toHaveCount(0);
+    const toggle = page.locator('[data-ag-toggle]');
+    await expect(toggle).toBeVisible();
+    await expect(toggle).toHaveAccessibleName('Pause animation');
+    const box = (await toggle.boundingBox())!;
+    expect(box.width).toBeGreaterThanOrEqual(44);
+    expect(box.height).toBeGreaterThanOrEqual(44);
+  });
+
+  test('R7.2: one wording for the actions: "Get a free website check" and, once set, "Book a 15-minute call"', async ({ page }) => {
+    for (const path of ['/', '/services/', '/pricing/', '/about/', '/work/']) {
+      await page.goto(path);
+      const labels = (await page.locator('main a.btn, footer a.btn, header a.btn').allInnerTexts()).map((t) => t.replace(/\s+/g, ' ').trim());
+      for (const retired of ['Start a project', 'Request the free check', 'Get a free website and Google check', 'Full pricing and what’s included'])
+        expect(labels, `${path}: ${retired}`).not.toContain(retired);
+    }
+    await page.goto('/');
+    const close = page.locator('footer .ftr__actions .btn-row a');
+    await expect(close.first()).toHaveText('Get a free website check');
+    await expect(close.first()).toHaveAttribute('href', '/contact/?package=check-up#check');
+    await expect(close.nth(1)).toHaveText(BOOKING_SET ? 'Book a 15-minute call' : 'Send a short brief');
+  });
+
+  test('R7.3: on phones an action bar appears after the first screen and stays clear of the footer', async ({ page }) => {
+    await page.setViewportSize({ width: 390, height: 844 });
+    await page.goto('/');
+    const bar = page.locator('[data-abar]');
+    const shown = () => bar.evaluate((e) => e.classList.contains('is-on') && !e.hasAttribute('inert') && e.getBoundingClientRect().top < innerHeight - 1);
+    await page.waitForTimeout(300);
+    expect(await shown()).toBe(false);
+    await page.evaluate(() => scrollTo({ top: document.getElementById('what-i-do')!.offsetTop, behavior: 'instant' }));
+    await expect.poll(shown).toBe(true);
+    // Once its slide (320ms) has landed, it sits on the bottom edge.
+    await expect.poll(async () => { const b = (await bar.boundingBox())!; return b.y + b.height; }).toBeLessThanOrEqual(844 + 1);
+    const box = (await bar.boundingBox())!;
+    expect(box.height).toBeLessThanOrEqual(80);
+    const links = bar.locator('a');
+    await expect(links.first()).toHaveText('Free check');
+    await expect(links.first()).toHaveAttribute('href', '/contact/?package=check-up#check');
+    await expect(links.nth(1)).toHaveText(BOOKING_SET ? 'Book a call' : 'Call');
+    for (const l of await links.all()) expect((await l.boundingBox())!.height).toBeGreaterThanOrEqual(44);
+    // It starts leaving a screen before the footer, and is gone before the footer's own lime button is on screen.
+    await page.evaluate(() => scrollTo({ top: document.querySelector('footer')!.getBoundingClientRect().top + scrollY - innerHeight * 1.5, behavior: 'instant' }));
+    await expect.poll(shown).toBe(false);
+    await page.waitForTimeout(400);
+    await page.evaluate(() => scrollTo({ top: document.querySelector('.ftr__cta')!.getBoundingClientRect().top + scrollY - 200, behavior: 'instant' }));
+    expect((await bar.boundingBox())!.y).toBeGreaterThanOrEqual(844 - 1);
+    // Hidden again at the very end, so it never covers the legal links.
+    await page.evaluate(() => scrollTo({ top: document.body.scrollHeight, behavior: 'instant' }));
+    await expect.poll(shown).toBe(false);
+    // Hidden while away from it is not focusable.
+    await expect(bar).toHaveAttribute('inert', '');
+    // Wider screens have the header button instead; the contact page's form is its action.
+    await page.setViewportSize({ width: 1024, height: 768 });
+    await expect(bar).toBeHidden();
+    await page.setViewportSize({ width: 390, height: 844 });
+    await page.goto('/contact/');
+    await expect(page.locator('[data-abar]')).toHaveCount(0);
+  });
+
+  test('R12.3: the client project leads the work, on Home and on /work/', async ({ page }) => {
+    await page.goto('/');
+    await expect(page.locator('#work h3').first()).toHaveText('Samp Hair & Spa');
+    await expect(page.locator('#work .sw__index')).toHaveCount(0);
+    await page.goto('/work/');
+    await expect(page.locator('main a[href="/work/samp-hair-spa/"]').first()).toBeVisible();
+    const order = await page.locator('main a[href^="/work/"][href$="/"]').evaluateAll((els) => [...new Set(els.map((e) => e.getAttribute('href')))]);
+    expect(order.indexOf('/work/samp-hair-spa/')).toBeLessThan(order.indexOf('/work/nest-and-rest-cleaning/'));
+  });
+
+  test('R13.1: the quick menu’s search field shows where focus is', async ({ page }) => {
+    await page.setViewportSize({ width: 1440, height: 900 });
+    await page.goto('/');
+    await page.locator('[data-qm-open]').click();
+    const input = page.locator('.qm__input');
+    await expect(input).toBeFocused();
+    const ring = await page.locator('.qm__search').evaluate((e) => getComputedStyle(e).boxShadow);
+    expect(ring).not.toBe('none');
   });
 });

@@ -4,15 +4,15 @@
  * page is complete without it, it never delays the first paint, and reduced motion turns it off.
  *
  *   field.ts   WebGL signal field behind the home hero and the 404 page (dot map, radar pings)
- *   pointer.ts magnetic buttons and the spotlight on project cards and packages
  *   text.ts    decoding only where marked with data-scramble (the hero coordinates)
+ *
+ * 22 Nov 2026 (upgrade report R8.1): pointer.ts is gone. The magnetic pull moved the button you were aiming at, and the
+ * lime spotlight that followed the cursor was a glow, not proof of work.
  */
 import { initFields } from './field';
-import { initPointer } from './pointer';
 import { initDecode } from './text';
 
 initDecode();
-initPointer();
 // The GPU work waits until the page has loaded.
 if (document.readyState === 'complete') initFields();
 else addEventListener('load', () => initFields(), { once: true });
