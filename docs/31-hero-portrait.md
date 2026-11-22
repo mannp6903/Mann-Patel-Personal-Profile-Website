@@ -44,4 +44,7 @@ ping), and the line-art greys and stroke weights stay for the services scenes.
 | Check | Result |
 |---|---|
 | Unit tests (`npx vitest run`) | 177 passed |
-| End-to-end, full suite | running |
+| End-to-end, full suite | 252 of 252 passed on a clean run. A first run had 7 failures: 6 were form tests hitting a test server left running from before the rebuild (its server code pointed at old files); 1 was real and older than this change: the wide-screen service tiles faded their colours when they became active, against the transform-and-opacity rule. They now fade a highlight layer in. |
+| Hero and portrait tests, with the new scroll test (the base stays on the panel) | 26 passed |
+| Production build and pre-launch check (`npm run build:cloudflare`) | 0 errors; 2 warnings for Cloudflare secrets a local build can't see |
+| SEO check (`scripts/seo-check.mjs`) | 0 errors; the same 2 warnings as before (/privacy/ description length, /services/ word count) |
