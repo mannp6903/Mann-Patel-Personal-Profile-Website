@@ -84,9 +84,9 @@ export const profile = {
 /**
  * Mann's YouTube channel (competitor gap work, 16 Nov 2026): a button in the footer and on About, in the Person and
  * business structured data (sameAs) and in About's "Find me elsewhere" list, all from this one value.
- * TODO(Mann): your channel URL (for example https://www.youtube.com/@…). Never guessed: null keeps it hidden.
+ * Set 22 Nov 2026: @mannpatel.frames (supplied by Mann, for the 25 Nov 2026 launch). null hides it everywhere.
  */
-const youtubeUrl: string | null = null;
+const youtubeUrl: string | null = 'https://www.youtube.com/@mannpatel.frames';
 
 /**
  * A free 15-minute call (competitor gap work, 16 Nov 2026): a "Book a free 15-minute call" button on /contact/,
