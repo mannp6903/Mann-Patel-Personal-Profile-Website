@@ -35,6 +35,15 @@ items that need Mann (photos, Samp captures and recording, confirmed timelines) 
 | Sections in the "head left, list right" split | 4 | 1 (the questions) |
 | Eyebrows over headings (site-wide) | 62 | 32 |
 
+## Checks run (22 Nov 2026, local)
+
+| Check | Result |
+|---|---|
+| Unit tests (`npm test`) | 177 passed |
+| End-to-end, full suite | 245 of 253 passed; the 8 failures were tests still describing the old design (the prices section, PNG sharing cards, the old package names, the questions' eyebrow) plus two real issues in the new block (its portrait served a JPEG fallback without `data-src-w`; gate L3 didn't know a photo-led section). All fixed and re-run with the related Home, image, budget and accessibility gates: 26 and 44 passed |
+| Production build and pre-launch check (`npm run build:cloudflare`) | 0 errors; 2 warnings for Cloudflare secrets a local build can't see |
+| SEO check (`scripts/seo-check.mjs`, now reading JPEG sizes as well as PNG) | 0 errors; 2 warnings that predate this change (/privacy/ description length, /services/ word count) |
+
 ## Not done here, and why
 
 | Phase 2 item | Why |
