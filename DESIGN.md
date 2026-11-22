@@ -1,5 +1,25 @@
 # DESIGN.md · "Signal" (round 5, Nov 2026), compact editorial portfolio (round 7)
 
+> **Launch motion (22 Nov 2026, for the 25 Nov launch; Mann's request after the 21 Nov SEO and design audit).** Two new
+> moments, both driven by the visitor (scroll), both inside the existing rules: transform and opacity only, tokens only,
+> nothing on a clock, nothing that loops, a complete reduced-motion and no-JavaScript path, and Home's element budget
+> (P3) untouched.
+> - **M5 "Search to booked" (Home → What I do, from 64em).** The three service tiles stack in one column and a phone
+>   stays in view beside them, acting out the tile at the reading line: **A** a search types itself and the business
+>   drops onto the map; **B** a missed call gets an automatic text and the customer replies; **C** the Book button is
+>   tapped and the booking confirms, with a text to the owner. The phone is `aria-hidden` decoration, built by the
+>   script only when the section is near. Its markup and styles (`scripts/service-phone.ts`, `styles/service-phone.css`)
+>   are one chunk fetched at that moment, so phones and tablets never download them and Home stays inside its byte
+>   budget (P2) and first style pass (M7). The phone's column is sized from the first paint, so nothing shifts. Lime appears only as fills (the pin's dot, the tick's disc), so the lime budget (C1) is unchanged.
+>   Phones, tablets, reduced motion and no JavaScript keep the bento and its small scenes.
+> - **M7 Odometer prices (Home → Prices).** When the price list is well into view, every digit turns one lap and lands
+>   on the same figure (an `aria-hidden` overlay that is removed when it lands). `[data-price]` always holds the plain
+>   price.
+> - **Considered and left out** (round 7's restraint and "nothing loops forever"): a velocity marquee, a cursor follower,
+>   3D tilt. The hero's signal field, agent graph, kinetic words, the wordmark's lock-on, magnetic buttons, spotlights,
+>   the footer name and page transitions already cover the rest of the audit's motion list.
+> - **Tests:** "launch motion" in `design-gates.spec.ts`.
+>
 > **Design upgrade, Phase 9 (18 Nov 2026): the re-audit, and its fixes.** Scored gate by gate against the plan, the site
 > was at **92 / 100** (101 of 110; the audit's score was 65). Mann approved every fix, so it is now **94** (103.5).
 > - **Still short of 9.5:** structure and imagery, which wait on Mann: S5 (a real testimonial) and G5 (a third
@@ -499,6 +519,13 @@ Signature moments: **Tune in** (below), the **headline that acts out its words**
 hero words (weight and tracking settle in, and flash lime when the signal locks), headings revealed line by line, the process line that draws itself on
 Services, and the footer name. Everything is off under `prefers-reduced-motion`; content never waits
 on JavaScript.
+
+### Search to booked and the odometer (launch motion, 22 Nov 2026)
+
+| Moment | Where | Trigger | What moves | Without motion or JavaScript |
+| --- | --- | --- | --- | --- |
+| **M5 Search to booked** | Home, What I do, from 64em | Scroll: the tile at the reading line (62% down the screen) picks the scene; past 45% of that tile, its second beat | Scenes cross-fade and rise (`--dur-3`/`--dur-4`); the pin drops (`--ease-spring`), the bubbles pop, the Book button's tap ripples, the confirmation slides up and its tick pops | The bento with its three small scenes, as before |
+| **M7 Odometer prices** | Home, Prices | Once, when the list is 35% in view | Each digit's column turns one lap (`--dur-5` × 2, staggered by `--stagger`) and lands on the same figure | The plain prices |
 
 ### The three words act out what they say (round 9; in the process strip since 10 Nov 2026)
 

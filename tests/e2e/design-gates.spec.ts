@@ -1429,3 +1429,77 @@ test.describe('design gates: the re-audit (Phase 9)', () => {
     expect([...problems]).toEqual([]);
   });
 });
+
+test.describe('launch motion (22 Nov 2026, DESIGN.md → Motion → Search to booked and the odometer)', () => {
+  test('M5: from 1024px the services phone acts out the tile at the reading line; phones, reduced motion and no JavaScript keep the bento', async ({ browser }) => {
+    const ctx = await browser.newContext({ viewport: { width: 1440, height: 900 } });
+    const page = await ctx.newPage();
+    await page.goto('/');
+    // Built only when the section is near (gate P3 counts Home at load).
+    await expect(page.locator('.ssp')).toHaveCount(0);
+    const phone = page.locator('.ssp');
+    const tiles = page.locator('[data-scene-tile]');
+    for (let i = 0; i < 3; i++) {
+      for (const [f, sub] of [
+        [0.2, '0'],
+        [0.8, '1'],
+      ] as const) {
+        // Put fraction f of tile i on the reading line (62% down the screen).
+        await page.evaluate(
+          ([i, f]) => {
+            const r = document.querySelectorAll<HTMLElement>('[data-scene-tile]')[i].getBoundingClientRect();
+            scrollTo({ top: scrollY + r.top + r.height * f - innerHeight * 0.62, behavior: 'instant' });
+          },
+          [i, f] as const,
+        );
+        await expect(phone, `tile ${i} at ${f}`).toHaveAttribute('data-scene', String(i));
+        await expect(phone, `tile ${i} at ${f}`).toHaveAttribute('data-sub', sub);
+        await expect(tiles.nth(i)).toHaveClass(/is-on/);
+      }
+      if (i === 0) await expect(phone.locator('[data-typed]')).toHaveText('hair salon near me');
+    }
+    await expect(phone).toHaveAttribute('aria-hidden', 'true');
+    await expect(phone.locator('a, button, input, [tabindex]')).toHaveCount(0);
+    await ctx.close();
+
+    for (const [label, opts] of [
+      ['390px', { viewport: { width: 390, height: 844 } }],
+      ['reduced motion', { viewport: { width: 1440, height: 900 }, reducedMotion: 'reduce' }],
+      ['no JavaScript', { viewport: { width: 1440, height: 900 }, javaScriptEnabled: false }],
+    ] as const) {
+      const c = await browser.newContext(opts);
+      const p = await c.newPage();
+      await p.goto('/');
+      await p.locator('#what-i-do').scrollIntoViewIfNeeded();
+      await p.waitForTimeout(400);
+      await expect(p.locator('.ssp'), label).toHaveCount(0);
+      await expect(p.locator('.ss__scene').first(), label).toBeVisible();
+      await c.close();
+    }
+  });
+
+  test('M7: the Home prices turn one lap when they come into view and the plain prices come back; reduced motion keeps them still', async ({ browser }) => {
+    const want = ['$450–$850', '$1,950', '$3,350', '$650', '$149 a month'];
+    const ctx = await browser.newContext({ viewport: { width: 1440, height: 900 } });
+    const page = await ctx.newPage();
+    await page.goto('/');
+    await expect(page.locator('#prices .pt-odo')).toHaveCount(0);
+    await page.locator('#prices .pt__list').scrollIntoViewIfNeeded();
+    await expect(page.locator('#prices .pt-odo').first()).toBeAttached();
+    await expect(page.locator('#prices .pt-odo').first()).toHaveAttribute('aria-hidden', 'true');
+    // The prices themselves never change, even mid-turn.
+    expect(await page.locator('#prices [data-price]').allTextContents()).toEqual(want);
+    await expect(page.locator('#prices .pt-odo')).toHaveCount(0, { timeout: 6000 });
+    await expect(page.locator('#prices [data-price].is-rolling')).toHaveCount(0);
+    expect(await page.locator('#prices [data-price]').allInnerTexts()).toEqual(want);
+    await ctx.close();
+
+    const still = await browser.newContext({ viewport: { width: 1440, height: 900 }, reducedMotion: 'reduce' });
+    const p = await still.newPage();
+    await p.goto('/');
+    await p.locator('#prices .pt__list').scrollIntoViewIfNeeded();
+    await p.waitForTimeout(500);
+    await expect(p.locator('#prices .pt-odo')).toHaveCount(0);
+    await still.close();
+  });
+});

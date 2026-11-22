@@ -2,10 +2,12 @@
 /**
  * One icon set for the whole site: 24px grid, 1.75px stroke, round caps (see DESIGN.md).
  * Decorative by default (aria-hidden). Pass `label` only when the icon is the sole content.
+ * The arrows are one path each (22 Nov 2026): they appear dozens of times on Home, and a path per stroke would spend
+ * Home's element budget (gate P3) on nothing the eye can see.
  */
 const paths = {
-  arrow: '<path d="M5 12h14"/><path d="m13 6 6 6-6 6"/>',
-  'arrow-ne': '<path d="M7 17 17 7"/><path d="M8 7h9v9"/>',
+  arrow: '<path d="M5 12h14M13 6l6 6-6 6"/>',
+  'arrow-ne': '<path d="M7 17 17 7M8 7h9v9"/>',
   'arrow-down': '<path d="M12 5v14"/><path d="m6 13 6 6 6-6"/>',
   'arrow-left': '<path d="M19 12H5"/><path d="m11 6-6 6 6 6"/>',
   check: '<path d="m5 12.5 4.5 4.5L19 7.5"/>',
