@@ -94,8 +94,10 @@ test.describe('design gates: colour (Phase 1)', () => {
         const marks = await page.evaluate(() => {
           const LIME = new Set(['rgb(212, 248, 74)', 'rgb(228, 255, 115)']);
           // Not counted (plan C1 and the 17 Nov 2026 decision): the sticky header (gate U2 rules its button), the wordmark
-          // and Λ glyphs, the agent graph, the free-check band, a headline's lime full stop, and live markers.
-          const EXEMPT = '.hdr, .wm, .ag, .fc, .status__dot, .sw__state--live, h1 .stop, h2 .stop';
+          // and Λ glyphs, the agent graph, the free-check band, a headline's lime full stop, and live markers. 22 Nov 2026:
+          // the phone action bar too, the header button's phone counterpart (upgrade report R7.3; its own test checks it
+          // leaves before the footer's lime button arrives).
+          const EXEMPT = '.hdr, .abar, .wm, .ag, .fc, .status__dot, .sw__state--live, h1 .stop, h2 .stop';
           const inView = (r: DOMRect) => r.bottom > 0 && r.top < innerHeight && r.right > 0 && r.left < innerWidth && r.width * r.height > 4;
           const ownText = (el: Element) => [...el.childNodes].some((n) => n.nodeType === 3 && n.textContent!.trim());
           const hits: Element[] = [];

@@ -2728,7 +2728,13 @@ test.describe('upgrade report Phase 1 (22 Nov 2026)', () => {
     await expect(links.first()).toHaveAttribute('href', '/contact/?package=check-up#check');
     await expect(links.nth(1)).toHaveText(BOOKING_SET ? 'Book a call' : 'Call');
     for (const l of await links.all()) expect((await l.boundingBox())!.height).toBeGreaterThanOrEqual(44);
-    // Hidden again once the footer is on screen, so it never covers the close or the legal links.
+    // It starts leaving a screen before the footer, and is gone before the footer's own lime button is on screen.
+    await page.evaluate(() => scrollTo({ top: document.querySelector('footer')!.getBoundingClientRect().top + scrollY - innerHeight * 1.5, behavior: 'instant' }));
+    await expect.poll(shown).toBe(false);
+    await page.waitForTimeout(400);
+    await page.evaluate(() => scrollTo({ top: document.querySelector('.ftr__cta')!.getBoundingClientRect().top + scrollY - 200, behavior: 'instant' }));
+    expect((await bar.boundingBox())!.y).toBeGreaterThanOrEqual(844 - 1);
+    // Hidden again at the very end, so it never covers the legal links.
     await page.evaluate(() => scrollTo({ top: document.body.scrollHeight, behavior: 'instant' }));
     await expect.poll(shown).toBe(false);
     // Hidden while away from it is not focusable.
