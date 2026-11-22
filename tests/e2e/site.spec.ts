@@ -1842,7 +1842,8 @@ test.describe('case studies (round 7)', () => {
       for (const h of ['Limitations', 'Outcomes', 'Next step']) await expect(page.getByRole('heading', { name: h })).toBeVisible();
       // A project-specific sharing card that really exists.
       const og = await page.locator('meta[property="og:image"]').getAttribute('content');
-      expect(og).toMatch(/\/og\/work-[a-z-]+\.png$/);
+      // A JPEG since 22 Nov 2026 (upgrade report R2.4: about a third of the PNG's weight, for quick link previews).
+      expect(og).toMatch(/\/og\/work-[a-z-]+\.jpg$/);
       expect((await request.get(new URL(og!, page.url()).pathname)).status()).toBe(200);
     });
   }
