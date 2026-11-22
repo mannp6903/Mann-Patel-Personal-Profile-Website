@@ -1489,6 +1489,11 @@ test.describe('launch motion (22 Nov 2026, DESIGN.md → Motion → Search to bo
     await expect(page.locator('#prices .pt-odo').first()).toHaveAttribute('aria-hidden', 'true');
     // The prices themselves never change, even mid-turn.
     expect(await page.locator('#prices [data-price]').allTextContents()).toEqual(want);
+    // Mid-turn only the overlay is painted: the plain price under it is transparent (22 Nov 2026, live: a global rule
+    // lost to the scoped price colour and both showed at once).
+    const colours = await page.locator('#prices [data-price].is-rolling').evaluateAll((els) => els.map((el) => getComputedStyle(el).color));
+    expect(colours.length).toBe(want.length);
+    expect(colours.filter((c) => !/^rgba\(.*,\s*0\)$|^transparent$/.test(c))).toEqual([]);
     await expect(page.locator('#prices .pt-odo')).toHaveCount(0, { timeout: 6000 });
     await expect(page.locator('#prices [data-price].is-rolling')).toHaveCount(0);
     expect(await page.locator('#prices [data-price]').allInnerTexts()).toEqual(want);

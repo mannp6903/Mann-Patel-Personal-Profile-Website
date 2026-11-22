@@ -144,79 +144,32 @@ const packageFor: Record<string, ReturnType<typeof packageById>> = {
     });
   }
 
-  // M5 (launch motion, 22 Nov 2026): from 64em, the phone acts out the tile at the middle of the screen. The layout is
-  // CSS from the first paint (html.js-motion + the media query); the phone joins its column when the section is near,
-  // and only scroll moves it on.
+  // M5 (launch motion, 22 Nov 2026): from 64em, the phone acts out the tile at the reading line. The layout is CSS from
+  // the first paint (html.js-motion + the media query); the phone, its styles and the code that moves it are one chunk
+  // (scripts/service-phone.ts), fetched when the section is near on a wide screen, so phones never download it (P2).
   const section = document.querySelector<HTMLElement>('.ss');
   const bento = section?.querySelector<HTMLElement>('.ss__bento');
   const wide = matchMedia('(min-width: 64em)');
   if (section && bento && !still && document.documentElement.classList.contains('js-motion')) {
-    const storyTiles = [...section.querySelectorAll<HTMLElement>('[data-scene-tile]')];
-    const query = 'hair salon near me';
-    let phone: HTMLElement | null = null;
-    let typed: HTMLElement | null = null;
     let near = false;
-    let ticking = false;
-    const update = () => {
-      ticking = false;
-      if (!phone || !wide.matches) return;
-      // The reading line sits a little below the middle, so the last tile finishes its scene while the phone is still
-      // pinned (the phone is taller than a tile).
-      const mid = innerHeight * 0.62;
-      let i = 0;
-      storyTiles.forEach((t, k) => {
-        if (t.getBoundingClientRect().top <= mid) i = k;
-      });
-      const r = storyTiles[i].getBoundingClientRect();
-      const local = Math.min(1, Math.max(0, (mid - r.top) / r.height));
-      if (phone.dataset.scene !== String(i)) {
-        phone.dataset.scene = String(i);
-        storyTiles.forEach((t, k) => t.classList.toggle('is-on', k === i));
-      }
-      const sub = local > 0.45 ? '1' : '0';
-      if (phone.dataset.sub !== sub) phone.dataset.sub = sub;
-      const chars = i > 0 ? query.length : Math.round(Math.min(1, local / 0.4) * query.length);
-      if (typed && typed.textContent!.length !== chars) typed.textContent = query.slice(0, chars);
-    };
-    const onScroll = () => {
-      if (!near || ticking) return;
-      ticking = true;
-      requestAnimationFrame(update);
-    };
     let loading = false;
-    const mount = () => {
-      if (phone || loading || !wide.matches) return;
-      // The phone's markup and styles come in one small chunk, fetched only here; the styles go in first, so the phone
-      // never shows unstyled.
+    const start = () => {
+      if (loading || !near || !wide.matches) return;
       loading = true;
       import('../../scripts/service-phone').then(
-        ({ SERVICE_PHONE, SERVICE_PHONE_CSS }) => {
-          const style = document.createElement('style');
-          style.textContent = SERVICE_PHONE_CSS;
-          document.head.append(style);
-          bento.insertAdjacentHTML('afterend', SERVICE_PHONE);
-          phone = section.querySelector<HTMLElement>('.ssp');
-          typed = phone?.querySelector<HTMLElement>('[data-typed]') ?? null;
-          storyTiles[0]?.classList.add('is-on');
-          update();
-        },
+        ({ startServicePhone }) => startServicePhone(section, bento, wide),
         () => (loading = false),
       );
     };
-    new IntersectionObserver(
+    const io = new IntersectionObserver(
       (entries) => {
         near = entries.some((e) => e.isIntersecting);
-        if (!near) return;
-        mount();
-        onScroll();
+        start();
       },
       { rootMargin: '50% 0px' },
-    ).observe(section);
-    addEventListener('scroll', onScroll, { passive: true });
-    wide.addEventListener('change', () => {
-      if (near) mount();
-      onScroll();
-    });
+    );
+    io.observe(section);
+    wide.addEventListener('change', start);
   }
 </script>
 
