@@ -13,17 +13,15 @@ import PageHead from './PageHead.astro';
 import Crumbs from './Crumbs.astro';
 import Button from './ui/Button.astro';
 import Icon from './ui/Icon.astro';
-import PackageCard from './packages/PackageCard.astro';
 import ProjectMedia from './work/ProjectMedia.astro';
 import FreeCheck from './home/FreeCheck.astro';
-import { profile } from '../data/site';
+import { cta } from '../data/site';
 import { industryPages, type IndustryPage } from '../data/industry-pages';
 import { servicePageBySlug, type ServicePage } from '../data/service-pages';
-import { packageById, priceLabel, type Package } from '../data/packages';
+import { packageById, type Package } from '../data/packages';
 import { absoluteUrl } from '../lib/mode';
 import { breadcrumbJsonLd, businessRef, packageOffer } from '../lib/seo';
 import { projectSite } from '../lib/work';
-import { areaHref } from '../lib/published';
 
 interface Props {
   page: IndustryPage;
@@ -39,7 +37,6 @@ const w = work.data;
 const site = projectSite(w);
 const services = page.services.map((slug) => servicePageBySlug(slug)).filter(Boolean) as ServicePage[];
 const others = industryPages.filter((p) => p.slug !== page.slug);
-const scarborough = areaHref('scarborough');
 const lines = page.lines.map((l, i) => (i === page.lines.length - 1 ? accentLine(l) : l));
 
 // Structured data matches the page: the service, sold by the business, at the prices shown.
@@ -73,79 +70,63 @@ const crumbs = breadcrumbJsonLd([
 <BaseLayout title={page.title} description={page.description} jsonLd={[serviceLd, faqLd, ...(crumbs ? [crumbs] : [])]}>
   <Crumbs items={[{ label: 'Services', href: '/services/' }, { label: page.short }]} />
 
-  <PageHead eyebrow={page.eyebrow} lines={lines} lead={page.lead} compact>
+  <PageHead lines={lines} lead={page.lead} compact>
     <div class="ip__actions" data-reveal="load" style="--d:5">
       <div class="btn-row">
-        <Button href={`/contact/?package=${main.id}#brief`}>Request a quote</Button>
-        <Button href="/contact/?package=check-up#check" variant="ghost">Start with the free check</Button>
+        <Button href={cta.checkHref}>{cta.check}</Button>
+        <a class="link-arrow" href={`/contact/?package=${main.id}#brief`}>Ask about a website <Icon name="arrow" /></a>
       </div>
-      <p class="ip__local small">
-        Based in {scarborough ? <a class="link" href={scarborough}>{profile.location}</a> : profile.location}, working across {profile.serviceArea}.
-      </p>
     </div>
   </PageHead>
 
-  <section class="section section--rule" data-case-study aria-labelledby="case-title">
+  <section class="section section--rule" aria-labelledby="ip-needs-title">
+    <div class="container ip__split">
+      <h2 id="ip-needs-title" class="ip__h2">{page.needsTitle}</h2>
+      <ul class="ip__list" role="list">
+        {
+          page.needs.map((n) => (
+            <li>
+              <Icon name="check" />
+              <span>{n}</span>
+            </li>
+          ))
+        }
+      </ul>
+    </div>
+  </section>
+
+  <section class="section section--alt" data-case-study aria-labelledby="case-title">
     <div class="container ip__case">
       <div class="stack" style="--stack: var(--head-gap-2)">
-        <p class="eyebrow">The case study</p>
-        <h2 id="case-title" class="ip__h2">{w.title}</h2>
+        <h2 id="case-title" class="ip__h2">{page.example.title}</h2>
         <p class="ip__tags small">
           <span>{w.relationship}</span>
           <span>{site.websiteStatus}</span>
-          {w.businessStatus && <span>{w.businessStatus}</span>}
         </p>
-        <p class="muted">{page.caseIntro}</p>
-        {
-          w.result && (
-            <p class="small">
-              <b>Results:</b> {w.result}
-            </p>
-          )
-        }
+        <p class="muted">{page.example.body}</p>
         <a class="link-arrow" href={`/work/${work.id}/`}>
-          Case study, dated screens and test results <Icon name="arrow" />
+          Case study <Icon name="arrow" />
         </a>
       </div>
       <ProjectMedia scene={w.scene} sizes="(min-width: 90em) 640px, (min-width: 64em) 44vw, 84vw" phoneSizes="(min-width: 90em) 160px, (min-width: 64em) 11vw, 22vw" />
     </div>
-
-    <div class="container ip__shows-wrap">
-      <p class="eyebrow">What its website answers</p>
-      <ol class="ip__shows" role="list">
-        {
-          page.shows.map((s, i) => (
-            <li>
-              <span class="num ip__n">{String(i + 1).padStart(2, '0')}</span>
-              <h3>{s.title}</h3>
-              <p class="muted">{s.body}</p>
-            </li>
-          ))
-        }
-      </ol>
-    </div>
   </section>
 
-  <section class="section section--alt" data-packages aria-labelledby="ip-pkg-title">
-    <div class="container stack" style="--stack: var(--s-6)">
-      <div class="section-head">
-        <p class="eyebrow">The package that fits</p>
-        <h2 id="ip-pkg-title" class="ip__h2">
-          {main.name}, <span class="accent">{priceLabel(main).text}.</span>
-        </h2>
-        <p class="muted">{page.packageNote}</p>
+  <section class="section section--rule" data-packages aria-labelledby="ip-pkg-title">
+    <div class="container ip__split">
+      <h2 id="ip-pkg-title" class="ip__h2">Price</h2>
+      <div class="stack" style="--stack: var(--s-4)">
+        <p class="ip__price">{page.priceLine}</p>
+        <p class="muted small">In Canadian dollars, plus tax.</p>
+        <a class="link-arrow" href="/pricing/#pr-compare">What’s included <Icon name="arrow" /></a>
       </div>
-      <ol class="ip__pkgs" role="list">
-        {pkgs.map((p) => <PackageCard pkg={p} />)}
-      </ol>
-      <a class="link-arrow" href="/pricing/">Every package side by side, and what each leaves out <Icon name="arrow" /></a>
     </div>
   </section>
 
   <section class="section" aria-labelledby="ip-faq-title">
     <div class="container ip__split">
       <div class="stack" style="--stack: var(--s-4)">
-        <h2 id="ip-faq-title" class="ip__h2">Asked <span class="accent">before buying.</span></h2>
+        <h2 id="ip-faq-title" class="ip__h2">Questions</h2>
       </div>
       <div>
         {
@@ -199,15 +180,33 @@ const crumbs = breadcrumbJsonLd([
 </BaseLayout>
 
 <style>
+  /* 23 Nov 2026 audit (copy deck §2.4): the needs list and the price line. */
+  .ip__list {
+    display: grid;
+    gap: var(--s-3);
+  }
+  .ip__list li {
+    display: flex;
+    gap: var(--s-3);
+    align-items: flex-start;
+  }
+  .ip__list :global(.icon) {
+    flex: none;
+    width: 1.1rem;
+    height: 1.1rem;
+    margin-top: 0.2em;
+    color: var(--signal);
+  }
+  .ip__price {
+    font-size: var(--fs-lead);
+    line-height: 1.5;
+  }
   .ip__actions {
     display: grid;
     gap: var(--s-3);
     margin-top: var(--s-2);
   }
-  .ip__local {
-    max-width: 60ch;
-    color: var(--text-2);
-  }
+  
   .ip__h2 {
     font-size: var(--fs-h2);
     max-width: 20ch;
@@ -234,49 +233,6 @@ const crumbs = breadcrumbJsonLd([
     border-radius: var(--r-pill);
     font-size: var(--fs-label);
     color: var(--text-2);
-  }
-  .ip__shows-wrap {
-    display: grid;
-    gap: var(--s-5);
-    margin-top: var(--s-8);
-  }
-  .ip__shows {
-    display: grid;
-    gap: var(--s-5);
-  }
-  @media (min-width: 48em) {
-    .ip__shows {
-      grid-template-columns: repeat(2, minmax(0, 1fr));
-    }
-  }
-  @media (min-width: 80em) {
-    .ip__shows {
-      grid-template-columns: repeat(4, minmax(0, 1fr));
-    }
-  }
-  .ip__shows li {
-    display: grid;
-    align-content: start;
-    gap: var(--s-2);
-    padding-top: var(--s-4);
-    border-top: 1px solid var(--line);
-  }
-  .ip__shows h3 {
-    font-size: var(--fs-base);
-    font-weight: var(--w-head);
-  }
-  .ip__n {
-    font-size: var(--fs-label);
-    color: var(--signal);
-  }
-  .ip__pkgs {
-    display: grid;
-    gap: var(--s-4);
-  }
-  @media (min-width: 56em) {
-    .ip__pkgs {
-      grid-template-columns: repeat(2, minmax(0, 1fr));
-    }
   }
   .ip__split {
     display: grid;

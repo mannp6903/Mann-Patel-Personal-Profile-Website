@@ -41,7 +41,8 @@ describe('industry pages', () => {
     const cleaning = industryPages[0];
     const salons = industryPages[1];
     expect(cleaning.caseStudy).toBe('nest-and-rest-cleaning');
-    expect(cleaning.packages).toEqual(['website-launch', 'local-visibility']);
+    // 23 Nov 2026 audit (copy deck §2.4): "Website, $1,950; with online booking, $3,350."
+    expect(cleaning.packages).toEqual(['website-launch', 'website-enquiry']);
     expect(salons.caseStudy).toBe('samp-hair-spa');
     // Online booking first; Website Launch is the lighter option.
     expect(salons.packages).toEqual(['website-enquiry', 'website-launch']);

@@ -16,23 +16,26 @@ export interface IndustryPage {
   short: string;
   /** Link text used on other pages. */
   linkLabel: string;
-  /** Page title for search results (" | Mann Patel" is added; 47 characters at most). */
+  /** Page title for search results (" | Mann Patel" is added). */
   title: string;
   description: string;
-  eyebrow: string;
   h1: string;
   /** The H1 split into display lines; the last one is set in lime. Must join back to `h1`. */
   lines: string[];
+  /** The opening: what an owner's customers want to know, in two sentences (copy deck §2.4). */
   lead: string;
-  /** The case study the page leads with (src/content/work/<id>.md). */
+  /** "What a … website needs": the heading and its short list. */
+  needsTitle: string;
+  needs: string[];
+  /** The case study the page shows as its example (src/content/work/<id>.md). */
   caseStudy: 'nest-and-rest-cleaning' | 'samp-hair-spa';
-  /** One honest sentence on what the case study is. */
-  caseIntro: string;
-  /** What the case study's website does, each taken from a decision or test in the case study. */
-  shows: { title: string; body: string }[];
-  /** The package that fits first. */
+  /** The example in one heading and one line (copy deck §2.4). */
+  example: { title: string; body: string };
+  /** The packages that fit, the first one first; their prices make the "Price" line. */
   packages: PackageId[];
-  packageNote: string;
+  /** "Price", in one line (copy deck §2.4). */
+  priceLine: string;
+  /** Three questions. */
   faqs: Faq[];
   /** The service pages this trade needs most (linked from here, and they link back). */
   services: ('web-design' | 'local-visibility' | 'enquiry-follow-up')[];
@@ -40,6 +43,11 @@ export interface IndustryPage {
 
 const price = (id: PackageId) => priceLabel(packageById(id)!).text;
 
+/**
+ * 23 Nov 2026 (SEO audit copy deck §2.4): the cleaning page in the deck's words, the salon page on the same template
+ * from its own earlier wording. The 564-word package block copied from the web design page is gone; inclusions,
+ * exclusions and what other providers bill live on /pricing/.
+ */
 export const industryPages: IndustryPage[] = [
   {
     slug: 'websites-for-cleaning-companies',
@@ -49,33 +57,18 @@ export const industryPages: IndustryPage[] = [
     title: `Cleaning Company Websites in Toronto, from ${price('website-launch')}`,
     description:
       'Websites for Toronto cleaning companies: prices up front, the areas you serve and a booking request. See the Nest & Rest case study. From $1,950 CAD.',
-    eyebrow: 'For cleaning companies',
     h1: 'Cleaning company website design in Toronto',
     lines: ['Cleaning company website', 'design in Toronto'],
-    lead: 'Websites for home and office cleaning companies in Toronto and the GTA that answer what people ask before they book a cleaner: what it costs, whether you come to their area, and who will be in their home. I built one for my own cleaning business, so this page starts there.',
+    lead: 'People booking a cleaner want three answers before they call: what it costs, whether you come to their area, and whether they can trust you. Your website should answer all three on a phone.',
+    needsTitle: 'What a cleaning website needs',
+    needs: ['A price or a price range', 'The areas you cover', 'What each clean includes', 'Who you are, with a photo', 'A booking or quote request'],
     caseStudy: 'nest-and-rest-cleaning',
-    caseIntro:
-      'Nest & Rest Cleaning is my own home-cleaning business in Scarborough and North York, not a client. I designed and built its website from scratch. Bookings open in summer 2027, so there are no customers, reviews or results to show yet: what you can see is the website itself, and the tests I ran on it.',
-    shows: [
-      {
-        title: 'The price, first',
-        body: 'The first screen shows a real price for the service, home type, bedrooms and bathrooms, without asking for a name, email or phone.',
-      },
-      {
-        title: 'Areas people can believe',
-        body: 'Two districts, with neighbourhood pages and a postal-code check. Codes outside the area are declined politely, with a waitlist offer.',
-      },
-      {
-        title: 'What’s included, room by room',
-        body: 'One checklist decides what each service includes, what is a paid extra and what isn’t offered, so the price, the service pages and the booking form never disagree.',
-      },
-      {
-        title: 'The owner at the door',
-        body: 'With no reviews yet, the proof is the person coming into your home: a photo, a name and “I clean every home myself.”',
-      },
-    ],
-    packages: ['website-launch', 'local-visibility'],
-    packageNote: `The Website package (${price('website-launch')}) covers up to five pages, one quote or booking-request form tested end to end, and search basics. Add Google Listing Setup (${price('local-visibility')}) to set up your Google Business Profile as a service-area business, with your home address hidden. An instant price calculator like the one on Nest & Rest is outside the five-page boundary, so it is quoted in writing before any work starts.`,
+    example: {
+      title: 'Example: Nest & Rest Cleaning, my own business',
+      body: 'Prices, a postal-code check and the owner’s photo on the home page. It’s my own cleaning business, not a client: bookings open in summer 2027.',
+    },
+    packages: ['website-launch', 'website-enquiry'],
+    priceLine: `Website, ${price('website-launch')}; with online booking, ${price('website-enquiry')}.`,
     faqs: [
       {
         q: 'Should a cleaning company show its prices online?',
@@ -86,16 +79,8 @@ export const industryPages: IndustryPage[] = [
         a: 'Yes, if you clean at your customers’ homes or offices. Your Google Business Profile is set up as a service-area business: your home address is hidden and the areas you serve are shown instead. That is part of Google Listing Setup.',
       },
       {
-        q: 'Can customers book a cleaning online?',
-        a: `The Website package includes one enquiry path, such as a booking-request form that confirms to the customer and reaches your inbox, tested end to end. Connecting a booking tool with reminders, or missed-call text-back, is Website + Booking (${price('website-enquiry')}).`,
-      },
-      {
         q: 'Have you built websites for other cleaning companies?',
-        a: 'Not yet. Nest & Rest Cleaning is my own business, and its website is the one I can show you, with dated screens and the tests I ran on the live site. When I build one for a client, it goes on my work page with the same honest labels.',
-      },
-      {
-        q: 'How much does a cleaning company website cost?',
-        a: `The Website package is ${price('website-launch')} CAD plus tax, and Google Listing Setup is ${price('local-visibility')}. Your domain, hosting if your host charges for it, and any booking tool are billed to you directly by each provider.`,
+        a: 'Not yet. Nest & Rest Cleaning is my own business, and its website is the one I can show you, with dated screens and the tests I ran on the live site. When I build one for a client, it goes on my work page with the same labels.',
       },
     ],
     services: ['web-design', 'local-visibility'],
@@ -107,33 +92,23 @@ export const industryPages: IndustryPage[] = [
     title: 'Salon Websites with Online Booking in Toronto',
     description:
       'Salon and spa websites in Toronto: a menu clients can scan, your real hours and online booking. See the Samp Hair & Spa preview. From $1,950 CAD.',
-    eyebrow: 'For salons and spas',
     h1: 'Salon and spa website design in Toronto',
     lines: ['Salon and spa website', 'design in Toronto'],
-    lead: 'Websites for hair salons, spas and beauty businesses in Toronto and the GTA: a service menu clients can scan on a phone, your real hours, and an appointment request or online booking connected to your booking tool. The example is a Scarborough salon and spa whose website I’m building now, with an appointment request form.',
-    caseStudy: 'samp-hair-spa',
-    caseIntro:
-      'Samp Hair & Spa is a salon and spa in Scarborough, and a client. Its new website is in progress: the preview is online for review, the accessibility findings from my tests are still open, and nothing has launched, so no results are claimed.',
-    shows: [
-      {
-        title: 'Open now, in Toronto time',
-        body: 'A live badge shows whether the salon is open and until when, worked out from its real hours, even for a visitor whose computer is set to another time zone.',
-      },
-      {
-        title: 'A menu you can scan',
-        body: 'Services in seven groups with starting prices, and a note that prices are confirmed when booking. Where a price isn’t published, it says “Call for pricing”.',
-      },
-      {
-        title: 'Requests, not fake bookings',
-        body: 'A three-step appointment request that never claims an appointment is confirmed, with calling always one tap away.',
-      },
-      {
-        title: 'Reputation, honestly',
-        body: 'The salon’s public rating and the themes reviewers mention most, with no made-up quotes or names, and stock photos labelled as illustrative.',
-      },
+    lead: 'Websites for hair salons, spas and beauty businesses in Toronto and the GTA: a service menu clients can scan on a phone, your real hours, and an appointment request or online booking connected to your booking tool.',
+    needsTitle: 'What a salon website needs',
+    needs: [
+      'A service menu clients can scan on a phone, with starting prices',
+      'Your real hours, and whether you’re open now',
+      'An appointment request, or online booking connected to your booking tool',
+      'Your public rating and what reviewers mention, never made-up quotes',
     ],
+    caseStudy: 'samp-hair-spa',
+    example: {
+      title: 'Example: Samp Hair & Spa, a Scarborough client',
+      body: 'A live “open now” badge, a menu in seven groups with starting prices, and a three-step appointment request. The website is in progress: the preview is online for review, and nothing has launched yet.',
+    },
     packages: ['website-enquiry', 'website-launch'],
-    packageNote: `For online booking, Website + Booking (${price('website-enquiry')}) connects your booking tool to the website and your Google profile, with reminders before each appointment, plus one follow-up workflow such as missed-call text-back. The Website package (${price('website-launch')}) is the lighter option: the menu, hours and one tested request form, without a booking integration.`,
+    priceLine: `Website + Booking, ${price('website-enquiry')}; the Website package without online booking, ${price('website-launch')}.`,
     faqs: [
       {
         q: 'Can clients book appointments online from my website?',
@@ -146,14 +121,6 @@ export const industryPages: IndustryPage[] = [
       {
         q: 'What about the calls I miss while I’m with a client?',
         a: 'Missed-call text-back is one of the follow-up workflows in Website + Booking: a caller who rings out gets a text from your business number, marked as automatic, saying what happens next. Phone and text-message usage is billed to you by the provider.',
-      },
-      {
-        q: 'Can my website show our reviews?',
-        a: 'Yes, honestly: your public rating and the themes reviewers mention most, as on the Samp Hair & Spa preview. No made-up quotes or names, and never bought, swapped or filtered reviews.',
-      },
-      {
-        q: 'How much does a salon website cost?',
-        a: `Website + Booking, with online booking and one follow-up workflow, is ${price('website-enquiry')} CAD plus tax. The Website package, without the booking integration, is ${price('website-launch')}. Your domain, hosting if it charges, and your booking tool are billed to you directly by each provider.`,
       },
     ],
     services: ['web-design', 'enquiry-follow-up'],
