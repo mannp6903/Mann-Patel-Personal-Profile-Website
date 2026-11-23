@@ -45,7 +45,8 @@ export const industryPages: IndustryPage[] = [
     slug: 'websites-for-cleaning-companies',
     short: 'Cleaning companies',
     linkLabel: 'Websites for cleaning companies',
-    title: 'Cleaning Company Website Design in Toronto',
+    // PRICE-1 (23 Nov 2026 audit, copy deck §3.3).
+    title: `Cleaning Company Websites in Toronto, from ${price('website-launch')}`,
     description:
       'Websites for Toronto cleaning companies: prices up front, the areas you serve and a booking request. See the Nest & Rest case study. From $1,950 CAD.',
     eyebrow: 'For cleaning companies',
@@ -103,7 +104,7 @@ export const industryPages: IndustryPage[] = [
     slug: 'websites-for-salons-and-spas',
     short: 'Salons and spas',
     linkLabel: 'Websites for salons and spas',
-    title: 'Salon & Spa Website Design in Toronto',
+    title: 'Salon Websites with Online Booking in Toronto',
     description:
       'Salon and spa websites in Toronto: a menu clients can scan, your real hours and online booking. See the Samp Hair & Spa preview. From $1,950 CAD.',
     eyebrow: 'For salons and spas',

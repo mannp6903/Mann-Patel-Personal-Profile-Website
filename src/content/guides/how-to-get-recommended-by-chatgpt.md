@@ -1,6 +1,6 @@
 ---
 title: How local businesses show up in ChatGPT and Google AI Overviews
-seoTitle: Showing Up in ChatGPT & AI Overviews
+seoTitle: How to Get ChatGPT to Recommend Your Business
 description: 'How ChatGPT, Gemini and Google AI Overviews find local businesses, and the plain local SEO work that helps them describe yours accurately.'
 draft: false
 published: 2026-11-14

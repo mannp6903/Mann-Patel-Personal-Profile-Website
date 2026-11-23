@@ -1,6 +1,6 @@
 ---
 title: Nest & Rest Cleaning
-seoTitle: Nest & Rest Cleaning Website Case Study
+seoTitle: "Cleaning Company Website Example: Nest & Rest"
 order: 2
 status: launched
 kind: My own business, opening summer 2027

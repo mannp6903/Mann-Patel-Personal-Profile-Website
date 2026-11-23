@@ -58,7 +58,8 @@ export const areas: Area[] = [
   {
     slug: 'scarborough',
     name: 'Scarborough',
-    title: 'Web Design in Scarborough, Ontario',
+    // PRICE-1 (23 Nov 2026 audit): the published price in the title; Home is "Web Designer in Scarborough…", so they differ.
+    title: `Web Design in Scarborough, Ontario, from ${price('website-launch')}`,
     description:
       'Web designer based in Scarborough, Ontario: websites, Google Business Profile setup and online booking for local small businesses, with published prices.',
     eyebrow: 'Based in Scarborough',

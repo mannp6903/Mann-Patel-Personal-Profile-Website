@@ -174,23 +174,23 @@ test.describe('pages', () => {
   });
 
   // The copy map from the growth report (10 Nov 2026), updated by the SEO audit (14 Nov 2026,
-  // docs/seo/PLAN.md): each page names its service and the place.
+  // docs/seo/PLAN.md): each page names its service and the place. Titles from the 23 Nov 2026 audit (copy deck §3.3).
   const COPY: [string, string, string, string][] = [
-    ['/', 'Web Design & Local SEO in Scarborough, Toronto | Mann Patel', 'Websites and Google listings for Scarborough and Toronto small businesses.', 'Websites, local SEO and Google Business Profile setup for Toronto small businesses. Published prices: websites from $1,950 CAD. Free website check.'],
+    ['/', 'Web Designer in Scarborough, Websites from $1,950 | Mann Patel', 'Websites and Google listings for Scarborough and Toronto small businesses.', 'Websites, local SEO and Google Business Profile setup for Toronto small businesses. Published prices: websites from $1,950 CAD. Free website check.'],
     ['/services/', 'Website, Local SEO & Booking Services | Mann Patel', 'Website, local SEO and enquiry services', 'Compare web design, local SEO, Google Business Profile setup and enquiry automation for Toronto service businesses. See packages and request a quote.'],
-    ['/services/web-design/', 'Toronto Small Business Web Design | Mann Patel', 'Web design for Toronto small businesses', 'Get a mobile-friendly website or redesign with clear service pages, a tested enquiry path and a written handover. See projects and ask for a quote.'],
-    ['/services/local-visibility/', 'Local SEO & Google Business Profile Toronto | Mann Patel', 'Local SEO and Google Business Profile setup in Toronto', 'Improve your Google presence with eligible profile setup, listing updates and a review workflow. Ask about SEO foundations and an AI search check.'],
-    ['/services/enquiry-follow-up/', 'Enquiry Automation & Online Booking in Toronto | Mann Patel', 'Enquiry follow-up and online booking for Toronto businesses', 'Set up missed-call text-back, form follow-up or an online booking path with tools you own. Get one scoped workflow, tested and documented.'],
+    ['/services/web-design/', 'Small Business Web Design in Toronto, from $1,950 | Mann Patel', 'Web design for Toronto small businesses', 'Get a mobile-friendly website or redesign with clear service pages, a tested enquiry path and a written handover. See projects and ask for a quote.'],
+    ['/services/local-visibility/', 'Google Business Profile Setup in Toronto, $650 | Mann Patel', 'Local SEO and Google Business Profile setup in Toronto', 'Improve your Google presence with eligible profile setup, listing updates and a review workflow. Ask about SEO foundations and an AI search check.'],
+    ['/services/enquiry-follow-up/', 'Missed-Call Text-Back & Online Booking in Toronto | Mann Patel', 'Enquiry follow-up and online booking for Toronto businesses', 'Set up missed-call text-back, form follow-up or an online booking path with tools you own. Get one scoped workflow, tested and documented.'],
     ['/work/', 'Toronto Small Business Website Projects | Mann Patel', 'Website projects for Toronto service businesses', 'See the Nest & Rest Cleaning website case study and Samp Hair & Spa preview, with dated work, project status and documented checks.'],
-    ['/pricing/', 'Web Design & Local SEO Pricing in Toronto | Mann Patel', 'Toronto website prices, and what they cover.', 'Published prices in CAD: 5-page website $1,950, website + booking $3,350, fixes $450–$850, local SEO setup $650, care $149/month. Toronto and GTA.'],
+    ['/pricing/', 'Website Design Prices in Toronto, from $1,950 | Mann Patel', 'Toronto website prices, and what they cover.', 'Published prices in CAD: 5-page website $1,950, website + booking $3,350, fixes $450–$850, local SEO setup $650, care $149/month. Toronto and GTA.'],
     ['/vision/', 'Vision | Mann Patel, Web Designer in Toronto', 'Local businesses do the work. Software should run the rest.', 'What Mann Patel is building: local businesses that do the work while software and AI handle the rest. His ventures, what has shipped, and what comes next.'],
     // SEO audit Phase 3 (14 Nov 2026): one page per search we can win (plan C1, C3, C4).
-    ['/websites-for-cleaning-companies/', 'Cleaning Company Website Design in Toronto | Mann Patel', 'Cleaning company website design in Toronto', 'Websites for Toronto cleaning companies: prices up front, the areas you serve and a booking request. See the Nest & Rest case study. From $1,950 CAD.'],
-    ['/websites-for-salons-and-spas/', 'Salon & Spa Website Design in Toronto | Mann Patel', 'Salon and spa website design in Toronto', 'Salon and spa websites in Toronto: a menu clients can scan, your real hours and online booking. See the Samp Hair & Spa preview. From $1,950 CAD.'],
+    ['/websites-for-cleaning-companies/', 'Cleaning Company Websites in Toronto, from $1,950 | Mann Patel', 'Cleaning company website design in Toronto', 'Websites for Toronto cleaning companies: prices up front, the areas you serve and a booking request. See the Nest & Rest case study. From $1,950 CAD.'],
+    ['/websites-for-salons-and-spas/', 'Salon Websites with Online Booking in Toronto | Mann Patel', 'Salon and spa website design in Toronto', 'Salon and spa websites in Toronto: a menu clients can scan, your real hours and online booking. See the Samp Hair & Spa preview. From $1,950 CAD.'],
     // SEO audit Phase 4 (14 Nov 2026): plan C15, C16.
-    ['/services/website-care/', 'Small Business Website Maintenance in Toronto | Mann Patel', 'Website maintenance for Toronto small businesses', 'Website Care, $149 a month: a monthly test enquiry through your form, your booking link checked, up to 30 minutes of edits and a note. Stop any month.'],
+    ['/services/website-care/', 'Website Maintenance in Toronto, $149 a month | Mann Patel', 'Website maintenance for Toronto small businesses', 'Website Care, $149 a month: a monthly test enquiry through your form, your booking link checked, up to 30 minutes of edits and a note. Stop any month.'],
     ['/services/ai-search-optimization/', 'AI Search Optimization (AEO & GEO) in Toronto | Mann Patel', 'AI search optimization for Toronto businesses', 'See what ChatGPT, Gemini and Perplexity say about your business, then fix the public facts they draw on. Part of Google Listing Setup, $650 CAD.'],
-    ['/web-design-scarborough/', 'Web Design in Scarborough, Ontario | Mann Patel', 'Web design in Scarborough, Ontario', 'Web designer based in Scarborough, Ontario: websites, Google Business Profile setup and online booking for local small businesses, with published prices.'],
+    ['/web-design-scarborough/', 'Web Design in Scarborough, Ontario, from $1,950 | Mann Patel', 'Web design in Scarborough, Ontario', 'Web designer based in Scarborough, Ontario: websites, Google Business Profile setup and online booking for local small businesses, with published prices.'],
   ];
   test('search copy: titles, H1s and descriptions name the service and the place', async ({ page }) => {
     for (const [path, title, h1, description] of COPY) {
@@ -202,7 +202,7 @@ test.describe('pages', () => {
     }
     // Case-study titles describe the work; the H1 stays the project's name.
     await page.goto('/work/nest-and-rest-cleaning/');
-    expect(await page.title()).toBe('Nest & Rest Cleaning Website Case Study | Mann Patel');
+    expect(await page.title()).toBe('Cleaning Company Website Example: Nest & Rest | Mann Patel');
     await expect(page.locator('h1')).toHaveText('Nest & Rest Cleaning');
     await page.goto('/work/samp-hair-spa/');
     expect(await page.title()).toBe('Samp Hair & Spa Website Preview | Mann Patel');

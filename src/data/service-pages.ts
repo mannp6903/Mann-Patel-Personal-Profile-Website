@@ -96,7 +96,8 @@ export const servicePages: ServicePage[] = [
     short: 'Web design',
     name: 'Web design and redesign',
     card: 'A new website, or a redesign of a dated one: up to five pages, one tested enquiry path and a written handover.',
-    title: 'Toronto Small Business Web Design',
+    // PRICE-1 (23 Nov 2026 audit, copy deck §3.3): the searcher's words and the published price.
+    title: `Small Business Web Design in Toronto, from ${price('website-launch')}`,
     description:
       'Get a mobile-friendly website or redesign with clear service pages, a tested enquiry path and a written handover. See projects and ask for a quote.',
     eyebrow: 'Web design and redesign',
@@ -213,7 +214,7 @@ export const servicePages: ServicePage[] = [
     name: 'Local SEO and Google Business Profile',
     card: 'One eligible Google Business Profile set up and optimized, your listings made consistent, and a routine for genuine reviews.',
     // SEO audit (14 Nov 2026): 56 characters with " | Mann Patel", so it isn't cut off in results.
-    title: 'Local SEO & Google Business Profile Toronto',
+    title: `Google Business Profile Setup in Toronto, ${price('local-visibility')}`,
     description:
       'Improve your Google presence with eligible profile setup, listing updates and a review workflow. Ask about SEO foundations and an AI search check.',
     eyebrow: 'Local SEO and Google Maps',
@@ -329,7 +330,7 @@ export const servicePages: ServicePage[] = [
     short: 'Enquiry follow-up',
     name: 'Enquiry follow-up and online booking',
     card: 'Missed-call text-back, form follow-up or an online booking path: one workflow in tools you own, tested and documented.',
-    title: 'Enquiry Automation & Online Booking in Toronto',
+    title: 'Missed-Call Text-Back & Online Booking in Toronto',
     description:
       'Set up missed-call text-back, form follow-up or an online booking path with tools you own. Get one scoped workflow, tested and documented.',
     eyebrow: 'Enquiry follow-up and booking',
@@ -459,7 +460,7 @@ export const moreServicePages: ServicePage[] = [
     short: 'Website care',
     name: 'Website care and maintenance',
     card: 'A monthly test of your enquiry form and booking link, up to 30 minutes of small edits, and a note of what changed.',
-    title: 'Small Business Website Maintenance in Toronto',
+    title: `Website Maintenance in Toronto, ${price('care')}`,
     description:
       'Website Care, $149 a month: a monthly test enquiry through your form, your booking link checked, up to 30 minutes of edits and a note. Stop any month.',
     eyebrow: 'Website maintenance',

@@ -28,7 +28,7 @@ const description = `Websites, local SEO and Google Business Profile setup for T
 
 <BaseLayout
   title="Home"
-  fullTitle="Web Design & Local SEO in Scarborough, Toronto | Mann Patel"
+  fullTitle={`Web Designer in Scarborough, Websites from ${priceLabel(launch).text} | Mann Patel`}
   description={description}
   jsonLd={[websiteJsonLd(), businessJsonLd({ withServices: true }), { '@context': 'https://schema.org', ...personJsonLd() }, faqLd]}
 >

@@ -19,15 +19,20 @@ describe('industry pages', () => {
   it('the display lines join back to the H1; titles and descriptions fit a search result', () => {
     for (const p of industryPages) {
       expect(p.lines.join(' ')).toBe(p.h1);
-      expect((p.title + SUFFIX).length, p.slug).toBeLessThanOrEqual(60);
+      // 23 Nov 2026 audit (PRICE-1, copy deck §3.3): the price goes in the title; Google cuts by width, and the cut falls
+      // in " | Mann Patel", so up to 63 characters.
+      expect((p.title + SUFFIX).length, p.slug).toBeLessThanOrEqual(63);
       expect(p.description.length, p.slug).toBeLessThanOrEqual(155);
     }
   });
 
   it('each targets its search in the title and the H1', () => {
+    // 23 Nov 2026 audit (copy deck §3.3, keyword audit K2): the title uses the searcher's words ("cleaning company
+    // websites", "salon websites … online booking"); the H1 keeps the original search.
+    const titleKeyword = { 'websites-for-cleaning-companies': 'cleaning company websites toronto', 'websites-for-salons-and-spas': 'salon websites toronto' };
     const keyword = { 'websites-for-cleaning-companies': 'cleaning company website design toronto', 'websites-for-salons-and-spas': 'salon website design toronto' };
     for (const p of industryPages) {
-      expect(targets(p.title, keyword[p.slug]), p.title).toBe(true);
+      expect(targets(p.title, titleKeyword[p.slug]), p.title).toBe(true);
       expect(targets(p.h1, keyword[p.slug]), p.h1).toBe(true);
     }
   });

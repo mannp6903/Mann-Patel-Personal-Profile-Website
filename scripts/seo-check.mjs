@@ -33,7 +33,8 @@ const SITE = 'https://mannpatel.me';
 const EXACT = {
   '/': {
     // Competitor gap work (16 Nov 2026): keyword first.
-    title: 'Web Design & Local SEO in Scarborough, Toronto | Mann Patel',
+    // 23 Nov 2026 audit (PRICE-1, copy deck §3.3): the searcher's words and the published price.
+    title: 'Web Designer in Scarborough, Websites from $1,950 | Mann Patel',
     description:
       'Websites, local SEO and Google Business Profile setup for Toronto small businesses. Published prices: websites from $1,950 CAD. Free website check.',
     // 22 Nov 2026 (upgrade report §6, Option A): "Google listings", the owner's word; the title keeps "Local SEO".
@@ -41,15 +42,15 @@ const EXACT = {
     h1: 'Websites and Google listings for Scarborough and Toronto small businesses.',
   },
   '/pricing/': {
-    title: 'Web Design & Local SEO Pricing in Toronto | Mann Patel',
+    title: 'Website Design Prices in Toronto, from $1,950 | Mann Patel',
     description:
       'Published prices in CAD: 5-page website $1,950, website + booking $3,350, fixes $450–$850, local SEO setup $650, care $149/month. Toronto and GTA.',
   },
-  '/services/local-visibility/': { title: 'Local SEO & Google Business Profile Toronto | Mann Patel' },
+  '/services/local-visibility/': { title: 'Google Business Profile Setup in Toronto, $650 | Mann Patel' },
   '/vision/': { title: 'Vision | Mann Patel, Web Designer in Toronto' },
   // Nov 2026 audit fixes (the address stays the same).
   '/guides/how-to-get-recommended-by-chatgpt/': {
-    title: 'Showing Up in ChatGPT & AI Overviews | Mann Patel',
+    title: 'How to Get ChatGPT to Recommend Your Business | Mann Patel',
     h1: 'How local businesses show up in ChatGPT and Google AI Overviews',
   },
 };
@@ -70,8 +71,10 @@ const NEW_PAGES = [
 const DRAFT_PATHS = [];
 /** The search each new page is built for: every word must be in its title and in its H1 (plan C1, C3, C4). */
 const KEYWORDS = {
-  '/websites-for-cleaning-companies/': 'cleaning company website design toronto',
-  '/websites-for-salons-and-spas/': 'salon website design toronto',
+  // 23 Nov 2026 audit (copy deck §3.3, K2): titles in the searcher's words ("cleaning company websites", "salon websites
+  // with online booking"); a plural matches its singular below.
+  '/websites-for-cleaning-companies/': 'cleaning company website toronto',
+  '/websites-for-salons-and-spas/': 'salon website toronto',
   '/web-design-scarborough/': 'web design scarborough',
   // Nov 2026 audit fixes (keyword C17), checked once the page is published.
   '/web-design-north-york/': 'web designer north york',
@@ -486,7 +489,8 @@ for (const path of drafts) {
 for (const [path, keyword] of Object.entries(KEYWORDS)) {
   const p = pages.get(path);
   if (!p) continue; // not built: reported above if it should be
-  const words = (s) => s.toLowerCase().replace(/[^a-z0-9\s]/g, ' ').split(/\s+/).filter(Boolean);
+  // Plural or singular ("websites" / "website") counts as the same word.
+  const words = (s) => s.toLowerCase().replace(/[^a-z0-9\s]/g, ' ').split(/\s+/).filter(Boolean).map((w) => w.replace(/s$/, ''));
   const has = (s) => words(keyword).every((w) => words(s).includes(w));
   if (!has(p.title)) err('keywords', `${path} title "${p.title}" doesn't contain every word of "${keyword}"`);
   if (!has(p.h1s[0] ?? '')) err('keywords', `${path} H1 "${p.h1s[0]}" doesn't contain every word of "${keyword}"`);
