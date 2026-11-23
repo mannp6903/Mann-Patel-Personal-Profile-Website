@@ -82,9 +82,8 @@ const ratingText = rated ? `${gbp.rating!.toFixed(1)} from ${gbp.reviewCount} Go
               {ratingText}
             </a>
           ) : (
-            <>
-              Now building: <a class="link-quiet" href="/work/samp-hair-spa/">Samp Hair &amp; Spa</a>, {profile.location}
-            </>
+            // Plain text: the case study is linked once, from Recent work (gate S2).
+            <>Now building: Samp Hair &amp; Spa, {profile.location}</>
           )
         }
       </p>
@@ -265,6 +264,8 @@ const ratingText = rated ? `${gbp.rating!.toFixed(1)} from ${gbp.reviewCount} Go
     .hero__actions { order: 1; }
     .hero__place { order: 2; }
     .hero__meta { order: 3; }
+    /* HERO-1: here the line about the form follows both actions, so "See prices" stays on the first screen too. */
+    .hero__micro { order: 2; }
   }
   /* The portrait: centred under the text on phones and small tablets, centred in its column from 48em. */
   .hero :global(.hero__portrait) {
