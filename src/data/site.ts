@@ -145,6 +145,15 @@ export const gbp = {
    * TODO(Mann): paste the link Google gives you. null = the footer link is hidden.
    */
   reviewUrl: null as string | null,
+  /**
+   * The star rating and review count Google Maps shows for the profile (23 Nov 2026 audit, PROOF-1 and HERO-1). With
+   * both set, the home hero's proof line reads "★ 5.0 from 3 Google reviews", linked to the profile; while either is
+   * null it names the project in progress instead. Never estimated: copy both from the profile, and update them when
+   * they change.
+   * TODO(Mann): fill these in once real clients have left Google reviews (the audit's target: 3 by 31 Dec 2026).
+   */
+  rating: null as number | null,
+  reviewCount: null as number | null,
 };
 
 /**
