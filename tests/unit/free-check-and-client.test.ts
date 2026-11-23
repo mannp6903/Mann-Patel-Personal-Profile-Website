@@ -85,6 +85,8 @@ describe('free check handling', () => {
     const lead: Lead = {
       name: 'Ada', email: 'ada@example.ca', business: '', website: 'https://adabakery.ca/', phone: '', services: [],
       packageId: 'check-up', budget: '', timeframe: '', message: '', id: 'enq_1', receivedAt: '2026-11-08T12:00:00Z', source: 'website', lowTrust: false,
+      landingPage: '',
+      referrerHost: '',
     };
     expect(ownerSubject(lead)).toBe('Free check request: Ada (adabakery.ca)');
     expect(ownerEmailText(lead)).toContain('Starting point: Free website and Google check');

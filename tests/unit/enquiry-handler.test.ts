@@ -168,6 +168,8 @@ describe('delivery adapters', () => {
     id: 'enq_1', receivedAt: '2026-10-31T12:00:00.000Z', source: 'website', lowTrust: false,
     name: 'Ada Lovelace', email: 'ada@example.ca', business: 'Kettle Test Co', website: '', phone: '',
     services: ['websites'], packageId: 'launch', budget: '', timeframe: '', message: 'Hello there, I need a site.',
+    landingPage: '',
+    referrerHost: '',
   };
 
   it('Resend: sends owner notification with reply_to, then the acknowledgement; success needs a returned id', async () => {

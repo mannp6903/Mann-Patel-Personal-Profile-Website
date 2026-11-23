@@ -8,6 +8,8 @@ const lead: Lead = {
   id: 'enq_cf_1', receivedAt: '2026-11-01T12:00:00.000Z', source: 'website', lowTrust: false,
   name: 'Zoë Owner', email: 'zoe@example.ca', business: 'Café Test', website: '', phone: '416 555 0100',
   services: ['websites'], packageId: '', budget: '', timeframe: '', message: 'We need a website with our hours.',
+  landingPage: '',
+  referrerHost: '',
 };
 
 const decodeBody = (mime: string) => {
