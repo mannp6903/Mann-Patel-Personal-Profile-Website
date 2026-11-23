@@ -22,7 +22,8 @@ export interface Area {
   /** Page title for search results (" | Mann Patel" is added; 47 characters at most). */
   title: string;
   description: string;
-  eyebrow: string;
+  /** Optional since the 23 Nov 2026 audit (copy deck rule 6). */
+  eyebrow?: string;
   h1: string;
   /** The H1 split into display lines; the last one is set in lime. Must join back to `h1`. */
   lines: string[];
@@ -47,6 +48,18 @@ export interface Area {
    * Left out = no block on the page. Never filled with guesses or other people's statistics.
    */
   localFindings?: { points: string[]; how: string };
+  /**
+   * 23 Nov 2026 audit (copy deck §2.3, AREA-1): "Where I work" in one sentence, in place of the neighbourhood list.
+   * Left out = the list is shown.
+   */
+  where?: string;
+  /** 23 Nov 2026 audit (copy deck §2.3): the local projects, each with the deck's short note after its name. */
+  localWork?: { id: string; note: string }[];
+  /**
+   * 23 Nov 2026 audit (AREA-1): the page stays live at its address but asks search engines not to index it, and is left
+   * out of the sitemap, until it has facts of its own (not shared with the Scarborough page).
+   */
+  noindex?: boolean;
   faqs: Faq[];
 }
 
@@ -62,10 +75,18 @@ export const areas: Area[] = [
     title: `Web Design in Scarborough, Ontario, from ${price('website-launch')}`,
     description:
       'Web designer based in Scarborough, Ontario: websites, Google Business Profile setup and online booking for local small businesses, with published prices.',
-    eyebrow: 'Based in Scarborough',
-    h1: 'Web design in Scarborough, Ontario',
-    lines: ['Web design in', 'Scarborough, Ontario'],
-    lead: 'I’m Mann Patel, a web designer based in Scarborough, Ontario. I build websites, set up Google Business Profiles and connect online booking for small businesses here and across Toronto and the GTA, with my prices published.',
+    // 23 Nov 2026 audit (copy deck §2.3): the deck's H1 and opening.
+    h1: 'Web designer in Scarborough',
+    lines: ['Web designer in', 'Scarborough'],
+    lead: 'I’m Mann Patel. I live and work in Scarborough and build websites and Google listings for small businesses here, at published prices.',
+    localWork: [
+      { id: 'samp-hair-spa', note: 'on Painted Post Drive (in progress)' },
+      { id: 'nest-and-rest-cleaning', note: '(my own business, serving Scarborough and North York)' },
+    ],
+    // The four names are from the neighbourhood list below, which Mann confirmed on 15 Nov 2026 ("every neighbourhood").
+    // TODO(Mann), copy deck §2.3: add "I can meet at your business in person / by video" once you choose which is true,
+    // and, only if true, how quickly you can visit and one Scarborough trade you've worked with.
+    where: 'Across Scarborough, from Agincourt and Malvern to West Hill and Birch Cliff.',
     // Mann serves every neighbourhood in Scarborough (15 Nov 2026). Names as Toronto uses them, checked against
     // Wikipedia's neighbourhood articles; Centennial (= Port Union) and Scarborough Junction (= Kennedy Park) are
     // left out as second names for the same places. 16 Nov 2026: Cedarbrae, Glen Andrew and Golfdale added from the
@@ -119,10 +140,6 @@ export const areas: Area[] = [
         q: 'Can you help my Scarborough business show up on Google Maps?',
         a: 'I set up or clean up your Google Business Profile, make your other listings match and give you a simple routine for asking every customer for a genuine review. Google decides local rankings, so no one can promise a position; you get a before-and-after snapshot of what changed.',
       },
-      {
-        q: 'What does a website cost?',
-        a: `My prices are published: a website of up to five pages is ${price('website-launch')} CAD plus tax, a website with online booking and one follow-up workflow is ${price('website-enquiry')}, and Google Business Profile setup is ${price('local-visibility')}. Domain, hosting and tool subscriptions are billed to you directly by each provider.`,
-      },
     ],
   },
   {
@@ -132,6 +149,12 @@ export const areas: Area[] = [
     // It stays an unpublished draft (not built in production, not in the sitemap, not linked) until both TODOs are done.
     slug: 'north-york',
     name: 'North York',
+    // 23 Nov 2026 audit (AREA-1, keyword finding K6): 59% of its 5-word phrases were shared with the Scarborough page,
+    // there is no North York-only work yet, and "web designer north york" autocompletes to North Yorkshire. Kept live at
+    // its address, but noindex and out of the sitemap.
+    // TODO(Mann): if you can add at least three North York facts that aren't on the Scarborough page (a North York client,
+    // where you meet clients there, a local example), add them and remove `noindex`.
+    noindex: true,
     title: 'North York Web Designer for Small Businesses',
     description:
       'Web designer for small businesses in North York, Toronto: websites, Google Business Profile setup and online booking, with published prices.',

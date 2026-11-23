@@ -451,6 +451,7 @@ if (existsSync(guideDir)) {
 // Area pages (src/data/areas.ts → /web-design-<slug>/): a draft while `neighbourhoods` is null or empty, or while
 // `localExample` is null (the same switches as areaIsDraft()). Each entry is read on its own, from its slug to the next.
 const areaFile = 'src/data/areas.ts';
+const unlisted = [];
 if (existsSync(areaFile)) {
   const entries = readFileSync(areaFile, 'utf8').split(/(?=\bslug:\s*')/).slice(1);
   let found = 0;
@@ -460,7 +461,9 @@ if (existsSync(areaFile)) {
     if (!slug || !list) continue;
     found++;
     const draft = list !== '[' || /\blocalExample:\s*null\b/.test(entry);
-    (draft ? drafts : newPages).push(`/web-design-${slug}/`);
+    // 23 Nov 2026 audit (AREA-1): a published area marked `noindex: true` stays live but unlisted (checked below).
+    if (!draft && /\bnoindex:\s*true\b/.test(entry)) unlisted.push(`/web-design-${slug}/`);
+    else (draft ? drafts : newPages).push(`/web-design-${slug}/`);
   }
   if (!found) err('drafts', `${areaFile}: no area with a slug and neighbourhoods found, so its draft state can't be checked`);
 }
@@ -479,6 +482,12 @@ for (const path of newPages) {
     err('new pages', `${path} doesn't end with the free check (the last section in <main> must be #check, linking ${FREE_CHECK})`);
   if (!published.includes(path)) err('new pages', `${path} is not in the sitemap`);
 }
+for (const path of unlisted) {
+  const p = pages.get(path);
+  if (!p) err('new pages', `${path} (noindex) was not built: its address must keep working`);
+  else if (!/<meta name="robots" content="noindex/.test(p.html)) err('new pages', `${path} is marked noindex in ${areaFile} but the page doesn't say so`);
+  if (published.includes(path)) err('new pages', `${path} is noindex but is in the sitemap`);
+}
 for (const path of drafts) {
   if (pages.has(path)) err('drafts', `${path} is a draft but was built`);
   if (published.includes(path)) err('drafts', `${path} is a draft but is in the sitemap`);
@@ -489,8 +498,9 @@ for (const path of drafts) {
 for (const [path, keyword] of Object.entries(KEYWORDS)) {
   const p = pages.get(path);
   if (!p) continue; // not built: reported above if it should be
-  // Plural or singular ("websites" / "website") counts as the same word.
-  const words = (s) => s.toLowerCase().replace(/[^a-z0-9\s]/g, ' ').split(/\s+/).filter(Boolean).map((w) => w.replace(/s$/, ''));
+  // Plural or singular ("websites" / "website"), and "designer" / "design", count as the same word.
+  const words = (s) =>
+    s.toLowerCase().replace(/[^a-z0-9\s]/g, ' ').split(/\s+/).filter(Boolean).map((w) => w.replace(/s$/, '').replace(/^designer$/, 'design'));
   const has = (s) => words(keyword).every((w) => words(s).includes(w));
   if (!has(p.title)) err('keywords', `${path} title "${p.title}" doesn't contain every word of "${keyword}"`);
   if (!has(p.h1s[0] ?? '')) err('keywords', `${path} H1 "${p.h1s[0]}" doesn't contain every word of "${keyword}"`);

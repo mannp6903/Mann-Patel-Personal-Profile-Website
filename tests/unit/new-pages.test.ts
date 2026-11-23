@@ -69,11 +69,12 @@ describe('area pages', () => {
   it('Scarborough targets "web design scarborough" and says Ontario (results are crowded with Scarborough, UK)', () => {
     expect(scarborough).toBeDefined();
     expect(targets(scarborough.title, 'web design scarborough')).toBe(true);
-    expect(targets(scarborough.h1, 'web design scarborough')).toBe(true);
+    // 23 Nov 2026 audit (copy deck §2.3, K2): the H1 is "Web designer in Scarborough", the searcher's phrase.
+    expect(targets(scarborough.h1, 'web designer scarborough')).toBe(true);
     expect(scarborough.lines.join(' ')).toBe(scarborough.h1);
     expect((scarborough.title + SUFFIX).length).toBeLessThanOrEqual(60);
     expect(scarborough.description.length).toBeLessThanOrEqual(155);
-    expect(JSON.stringify(scarborough)).toMatch(/web designer [^"]*Scarborough, Ontario/);
+    expect(JSON.stringify(scarborough)).toMatch(/web designer [^"]*Scarborough, Ontario/i);
   });
 
   it('stays an unpublished draft until Mann supplies the neighbourhoods (never invented)', () => {

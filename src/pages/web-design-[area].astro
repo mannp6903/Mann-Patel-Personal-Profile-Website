@@ -15,18 +15,14 @@ import Crumbs from '../components/Crumbs.astro';
 import DraftNote from '../components/DraftNote.astro';
 import Confirm from '../components/Confirm.astro';
 import Button from '../components/ui/Button.astro';
-import BookingButton from '../components/ui/BookingButton.astro';
 import Icon from '../components/ui/Icon.astro';
 import FreeCheck from '../components/home/FreeCheck.astro';
 import ReviewsStrip from '../components/ReviewsStrip.astro';
-import { gbp, profile } from '../data/site';
+import { cta, gbp, profile } from '../data/site';
 import { areaIsDraft, areaPath, type Area } from '../data/areas';
-import { servicePages } from '../data/service-pages';
-import { industryPages } from '../data/industry-pages';
-import { packages, priceLabel } from '../data/packages';
+import { packageById, priceLabel } from '../data/packages';
 import { breadcrumbJsonLd, businessJsonLd } from '../lib/seo';
-import { projectSite } from '../lib/work';
-import { visibleAreas } from '../lib/published';
+import { areaHref, visibleAreas } from '../lib/published';
 
 export function getStaticPaths() {
   return visibleAreas().map((area) => ({ params: { area: area.slug }, props: { area } }));
@@ -40,6 +36,16 @@ const draft = areaIsDraft(area);
 const path = areaPath(area);
 // Local proof: the projects in this area, with their honest labels.
 const work = (await getCollection('work')).sort((a, b) => a.data.order - b.data.order).filter((w) => w.data.location?.includes(area.name));
+// 23 Nov 2026 audit (copy deck §2.3): one line per project, with the deck's note where the area gives one.
+const local = area.localWork
+  ? area.localWork.flatMap((l) => {
+      const w = work.find((x) => x.id === l.id);
+      return w ? [{ id: w.id, title: w.data.title, note: l.note }] : [];
+    })
+  : work.map((w) => ({ id: w.id, title: w.data.title, note: `(${w.data.relationship.toLowerCase()})` }));
+// "What it costs" (copy deck §2.3): the three main packages, each linked to the page that explains it.
+const costs = ['website-launch', 'local-visibility', 'website-enquiry'].map((id) => packageById(id)!);
+const home = areaHref('scarborough');
 const lines = area.lines.map((l, i) => (i === area.lines.length - 1 ? accentLine(l) : l));
 // "What I found in <area>" (SEO report follow-up, 19 Nov 2026): shown only once Mann fills it in.
 const findings = area.localFindings?.points.length ? area.localFindings : null;
@@ -54,7 +60,7 @@ const crumbs = breadcrumbJsonLd([
 ]);
 ---
 
-<BaseLayout title={area.title} description={area.description} jsonLd={[businessJsonLd(), faqLd, ...(crumbs ? [crumbs] : [])]}>
+<BaseLayout title={area.title} description={area.description} noindex={area.noindex} jsonLd={[businessJsonLd(), faqLd, ...(crumbs ? [crumbs] : [])]}>
   <Crumbs items={[{ label: 'Home', href: '/' }, { label: `Web design in ${area.name}` }]} />
   {
     draft && (
@@ -72,59 +78,35 @@ const crumbs = breadcrumbJsonLd([
   <PageHead eyebrow={area.eyebrow} lines={lines} lead={area.lead} compact>
     <div class="ar__actions" data-reveal="load" style="--d:5">
       <div class="btn-row">
-        <Button href="/contact/#brief">Request a quote</Button>
-        <Button href="/contact/?package=check-up#check" variant="ghost">Start with the free check</Button>
-        {/* 16 Nov 2026: Mann's booking page, once he adds it (src/data/site.ts → bookingUrl). */}
-        <BookingButton />
+        <Button href={cta.checkHref}>{cta.check}</Button>
+        <a class="link-arrow" href={gbp.url} rel="noopener">{profile.name} on Google Maps <Icon name="arrow-ne" /></a>
       </div>
-      <a class="link-arrow small" href={gbp.url} rel="noopener">
-        {profile.name} on Google Maps <Icon name="arrow-ne" />
-      </a>
     </div>
   </PageHead>
 
   {
-    // Local work (16 Nov 2026): shown when there is a project in this area or a local example (or, in previews, the
-    // "To confirm" note while a needed example is missing), so a published page never shows an empty list.
-    (work.length > 0 || area.localExample !== undefined) && (
+    // Local work: the projects in this area, one line each (copy deck §2.3), or a local example; never an empty list.
+    (local.length > 0 || area.localExample !== undefined) && (
       <section class="section section--rule" aria-labelledby="ar-work-title">
-        <div class="container stack" style="--stack: var(--s-6)">
-          <div class="section-head">
-            <h2 id="ar-work-title" class="ar__h2">Real work in {area.name}, <span class="accent">clearly labelled.</span></h2>
-          </div>
-          {work.length > 0 && (
-          <ul class="ar__work" role="list">
-            {
-              work.map((w) => (
-                <li>
-                  <p class="ar__tags small">
-                    <span>{w.data.relationship}</span>
-                    <span>{projectSite(w.data).websiteStatus}</span>
-                    {w.data.businessStatus && <span>{w.data.businessStatus}</span>}
-                  </p>
-                  <h3>
-                    <a href={`/work/${w.id}/`}>{w.data.title}</a>
-                  </h3>
-                  <p class="muted">
-                    {w.data.industry} · {w.data.location}
-                  </p>
-                  <p class="small">{w.data.result}</p>
-                  <a class="link-arrow" href={`/work/${w.id}/`}>
-                    Case study<span class="visually-hidden">: {w.data.title}</span> <Icon name="arrow" />
-                  </a>
-                </li>
-              ))
-            }
-          </ul>
-          )}
-          {area.localExample && <p class="ar__example" data-local-example>{area.localExample}</p>}
-          {
-            area.localExample === null && (
+        <div class="container ar__split">
+          <h2 id="ar-work-title" class="ar__h2">{area.name} work</h2>
+          <div class="stack" style="--stack: var(--s-4)">
+            {local.length > 0 && (
+              <ul class="ar__list" role="list">
+                {local.map((w) => (
+                  <li>
+                    <a class="link" href={`/work/${w.id}/`}>{w.title}</a> {w.note}
+                  </li>
+                ))}
+              </ul>
+            )}
+            {area.localExample && <p class="ar__example" data-local-example>{area.localExample}</p>}
+            {area.localExample === null && (
               <p>
                 <Confirm note={`a real ${area.name} example, in Mann’s words (src/data/areas.ts → localExample)`} />
               </p>
-            )
-          }
+            )}
+          </div>
         </div>
       </section>
     )
@@ -136,9 +118,7 @@ const crumbs = breadcrumbJsonLd([
       <section class="section section--rule" data-local-findings aria-labelledby="ar-found-title">
         <div class="container sp-found">
           <div class="stack" style="--stack: var(--s-4)">
-            <h2 id="ar-found-title" class="ar__h2">
-              What I found <span class="accent">in {area.name}.</span>
-            </h2>
+            <h2 id="ar-found-title" class="ar__h2">What I found in {area.name}</h2>
             <p class="muted small">{findings.how}</p>
           </div>
           <ul class="ar__found" role="list">
@@ -159,12 +139,12 @@ const crumbs = breadcrumbJsonLd([
 
   <section class="section section--alt" data-neighbourhoods aria-labelledby="ar-areas-title">
     <div class="container ar__split">
-      <div class="stack" style="--stack: var(--s-4)">
-        <h2 id="ar-areas-title" class="ar__h2">Neighbourhoods <span class="accent">I serve.</span></h2>
-      </div>
+      <h2 id="ar-areas-title" class="ar__h2">Where I work</h2>
       <div class="stack" style="--stack: var(--s-4)">
         {
-          area.neighbourhoods?.length ? (
+          area.where ? (
+            <p data-where>{area.where}</p>
+          ) : area.neighbourhoods?.length ? (
             <>
               <p class="muted">{area.neighbourhoodsLead ?? `Every neighbourhood in ${area.name}, including:`}</p>
               <ul class="ar__hoods" role="list">
@@ -179,66 +159,35 @@ const crumbs = breadcrumbJsonLd([
             </p>
           )
         }
-        <p class="muted">Based in {profile.location}, working across {profile.serviceArea}.</p>
+        <p class="muted">
+          Based in {home && area.slug !== 'scarborough' ? <a class="link" href={home}>{profile.location}</a> : profile.location}, working
+          across {profile.serviceArea}.
+        </p>
       </div>
     </div>
   </section>
 
-  <section class="section" aria-labelledby="ar-services-title">
-    <div class="container stack" style="--stack: var(--s-6)">
-      <div class="section-head">
-        <p class="eyebrow">What I do</p>
-        <h2 id="ar-services-title" class="ar__h2">Found, answered, <span class="accent">booked.</span></h2>
-        <p class="muted">
-          Published prices:{' '}
-          {packages.map((p, i) => (
+  <section class="section" aria-labelledby="ar-cost-title">
+    <div class="container ar__split">
+      <h2 id="ar-cost-title" class="ar__h2">What it costs</h2>
+      <div class="stack" style="--stack: var(--s-4)">
+        <p class="ar__cost">
+          {costs.map((p, i) => (
             <>
-              {i > 0 && (i === packages.length - 1 ? ' and ' : ', ')}
-              {p.name} <b class="num">{priceLabel(p).text}</b>
+              {i > 0 && ' · '}
+              <a class="link" href={p.page}>{p.name}</a> <b class="num">{priceLabel(p).text}</b>
             </>
           ))}
-          , in Canadian dollars plus tax.
         </p>
+        <p class="muted small">In Canadian dollars, plus tax.</p>
+        <a class="link-arrow" href="/pricing/">All prices <Icon name="arrow" /></a>
       </div>
-      <ul class="ar__more" role="list">
-        {
-          servicePages.map((s) => (
-            <li>
-              <a class="ar__more-link" href={`/services/${s.slug}/`}>
-                <span>{s.short}</span>
-                <span class="muted small">{s.card}</span>
-                <Icon name="arrow" />
-              </a>
-            </li>
-          ))
-        }
-        {
-          industryPages.map((p) => (
-            <li>
-              <a class="ar__more-link" href={`/${p.slug}/`}>
-                <span>{p.linkLabel}</span>
-                <span class="muted small">{p.title}</span>
-                <Icon name="arrow" />
-              </a>
-            </li>
-          ))
-        }
-        <li>
-          <a class="ar__more-link" href="/pricing/">
-            <span>Pricing</span>
-            <span class="muted small">Every package side by side, and what each leaves out</span>
-            <Icon name="arrow" />
-          </a>
-        </li>
-      </ul>
     </div>
   </section>
 
   <section class="section section--rule" aria-labelledby="ar-faq-title">
     <div class="container ar__split">
-      <div class="stack" style="--stack: var(--s-4)">
-        <h2 id="ar-faq-title" class="ar__h2">Asked <span class="accent">locally.</span></h2>
-      </div>
+      <h2 id="ar-faq-title" class="ar__h2">Questions</h2>
       <div>
         {
           area.faqs.map((f) => (
@@ -261,6 +210,15 @@ const crumbs = breadcrumbJsonLd([
 </BaseLayout>
 
 <style>
+  /* 23 Nov 2026 audit (copy deck §2.3): one line per local project, and the price line. */
+  .ar__list {
+    display: grid;
+    gap: var(--s-3);
+  }
+  .ar__cost {
+    font-size: var(--fs-lead);
+    line-height: 1.5;
+  }
   .ar__actions {
     display: grid;
     gap: var(--s-4);
@@ -287,46 +245,6 @@ const crumbs = breadcrumbJsonLd([
       top: calc(var(--header-h) + var(--s-6));
       align-self: start;
     }
-  }
-  .ar__work {
-    display: grid;
-    gap: var(--s-4);
-  }
-  @media (min-width: 56em) {
-    .ar__work {
-      grid-template-columns: 1fr 1fr;
-    }
-  }
-  .ar__work li {
-    display: grid;
-    gap: var(--s-3);
-    align-content: start;
-    padding: clamp(var(--s-4), 2.5vw, var(--s-6));
-    border: 1px solid var(--line);
-    border-radius: var(--r-lg);
-    background: var(--surface);
-  }
-  .ar__work h3 {
-    font-size: var(--fs-h3);
-  }
-  .ar__work h3 a {
-    text-decoration: none;
-  }
-  .ar__work h3 a:hover,
-  .ar__work h3 a:focus-visible {
-    text-decoration: underline;
-  }
-  .ar__tags {
-    display: flex;
-    flex-wrap: wrap;
-    gap: var(--s-2);
-  }
-  .ar__tags span {
-    padding: 0.15rem 0.6rem;
-    border: 1px solid var(--line);
-    border-radius: var(--r-pill);
-    font-size: var(--fs-label);
-    color: var(--text-2);
   }
   .ar__example {
     max-width: 60ch;
@@ -370,40 +288,5 @@ const crumbs = breadcrumbJsonLd([
     padding: 0.3rem 0.8rem;
     border: 1px solid var(--line);
     border-radius: var(--r-pill);
-  }
-  .ar__more {
-    display: grid;
-    border-top: 1px solid var(--line);
-  }
-  .ar__more li {
-    border-bottom: 1px solid var(--line);
-  }
-  .ar__more-link {
-    display: grid;
-    grid-template-columns: minmax(0, 1fr) auto;
-    align-items: center;
-    gap: 0.15rem var(--s-4);
-    padding-block: var(--s-4);
-    text-decoration: none;
-  }
-  .ar__more-link > span:first-child {
-    font-size: var(--fs-h3);
-    font-weight: var(--w-head);
-    letter-spacing: -0.02em;
-  }
-  .ar__more-link > .small {
-    grid-column: 1;
-  }
-  .ar__more-link :global(.icon) {
-    grid-row: 1 / span 2;
-    grid-column: 2;
-    color: var(--signal);
-    transition: transform var(--dur-1) var(--ease-out);
-  }
-  @media (prefers-reduced-motion: no-preference) {
-    .ar__more-link:hover :global(.icon),
-    .ar__more-link:focus-visible :global(.icon) {
-      transform: translateX(4px);
-    }
   }
 </style>

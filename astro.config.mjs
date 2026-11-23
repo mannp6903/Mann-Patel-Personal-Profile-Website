@@ -4,6 +4,7 @@ import node from '@astrojs/node';
 import cloudflare from '@astrojs/cloudflare';
 import sitemap from '@astrojs/sitemap';
 import { pricesPublished } from './src/data/packages.ts';
+import { areas, areaPath } from './src/data/areas.ts';
 import { lastmodFor } from './scripts/sitemap-lastmod.mjs';
 import { buildHeadersFile } from './src/lib/security-headers.ts';
 import { writeOgImages } from './scripts/og-images.mjs';
@@ -78,10 +79,12 @@ export default defineConfig({
         ogImages,
         sitemap({
           // /free-check/ is a noindex campaign landing page (reached from social links only).
+          // 23 Nov 2026 audit (AREA-1): area pages marked noindex in src/data/areas.ts (North York) stay live but unlisted.
           filter: (page) =>
             !page.includes('/api/') &&
             !page.includes('/contact/received/') &&
             !page.endsWith('/free-check/') &&
+            !areas.some((a) => a.noindex && page.endsWith(areaPath(a))) &&
             (pricesPublished || !page.endsWith('/pricing/')),
           // <lastmod> per URL: a guide's front-matter date, else the last commit to that page's source files
           // (scripts/sitemap-lastmod.mjs). Left out when no true date can be read (Website Playbook, 16 Nov 2026).
