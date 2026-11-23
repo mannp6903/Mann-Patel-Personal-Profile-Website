@@ -63,7 +63,8 @@ describe('more service pages (SEO audit Phase 4)', () => {
 
   it('the AI page never says website fixes are part of Google Listing Setup (they are quoted separately)', () => {
     const ai = moreServicePages[1];
-    const text = [ai.lead, ai.notFor, ...ai.steps.map((s) => s.body), ...ai.limits, ai.costs, ai.handover, ...ai.faqs.map((f) => f.a)].join(' ');
+    // 23 Nov 2026 audit (copy deck §2.2): the template's fields.
+    const text = [ai.lead, ...ai.forWho, ai.getTitle ?? '', ...ai.get, ...ai.how, ...ai.faqs.map((f) => f.a)].join(' ');
     for (const sentence of text.split(/(?<=[.!?])\s+/))
       if (/Google Listing Setup|\$650|part of/i.test(sentence) && /website/i.test(sentence)) expect(sentence).toMatch(/quoted/i);
     // Repeat checks after the set-up aren't part of it.
@@ -83,7 +84,12 @@ describe('more service pages (SEO audit Phase 4)', () => {
     expect(moreServicePages[0].faqs.map((f) => f.q)).not.toContain('Can I stop?');
   });
 
-  it('labels every sample as fictional', () => {
-    for (const p of moreServicePages) for (const s of [p.sample, p.testLog].filter(Boolean)) expect(s!.intro, p.slug).toMatch(/fictional/i);
+  it('follows the copy deck template: three questions, five steps, one “What you get” list (23 Nov 2026 audit)', () => {
+    for (const p of [...servicePages, ...moreServicePages]) {
+      expect(p.faqs, p.slug).toHaveLength(3);
+      expect(p.how, p.slug).toHaveLength(5);
+      expect(p.get.length, p.slug).toBeGreaterThanOrEqual(4);
+      expect(p.forWho.at(-1), p.slug).toMatch(/^Not for /);
+    }
   });
 });

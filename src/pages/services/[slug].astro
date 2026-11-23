@@ -11,13 +11,10 @@ import PageHead from '../../components/PageHead.astro';
 import Heading from '../../components/ui/Heading.astro';
 import Button from '../../components/ui/Button.astro';
 import Icon from '../../components/ui/Icon.astro';
-import PackageCard from '../../components/packages/PackageCard.astro';
-import EnquiryDemo from '../../components/EnquiryDemo.astro';
 import DemoLine from '../../components/DemoLine.astro';
 import MissedCallCalculator from '../../components/MissedCallCalculator.astro';
-import ServiceDetails from '../../components/ServiceDetails.astro';
 import ReviewsStrip from '../../components/ReviewsStrip.astro';
-import { profile } from '../../data/site';
+import { cta } from '../../data/site';
 import { servicePages, moreServicePages, type ServicePage } from '../../data/service-pages';
 import FreeCheck from '../../components/home/FreeCheck.astro';
 import { packageById, priceLabel, type Package } from '../../data/packages';
@@ -26,7 +23,7 @@ import { breadcrumbJsonLd, businessRef, packageOffer, videoJsonLd } from '../../
 import { videos, videoLength } from '../../data/videos';
 import { projectSite } from '../../lib/work';
 import { industryPages } from '../../data/industry-pages';
-import { areaHref, visibleGuides } from '../../lib/published';
+import { visibleGuides } from '../../lib/published';
 
 export function getStaticPaths() {
   // The three main services, plus Website Care and AI search optimization (SEO audit Phase 4, 14 Nov 2026).
@@ -41,15 +38,12 @@ const pkgs = page.packages.map((id) => packageById(id)).filter(Boolean) as Packa
 const main = pkgs[0];
 const work = (await getCollection('work')).filter((w) => page.work.includes(w.id)).sort((a, b) => a.data.order - b.data.order);
 const others = servicePages.filter((p) => p.slug !== page.slug);
-// Phase 4 pages carry no "Service by service" details (those live on the main page for their area, so they are
-// never repeated) and, as new pages, end with the free check.
+// The three main services and the Phase 4 pages share one template since the 23 Nov 2026 audit (copy deck §2.2).
 const isMain = servicePages.some((p) => p.slug === page.slug);
-const samples = [page.sample, page.testLog].filter((x) => x !== undefined);
 // SEO audit Phase 3 (14 Nov 2026): the industry pages that need this service, its guides (once published) and
 // the Scarborough page (once published) are linked from here.
 const industries = industryPages.filter((ip) => (ip.services as readonly string[]).includes(page.slug));
 const guides = (await visibleGuides()).filter((g) => g.data.service === `/services/${page.slug}/`);
-const scarborough = areaHref('scarborough');
 const path = `/services/${page.slug}/`;
 const url = absoluteUrl(path);
 
@@ -86,8 +80,6 @@ const crumbs = breadcrumbJsonLd([
 // SEO report follow-up (19 Nov 2026): demo videos, each with its transcript, only while src/data/videos.ts has some.
 const shownVideos = page.proof ? videos : [];
 const videoLd = shownVideos.map(videoJsonLd);
-const fmtDate = (iso: string) =>
-  new Intl.DateTimeFormat('en-CA', { day: 'numeric', month: 'short', year: 'numeric', timeZone: 'UTC' }).format(new Date(`${iso}T12:00:00Z`));
 ---
 
 <BaseLayout title={page.title} description={page.description} jsonLd={[serviceLd, faqLd, ...videoLd, ...(crumbs ? [crumbs] : [])]}>
@@ -98,59 +90,74 @@ const fmtDate = (iso: string) =>
     </ol>
   </nav>
 
-  <PageHead eyebrow={page.eyebrow} lines={lines} lead={page.lead} compact>
+  <PageHead lines={lines} lead={page.lead} compact>
     <div class="sp__actions" data-reveal="load" style="--d:5">
       <div class="btn-row">
-        <Button href={`/contact/?package=${main.id}#brief`}>Request a quote</Button>
-        <Button href="/contact/?package=check-up#check" variant="ghost">Start with the free check</Button>
+        <Button href={cta.checkHref}>{cta.check}</Button>
+        <a class="link-arrow" href={`/contact/?package=${main.id}#brief`}>{page.ask} <Icon name="arrow" /></a>
       </div>
-      <p class="sp__price small">
-        <span class="subtle">{main.name}:</span> <span data-price>{priceLabel(main).text}</span>
-      </p>
-      {/* SEO audit Phase 2 (14 Nov 2026): where I'm based, and local proof (Samp Hair & Spa is in Scarborough). As a
-          template note (19 Nov 2026), so it stays out of the built page. */}
-      <p class="sp__local small" data-local>
-        Based in {scarborough ? <a class="link" href={scarborough}>{profile.location}</a> : profile.location}, working across {profile.serviceArea}. Local work:{' '}
-        <a class="link" href="/work/samp-hair-spa/">Samp Hair &amp; Spa</a>, a Scarborough salon (website in progress), and{' '}
-        <a class="link" href="/work/nest-and-rest-cleaning/">Nest &amp; Rest Cleaning</a>, my own home-cleaning business in Scarborough and North York.
-      </p>
+      {
+        work.length > 0 && (
+          <p class="sp__local small" data-local>
+            Examples:{' '}
+            {work.map((w, i) => (
+              <>
+                {i > 0 && ' · '}
+                <a class="link" href={`/work/${w.id}/`}>{w.data.title}</a> ({w.data.relationship.toLowerCase()})
+              </>
+            ))}
+          </p>
+        )
+      }
     </div>
   </PageHead>
 
   <section class="section section--rule" aria-labelledby="fit-title">
     <div class="container sp__split">
-      <div class="stack" style="--stack: var(--s-4)">
-        <h2 id="fit-title" class="sp__h2">A good fit if…</h2>
-      </div>
+      <h2 id="fit-title" class="sp__h2">Who it’s for</h2>
+      <ul class="sp__list" role="list">
+        {
+          page.forWho.map((f) => (
+            <li>
+              <Icon name="check" />
+              <span>{f}</span>
+            </li>
+          ))
+        }
+      </ul>
+    </div>
+  </section>
+
+  <section class="section section--alt" id="what-you-get" aria-labelledby="get-title">
+    <div class="container sp__split">
+      <h2 id="get-title" class="sp__h2">{page.getTitle ?? `What you get for ${priceLabel(main).text}`}</h2>
       <div class="stack" style="--stack: var(--s-5)">
+        {page.getTitle && main.price.amount !== null && !page.getTitle.includes(priceLabel(main).text) && (
+          <p class="sp__price" data-price>{main.name}: {priceLabel(main).text}, fixed, CAD plus tax.</p>
+        )}
         <ul class="sp__list" role="list">
           {
-            page.forWho.map((f) => (
+            page.get.map((g) => (
               <li>
                 <Icon name="check" />
-                <span>{f}</span>
+                <span>{g}</span>
               </li>
             ))
           }
         </ul>
-        <p class="sp__note small"><b>Not a fit:</b> {page.notFor}</p>
+        <a class="link-arrow" href="/pricing/#pr-compare">What’s not included, and what other providers bill you <Icon name="arrow" /></a>
       </div>
     </div>
   </section>
 
-  <section class="section section--alt" aria-labelledby="work-steps-title">
-    <div class="container">
-      <div class="section-head">
-        <p class="eyebrow">The work</p>
-        <Heading id="work-steps-title" lines={['What actually', '<span class="accent">happens.</span>']} />
-      </div>
-      <ol class="sp__steps" role="list">
+  <section class="section section--rule" aria-labelledby="how-title">
+    <div class="container sp__split">
+      <h2 id="how-title" class="sp__h2">How it works</h2>
+      <ol class="sp__how" role="list">
         {
-          page.steps.map((s, i) => (
+          page.how.map((step, i) => (
             <li>
-              <span class="num sp__n">{String(i + 1).padStart(2, '0')}</span>
-              <h3>{s.title}</h3>
-              <p class="muted">{s.body}</p>
+              <span class="num sp__n">{i + 1}.</span> {step}
             </li>
           ))
         }
@@ -159,51 +166,33 @@ const fmtDate = (iso: string) =>
   </section>
 
   {
-    page.asides?.map((a) => (
-      <section class="section section--rule" id={a.id} aria-labelledby={`${a.id}-title`}>
+    page.next && (
+      <section class="section section--rule" id="next" aria-labelledby="next-title">
         <div class="container sp__split">
+          <h2 id="next-title" class="sp__h2">{page.next.title}</h2>
           <div class="stack" style="--stack: var(--s-4)">
-            <p class="eyebrow">{a.eyebrow}</p>
-            <h2 id={`${a.id}-title`} class="sp__h2">
-              {a.title}
-            </h2>
-          </div>
-          <div class="stack" style="--stack: var(--s-5)">
-            <p class="muted">{a.body}</p>
-            <ul class="sp__list" role="list">
-              {a.items.map((item) => (
-                <li>
-                  <Icon name="check" />
-                  <span>{item}</span>
-                </li>
-              ))}
-            </ul>
-            {a.note && <p class="sp__note small">{a.note}</p>}
-            {a.cta && (
-              <a class="link-arrow" href={a.cta.href}>
-                {a.cta.label} <Icon name="arrow" />
+            <p>{page.next.body}</p>
+            {page.next.link && (
+              <a class="link-arrow" href={page.next.link.href}>
+                {page.next.link.label} <Icon name="arrow" />
               </a>
             )}
           </div>
         </div>
       </section>
-    ))
+    )
   }
 
   {
-    page.demo && (
-      <section class="section" aria-labelledby="demo-title">
-        <div class="container stack" style="--stack: var(--s-6)">
-          <div class="section-head">
-            <h2 id="demo-title" class="sp__h2">
-              A sample workflow, <span class="accent">step by step.</span>
-            </h2>
-            <p class="muted">
-              Fictional business, fictional customer: this shows the shape of a workflow, not a real client. Choose any step.
-            </p>
+    page.proof && (
+      <section class="section section--rule" id="calculator" aria-labelledby="calc-title">
+        <div class="container sp__split">
+          <div class="stack" style="--stack: var(--s-4)">
+            <h2 id="calc-title" class="sp__h2">What missed calls may be worth</h2>
+            <p class="muted">Four numbers from your own week. The result uses only what you type.</p>
+            <DemoLine />
           </div>
-          {page.proof && <DemoLine />}
-          <EnquiryDemo id="demo-walkthrough" />
+          <MissedCallCalculator id="calc" />
         </div>
       </section>
     )
@@ -214,9 +203,7 @@ const fmtDate = (iso: string) =>
       <section class="section section--rule" id="videos" aria-labelledby="videos-title">
         <div class="container stack" style="--stack: var(--s-6)">
           <div class="section-head">
-            <h2 id="videos-title" class="sp__h2">
-              Each workflow, <span class="accent">on a real screen.</span>
-            </h2>
+            <h2 id="videos-title" class="sp__h2">Each workflow on a real screen</h2>
             <p class="muted">Short screen recordings with test data. Each transcript is below its video.</p>
           </div>
           <ul class="sp__videos" role="list">
@@ -242,149 +229,12 @@ const fmtDate = (iso: string) =>
     )
   }
 
-  {
-    page.proof && (
-      <section class="section section--rule" id="calculator" aria-labelledby="calc-title">
-        <div class="container sp__split">
-          <div class="stack" style="--stack: var(--s-4)">
-            <p class="eyebrow">Missed-call calculator</p>
-            <h2 id="calc-title" class="sp__h2">
-              What missed calls <span class="accent">may be worth.</span>
-            </h2>
-            <p class="muted">Four numbers from your own week. The result uses only what you type.</p>
-          </div>
-          <MissedCallCalculator id="calc" />
-        </div>
-      </section>
-    )
-  }
-
-  {
-    (work.length > 0 || samples.length > 0 || page.checklist) && (
-      <section class="section section--rule" aria-labelledby="proof-title">
-        <div class="container stack" style="--stack: var(--s-6)">
-          <div class="section-head">
-            <h2 id="proof-title" class="sp__h2">
-              {work.length ? 'Real work, ' : 'What you get, '}
-              <span class="accent">{work.length ? 'clearly labelled.' : 'shown plainly.'}</span>
-            </h2>
-          </div>
-
-          {work.length > 0 && (
-            <ul class="sp__work" role="list">
-              {work.map((w) => (
-                <li>
-                  <p class="sp__tags small">
-                    <span>{w.data.relationship}</span>
-                    <span>{projectSite(w.data).websiteStatus}</span>
-                    {w.data.businessStatus && <span>{w.data.businessStatus}</span>}
-                  </p>
-                  <h3>
-                    <a href={`/work/${w.id}/`}>{w.data.title}</a>
-                  </h3>
-                  <p class="muted">{w.data.problem}</p>
-                  <p class="small">
-                    <b>My role:</b> {w.data.roleShort}
-                  </p>
-                  <p class="sp__foot">
-                    <a class="link-arrow" href={`/work/${w.id}/`}>
-                      Case study and test results<span class="visually-hidden">: {w.data.title}</span> <Icon name="arrow" />
-                    </a>
-                    <span class="num subtle small">Checked {fmtDate(w.data.checked)}</span>
-                  </p>
-                </li>
-              ))}
-            </ul>
-          )}
-
-          {samples.map((sample) => (
-            <div class="sp__sample" id={sample.id}>
-              <div class="sp__sample-head">
-                <span class="sp__badge">{sample.badge ?? 'Sample, fictional business'}</span>
-                <h3>{sample.title}</h3>
-                <p class="muted small">{sample.intro}</p>
-              </div>
-              <div class="sp__table-wrap" role="region" aria-label={sample.title} tabindex="0">
-                <table class="sp__table">
-                  <caption class="visually-hidden">{sample.title}</caption>
-                  <thead>
-                    <tr>
-                      {(sample.cols ?? ['Check', 'Before', 'After set-up']).map((c) => (
-                        <th scope="col">{c}</th>
-                      ))}
-                    </tr>
-                  </thead>
-                  <tbody>
-                    {sample.rows.map((r) => (
-                      <tr>
-                        <th scope="row">{r.check}</th>
-                        <td>{r.before}</td>
-                        <td>{r.after}</td>
-                      </tr>
-                    ))}
-                  </tbody>
-                </table>
-              </div>
-            </div>
-          ))}
-
-          {page.checklist && (
-            <div class="sp__check">
-              <h3>{page.checklist.title}</h3>
-              <p class="muted small">{page.checklist.intro}</p>
-              <ul class="sp__list" role="list">
-                {page.checklist.items.map((c) => (
-                  <li>
-                    <Icon name="check" />
-                    <span>{c}</span>
-                  </li>
-                ))}
-              </ul>
-            </div>
-          )}
-        </div>
-      </section>
-    )
-  }
-
   <ReviewsStrip />
-
-  <section class="section section--alt" aria-labelledby="offer-title">
-    <div class="container stack" style="--stack: var(--s-6)">
-      <div class="section-head">
-        <p class="eyebrow">{pkgs.length > 1 ? 'Packages' : 'Package'}</p>
-        <h2 id="offer-title" class="sp__h2">
-          Clear boundary, <span class="accent">written scope.</span>
-        </h2>
-        <p class="muted">Your written scope confirms what’s included and the price before any work starts.</p>
-      </div>
-      <ol class="sp__pkgs" role="list">
-        {pkgs.map((p) => <PackageCard pkg={p} />)}
-      </ol>
-      <div class="sp__facts">
-        <div>
-          <h3>Limits</h3>
-          <ul class="sp__plain" role="list">{page.limits.map((l) => <li>{l}</li>)}</ul>
-        </div>
-        <div>
-          <h3>Paid to other providers</h3>
-          <p>{page.costs}</p>
-        </div>
-        <div>
-          <h3>At handover</h3>
-          <p>{page.handover}</p>
-        </div>
-      </div>
-    </div>
-  </section>
-
-  {isMain && <ServiceDetails group={page.group} />}
 
   <section class="section" aria-labelledby="sp-faq-title">
     <div class="container sp__split">
       <div class="stack" style="--stack: var(--s-4)">
-        <h2 id="sp-faq-title" class="sp__h2">Asked <span class="accent">before buying.</span></h2>
-        <a class="link-arrow" href="/pricing/#pr-faq">Prices, payments and ownership <Icon name="arrow" /></a>
+        <h2 id="sp-faq-title" class="sp__h2">Questions</h2>
         {
           guides.map((g) => (
             <a class="link-arrow" href={`/guides/${g.id}/`}>
@@ -532,9 +382,7 @@ const fmtDate = (iso: string) =>
   }
   /* Checklist lines and the intros above samples keep the body measure (gate T6, re-audit 18 Nov 2026: up to 92
      characters a line at 1280). */
-  .sp__list li > span,
-  .sp__sample-head > p,
-  .sp__check > p {
+  .sp__list li > span {
     max-width: var(--measure);
   }
   .sp__list :global(.icon) {
@@ -544,195 +392,22 @@ const fmtDate = (iso: string) =>
     margin-top: 0.2em;
     color: var(--signal);
   }
-  .sp__note {
-    padding: var(--s-3) var(--s-4);
-    border: 1px dashed var(--line);
-    border-radius: var(--r-md);
-    color: var(--text-2);
-  }
-  .sp__note b {
-    color: var(--text);
-  }
-  .sp__steps {
-    display: grid;
-    gap: var(--s-5);
-    counter-reset: none;
-  }
-  @media (min-width: 48em) {
-    .sp__steps {
-      grid-template-columns: repeat(2, minmax(0, 1fr));
-    }
-  }
-  @media (min-width: 80em) {
-    .sp__steps {
-      grid-template-columns: repeat(5, minmax(0, 1fr));
-    }
-  }
-  .sp__steps li {
-    display: grid;
-    align-content: start;
-    gap: var(--s-2);
-    padding-top: var(--s-4);
-    border-top: 1px solid var(--line);
-  }
-  .sp__steps h3 {
-    font-size: var(--fs-base);
-    font-weight: var(--w-head);
-  }
-  .sp__n {
-    font-size: var(--fs-label);
-    color: var(--signal);
-  }
-  .sp__work {
-    display: grid;
-    gap: var(--s-4);
-  }
-  @media (min-width: 56em) {
-    .sp__work {
-      grid-template-columns: 1fr 1fr;
-    }
-  }
-  .sp__work li {
+  /* "How it works": five short steps, numbered, one per line (copy deck §2.2). */
+  .sp__how {
     display: grid;
     gap: var(--s-3);
-    align-content: start;
-    padding: clamp(var(--s-4), 2.5vw, var(--s-6));
-    border: 1px solid var(--line);
-    border-radius: var(--r-lg);
-    background: var(--surface);
+    font-size: var(--fs-lead);
+    font-weight: var(--w-ui);
   }
-  .sp__work h3 {
-    font-size: var(--fs-h3);
-  }
-  .sp__work h3 a {
-    text-decoration: none;
-  }
-  .sp__work h3 a:hover,
-  .sp__work h3 a:focus-visible {
-    text-decoration: underline;
-  }
-  .sp__tags {
+  .sp__how li {
     display: flex;
-    flex-wrap: wrap;
-    gap: var(--s-2);
-  }
-  .sp__tags span {
-    padding: 0.15rem 0.6rem;
-    border: 1px solid var(--line);
-    border-radius: var(--r-pill);
-    font-size: var(--fs-label);
-    color: var(--text-2);
-  }
-  .sp__foot {
-    display: flex;
-    flex-wrap: wrap;
-    justify-content: space-between;
-    align-items: center;
     gap: var(--s-3);
-    margin-top: auto;
-  }
-  .sp__sample,
-  .sp__check {
-    display: grid;
-    gap: var(--s-4);
-    padding: clamp(var(--s-4), 2.5vw, var(--s-6));
-    border: 1px dashed var(--control);
-    border-radius: var(--r-lg);
-  }
-  .sp__check {
-    border-style: solid;
-    border-color: var(--line);
-    background: var(--surface);
-  }
-  .sp__sample-head {
-    display: grid;
-    gap: var(--s-2);
-  }
-  .sp__sample h3,
-  .sp__check h3 {
-    font-size: var(--fs-h3);
-  }
-  .sp__badge {
-    justify-self: start;
-    padding: 0.2rem 0.6rem;
-    border: 1px dashed var(--control);
-    border-radius: var(--r-pill);
-    font-size: var(--fs-label);
-    color: var(--text-2);
-  }
-  .sp__table-wrap {
-    overflow-x: auto;
-    border: 1px solid var(--line);
-    border-radius: var(--r-md);
-  }
-  .sp__table-wrap:focus-visible {
-    outline: 2px solid var(--focus);
-    outline-offset: 2px;
-  }
-  .sp__table {
-    width: 100%;
-    min-width: 34rem;
-    border-collapse: collapse;
-    font-size: var(--fs-sm);
-  }
-  .sp__table th,
-  .sp__table td {
-    padding: var(--s-3) var(--s-4);
-    text-align: left;
-    vertical-align: top;
+    padding-bottom: var(--s-3);
     border-bottom: 1px solid var(--line);
   }
-  .sp__table tbody tr:last-child > * {
-    border-bottom: 0;
-  }
-  .sp__table thead th {
-    font-size: var(--fs-label);
-    font-weight: var(--w-ui);
+  .sp__n {
     color: var(--text-3);
-  }
-  .sp__table tbody th {
-    font-weight: var(--w-head);
-    color: var(--text);
-  }
-  .sp__table td {
-    color: var(--text-2);
-  }
-  .sp__pkgs {
-    display: grid;
-    gap: var(--s-4);
-  }
-  @media (min-width: 56em) {
-    .sp__pkgs {
-      grid-template-columns: repeat(2, minmax(0, 1fr));
-    }
-  }
-  .sp__facts {
-    display: grid;
-    gap: var(--s-5);
-  }
-  @media (min-width: 56em) {
-    .sp__facts {
-      grid-template-columns: repeat(3, minmax(0, 1fr));
-      gap: var(--s-6);
-    }
-  }
-  .sp__facts > div {
-    display: grid;
-    align-content: start;
-    gap: var(--s-2);
-    padding-top: var(--s-4);
-    border-top: 1px solid var(--line);
-    font-size: var(--fs-sm);
-    color: var(--text-2);
-  }
-  .sp__facts h3 {
-    font-size: var(--fs-ui);
-    font-weight: var(--w-head);
-    color: var(--text);
-  }
-  .sp__plain {
-    display: grid;
-    gap: var(--s-2);
+    font-variant-numeric: tabular-nums;
   }
   .sp__sources {
     margin-top: var(--s-5);

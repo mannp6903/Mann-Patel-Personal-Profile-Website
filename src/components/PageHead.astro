@@ -3,7 +3,8 @@
 import Heading from './ui/Heading.astro';
 
 interface Props {
-  eyebrow: string;
+  /** Optional since the 23 Nov 2026 audit (copy deck rule 6): the H1 says what the page is. */
+  eyebrow?: string;
   lines: string[];
   lead?: string;
   class?: string;
@@ -15,7 +16,7 @@ const { eyebrow, lines, lead, class: cls, compact = false } = Astro.props;
 
 <header class:list={['ph', compact && 'ph--compact', cls]}>
   <div class="container ph__inner">
-    <p class="eyebrow">{eyebrow}</p>
+    {eyebrow && <p class="eyebrow">{eyebrow}</p>}
     <Heading as="h1" lines={lines} class="ph__title" load />
     {lead && <p class="lead ph__lead" data-reveal="load" style="--d:4">{lead}</p>}
     <slot />
