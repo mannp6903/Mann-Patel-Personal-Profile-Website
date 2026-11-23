@@ -1,5 +1,10 @@
 # The hero portrait (22 Nov 2026)
 
+> **Update, 23 Nov 2026:** Mann supplied his own square portrait (dark background, green glow). It replaced the
+> cut-out and the studio panel: the photo fills a rounded frame, and the print is regenerated from it. Everything below
+> about the print, speed and the LCP finding still applies; the "head breaking out of the panel" parts do not. See
+> DESIGN.md → Hero photo swap.
+
 Mann's brief: the hero photo inside the "wired signal" graph looked bad and complicated; build something else with his
 profile picture, with a unique animation, and no wires. This replaces `AgentGraph.astro` with
 `HeroPortrait.astro`. It follows the earlier change the same day that left one portrait on Home

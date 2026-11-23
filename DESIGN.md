@@ -1,5 +1,13 @@
 # DESIGN.md · "Signal" (round 5, Nov 2026), compact editorial portfolio (round 7)
 
+> **Hero photo swap (23 Nov 2026, Mann's own square portrait).** The hero now shows his square portrait
+> (`assets/mann-patel-portrait.png`, dark background with a green glow behind his head) filling a rounded frame (1px
+> `--line`, `--r-lg`), 480px square at 1440, up to 22rem on phones. The cut-out, the panel and the head breaking out of
+> it are gone. Motion: the frame rises (transform only; the photo is never transparent) and the photo settles in from
+> 6% larger, then the halftone print (now made from the whole square) flashes over it and fades; scrolling away grows
+> the picture 6% inside its frame (`overflow: clip`, not `hidden`, so the scroll timeline stays the page's). The glow
+> is part of the photo, so it is not a DOM lime mark (gate C1 unchanged). Lighthouse CI config, local: LCP 1.69 s.
+>
 > **Hero portrait (22 Nov 2026, later; `docs/31-hero-portrait.md`).** Overrides every note below about the agent graph.
 > - **The hero visual is Mann's photo, not a diagram** (Mann: the "wired signal" graph looked complicated).
 >   `components/home/HeroPortrait.astro`: the cut-out (`assets/mann-patel-cutout.png`) standing in a plain studio panel

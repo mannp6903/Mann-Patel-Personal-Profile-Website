@@ -1,27 +1,27 @@
 """
-The hero portrait's halftone print (22 Nov 2026): Mann's cut-out drawn as a field of round dots, bigger where the photo
-is brighter, the same size as the cut-out so the two stack exactly. On Home the print is laid over the photo for a
+The hero portrait's halftone print (22 Nov 2026): Mann's portrait drawn as a field of round dots, bigger where the photo
+is brighter, the same size as the portrait so the two stack exactly. On Home the print is laid over the photo for a
 moment, as a dotted veil, then fades to leave the real photo ("developing"; src/components/home/HeroPortrait.astro).
 It is fetched only after the photo has painted, so it never delays the largest paint.
 
-Run after changing the cut-out:
+Run after changing the portrait:
     python3 scripts/make-halftone.py
 Needs Pillow (pip install pillow). Writes src/assets/mann-patel-halftone.png: warm white dots on the silhouette, which
-is veiled in the page's dark at 60%, so the dots read against the photo while it stays visible underneath.
+is covered by a 60% dark veil, so the dots read against the photo while it stays visible underneath.
 """
 from pathlib import Path
 
 from PIL import Image, ImageDraw, ImageStat
 
 ROOT = Path(__file__).resolve().parent.parent
-SRC = ROOT / 'src/assets/mann-patel-cutout.png'
+SRC = ROOT / 'src/assets/mann-patel-portrait.png'
 OUT = ROOT / 'src/assets/mann-patel-halftone.png'
 
 CELL = 8  # px between dot centres in the source (914 px wide: about 114 dots across)
 INK = (242, 241, 236)  # --text, the site's warm white
 SCALE = 4  # draw large, then reduce, for smooth dot edges
 
-src = Image.open(SRC).convert('RGBA')
+src = Image.open(SRC).convert('RGBA')  # a square photo, no transparency
 w, h = src.size
 grey = src.convert('L')
 alpha = src.split()[-1]
