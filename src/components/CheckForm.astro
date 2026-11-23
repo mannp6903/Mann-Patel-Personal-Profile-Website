@@ -10,9 +10,13 @@ import { LIMITS, CHECK_PACKAGE } from '../lib/enquiry/validate';
 import { HONEYPOT_FIELD } from '../lib/enquiry/spam';
 import { checkUp } from '../data/packages';
 import { profile } from '../data/site';
+import { contact } from '../lib/contact';
+import { checkLine } from '../lib/reply';
 import Icon from './ui/Icon.astro';
 
 const email = profile.contact.email;
+// CONV-2 (23 Nov 2026 audit): when the list of fixes arrives, once Mann sets profile.contact.checkTime.
+const when = checkLine();
 ---
 
 <div class="chk" data-check data-email={email ?? undefined}>
@@ -78,6 +82,19 @@ const email = profile.contact.email;
           <Icon name="arrow" />
         </span>
       </button>
+      {
+        when && (
+          <p class="small chk__when" data-check-time>
+            {when}
+            {contact.phone && (
+              <>
+                {' '}If it’s urgent, call{' '}
+                <a class="link" href={contact.phone.tel} data-contact="call">{contact.phone.display}</a>.
+              </>
+            )}
+          </p>
+        )
+      }
       <p class="small subtle">
         You get: {checkUp.includes.length} checks and a short written list of fixes, most important first. Free, no
         obligation. I use these details only to reply. <a class="link" href="/privacy/">Privacy</a>
@@ -99,7 +116,7 @@ const email = profile.contact.email;
       <p id="chk-done-title" class="chk__done-title">Thanks, <span data-success-name></span>. Your check request is on its way.</p>
       <p class="muted">
         The website accepted it and the email service took it for delivery to my inbox. I’ll reply to <span data-success-email></span>
-        with your list of fixes, usually within a few working days.
+        with your list of fixes, {profile.contact.checkTime ? profile.contact.checkTime.replace(/[.\s]+$/, '') : 'usually within a few working days'}.
       </p>
       <p class="small subtle">Reference: <span class="num" data-success-id></span></p>
     </section>

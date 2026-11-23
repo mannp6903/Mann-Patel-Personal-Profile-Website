@@ -73,12 +73,21 @@ export const profile = {
      */
     phoneKey: 'MzA5Njg3OTc0NjE=' as null | string,
     /**
-     * One line on how quickly Mann replies, shown on /contact/ (under "Prefer to talk?") and in the footer's Contact
-     * column. Nov 2026 audit fixes. null = not shown.
-     * TODO(Mann): your wording, e.g. how soon you reply and on which days. Not written here: it's a promise only you
-     * can make.
+     * How quickly Mann replies to a message, as the end of "I reply by email …" (23 Nov 2026 audit, CONV-2), e.g.
+     * 'within 1 business day'. Shown on /contact/, on /contact/received/ and in the footer (src/lib/reply.ts).
+     * null = not shown anywhere.
+     * TODO(Mann): the audit's copy deck suggests "within 1 business day" (audit/mannpatel-me-copy-and-keywords-2026-11-23.md
+     * §2.5). Not set here: it's a promise only you can make. Pick a time you can keep every week.
      */
     replyTime: null as null | string,
+    /**
+     * When the free check's list of fixes arrives, as the end of "I’ll email your list of fixes …" (CONV-2), e.g.
+     * 'within 2 business days'. Shown under the free-check button, on /contact/received/, under the home hero's button
+     * and in the check's confirmation message (src/lib/reply.ts). null = not shown.
+     * TODO(Mann): the audit suggests "within 2 business days" (§2.1 and backlog CONV-2). Set it once you know how many
+     * checks you can do a week.
+     */
+    checkTime: null as null | string,
   },
 };
 

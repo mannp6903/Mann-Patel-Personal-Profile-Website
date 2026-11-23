@@ -10,6 +10,7 @@ import { contact, emailHref } from '../../lib/contact';
 import { profile } from '../../data/site';
 import Crumbs from '../../components/Crumbs.astro';
 import { breadcrumbJsonLd, businessJsonLd } from '../../lib/seo';
+import { replyLine } from '../../lib/reply';
 
 const mail = emailHref();
 // SEO report follow-up (19 Nov 2026): a breadcrumb, as on the service, area and guide pages.
@@ -83,7 +84,7 @@ const description = contact.phone
               </p>
             )
           }
-          {profile.contact.replyTime && <p class="small" data-reply-time>{profile.contact.replyTime}</p>}
+          {replyLine() && <p class="small" data-reply-time>{replyLine()}</p>}
           <p class="small subtle">
             Toronto time <time class="num" data-clock>--:--</time>. Based in {profile.location}, working across {profile.serviceArea}.
           </p>

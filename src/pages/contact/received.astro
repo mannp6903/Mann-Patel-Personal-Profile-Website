@@ -4,6 +4,13 @@ import BaseLayout from '../../layouts/BaseLayout.astro';
 import Button from '../../components/ui/Button.astro';
 import Icon from '../../components/ui/Icon.astro';
 import { bookingUrl, cta } from '../../data/site';
+import { contact } from '../../lib/contact';
+import { checkLine, replyLine } from '../../lib/reply';
+
+// CONV-2 (23 Nov 2026 audit): when Mann replies, once he sets the times in src/data/site.ts. Both forms land here
+// without JavaScript, so both lines show.
+const reply = replyLine();
+const check = checkLine();
 ---
 
 <BaseLayout title="Brief accepted" description="Your brief was accepted by the website." noindex footerCta={false}>
@@ -18,6 +25,19 @@ import { bookingUrl, cta } from '../../data/site';
         The website accepted it and the email service took it for delivery to my inbox. I read every one myself and will reply
         by email.
       </p>
+      {
+        (reply || check) && (
+          <p data-reply-time>
+            {[reply, check && `For a free check, ${check}`].filter(Boolean).join(' ')}
+            {contact.phone && (
+              <>
+                {' '}If it’s urgent, call{' '}
+                <a class="link" href={contact.phone.tel} data-contact="call">{contact.phone.display}</a>.
+              </>
+            )}
+          </p>
+        )
+      }
       {
         // Upgrade report §7 (22 Nov 2026): the 15-minute call, once Mann adds his booking link (src/data/site.ts).
         bookingUrl && (
