@@ -3,8 +3,12 @@
  * The free website and Google check: the one full-bleed signal-colour moment on the page.
  * 22 Nov 2026 (upgrade report R8.1): the rotating "FREE CHECK · NO OBLIGATION" ring is gone (decoration text that
  * moved with the scroll), and the button uses the site-wide primary label (R7.2).
+ *
+ * 23 Nov 2026 (SEO audit copy deck §2.1, rule 5): the full block is on Home only (other pages get the one-line
+ * CheckBanner.astro). One paragraph says what the check is; the four-step list, the "Not included" line and the finder
+ * prompt are gone (the steps are on /contact/ and /free-check/, the finder on /services/).
  */
-import { checkUp } from '../../data/packages';
+import { cta } from '../../data/site';
 import Button from '../ui/Button.astro';
 
 interface Props {
@@ -16,35 +20,15 @@ const { id = 'check' } = Astro.props;
 <section class="fc" id={id} aria-labelledby={`${id}-title`}>
   <div class="fc__inner container">
     <div class="fc__copy">
-      <p class="fc__label">Free, no obligation</p>
-      <h2 id={`${id}-title`} class="fc__title" data-split>
-        <span class="line-mask" style="--i:0"><span>Not sure what to fix first?</span></span>
-        <span class="line-mask" style="--i:1"><span>Get a free <em>website and Google</em> check.</span></span>
-      </h2>
+      <h2 id={`${id}-title`} class="fc__title">Not sure what to fix first?</h2>
       <p class="fc__lead">
-        Send your website or business name and I’ll email you a short written list of fixes, most important first. For
-        businesses in Toronto and the GTA.
+        Send your website or business name. I look you up the way a customer would (Google, Maps and AI assistants),
+        compare your reviews with three nearby businesses, send a test enquiry, and email you a short list of fixes, most
+        important first. Free, no obligation.
       </p>
       <div class="btn-row">
-        <Button href="/contact/?package=check-up#check" variant="ink">Get my free website check</Button>
+        <Button href={cta.checkHref} variant="ink">{cta.check}</Button>
       </div>
-      <p class="fc__alt">
-        Rather work it out yourself? <a href="/services/#finder">Answer three questions</a> and get a suggested starting point.
-      </p>
-    </div>
-
-    <div class="fc__side">
-      <ol class="fc__list" role="list">
-        {
-          checkUp.includes.map((item, i) => (
-            <li>
-              <span class="fc__n num">{String(i + 1).padStart(2, '0')}</span>
-              <span>{item}</span>
-            </li>
-          ))
-        }
-      </ol>
-      <p class="fc__small">Not included: {checkUp.notIncluded.join('; ')}.</p>
     </div>
   </div>
 </section>
@@ -63,18 +47,12 @@ const { id = 'check' } = Astro.props;
   .fc__inner {
     position: relative;
     display: grid;
-    gap: var(--s-7);
     padding-block: var(--section);
   }
   .fc__copy {
     display: grid;
     gap: var(--s-5);
     align-content: start;
-  }
-  /* Upgrade report R4.2 (22 Nov 2026): set like the site's other labels: the body face, sentence case, untracked. */
-  .fc__label {
-    font-size: var(--fs-sm);
-    font-weight: var(--w-ui);
   }
   .fc__title {
     font-size: var(--fs-h2);
@@ -83,54 +61,11 @@ const { id = 'check' } = Astro.props;
     line-height: 1;
     max-width: 15ch;
   }
-  /* Two-tone on lime: the product name steps back to a dark olive (5.9:1 on the lime). */
-  .fc__title em {
-    font-style: normal;
-    color: color-mix(in oklab, var(--on-signal) 62%, var(--signal));
-  }
-  .fc__alt {
-    font-size: var(--fs-sm);
-    font-weight: var(--w-ui);
-  }
-  .fc__alt a {
-    color: var(--ink);
-    font-weight: var(--w-head);
-    text-decoration-thickness: 2px;
-    text-underline-offset: 0.2em;
-  }
   .fc__lead {
-    max-width: 40ch;
+    max-width: 52ch;
     font-size: var(--fs-lead);
     line-height: 1.4;
     font-weight: var(--w-ui);
-  }
-  .fc__side {
-    display: grid;
-    gap: var(--s-5);
-    align-content: start;
-  }
-  .fc__list {
-    display: grid;
-    border-top: 1.5px solid var(--ink);
-  }
-    .fc__list li {
-    display: grid;
-    grid-template-columns: 2.5rem 1fr;
-    gap: var(--s-3);
-    padding-block: var(--s-4);
-    border-bottom: 1.5px solid var(--ink-a25);
-    font-weight: var(--w-ui);
-    /* Body line height (gate T6, re-audit 18 Nov 2026; was 1.45). */
-    line-height: 1.6;
-  }
-  .fc__n {
-    font-size: var(--fs-label);
-    padding-top: 0.25em;
-  }
-  .fc__small {
-    font-size: var(--fs-sm);
-    font-weight: var(--w-ui);
-    opacity: 0.85;
   }
   .fc :global(.btn--ink:focus-visible) {
     outline-color: var(--focus-on-light);
@@ -138,24 +73,9 @@ const { id = 'check' } = Astro.props;
   .fc :global(:focus-visible) {
     outline-color: var(--focus-on-light);
   }
-
-  @media (min-width: 64em) {
-    .fc__inner {
-      grid-template-columns: minmax(0, 1.1fr) minmax(0, 1fr);
-      gap: var(--s-8);
-    }
-    .fc__side {
-      padding-top: calc(var(--s-9) + var(--s-6));
-    }
-  }
   @media (max-width: 47.99em) {
     .fc__inner {
-      gap: var(--s-5);
       padding-block: var(--section-tight);
-    }
-    .fc__list li {
-      padding-block: var(--s-3);
-      font-size: var(--fs-sm);
     }
   }
 </style>

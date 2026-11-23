@@ -1,75 +1,28 @@
 ---
 /**
- * How I work: how a project runs in five steps, and what a client can count on.
+ * How a project works: the five steps as one line (a vertical list on phones, one row from 64em).
  *
- * 14 Nov 2026: the photo and "Hi, I’m Mann" introduction were removed from this section (Mann's
- * call). The full story lives on About; since 22 Nov 2026 Home's "You work with me" block (WorkWithMe.astro) carries the
- * photo and the About link.
- *
- * 22 Nov 2026 (upgrade report §5 and §9, Phase 2): a different shape from the sections around it. The five steps run as a
- * horizontal line from 64em (a vertical list on phones), each with its short name and one line; then the four
- * promises in one row, at most nine words each. No sticky head and no mono labels. Typical durations wait until Mann
- * confirms them (packages.ts promises no turnaround yet).
+ * 23 Nov 2026 (SEO audit copy deck §2.1): Home says the process in one line, "Brief → written scope and price → build →
+ * test and launch → handover with every login in your name". The four promises and the testimonial tile were cut: the
+ * ownership promise is Home's first question, and real reviews show in the reviews strip once they exist. The full
+ * process, with what each side does, stays on About (src/components/Process.astro).
  */
-import { process } from '../../data/services';
-import { reviews } from '../../data/reviews';
-import Icon, { type IconName } from '../ui/Icon.astro';
-import Testimonial from '../Testimonial.astro';
-
-// Design upgrade Phase 3 (task 3.3): the four promises, with icons (a swipe rail on phones). A testimonial tile joins
-// them only once a real review exists (src/data/reviews.ts); never a placeholder.
-const rules: { t: string; icon: IconName }[] = [
-  { t: 'You own every account.', icon: 'user' },
-  { t: 'Real reviews only. Never bought or swapped.', icon: 'check' },
-  { t: 'No promised rankings. Google decides those.', icon: 'shield' },
-  { t: 'A written handover you can use.', icon: 'layers' },
-];
-const quote = reviews[0];
+const steps = ['Brief', 'Written scope and price', 'Build', 'Test and launch', 'Handover, with every login in your name'];
 ---
 
 <section class="about section" id="how-i-work" aria-labelledby="about-title">
   <div class="container about__grid">
-    <div class="about__head">
-      <h2 id="about-title" class="about__title">How a website project <span class="accent">works.</span></h2>
-      <p class="lead about__lead">
-        Every project follows the same five steps, from a short brief to a written handover. Everything I set up stays in your name.
-      </p>
-    </div>
-
+    <h2 id="about-title" class="about__title">How a project works</h2>
     <ol class="line" role="list" aria-labelledby="about-title">
       {
-        process.map((s, i) => (
+        steps.map((s, i) => (
           <li class="line__step">
             <span class="line__n num" aria-hidden="true">{String(i + 1).padStart(2, '0')}</span>
-            <b class="line__name">{s.step}.</b>
-            <span class="line__text">{s.short}</span>
+            <b class="line__name">{s}</b>
           </li>
         ))
       }
     </ol>
-
-    <div class="about__promises">
-      <h3 class="about__h">What you can count on</h3>
-      <ul class="rules rail" role="list" data-rail>
-        {
-          rules.map((r) => (
-            <li class="rules__tile">
-              <span class="rules__icon" aria-hidden="true">
-                <Icon name={r.icon} />
-              </span>
-              <span class="rules__text">{r.t}</span>
-            </li>
-          ))
-        }
-        {
-          quote && (
-            <li class="rules__tile rules__tile--quote">
-              <Testimonial quote={quote.quote} name={quote.name} business={quote.business} reviewUrl={quote.url} />
-            </li>
-          )
-        }
-      </ul>
-    </div>
   </div>
 </section>
 
@@ -77,29 +30,16 @@ const quote = reviews[0];
   @media (max-width: 39.99em) {
     .about { padding-block: var(--section-tight); }
   }
-  @media (max-width: 47.99em) {
-    /* The rail's side padding (the list reset for role="list" would otherwise remove it). */
-    .rules { padding-inline: var(--gutter); }
-  }
   .about__grid {
     display: grid;
-    /* minmax(0, 1fr): the promises rail scrolls inside the column instead of widening the page on phones. */
     grid-template-columns: minmax(0, 1fr);
     gap: var(--s-7);
-  }
-  .about__head {
-    display: grid;
-    row-gap: var(--head-gap-2);
-    justify-items: start;
   }
   .about__title {
     font-size: var(--fs-h2);
     letter-spacing: var(--track-head);
     line-height: 1;
     max-width: 15ch;
-  }
-  .about__lead {
-    max-width: 52ch;
   }
 
   /* The five steps. Phones: a vertical list along a hairline. From 64em: one row, a hairline through the numbers. */
@@ -139,11 +79,7 @@ const quote = reviews[0];
     font-weight: var(--w-head);
     letter-spacing: var(--track-head);
     color: var(--text);
-  }
-  .line__text {
-    color: var(--text-2);
-    font-size: var(--fs-sm);
-    max-width: 36ch;
+    text-wrap: balance;
   }
   @media (min-width: 64em) {
     .line {
@@ -158,64 +94,6 @@ const quote = reviews[0];
     .line__step::before {
       left: 0;
       top: calc(-0.3125rem - 0.5px);
-    }
-  }
-
-  /* The promises: one row from 48em (a swipe rail on phones). */
-  .about__promises {
-    display: grid;
-    gap: var(--s-4);
-  }
-  .about__h {
-    font-size: var(--fs-h3);
-    font-weight: var(--w-head);
-    letter-spacing: var(--track-head);
-    line-height: 1.1;
-  }
-  .rules {
-    display: grid;
-    gap: var(--s-3);
-  }
-  .rules__tile {
-    display: grid;
-    align-content: start;
-    gap: var(--s-3);
-    padding: var(--s-5);
-    background: var(--bg-2);
-    border: 1px solid var(--line);
-    border-radius: var(--r-lg);
-    color: var(--text);
-    font-weight: var(--w-ui);
-  }
-  .rules__text {
-    text-wrap: pretty;
-  }
-  .rules__tile--quote {
-    grid-column: 1 / -1;
-  }
-  .rules__icon {
-    display: grid;
-    place-items: center;
-    width: 2.5rem;
-    height: 2.5rem;
-    border: 1px solid var(--graph-spoke);
-    border-radius: 50%;
-    color: var(--text);
-  }
-  .rules__icon :global(.icon) {
-    width: 1.15rem;
-    height: 1.15rem;
-    stroke-width: var(--graph-stroke);
-    stroke-linecap: round;
-  }
-  @media (min-width: 48em) {
-    .rules {
-      grid-template-columns: repeat(2, minmax(0, 1fr));
-    }
-  }
-  @media (min-width: 64em) {
-    .rules {
-      grid-template-columns: repeat(4, minmax(0, 1fr));
     }
   }
 </style>

@@ -23,17 +23,8 @@ const folds = items.length > SHORT + 1;
   <div class="container faq__grid">
     <div class="faq__head stack" style="--stack: var(--head-gap-2)">
       <!-- 16 Nov 2026: a descriptive heading people search for; the slogan is the eyebrow. -->
-      <Heading id={`${id}-title`} lines={['Web design', '<span class="accent">questions.</span>']} />
-      <p class="muted">
-        Something else on your mind? Ask it in your brief, or email me. I answer every message myself.
-      </p>
-      {
-        more && (
-          <a class="link-arrow" href="/pricing/#pr-faq">
-            Prices, payments and ownership <Icon name="arrow" />
-          </a>
-        )
-      }
+      {/* 23 Nov 2026 audit (copy deck §2.1, rule 6): a heading that says what's under it. */}
+      <Heading id={`${id}-title`} lines={['Questions']} />
     </div>
     <div class="faq__list" id={`${id}-list`} data-faq-list>
       {
@@ -44,7 +35,17 @@ const folds = items.length > SHORT + 1;
               <span class="acc__plus" aria-hidden="true" />
             </summary>
             <div class="acc__body">
-              <p>{f.a}</p>
+              <p>
+                {f.a}
+                {f.link && (
+                  <>
+                    {' '}
+                    <a class="link-arrow" href={f.link.href}>
+                      {f.link.label} <Icon name="arrow" />
+                    </a>
+                  </>
+                )}
+              </p>
               {f.confirm && <Confirm note={f.confirm} />}
             </div>
           </details>

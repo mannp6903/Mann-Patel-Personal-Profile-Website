@@ -2,8 +2,7 @@
 import BaseLayout from '../layouts/BaseLayout.astro';
 import Hero from '../components/home/Hero.astro';
 import SelectedWork from '../components/home/SelectedWork.astro';
-import ServiceSummary from '../components/home/ServiceSummary.astro';
-import WorkWithMe from '../components/home/WorkWithMe.astro';
+import WhatIDo from '../components/home/WhatIDo.astro';
 import FreeCheck from '../components/home/FreeCheck.astro';
 import HowIWork from '../components/home/HowIWork.astro';
 import Faq from '../components/Faq.astro';
@@ -12,10 +11,11 @@ import { packageById, priceLabel } from '../data/packages';
 import { faqs } from '../data/faqs';
 import { businessJsonLd, personJsonLd, websiteJsonLd } from '../lib/seo';
 
-// SEO audit copy (14 Nov 2026, 147 characters). The price comes from src/data/packages.ts.
+// The prices come from src/data/packages.ts.
 const launch = packageById('website-launch')!;
+const local = packageById('local-visibility')!;
 // FAQPage for the questions this page shows (SEO audit Phase 2: they used to be marked up only on /services/).
-// 22 Nov 2026 (upgrade report R1.1): three on Home; the full list is on /pricing/ and /services/.
+// 23 Nov 2026 (SEO audit copy deck §2.1): three questions on Home; prices and inclusions are answered on /pricing/.
 const HOME_FAQS = 3;
 const homeFaqs = faqs.slice(0, HOME_FAQS).filter((f) => !f.confirm); // the same three <Faq limit={HOME_FAQS}> shows
 const faqLd = {
@@ -23,7 +23,8 @@ const faqLd = {
   '@type': 'FAQPage',
   mainEntity: homeFaqs.map((f) => ({ '@type': 'Question', name: f.q, acceptedAnswer: { '@type': 'Answer', text: f.a } })),
 };
-const description = `Websites, local SEO and Google Business Profile setup for Toronto small businesses. Published prices: websites from ${priceLabel(launch).text} CAD. Free website check.`;
+// 23 Nov 2026 (SEO audit copy deck §2.1).
+const description = `Independent web designer in Scarborough. Websites from ${priceLabel(launch).text} and Google Business Profile setup for ${priceLabel(local).text}, at fixed prices in CAD. Free website and Google check.`;
 ---
 
 <BaseLayout
@@ -33,16 +34,14 @@ const description = `Websites, local SEO and Google Business Profile setup for T
   jsonLd={[websiteJsonLd(), businessJsonLd({ withServices: true }), { '@context': 'https://schema.org', ...personJsonLd() }, faqLd]}
 >
   <Hero />
+  <!-- 23 Nov 2026 (SEO audit copy deck §2.1), in the deck's order: what I do and what it costs, recent work, the free
+       check, how a project works, three questions. The "You work with me" table, the A/B/C tiles and five of the eight
+       questions are cut. -->
+  <WhatIDo />
   <SelectedWork />
   <!-- Real client reviews only (src/data/reviews.ts); renders nothing until there are some. -->
   <ReviewsStrip />
-  <!-- 22 Nov 2026 (upgrade report §5, Phase 2): the person behind the work, then one section for what I do and what it
-       costs (Services and Prices merged; PricingTeaser is no longer on Home). -->
-  <WorkWithMe />
-  <ServiceSummary />
   <FreeCheck />
   <HowIWork />
-  <!-- 22 Nov 2026 (upgrade report R1.1, R1.2): the "at a glance" summary is gone. It repeated the hero and the prices;
-       the definition still opens public/llms.txt (src/data/site.ts → profile.definition). -->
-  <Faq limit={HOME_FAQS} more rule />
+  <Faq limit={HOME_FAQS} rule />
 </BaseLayout>

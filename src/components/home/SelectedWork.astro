@@ -10,19 +10,14 @@ import ProjectMedia from '../work/ProjectMedia.astro';
 import { projectSite } from '../../lib/work';
 
 const work = (await getCollection('work')).sort((a, b) => a.data.order - b.data.order);
-const fmtDate = (iso: string) =>
-  new Intl.DateTimeFormat('en-CA', { day: 'numeric', month: 'short', year: 'numeric', timeZone: 'UTC' }).format(new Date(`${iso}T12:00:00Z`));
 ---
 
 <section class="sw section" id="work" aria-labelledby="work-title">
   <div class="container">
     <div class="sw__head">
-      <!-- 16 Nov 2026: a descriptive heading people search for. -->
-      <h2 id="work-title" class="sw__title">Website projects in Scarborough<span>.</span></h2>
+      <!-- 23 Nov 2026 (SEO audit copy deck §2.1): "Recent work", and each card says only what it is and where it stands. -->
+      <h2 id="work-title" class="sw__title">Recent work</h2>
       <a class="link-arrow sw__all" href="/work/">All work <Icon name="arrow-ne" /></a>
-      <!-- 19 Nov 2026 (answer extractability): names both projects, so the intro still answers on its own. 22 Nov 2026:
-           the client first, as the cards are. -->
-      <p class="sw__intro">A salon website for a client, Samp Hair & Spa, and the website for my own cleaning business, Nest & Rest Cleaning. Each case study shows what I built and how I tested it.</p>
     </div>
 
     <ol class="sw__list" role="list">
@@ -54,16 +49,13 @@ const fmtDate = (iso: string) =>
                       {new URL(site.links[0].url).host}
                     </a>
                   )}
-                  <dl class="sw__facts">
-                    <div><dt>The problem</dt><dd>{project.problem}</dd></div>
-                    <div><dt>My role</dt><dd>{project.roleShort}</dd></div>
-                  </dl>
+
                   <div class="sw__foot">
                     <a class="link-arrow" href={href}>
                       Read the case study <span class="visually-hidden">: {project.title}</span>
                       <Icon name="arrow-ne" />
                     </a>
-                    <p class="num sw__date">Checked {fmtDate(project.checked)}</p>
+
                   </div>
                 </div>
               </article>
@@ -99,14 +91,12 @@ const fmtDate = (iso: string) =>
     /* D9 (design upgrade Phase 2): no hairline above the head; the paper band's own edge divides it from the hero, so
        the heading starts by y=1,000 at 1440×900. */
   }
-  .sw__intro { grid-column: 1 / -1; }
   .sw__title {
     font-size: var(--fs-h2);
     letter-spacing: var(--track-head);
     line-height: 1;
     font-weight: var(--w-head);
   }
-  .sw__intro { max-width: 58ch; color: var(--text-2); }
   .sw__all { white-space: nowrap; }
   .sw__list { display: grid; }
   .sw__card {
@@ -132,10 +122,7 @@ const fmtDate = (iso: string) =>
     min-width: 0;
     gap: var(--s-3);
   }
-  .sw__date {
-    color: var(--text-3);
-    font-size: var(--fs-label);
-  }
+
   .sw__name {
     font-size: var(--fs-h3);
     font-weight: var(--w-head);
@@ -167,13 +154,6 @@ const fmtDate = (iso: string) =>
   }
   .sw__business { color: var(--text-3); font-size: var(--fs-sm); }
   .sw__host { font-size: var(--fs-sm); color: var(--text-2); }
-  .sw__facts { display: grid; gap: var(--s-2); }
-  .sw__facts dt {
-    color: var(--text-3);
-    font-size: var(--fs-label);
-    font-weight: var(--w-ui);
-  }
-  .sw__facts dd { color: var(--text-2); max-width: 47ch; }
   .sw__foot {
     display: flex;
     flex-wrap: wrap;
@@ -195,7 +175,6 @@ const fmtDate = (iso: string) =>
   }
   @media (max-width: 39.99em) {
     .sw__head { grid-template-columns: 1fr; }
-    .sw__intro, .sw__facts dd { font-size: var(--fs-sm); }
     .sw__body { gap: var(--s-2); }
     .sw__all { grid-row: 3; justify-self: start; }
   }

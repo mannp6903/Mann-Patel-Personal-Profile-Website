@@ -232,16 +232,10 @@ describe('design tokens (DESIGN_UPGRADE_PLAN.md §5)', () => {
     for (const f of readers) expect(readFileSync(join(ROOT, f), 'utf8'), f).not.toMatch(/<(Image|Picture)\b/);
   });
 
-  it('G4: the services scenes and the promise icons draw with the graph’s stroke tokens', () => {
+  // G4 (the services scenes and the promise icons) went with them on 23 Nov 2026 (SEO audit copy deck §2.1).
+  it('G4: the stroke tokens stay defined for the icons that remain', () => {
     const tokens = readFileSync(join(ROOT, 'src/styles/tokens.css'), 'utf8');
     for (const name of ['--graph-stroke-fine', '--graph-stroke', '--graph-stroke-bold', '--graph-stroke-signal']) expect(tokens, name).toMatch(new RegExp(`${name}:\\s*[\\d.]+;`));
-    const files = ['src/components/home/ServiceSummary.astro', 'src/components/home/HowIWork.astro'];
-    const widths = DECLS.filter((d) => files.includes(d.file) && d.prop === 'stroke-width');
-    expect(widths.length).toBeGreaterThanOrEqual(4);
-    expect(widths.filter((d) => !/^var\(--graph-stroke(-fine|-bold|-signal)?\)$/.test(d.value)).map(where)).toEqual([]);
-    // Round ends, like the graph's lines.
-    for (const f of ['src/components/home/ServiceSummary.astro', 'src/components/home/HowIWork.astro'])
-      expect(DECLS.some((d) => d.file === f && d.prop === 'stroke-linecap' && d.value === 'round'), f).toBe(true);
   });
 
   it('M8: every hover state has a keyboard twin (:focus-visible, :focus-within or :focus)', () => {

@@ -11,34 +11,28 @@
 export interface Faq {
   q: string;
   a: string;
+  /** A link after the answer, to where the detail lives (23 Nov 2026 audit: one fact, one place). */
+  link?: { href: string; label: string };
   confirm?: string;
 }
 
+/**
+ * Home's three questions (23 Nov 2026 SEO audit, copy deck §2.1). Prices, inclusions, payments and AI search are
+ * answered once, on /pricing/ and the service pages; Home links there instead of repeating them.
+ */
 export const faqs: Faq[] = [
   {
-    q: 'What do you actually do for a local business?',
-    a: 'I help customers find you, choose you and book you. That covers five kinds of work: local SEO and Google Business Profile setup, AI search visibility (GEO and AEO) so ChatGPT, Gemini and Google AI Overviews can describe you accurately, websites (new builds, redesigns and single fixes), enquiry follow-up and AI automation such as missed-call text-back and online booking, and website care each month. Print and social content are available as add-ons. Most clients start with the free check and one of these, not all of them.',
+    q: 'Do I own the website and accounts?',
+    a: 'Yes. Everything is set up in your name from day one.',
   },
   {
-    q: 'How much does a website cost?',
-    a: 'A new or redesigned website of up to five pages is $1,950. A website with a booking integration and one follow-up workflow is $3,350. One fix on your current site is $450 to $850, local search setup is $650, and care after launch is $149 a month. All prices are in Canadian dollars, plus applicable tax. Domain, hosting and tool subscriptions are billed to you directly by each provider.',
+    q: 'What isn’t included?',
+    a: 'Domain, hosting and booking-tool fees, billed to you directly by each provider.',
+    link: { href: '/pricing/#pr-costs', label: 'Full list' },
   },
   {
-    // 22 Nov 2026 (upgrade report §9): the third question on Home. It restates the "You own every account" promise.
-    q: 'Do I own the website and the accounts?',
-    a: 'Yes. Your domain, hosting, Google Business Profile and any tools are set up in your name and billed to you directly, and you get every login, written down, at handover.',
-  },
-  {
-    q: 'What are GEO and AEO, and can you get my business into AI answers?',
-    a: 'GEO (generative engine optimization) and AEO (answer engine optimization) mean making your business easy for AI tools such as ChatGPT, Gemini, Perplexity and Google AI Overviews to find, understand and cite. In practice: accurate, matching details on Google, Apple Maps and Bing, clear service pages that answer real customer questions, FAQ and business details marked up with structured data, and reviews that describe your work. I record what each assistant says about you on a dated sheet, before and after. No one can guarantee what an AI tool says or that it recommends you, so I show the evidence rather than promise a result.',
-  },
-  {
-    q: 'What exactly is included for $1,950?',
-    a: 'Up to five pages using your text and photos (I edit them for clarity), two rounds of revisions, one tested enquiry path such as a quote form or your booking link, basic search setup and a handover. Writing all your copy from scratch, extra pages and booking integrations are quoted separately, in writing, before any work starts.',
-  },
-  {
-    q: 'How do payments work?',
-    a: 'For a website, half is paid at kickoff and half once the site passes the launch checks we agreed in the written scope. Website Care is billed monthly and you can stop any month.',
+    q: 'Who does the work?',
+    a: 'I do, from the first message to the handover.',
   },
 ];
 

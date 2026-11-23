@@ -427,13 +427,15 @@ test.describe('design gates: header and consent (Phase 2)', () => {
 
 // ── Phase 3 (17 Nov 2026): sections and flow ──────────────────────────────────────────────────────────────────────
 test.describe('design gates: structure and layout (Phase 3)', () => {
-  test('S1: Home runs hero, work, (reviews), services, prices, free check, how I work, questions; at most three lime-tipped rules', async ({ page }) => {
+  test('S1: Home runs hero, what I do, work, (reviews), free check, how a project works, questions; at most three lime-tipped rules', async ({ page }) => {
     await page.goto('/');
     const ids = await page.locator('main > section[id]').evaluateAll((els) => els.map((e) => e.id));
     // 19 Nov 2026 (answer extractability): + the "at a glance" summary before the questions. 22 Nov 2026 (upgrade
     // report R1.1): it is gone again; it repeated the hero and the prices.
     // 22 Nov 2026 (Phase 2, upgrade report §5): + "You work with me" after the work; Services and Prices are one section.
-    const expected = ['hero', 'work', 'with-me', 'what-i-do', 'check', 'how-i-work', 'faq'];
+    // 23 Nov 2026 (SEO audit copy deck §2.1): the deck's order. What I do (with the prices) comes first after the hero;
+    // "You work with me" is cut.
+    const expected = ['hero', 'what-i-do', 'work', 'check', 'how-i-work', 'faq'];
     // Real reviews only (src/data/reviews.ts): the strip sits right after Selected Work once there are some.
     expect(ids.filter((id) => id !== 'reviews')).toEqual(expected);
     if (ids.includes('reviews')) expect(ids[ids.indexOf('work') + 1]).toBe('reviews');
@@ -1448,51 +1450,12 @@ test.describe('design gates: the re-audit (Phase 9)', () => {
 });
 
 test.describe('launch motion (22 Nov 2026, DESIGN.md → Motion → Search to booked and the odometer)', () => {
-  test('M5: from 1024px the services phone acts out the tile at the reading line; phones, reduced motion and no JavaScript keep the bento', async ({ browser }) => {
-    const ctx = await browser.newContext({ viewport: { width: 1440, height: 900 } });
-    const page = await ctx.newPage();
+  // M5 "search to booked" (the services phone beside the A/B/C tiles) was removed on 23 Nov 2026: the SEO audit's copy
+  // deck (§2.1) replaces the tiles and their scenes with a plain list of three packages.
+  test('M5 (removed): Home has no services phone, tiles or scenes', async ({ page }) => {
     await page.goto('/');
-    // Built only when the section is near (gate P3 counts Home at load).
-    await expect(page.locator('.ssp')).toHaveCount(0);
-    const phone = page.locator('.ssp');
-    const tiles = page.locator('[data-scene-tile]');
-    for (let i = 0; i < 3; i++) {
-      for (const [f, sub] of [
-        [0.2, '0'],
-        [0.8, '1'],
-      ] as const) {
-        // Put fraction f of tile i on the reading line (62% down the screen).
-        await page.evaluate(
-          ([i, f]) => {
-            const r = document.querySelectorAll<HTMLElement>('[data-scene-tile]')[i].getBoundingClientRect();
-            scrollTo({ top: scrollY + r.top + r.height * f - innerHeight * 0.62, behavior: 'instant' });
-          },
-          [i, f] as const,
-        );
-        await expect(phone, `tile ${i} at ${f}`).toHaveAttribute('data-scene', String(i));
-        await expect(phone, `tile ${i} at ${f}`).toHaveAttribute('data-sub', sub);
-        await expect(tiles.nth(i)).toHaveClass(/is-on/);
-      }
-      if (i === 0) await expect(phone.locator('[data-typed]')).toHaveText('hair salon near me');
-    }
-    await expect(phone).toHaveAttribute('aria-hidden', 'true');
-    await expect(phone.locator('a, button, input, [tabindex]')).toHaveCount(0);
-    await ctx.close();
-
-    for (const [label, opts] of [
-      ['390px', { viewport: { width: 390, height: 844 } }],
-      ['reduced motion', { viewport: { width: 1440, height: 900 }, reducedMotion: 'reduce' }],
-      ['no JavaScript', { viewport: { width: 1440, height: 900 }, javaScriptEnabled: false }],
-    ] as const) {
-      const c = await browser.newContext(opts);
-      const p = await c.newPage();
-      await p.goto('/');
-      await p.locator('#what-i-do').scrollIntoViewIfNeeded();
-      await p.waitForTimeout(400);
-      await expect(p.locator('.ssp'), label).toHaveCount(0);
-      await expect(p.locator('.ss__scene').first(), label).toBeVisible();
-      await c.close();
-    }
+    await page.locator('#what-i-do').scrollIntoViewIfNeeded();
+    await expect(page.locator('.ssp, [data-scene-tile], .ss__scene')).toHaveCount(0);
   });
 
   // M7 (the price odometer) was removed on 22 Nov 2026 (upgrade report R8.2): prices that spin work against "fixed
@@ -1502,7 +1465,7 @@ test.describe('launch motion (22 Nov 2026, DESIGN.md → Motion → Search to bo
     page.on('request', (r) => r.resourceType() === 'script' && scripts.push(r.url()));
     await page.setViewportSize({ width: 1440, height: 900 });
     await page.goto('/');
-    await page.locator('#what-i-do .ss__more').scrollIntoViewIfNeeded();
+    await page.locator('#what-i-do .wid__more').scrollIntoViewIfNeeded();
     await page.waitForTimeout(800);
     await expect(page.locator('.pt-odo, [data-odometer]')).toHaveCount(0);
     expect(scripts.filter((u) => /odometer/i.test(u))).toEqual([]);

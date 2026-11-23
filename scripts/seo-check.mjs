@@ -36,7 +36,7 @@ const EXACT = {
     // 23 Nov 2026 audit (PRICE-1, copy deck §3.3): the searcher's words and the published price.
     title: 'Web Designer in Scarborough, Websites from $1,950 | Mann Patel',
     description:
-      'Websites, local SEO and Google Business Profile setup for Toronto small businesses. Published prices: websites from $1,950 CAD. Free website check.',
+      'Independent web designer in Scarborough. Websites from $1,950 and Google Business Profile setup for $650, at fixed prices in CAD. Free website and Google check.',
     // 22 Nov 2026 (upgrade report §6, Option A): "Google listings", the owner's word; the title keeps "Local SEO".
     // 23 Nov 2026 audit (HERO-1, copy deck §2.1).
     h1: 'Websites and Google listings for Scarborough and Toronto small businesses.',
