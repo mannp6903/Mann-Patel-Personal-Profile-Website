@@ -37,7 +37,8 @@ const EXACT = {
     description:
       'Websites, local SEO and Google Business Profile setup for Toronto small businesses. Published prices: websites from $1,950 CAD. Free website check.',
     // 22 Nov 2026 (upgrade report §6, Option A): "Google listings", the owner's word; the title keeps "Local SEO".
-    h1: 'Websites and Google listings for Toronto small businesses.',
+    // 23 Nov 2026 audit (HERO-1, copy deck §2.1).
+    h1: 'Websites and Google listings for Scarborough and Toronto small businesses.',
   },
   '/pricing/': {
     title: 'Web Design & Local SEO Pricing in Toronto | Mann Patel',

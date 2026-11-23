@@ -120,6 +120,9 @@
      A component picks one of these, never a raw size (tests/unit/design-tokens.test.ts, gate T1). The hierarchy holds at
      every width: hero ≥ h1 > h2 > h3 > lead > base > ui > sm > label. */
   --fs-hero: clamp(2.6rem, 1.4rem + 5.11vw, 6rem); /* 41.6 → 96px: the Home H1 (from Phase 2) */
+  /* 23 Nov 2026 (audit HERO-1): the Home H1 beside the portrait from 64em, where its longer wording ("…Scarborough and
+     Toronto…") would otherwise push the button below the first screen; still 1.4× the largest H2 (gate H1). */
+  --fs-hero-wide: calc(var(--fs-hero) * 0.93);
   --fs-h1: clamp(2.4rem, 1.48rem + 3.91vw, 5rem); /* 38.4 → 80px: page titles */
   --fs-h2: clamp(2rem, 1.38rem + 2.63vw, 3.75rem); /* 32 → 60px: section titles, never above --fs-h1 */
   --fs-h3: clamp(1.375rem, 1.2rem + 0.75vw, 1.875rem); /* 22 → 30px: item titles, project names, prices */

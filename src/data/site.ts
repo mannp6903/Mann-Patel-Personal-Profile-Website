@@ -240,7 +240,8 @@ export const footerPages = [
  * short form. "Start a project", "Request the free check" and a "Contact" button are retired (Contact stays a link).
  */
 export const cta = {
-  check: 'Get a free website check',
+  // 23 Nov 2026 audit (copy deck §2.1): "my", the owner's own voice, on every free-check button.
+  check: 'Get my free website check',
   checkShort: 'Free check',
   checkHref: '/contact/?package=check-up#check',
   booking: 'Book a 15-minute call',

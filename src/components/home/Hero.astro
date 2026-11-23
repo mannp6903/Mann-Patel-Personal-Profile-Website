@@ -24,9 +24,15 @@
  * local SEO (the title tag and the services heading keep "local SEO"), no middle-dot strings, one greeting line, the
  * site-wide primary label (R7.2) and, once bookingUrl is set, "Book a 15-minute call" beside it (R7.1). The greeting's
  * <picture> is hidden with the photo from 64em, so the text no longer starts 12px off the H1's edge (R6.1).
+ *
+ * 23 Nov 2026 (SEO audit HERO-1, "Hero A", and copy deck §2.1): the H1 names Scarborough as well as Toronto, the button
+ * reads "Get my free website check", a line under it says what happens after the tap (src/lib/reply.ts → heroCheckLine,
+ * with the reply time once Mann sets it), and one proof line follows: the Google rating once it exists, until then the
+ * client project in progress. Phone order: greeting, H1, subline, button + microcopy, "See prices", proof, prices, photo.
  */
-import { bookingUrl, cta, profile } from '../../data/site';
+import { bookingUrl, cta, gbp, profile } from '../../data/site';
 import { packageById, priceLabel } from '../../data/packages';
+import { heroCheckLine } from '../../lib/reply';
 import Button from '../ui/Button.astro';
 import BookingButton from '../ui/BookingButton.astro';
 import Icon from '../ui/Icon.astro';
@@ -34,6 +40,12 @@ import HeroPortrait from './HeroPortrait.astro';
 
 const launch = packageById('website-launch')!;
 const local = packageById('local-visibility')!;
+// HERO-1 (23 Nov 2026 audit, Hero A): what happens after the tap, and one line of proof. The proof is the real Google
+// rating once src/data/site.ts has it (gbp.rating and gbp.reviewCount, copied from the profile); until then, the client
+// project in progress.
+const microcopy = heroCheckLine();
+const rated = gbp.rating !== null && gbp.reviewCount !== null && gbp.reviewCount > 0;
+const ratingText = rated ? `${gbp.rating!.toFixed(1)} from ${gbp.reviewCount} Google review${gbp.reviewCount === 1 ? '' : 's'}` : '';
 ---
 
 <section class="hero" id="hero" aria-labelledby="hero-title">
@@ -42,26 +54,45 @@ const local = packageById('local-visibility')!;
       <!-- 22 Nov 2026: no small avatar here any more. The portrait under the text shows his face on a phone's first screen
            too, so it would only repeat it. -->
       <div class="hero__hello">
-        <p class="hero__hi">Hi, I’m {profile.name.split(' ')[0]}. Web designer in {profile.location}.</p>
+        <p class="hero__hi">Hi, I’m {profile.name.split(' ')[0]}, a web designer in {profile.location}.</p>
       </div>
 
       <!-- 14 Nov 2026 (SEO audit): the H1 names the place and the customer. Phase 2: its full stop is the one lime mark. -->
       <h1 class="hero__title" id="hero-title">
-        <span class="hero__line">Websites and Google listings</span> <br /><span class="hero__line">for Toronto small businesses<span class="stop">.</span></span>
+        <span class="hero__line">Websites and Google listings</span> <br /><span class="hero__line">for {profile.location} and Toronto small businesses<span class="stop">.</span></span>
       </h1>
-      <p class="hero__place">I build fast websites and set up your Google profile, so people nearby find you, call you and book. Fixed prices, in writing.</p>
+      <p class="hero__place">I build fast websites and set up your Google profile so nearby customers find you, call and book. Fixed prices, in writing.</p>
 
       <div class="hero__actions">
         <div class="btn-row">
           <Button href={cta.checkHref} class="hero__cta" data-hero-cta>{cta.check}</Button>
+          {/* HERO-1: straight under the button on phones; under both actions from 48em (flex order). */}
+          <p class="hero__micro" data-hero-micro>{microcopy}</p>
           {/* The second action: the 15-minute call once Mann adds his booking link, until then the prices. */}
           {bookingUrl ? <BookingButton class="hero__book" /> : <a class="link-arrow hero__price-link" href="/pricing/">See prices <Icon name="arrow" /></a>}
         </div>
       </div>
 
+      <div class="hero__meta">
+      <p class="hero__proof" data-hero-proof>
+        {
+          rated ? (
+            <a class="link-quiet" href={gbp.url} rel="noopener">
+              <span aria-hidden="true">★ </span>
+              {ratingText}
+            </a>
+          ) : (
+            <>
+              Now building: <a class="link-quiet" href="/work/samp-hair-spa/">Samp Hair &amp; Spa</a>, {profile.location}
+            </>
+          )
+        }
+      </p>
+
       <p class="hero__price">
         Websites <span class="hero__n">{priceLabel(launch).text}</span>. Google setup <span class="hero__n">{priceLabel(local).text}</span>. CAD, plus tax.
       </p>
+      </div>
     </div>
 
     <HeroPortrait class="hero__portrait" />
@@ -141,6 +172,25 @@ const local = packageById('local-visibility')!;
   .hero__actions :global(.btn-row) {
     gap: var(--s-3) var(--s-5);
   }
+  /* HERO-1: what happens after the tap, set small under the buttons. */
+  .hero__micro {
+    flex-basis: 100%;
+    margin-top: calc(var(--s-1) * -1);
+    font-size: var(--fs-sm);
+    line-height: 1.4;
+    color: var(--text-3);
+  }
+  .hero__proof {
+    font-size: var(--fs-sm);
+    font-weight: var(--w-ui);
+    line-height: 1.4;
+    color: var(--text-2);
+  }
+  /* The proof and price lines: stacked on phones, one row (wrapping) from 48em, so the price stays on the first screen. */
+  .hero__meta {
+    display: grid;
+    gap: var(--s-3);
+  }
   .hero__price {
     font-family: var(--font-mono);
     font-size: var(--fs-label);
@@ -214,7 +264,7 @@ const local = packageById('local-visibility')!;
     .hero__text { gap: var(--s-3); }
     .hero__actions { order: 1; }
     .hero__place { order: 2; }
-    .hero__price { order: 3; }
+    .hero__meta { order: 3; }
   }
   /* The portrait: centred under the text on phones and small tablets, centred in its column from 48em. */
   .hero :global(.hero__portrait) {
@@ -260,10 +310,30 @@ const local = packageById('local-visibility')!;
       min-height: calc(100svh - var(--header-h));
     }
   }
+  @media (min-width: 48em) {
+    /* The two actions share a row; the line about the form sits under both. */
+    .hero__micro { order: 2; margin-top: 0; }
+    .hero__meta {
+      display: flex;
+      flex-wrap: wrap;
+      align-items: baseline;
+      gap: var(--s-2) var(--s-5);
+    }
+  }
+  @media (min-width: 64em) {
+    /* HERO-1 (23 Nov 2026): the H1 names Scarborough too, so the text column takes more of the row and the H1 a touch
+       less size (still 1.4× the largest H2, gate H1); the button and prices stay on the first screen (gate H4). */
+    .hero__inner { grid-template-columns: minmax(0, 1.6fr) minmax(0, 1fr); }
+    .hero__title {
+      max-width: none;
+      font-size: var(--fs-hero-wide);
+    }
+  }
   @media (min-width: 64em) and (max-height: 56em) {
-    /* Laptop screens up to about 900px tall: a little less space between the five parts, so the button and prices sit
+    /* Laptop screens up to about 900px tall: a little less space between the parts, so the button and prices sit
        clear of the consent bar (gate H7). */
-    .hero__text { gap: var(--s-4); }
+    .hero { padding-top: var(--s-4); }
+    .hero__text { gap: var(--s-3); }
   }
   /* Phones held sideways (844×390 and similar): one column, no greeting row, and the button straight after the H1, so
      the headline and the button share the first screen above the consent bar (gate H4; plan task 6.3). */
@@ -278,7 +348,7 @@ const local = packageById('local-visibility')!;
     .hero__title { max-width: none; font-size: var(--fs-h1); }
     .hero__actions { order: 1; }
     .hero__place { order: 2; }
-    .hero__price { order: 3; }
+    .hero__meta { order: 3; }
     /* The portrait, no taller than about one screen. */
     .hero :global(.hero__portrait) { width: min(100%, 75vh); }
   }

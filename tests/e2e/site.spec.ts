@@ -176,7 +176,7 @@ test.describe('pages', () => {
   // The copy map from the growth report (10 Nov 2026), updated by the SEO audit (14 Nov 2026,
   // docs/seo/PLAN.md): each page names its service and the place.
   const COPY: [string, string, string, string][] = [
-    ['/', 'Web Design & Local SEO in Scarborough, Toronto | Mann Patel', 'Websites and Google listings for Toronto small businesses.', 'Websites, local SEO and Google Business Profile setup for Toronto small businesses. Published prices: websites from $1,950 CAD. Free website check.'],
+    ['/', 'Web Design & Local SEO in Scarborough, Toronto | Mann Patel', 'Websites and Google listings for Scarborough and Toronto small businesses.', 'Websites, local SEO and Google Business Profile setup for Toronto small businesses. Published prices: websites from $1,950 CAD. Free website check.'],
     ['/services/', 'Website, Local SEO & Booking Services | Mann Patel', 'Website, local SEO and enquiry services', 'Compare web design, local SEO, Google Business Profile setup and enquiry automation for Toronto service businesses. See packages and request a quote.'],
     ['/services/web-design/', 'Toronto Small Business Web Design | Mann Patel', 'Web design for Toronto small businesses', 'Get a mobile-friendly website or redesign with clear service pages, a tested enquiry path and a written handover. See projects and ask for a quote.'],
     ['/services/local-visibility/', 'Local SEO & Google Business Profile Toronto | Mann Patel', 'Local SEO and Google Business Profile setup in Toronto', 'Improve your Google presence with eligible profile setup, listing updates and a review workflow. Ask about SEO foundations and an AI search check.'],
@@ -331,13 +331,13 @@ test.describe('layout', () => {
       // The H1 names the service and the place (growth report, 10 Nov 2026); the slogan moved to the process strip.
       const h1 = page.locator('h1');
       // 22 Nov 2026 (upgrade report §6, Option A): "Google listings", the owner's word; the title keeps "Local SEO".
-      expect((await h1.innerText()).replace(/\s+/g, ' ').trim()).toBe('Websites and Google listings for Toronto small businesses.');
+      expect((await h1.innerText()).replace(/\s+/g, ' ').trim()).toBe('Websites and Google listings for Scarborough and Toronto small businesses.');
       await expect(h1).toBeInViewport();
       const hero = page.locator('.hero');
       // 14 Nov 2026: who you're dealing with comes first (round 3: no small face; the photo is the graph's core).
-      await expect(hero.locator('.hero__hi')).toHaveText('Hi, I’m Mann. Web designer in Scarborough.');
+      await expect(hero.locator('.hero__hi')).toHaveText('Hi, I’m Mann, a web designer in Scarborough.');
       await expect(hero.locator('.hero__face')).toHaveCount(0);
-      const cta = hero.getByRole('link', { name: 'Get a free website check' });
+      const cta = hero.getByRole('link', { name: 'Get my free website check' });
       await expect(cta).toBeInViewport();
       await expect(cta).toHaveAttribute('href', '/contact/?package=check-up#check');
       if (!BOOKING_SET) await expect(hero.getByRole('link', { name: 'See prices' })).toHaveAttribute('href', '/pricing/');
@@ -356,7 +356,7 @@ test.describe('layout', () => {
       await expect(page.locator('#work a[href="/work/nest-and-rest-cleaning/"]').first()).toBeAttached();
       // The two actions sit side by side, in this order: the 15-minute call once bookingUrl is set, until then the prices.
       const actions = await hero.locator('.hero__actions .btn-row a').evaluateAll((els) => els.map((e) => e.textContent!.replace(/\s+/g, ' ').trim()));
-      expect(actions[0]).toContain('Get a free website check');
+      expect(actions[0]).toContain('Get my free website check');
       expect(actions[1]).toContain(BOOKING_SET ? 'Book a 15-minute call' : 'See prices');
     });
   }
@@ -733,7 +733,7 @@ test.describe('home interactions', () => {
       await page.setViewportSize({ width: w, height: h });
       await page.goto('/');
       await expect(page.locator('h1')).toBeInViewport({ ratio: 1 });
-      await expect(page.locator('.hero').getByRole('link', { name: 'Get a free website check' })).toBeInViewport({ ratio: 1 });
+      await expect(page.locator('.hero').getByRole('link', { name: 'Get my free website check' })).toBeInViewport({ ratio: 1 });
       await expect(page.locator('.hero .hero__actions .btn-row > a').nth(1)).toBeInViewport({ ratio: 1 });
       await noHorizontalOverflow(page);
     }
@@ -1785,7 +1785,7 @@ test.describe('motion (restrained in round 7)', () => {
     }
     // The hero button stays where you aim at it.
     await page.goto('/');
-    const btn = page.locator('.hero').getByRole('link', { name: 'Get a free website check' });
+    const btn = page.locator('.hero').getByRole('link', { name: 'Get my free website check' });
     const box = (await btn.boundingBox())!;
     await page.mouse.move(box.x + box.width * 0.9, box.y + box.height * 0.8, { steps: 4 });
     await page.waitForTimeout(300);
@@ -1970,7 +1970,7 @@ test.describe('audit of 11 Nov 2026', () => {
 
   test('the free check has one name from the hero button to the form', async ({ page }) => {
     await page.goto('/');
-    await page.locator('.hero').getByRole('link', { name: 'Get a free website check' }).click();
+    await page.locator('.hero').getByRole('link', { name: 'Get my free website check' }).click();
     await expect(page).toHaveURL(/\/contact\/\?package=check-up#check$/);
     await expect(page.locator('#check-title')).toHaveText('Free website and Google check');
     await page.goto('/');
@@ -2016,12 +2016,13 @@ test.describe('audit of 11 Nov 2026', () => {
     await page.goto('/');
     const lines = page.locator('#hero-title .hero__line');
     await expect(lines.nth(0)).toHaveText('Websites and Google listings');
-    await expect(lines.nth(1)).toHaveText('for Toronto small businesses.');
+    // 23 Nov 2026 audit (HERO-1, copy deck §2.1): Scarborough as well as Toronto.
+    await expect(lines.nth(1)).toHaveText('for Scarborough and Toronto small businesses.');
     // 14 Nov 2026 (founder profile): the outcome line sits under the H1 instead of inside it.
     // 22 Nov 2026 (upgrade report §6, Option A): what he does in an owner's words, and the fixed-price promise.
     await expect(page.locator('#hero-title .hero__place')).toHaveCount(0);
     await expect(page.locator('.hero .hero__place')).toHaveText(
-      'I build fast websites and set up your Google profile, so people nearby find you, call you and book. Fixed prices, in writing.',
+      'I build fast websites and set up your Google profile so nearby customers find you, call and book. Fixed prices, in writing.',
     );
   });
 
@@ -2030,7 +2031,7 @@ test.describe('audit of 11 Nov 2026', () => {
     // The first two paragraphs: who and where (the greeting), then what the work does (no slogan, no "welcome").
     const opening = await page.locator('.hero__hello p, .hero__place').allInnerTexts();
     expect(opening).toHaveLength(2);
-    expect(opening[0].replace(/\s+/g, ' ')).toBe('Hi, I’m Mann. Web designer in Scarborough.');
+    expect(opening[0].replace(/\s+/g, ' ')).toBe('Hi, I’m Mann, a web designer in Scarborough.');
     expect(opening[1]).toMatch(/^I build fast websites /);
     // 22 Nov 2026 (upgrade report R1.1): the "at a glance" summary is gone (it repeated the hero and the prices). The
     // definition still opens public/llms.txt.
@@ -2118,7 +2119,7 @@ test.describe('desktop layout (14 Nov 2026)', () => {
     const tiles = await page.$$eval('.pr__grid > li', (els) => els.map((e) => Math.round(e.getBoundingClientRect().width)));
     expect(tiles).toHaveLength(6); // five offers and the free check
     expect(Math.max(...tiles) - Math.min(...tiles)).toBeLessThanOrEqual(1);
-    await expect(page.locator('#pkg-check-up').getByRole('link', { name: 'Get a free website check' })).toHaveAttribute('href', '/contact/?package=check-up#check');
+    await expect(page.locator('#pkg-check-up').getByRole('link', { name: 'Get my free website check' })).toHaveAttribute('href', '/contact/?package=check-up#check');
     const table = page.getByRole('table', { name: 'Side by side' });
     const widths = await table.locator('thead th').evaluateAll((ths) => ths.map((t) => Math.round(t.getBoundingClientRect().width)));
     expect(widths).toHaveLength(5);
@@ -2741,7 +2742,7 @@ test.describe('upgrade report Phase 1 (22 Nov 2026)', () => {
     expect((await page.locator('[data-hero-portrait]').innerText()).trim()).toBe('');
   });
 
-  test('R7.2: one wording for the actions: "Get a free website check" and, once set, "Book a 15-minute call"', async ({ page }) => {
+  test('R7.2: one wording for the actions: "Get my free website check" and, once set, "Book a 15-minute call"', async ({ page }) => {
     for (const path of ['/', '/services/', '/pricing/', '/about/', '/work/']) {
       await page.goto(path);
       const labels = (await page.locator('main a.btn, footer a.btn, header a.btn').allInnerTexts()).map((t) => t.replace(/\s+/g, ' ').trim());
@@ -2750,7 +2751,7 @@ test.describe('upgrade report Phase 1 (22 Nov 2026)', () => {
     }
     await page.goto('/');
     const close = page.locator('footer .ftr__actions .btn-row a');
-    await expect(close.first()).toHaveText('Get a free website check');
+    await expect(close.first()).toHaveText('Get my free website check');
     await expect(close.first()).toHaveAttribute('href', '/contact/?package=check-up#check');
     await expect(close.nth(1)).toHaveText(BOOKING_SET ? 'Book a 15-minute call' : 'Send a short brief');
   });

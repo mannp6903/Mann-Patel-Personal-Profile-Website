@@ -228,12 +228,15 @@ test.describe('design gates: hero (Phase 2)', () => {
     }
   });
 
-  test('H2 and H3: the hero text holds five things, and only the free-check button is lime', async ({ page }) => {
+  // 23 Nov 2026 audit (HERO-1): a line under the button (what happens after the tap) and a proof line beside the prices.
+  test('H2 and H3: the hero text holds five parts, and only the free-check button is lime', async ({ page }) => {
     for (const [width, height] of [MATRIX[2], MATRIX[7]]) {
       await page.setViewportSize({ width, height });
       await page.goto('/');
       const kids = await page.locator('.hero__text > *').evaluateAll((els) => els.map((e) => e.className.split(' ')[0]));
-      expect(kids).toEqual(['hero__hello', 'hero__title', 'hero__place', 'hero__actions', 'hero__price']);
+      expect(kids).toEqual(['hero__hello', 'hero__title', 'hero__place', 'hero__actions', 'hero__meta']);
+      await expect(page.locator('.hero__actions [data-hero-micro]')).toHaveText(/^One-minute form\. Your list of fixes by email/);
+      await expect(page.locator('.hero__meta [data-hero-proof]')).toHaveText(/Now building: Samp Hair & Spa|★ \d\.\d from \d+ Google review/);
       const lime = await page.locator('.hero__text, .hero__text *').evaluateAll(
         (els, lime) => els.filter((e) => getComputedStyle(e).backgroundColor === lime).map((e) => (e.hasAttribute('data-hero-cta') ? 'cta' : e.className)),
         LIME,
