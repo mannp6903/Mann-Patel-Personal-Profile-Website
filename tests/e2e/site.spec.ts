@@ -535,7 +535,7 @@ test.describe('navigation', () => {
 
 test.describe('home interactions', () => {
   test('the hero portrait is Mann’s real photo: sized for the screen, loaded first, with no diagram around it', async ({ page }) => {
-    // 22 Nov 2026 (Mann: the "wired signal" graph looked complicated): his cut-out photo in a plain studio panel.
+    // 22 Nov 2026 (Mann: the "wired signal" graph looked complicated): his square portrait in a rounded frame (a cut-out in a panel until 23 Nov 2026).
     for (const [w, h, min] of [[390, 844, 280], [1440, 900, 420]]) {
       await page.setViewportSize({ width: w, height: h });
       await page.goto('/');
@@ -579,24 +579,23 @@ test.describe('home interactions', () => {
   });
 
 
-  test('scrolling the hero away brings the portrait forward without lifting its base off the panel', async ({ page }) => {
+  test('scrolling the hero away brings the portrait forward inside its frame, which does not move', async ({ page }) => {
     await page.setViewportSize({ width: 1440, height: 900 });
     await page.goto('/');
     await page.waitForFunction(() => performance.now() >= 1800); // the entrance (and the print) are over
     const top = await page.evaluate(() => document.querySelector('.hp')!.getBoundingClientRect().top + scrollY);
-    // Halfway through the hero's exit. (A slide up opened a 28px gap here, found 22 Nov 2026; it is a scale now.)
     await page.evaluate((y) => scrollTo(0, y), top + 250);
-    const m = await page.evaluate(() => ({
-      panel: document.querySelector('.hp__stage')!.getBoundingClientRect().bottom,
-      photo: document.querySelector('.hp__photo')!.getBoundingClientRect().bottom,
-      depth: getComputedStyle(document.querySelector('.hp__clip')!).animationName,
-    }));
-    expect(Math.abs(m.photo - m.panel)).toBeLessThanOrEqual(1);
-    // Where scroll-driven animations run, he has come forward.
+    const m = await page.evaluate(() => {
+      const f = document.querySelector('.hp__frame')!.getBoundingClientRect();
+      const ph = document.querySelector('.hp__photo')!.getBoundingClientRect();
+      return { frame: f.height, photo: ph.height, depth: getComputedStyle(document.querySelector('.hp__depth')!).animationName };
+    });
+    // Where scroll-driven animations run, the picture has grown (from its bottom edge), clipped by the frame.
     if (m.depth === 'hp-depth') {
-      const scale = await page.locator('.hp__clip').evaluate((e) => new DOMMatrix(getComputedStyle(e).transform).a);
+      const scale = await page.locator('.hp__depth').evaluate((e) => new DOMMatrix(getComputedStyle(e).transform).a);
       expect(scale).toBeGreaterThan(1);
     }
+    expect(m.frame).toBeGreaterThan(300);
   });
 
   test('reduced motion and no JavaScript: the finished portrait, still, and the print is never downloaded', async ({ browser }) => {
@@ -608,7 +607,7 @@ test.describe('home interactions', () => {
       await page.waitForTimeout(1500); // longer than the print would take to arrive
       await expect(page.locator('.hp__print'), JSON.stringify(opts)).toHaveCount(0);
       expect(await page.evaluate(() => performance.getEntriesByType('resource').some((r) => /halftone/.test(r.name))), JSON.stringify(opts)).toBe(false);
-      for (const sel of ['.hp__stage', '.hp__clip', '.hp__figure'])
+      for (const sel of ['.hp__frame', '.hp__depth', '.hp__figure'])
         expect(await page.locator(sel).evaluate((e) => getComputedStyle(e).animationName), `${sel}: ${JSON.stringify(opts)}`).toBe('none');
       await ctx.close();
     }
@@ -748,7 +747,7 @@ test.describe('home interactions', () => {
       const photo = page.locator('.hero .hp__photo');
       await expect(photo).toBeVisible();
       await expect(photo).toHaveAttribute('alt', /Mann Patel smiling/);
-      await expect(photo).toHaveAttribute('src', /mann-patel-cutout/);
+      await expect(photo).toHaveAttribute('src', /mann-patel-portrait/);
       await page.waitForFunction(() => (document.querySelector('.hero .hp__photo') as HTMLImageElement).naturalWidth > 0);
       // 22 Nov 2026 (Mann: the same photo showed twice on Home): one portrait per page, the hero's. "You work with me"
       // makes its point with a roster instead: every job in a project, one name against each. (The halftone print over
@@ -2067,8 +2066,8 @@ test.describe('audit of 11 Nov 2026', () => {
   test('about on a phone: the portrait comes before the links and contact buttons', async ({ page }) => {
     await page.setViewportSize({ width: 390, height: 844 });
     await page.goto('/about/');
-    // 14 Nov 2026: About uses the same close-crop photo as the hero.
-    await expect(page.locator('.ab-photo img')).toHaveAttribute('src', /mann-patel-hero/);
+    // 23 Nov 2026: About uses the same square portrait as the hero.
+    await expect(page.locator('.ab-photo img')).toHaveAttribute('src', /mann-patel-portrait/);
     const pos = await page.evaluate(() => ({
       lead: document.querySelector('.ab-head .lead')!.getBoundingClientRect().bottom + scrollY,
       photo: document.querySelector('.ab-photo')!.getBoundingClientRect().top + scrollY,
@@ -2726,8 +2725,8 @@ test.describe('upgrade report Phase 1 (22 Nov 2026)', () => {
     await page.goto('/');
     await expect(page.locator('main img[alt*="Mann Patel smiling"]')).toHaveCount(1);
     await expect.poll(async () => (await page.locator('.hero [data-hero-portrait]').boundingBox())!.width, { timeout: 5000 }).toBeGreaterThanOrEqual(420);
-    // The studio panel is the page's neutrals: no signal colour in its fill or border.
-    const panel = await page.locator('.hp__stage').evaluate((e) => {
+    // The frame itself is the page's neutrals: no signal colour in its fill or border (the green glow is in the photo).
+    const panel = await page.locator('.hp__frame').evaluate((e) => {
       const cs = getComputedStyle(e);
       return `${cs.backgroundImage} ${cs.backgroundColor} ${cs.borderTopColor}`;
     });
