@@ -30,6 +30,8 @@ describe('packages: one source of truth (round 10)', () => {
       'website-enquiry': '$3,350',
       'local-visibility': '$650',
       care: '$149 a month',
+      // 23 Nov 2026 (SEO audit OFFER-2): priced at Mann's request from competitor research (docs/32-audit-2026-11-23.md).
+      'content-sprint': '$550',
     });
     expect(pricesPublished).toBe(true);
   });

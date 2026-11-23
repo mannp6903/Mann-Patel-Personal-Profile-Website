@@ -11,7 +11,7 @@
  * short brief" instead; /pricing/ is linked and indexed while at least one price is set.
  */
 
-export type PackageId = 'website-fix' | 'website-launch' | 'website-enquiry' | 'local-visibility' | 'care' | 'check-up';
+export type PackageId = 'website-fix' | 'website-launch' | 'website-enquiry' | 'local-visibility' | 'care' | 'content-sprint' | 'check-up';
 
 export interface Price {
   /** CAD, before tax. `null` = not approved yet (shown as "Written quote after a short brief"). */
@@ -178,6 +178,37 @@ export const packages: Package[] = [
     // Its own page since SEO audit Phase 4 (14 Nov 2026).
     page: '/services/website-care/',
     price: { amount: 149, unit: 'month' },
+  },
+  {
+    // The print and social add-on (growth report, 10 Nov 2026), priced on 23 Nov 2026 at Mann's request (SEO audit
+    // OFFER-2: an unpriced offer on /services/ that /pricing/ didn't list). $550 sits under the two Toronto one-time kits
+    // found (Thrive Solutions' social profile template set, from $600 + HST; Jenny Henderson Studio's brand kit, $800) and
+    // inside the per-piece market (single post designs $50–$250 each; a one-page brand sheet "a few hundred dollars"), and is
+    // about 7 hours at the hourly rate the $1,950 website implies. Sources and the comparison: docs/32-audit-2026-11-23.md.
+    // TODO(Mann): check $550 against your real hours for one sprint, and the timeline wording below.
+    id: 'content-sprint',
+    name: 'Brand & Content Sprint',
+    boundary: 'One short campaign from one service story, using the logo, colours and photos you already have.',
+    forWho: 'Owners who want their posts and print to look like one business.',
+    includes: [
+      'A one-page style and messaging sheet from your approved logo, colours and photos',
+      'Three captioned post designs',
+      'Two Reel hooks, with scripts you can film on a phone',
+      'One round of changes, then every file handed over',
+    ],
+    notIncluded: [
+      'Filming and editing',
+      'Posting, and replying to comments or messages',
+      'Extra channels',
+      'A blog article or FAQ, reviewed by you before it goes out',
+      'A new logo or a full brand identity (I can recommend people)',
+    ],
+    youProvide: ['Your approved logo, colours and photos', 'The one service the campaign is about'],
+    timeline: 'Mostly depends on how quickly your logo, photos and feedback arrive. You get a dated plan with the written scope.',
+    thirdParty: [],
+    serviceIds: ['social-content', 'print-design'],
+    page: '/services/#brand-content',
+    price: { amount: 550, unit: 'one-time' },
   },
 ];
 

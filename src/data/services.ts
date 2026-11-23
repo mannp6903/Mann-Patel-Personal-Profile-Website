@@ -6,6 +6,9 @@
  * - Describe deliverables, never outcomes we can't control (rankings, leads, reach).
  * - No prices or turnaround promises until Mann confirms them.
  */
+import { packageById } from './packages';
+
+const sprintPackage = packageById('content-sprint')!;
 
 export type GroupId = 'found' | 'answered' | 'booked' | 'extras';
 
@@ -90,23 +93,13 @@ export const addOns: ServiceGroup = {
  */
 export const sprint = {
   id: 'brand-content',
-  name: 'Brand & Content Sprint',
+  name: sprintPackage.name,
   summary:
     'One short campaign built from one service story, using the logo, colours and photos you already have, so your posts and print look like one business.',
-  includes: [
-    'A one-page style and messaging sheet from your approved logo, colours and photos',
-    'Three captioned post designs',
-    'Two Reel hooks, with scripts you can film on a phone',
-    'One round of changes, then every file handed over',
-  ],
-  separate: [
-    'Filming and editing',
-    'Posting, and replying to comments or messages',
-    'Extra channels',
-    'A blog article or FAQ, reviewed by you before it goes out',
-    'A new logo or a full brand identity (I can recommend people)',
-  ],
-  cta: { label: 'Ask about the sprint', href: '/contact/?service=social-content#brief' },
+  // 23 Nov 2026 (SEO audit OFFER-2): priced, so its contents live with the price in src/data/packages.ts (one place).
+  includes: sprintPackage.includes,
+  separate: sprintPackage.notIncluded,
+  cta: { label: 'Ask about the sprint', href: '/contact/?package=content-sprint#brief' },
 } as const;
 
 export const services: Service[] = [

@@ -33,6 +33,7 @@ export const PACKAGE_OPTIONS = [
   { id: 'website-enquiry', label: 'Website + Booking' },
   { id: 'local-visibility', label: 'Google Listing Setup' },
   { id: 'care', label: 'Website Care' },
+  { id: 'content-sprint', label: 'Brand & Content Sprint' },
   { id: 'check-up', label: 'Free website and Google check' },
 ] as const;
 

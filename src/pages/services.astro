@@ -146,10 +146,10 @@ for (const g of groups) {
         }
         <li id={sprint.id}>
           <span class="sprint__tag">One bounded campaign</span>
-          <h3 class="ov__name">{sprint.name}</h3>
+          <h3 class="ov__name">{sprint.name}, <span class="num">{priceLabel(packageById('content-sprint')!).text}</span></h3>
           <p class="muted small">{sprint.summary}</p>
-          <p class="small"><b>Includes:</b> {sprint.includes.join('; ')}.</p>
-          <p class="small subtle"><b>Quoted separately:</b> {sprint.separate.join('; ')}.</p>
+          {/* 23 Nov 2026 (SEO audit OFFER-2): priced; what it includes and leaves out is on /pricing/ (one place). */}
+          <a class="link-arrow small" href="/pricing/#pr-compare">What’s included <Icon name="arrow" /></a>
           <Button href={sprint.cta.href} size="sm" variant="ghost">{sprint.cta.label}</Button>
         </li>
       </ul>
