@@ -11,7 +11,7 @@ import PreviewNote from '../components/PreviewNote.astro';
 import { profile } from '../data/site';
 import { PUBLIC_GA4_ID, PUBLIC_TURNSTILE_SITE_KEY } from 'astro:env/client';
 
-const updated = '8 November 2026';
+const updated = '23 November 2026';
 const contactEmail = profile.contact.email;
 ---
 
@@ -45,7 +45,10 @@ const contactEmail = profile.contact.email;
         number, budget range and timeframe; the services you tick; and your message. <strong>Free check:</strong> your
         name and email (required), your website or business name (one of the two), and an optional note. The server also uses your IP address briefly, in memory, to
         limit repeated submissions, and keeps only a one-way hash of it, in memory, for that purpose. Like most websites, the hosting provider’s standard logs may also record IP addresses for security and troubleshooting. Hidden fields record a time
-        check and a random submission number, used to block spam and prevent duplicate messages.
+        check and a random submission number, used to block spam and prevent duplicate messages. With your message, the
+        form also sends the first page you opened on this site and the address of the website that sent you there (for
+        example google.com, never the full link), so I can tell which pages bring enquiries. Your browser keeps those two
+        details only until you close the tab, and they’re sent only if you send a form.
       </p>
 
       <h2>Where it goes</h2>

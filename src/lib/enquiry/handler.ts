@@ -46,6 +46,9 @@ const fail = (status: number, code: ErrorCode, message: string, extra: Partial<E
 
 const SUBMISSION_ID = /^[A-Za-z0-9-]{8,64}$/;
 
+/** Which form sent it: the free check or the project brief (MEAS-1). */
+export const formType = (packageId: string): 'check' | 'brief' => (packageId === 'check-up' ? 'check' : 'brief');
+
 export async function handleEnquiry(
   body: Record<string, unknown>,
   ctx: { ip: string },
@@ -117,8 +120,14 @@ export async function handleEnquiry(
   const work = (async (): Promise<HandlerResponse> => {
     const result = await deliver(lead, cfg, deps);
     // Log metadata only: never names, emails, phone numbers or message text.
+    // MEAS-1 (23 Nov 2026 audit): one 'enquiry_accepted' line per delivered enquiry, with the form, the page the visit
+    // started on and the referring site, so Workers Observability counts delivered enquiries by source.
     deps.log(result.accepted ? 'enquiry_accepted' : 'enquiry_delivery_failed', {
       id: lead.id,
+      receivedAt: lead.receivedAt,
+      form: formType(lead.packageId),
+      landingPage: lead.landingPage || null,
+      referrerHost: lead.referrerHost || null,
       channels: result.channels,
       failures: result.failures,
       acknowledgement: result.acknowledgement,

@@ -9,6 +9,7 @@
  *   "Copy my brief" button, so nothing typed is lost when the website can't send.
  */
 import { SERVICE_OPTIONS, PACKAGE_OPTIONS, BUDGET_OPTIONS, TIMEFRAME_OPTIONS, labelFor } from './options';
+import { readLanding } from '../../scripts/landing';
 
 export type SendOutcome =
   | { kind: 'accepted'; body: { ok: true; id: string; duplicate?: boolean; acknowledgement?: string } }
@@ -29,7 +30,8 @@ export async function sendEnquiry(
     const res = await f('/api/enquiry/', {
       method: 'POST',
       headers: { 'Content-Type': 'application/json', Accept: 'application/json' },
-      body: JSON.stringify(data),
+      // MEAS-1: the page the visit started on and the site that sent it (src/scripts/landing.ts), when known.
+      body: JSON.stringify({ ...readLanding(), ...data }),
       signal: ctrl?.signal,
     });
     let body: any = null;

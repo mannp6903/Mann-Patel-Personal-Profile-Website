@@ -98,6 +98,9 @@ export function ownerEmailHtml(lead: Lead, subject: string): string {
     row('Starting point', lead.packageId ? esc(labelFor(PACKAGE_OPTIONS, lead.packageId)) : DASH),
     row('Budget', lead.budget ? esc(labelFor(BUDGET_OPTIONS, lead.budget)) : DASH),
     row('Timeframe', lead.timeframe ? esc(labelFor(TIMEFRAME_OPTIONS, lead.timeframe)) : DASH),
+    // MEAS-1 (23 Nov 2026 audit): which page the visit started on and the site that sent it.
+    row('Landing page', lead.landingPage ? esc(lead.landingPage) : DASH),
+    row('Came from', lead.referrerHost ? esc(lead.referrerHost) : DASH),
   ].join('');
 
   const message = lead.message

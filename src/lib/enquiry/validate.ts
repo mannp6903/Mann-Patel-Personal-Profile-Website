@@ -14,6 +14,8 @@ export const LIMITS = {
   messageMin: 20,
   message: 3000,
   services: 20,
+  landingPage: 200,
+  referrerHost: 100,
 } as const;
 
 export interface Enquiry {
@@ -27,6 +29,10 @@ export interface Enquiry {
   budget: string;
   timeframe: string;
   message: string;
+  /** MEAS-1: the first page of the visit (a path such as "/pricing/"), or '' when unknown. Never an error. */
+  landingPage: string;
+  /** MEAS-1: the host of the site that sent the visitor (e.g. "www.google.com"), or '' when unknown or direct. */
+  referrerHost: string;
 }
 
 export type FieldErrors = Partial<Record<keyof Enquiry, string>>;
@@ -55,6 +61,18 @@ export function normaliseWebsite(raw: string): string {
   } catch {
     return '';
   }
+}
+
+/** A site path such as "/services/web-design/" (no query, no fragment), or '' if it isn't one. */
+export function cleanLandingPage(v: unknown): string {
+  const p = clean(v);
+  return p.length <= LIMITS.landingPage && /^\/[A-Za-z0-9/_.\-]*$/.test(p) && !p.includes('//') ? p : '';
+}
+
+/** A bare host name such as "www.google.com", or '' if it isn't one. */
+export function cleanReferrerHost(v: unknown): string {
+  const h = clean(v).toLowerCase();
+  return h.length <= LIMITS.referrerHost && /^[a-z0-9](?:[a-z0-9-]*[a-z0-9])?(?:\.[a-z0-9](?:[a-z0-9-]*[a-z0-9])?)+$/.test(h) ? h : '';
 }
 
 export function toList(v: unknown): string[] {
@@ -119,6 +137,20 @@ export function validateEnquiry(raw: Record<string, unknown>): ValidationResult 
   if (Object.keys(errors).length) return { ok: false, errors };
   return {
     ok: true,
-    value: { name, email, business, website, phone, services, packageId, budget, timeframe, message },
+    value: {
+      name,
+      email,
+      business,
+      website,
+      phone,
+      services,
+      packageId,
+      budget,
+      timeframe,
+      message,
+      // Attribution is dropped, never refused, when it doesn't look right: it must not stop an enquiry.
+      landingPage: cleanLandingPage(raw.landingPage),
+      referrerHost: cleanReferrerHost(raw.referrerHost),
+    },
   };
 }

@@ -71,7 +71,9 @@ export function deliveryReady(cfg: DeliveryConfig): { ready: boolean; reason?: s
 export function ownerSubject(lead: Lead): string {
   const kind = lead.packageId === 'check-up' ? 'Free check request' : 'New enquiry';
   const who = lead.business || (lead.website ? lead.website.replace(/^https?:\/\//, '').replace(/\/$/, '') : '');
-  return `${kind}: ${lead.name}${who ? ` (${who})` : ''}`;
+  // MEAS-1 (23 Nov 2026 audit): where the visit started, so the inbox itself is an enquiry log by landing page.
+  const from = lead.landingPage ? ` · via ${lead.landingPage}` : '';
+  return `${kind}: ${lead.name}${who ? ` (${who})` : ''}${from}`;
 }
 
 export function ownerEmailText(lead: Lead): string {
@@ -89,6 +91,9 @@ export function ownerEmailText(lead: Lead): string {
     `Starting point: ${lead.packageId ? labelFor(PACKAGE_OPTIONS, lead.packageId) : '—'}`,
     `Budget: ${lead.budget ? labelFor(BUDGET_OPTIONS, lead.budget) : '—'}`,
     `Timeframe: ${lead.timeframe ? labelFor(TIMEFRAME_OPTIONS, lead.timeframe) : '—'}`,
+    `Form: ${lead.packageId === 'check-up' ? 'Free check' : 'Project brief'}`,
+    `Landing page: ${lead.landingPage || '—'}`,
+    `Came from: ${lead.referrerHost || '— (direct, or not recorded)'}`,
     '',
     'Message:',
     lead.message || '— (none: a free check needs only the website or business name)',

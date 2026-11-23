@@ -121,6 +121,9 @@ const ld = jsonLd ? (Array.isArray(jsonLd) ? jsonLd : [jsonLd]) : [];
       import '../scripts/reach';
       import '../scripts/fx/index';
       import '../scripts/present';
+      // MEAS-1 (23 Nov 2026 audit): remember the first page of the visit, sent with an enquiry (src/scripts/landing.ts).
+      import { recordLanding } from '../scripts/landing';
+      recordLanding();
     </script>
   </body>
 </html>
