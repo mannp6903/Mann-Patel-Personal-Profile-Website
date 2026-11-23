@@ -104,7 +104,7 @@ const crumbs = breadcrumbJsonLd([
 <BaseLayout
   title="About"
   fullTitle="About Mann Patel | Website Designer in Toronto"
-  description="Mann Patel is an independent website designer in Toronto. What he delivers, how the work is checked, and his story from Palana, Gujarat to Toronto."
+  description="Mann Patel is an independent web designer in Scarborough, Toronto. What he delivers, how the work is checked, and his story from Palana, Gujarat to Toronto."
   jsonLd={[jsonLd, ...(crumbs ? [crumbs] : [])]}
 >
   <Crumbs items={[{ label: 'Home', href: '/' }, { label: 'About' }]} />
@@ -118,7 +118,7 @@ const crumbs = breadcrumbJsonLd([
           load
         />
         <p class="lead" data-reveal="load" style="--d:3">
-          I’m a freelance web designer in Toronto, based in Scarborough: clear websites, Google and Maps listings, and
+          I’m an independent web designer in Scarborough: clear websites, Google and Maps listings, and
           enquiry follow-up for owner-run small businesses across Toronto and the GTA, with a focus on Scarborough and North York. I’m also starting {nest.name}, my own home-cleaning business in
           {nest.area}, which opens for bookings in summer 2027.
         </p>
@@ -293,6 +293,8 @@ const crumbs = breadcrumbJsonLd([
     <div class="container glance">
       <div class="stack" style="--stack: var(--s-4)">
         <h2 id="elsewhere-title" class="glance__title">Find me <span class="accent">elsewhere.</span></h2>
+        {/* ENT-1 (23 Nov 2026 audit): the one entity line, word for word as on each profile (src/data/site.ts). */}
+        <p class="muted" data-entity>{profile.entity}. The profiles below are mine.</p>
       </div>
       <dl class="glance__list">
         {

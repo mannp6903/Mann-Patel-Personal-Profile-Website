@@ -48,6 +48,14 @@ export const profile = {
   definition:
     'Mann Patel is an independent web designer in Scarborough, Toronto, who builds websites, sets up local SEO and Google Business Profiles, and connects enquiry follow-up and online booking for small businesses in Toronto and the GTA.',
   /**
+   * One identical line naming Mann and the business (23 Nov 2026 audit, ENT-1). AI answers mixed him up with other Mann
+   * Patels, so the same words and the same link go everywhere: the Person and business structured data
+   * (src/lib/seo.ts), the opening of public/llms.txt and About. Use it, word for word, as the LinkedIn headline (website
+   * field: https://mannpatel.me), the first line of the Google Business Profile description, and the Instagram, YouTube
+   * and GitHub bios.
+   */
+  entity: 'Mann Patel, independent web designer in Scarborough (mannpatel.me)',
+  /**
    * Public location. 14 Nov 2026 (SEO audit): "Based in Scarborough, working across Toronto and the GTA".
    * A district only: never a street address (service-area business).
    */

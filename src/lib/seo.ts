@@ -107,8 +107,9 @@ export function businessJsonLd({ withServices = false }: { withServices?: boolea
     '@type': 'ProfessionalService',
     '@id': businessId(),
     name: profile.name,
+    // ENT-1 (23 Nov 2026 audit): the same words as the entity line (src/data/site.ts → profile.entity).
     description:
-      'Toronto web designer: websites, local SEO and Google Business Profile setup for small businesses in Scarborough, North York and across Toronto, with published prices.',
+      'Independent web designer in Scarborough: websites, local SEO and Google Business Profile setup for small businesses in Toronto and the GTA, with published prices.',
     ...(url ? { url } : {}),
     ...(contact.phone ? { telephone: contact.phone.schema } : {}),
     ...(contact.email ? { email: contact.email } : {}),
@@ -141,10 +142,11 @@ export function personJsonLd() {
     '@id': personId(),
     name: profile.name,
     jobTitle: 'Web designer',
-    description: 'Toronto web designer: websites, local SEO and Google Business Profile setup for small businesses in Toronto and the GTA.',
+    description: 'Independent web designer in Scarborough: websites, local SEO and Google Business Profile setup for small businesses in Toronto and the GTA.',
     // Tells search engines (and AI answers) which Mann Patel this is: the name is shared by many developers
-    // online (SEO audit, 14 Nov 2026), and Nov 2026 searches mixed this site up with a similar domain.
-    disambiguatingDescription: 'Toronto web designer based in Scarborough, Ontario, Canada, who runs mannpatel.me',
+    // online (SEO audit, 14 Nov 2026), and Nov 2026 searches mixed this site up with a similar domain. Since the
+    // 23 Nov 2026 audit (ENT-1) it is the one entity line used on every profile, word for word.
+    disambiguatingDescription: profile.entity,
     ...(url ? { url } : {}),
     // The real portrait (square crop, public/brand/), not the social share card.
     ...(profile.portrait && url ? { image: new URL('/brand/mann-patel-portrait.jpg', url).toString() } : {}),
