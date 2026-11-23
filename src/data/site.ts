@@ -1,4 +1,4 @@
-import portraitImage from '../assets/mann-patel-hero.jpg';
+import portraitImage from '../assets/mann-patel-portrait.png';
 
 /**
  * Profile and site settings.
@@ -54,12 +54,12 @@ export const profile = {
   location: 'Scarborough',
   serviceArea: 'Toronto and the GTA',
   /**
-   * Real portrait only. Since 14 Nov 2026 this is the closer crop Mann supplied, used in the home hero
-   * graph and on About (the wider 31 Oct 2026 crop, assets/mann-patel-portrait.jpg, is no longer used).
+   * Real portrait only. Since 23 Nov 2026 this is the square portrait Mann supplied (dark background, green
+   * glow), used in the home hero and on About, and as public/brand/mann-patel-portrait.jpg for structured data.
    */
   portrait: {
     src: portraitImage,
-    alt: 'Mann Patel smiling, in a dark green sweatshirt, on a tree-lined street at dusk.',
+    alt: 'Mann Patel smiling, in a dark green sweatshirt, against a dark background with a soft green glow.',
   } as null | { src: ImageMetadata; alt: string },
   contact: {
     /** Public business email (Cloudflare Email Routing forwards it to Mann's inbox). */
