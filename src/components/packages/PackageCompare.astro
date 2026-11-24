@@ -8,7 +8,6 @@
  * table reads as a tidy grid on desktop instead of columns sized by how much text each one has.
  */
 import { packages, priceLabel } from '../../data/packages';
-import { SERVICE_OPTIONS, labelFor } from '../../lib/enquiry/options';
 
 interface Props {
   id?: string;
@@ -44,33 +43,27 @@ const anyApproved = packages.some((p) => priceLabel(p).approved);
           <th scope="row">Price</th>
           {packages.map((p) => <td data-price>{priceLabel(p).text}</td>)}
         </tr>
+        <!-- 23 Nov 2026 (SEO audit copy deck §2.7): the one place for what each package includes and leaves out, its
+             revisions, timeline and what other providers bill. Other pages link here (#pr-compare). -->
         <tr>
-          <th scope="row">Best for</th>
-          {packages.map((p) => <td>{p.forWho}</td>)}
-        </tr>
-        <tr>
-          <th scope="row">Boundary</th>
-          {packages.map((p) => <td>{p.boundary}</td>)}
-        </tr>
-        <tr>
-          <th scope="row">Covers</th>
-          {packages.map((p) => <td>{p.serviceIds.map((sid) => labelFor(SERVICE_OPTIONS, sid)).join(' · ')}</td>)}
+          <th scope="row">What’s included</th>
+          {packages.map((p) => <td><ul class="cmp__list" role="list">{p.includes.map((i) => <li>{i}</li>)}</ul></td>)}
         </tr>
         <tr>
           <th scope="row">Not included</th>
-          {packages.map((p) => <td>{p.notIncluded.join('; ')}</td>)}
+          {packages.map((p) => <td><ul class="cmp__list" role="list">{p.notIncluded.map((i) => <li>{i}</li>)}</ul></td>)}
         </tr>
         <tr>
-          <th scope="row">You provide</th>
-          {packages.map((p) => <td>{p.youProvide.join('; ')}</td>)}
-        </tr>
-        <tr>
-          <th scope="row">Paid to others</th>
-          {packages.map((p) => <td>{p.thirdParty.join('; ') || 'Nothing extra'}</td>)}
+          <th scope="row">Revisions</th>
+          {packages.map((p) => <td>{p.revisions ?? '—'}</td>)}
         </tr>
         <tr>
           <th scope="row">Timeline</th>
           {packages.map((p) => <td>{p.timeline}</td>)}
+        </tr>
+        <tr>
+          <th scope="row">Billed to you by other providers</th>
+          {packages.map((p) => <td>{p.thirdParty.join('; ') || 'Nothing extra'}</td>)}
         </tr>
         <tr>
           <th scope="row">Next step</th>
@@ -78,7 +71,7 @@ const anyApproved = packages.some((p) => priceLabel(p).approved);
             packages.map((p) => (
               <td>
                 <a class="link link--tap" href={`/contact/?package=${p.id}#brief`}>
-                  Request a quote<span class="visually-hidden"> for {p.name}</span>
+                  Ask about it<span class="visually-hidden">: {p.name}</span>
                 </a>
               </td>
             ))
@@ -114,13 +107,13 @@ const anyApproved = packages.some((p) => priceLabel(p).approved);
   }
   .cmp__table {
     width: 100%;
-    min-width: 60rem;
+    min-width: 68rem;
     table-layout: fixed;
     border-collapse: collapse;
     font-size: var(--fs-sm);
     line-height: 1.5;
   }
-  /* The label column is fixed; the five package columns share the rest equally. */
+  /* The label column is fixed; the package columns share the rest equally. */
   .cmp__table thead td {
     width: 9.5rem;
   }
@@ -143,7 +136,6 @@ const anyApproved = packages.some((p) => priceLabel(p).approved);
     font-size: var(--fs-label);
     font-weight: var(--w-ui);
     color: var(--text-3);
-    white-space: nowrap;
   }
   .cmp__table td {
     color: var(--text-2);
@@ -152,6 +144,10 @@ const anyApproved = packages.some((p) => priceLabel(p).approved);
   .cmp__table thead th {
     line-height: 1.25;
     border-bottom-color: var(--control);
+  }
+  .cmp__list {
+    display: grid;
+    gap: var(--s-2);
   }
   .cmp__price > * {
     background: var(--surface);

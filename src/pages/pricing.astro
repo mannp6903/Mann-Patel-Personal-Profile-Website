@@ -7,12 +7,11 @@ import BaseLayout from '../layouts/BaseLayout.astro';
 import PageHead from '../components/PageHead.astro';
 import Icon from '../components/ui/Icon.astro';
 import Button from '../components/ui/Button.astro';
-import BookingButton from '../components/ui/BookingButton.astro';
-import PackageCard from '../components/packages/PackageCard.astro';
 import PackageCompare from '../components/packages/PackageCompare.astro';
-import { packages, checkUp, pricesPublished, packageById, priceLabel } from '../data/packages';
+import { packages, pricesPublished, packageById, priceLabel } from '../data/packages';
+import { servicePages } from '../data/service-pages';
 import ReviewsStrip from '../components/ReviewsStrip.astro';
-import { bookingUrl } from '../data/site';
+import { cta } from '../data/site';
 import { breadcrumbJsonLd } from '../lib/seo';
 import { visibleGuides } from '../lib/published';
 
@@ -24,43 +23,10 @@ const description = `Published prices in CAD: 5-page website ${price('website-la
 // SEO audit Phase 3 (14 Nov 2026): the cost guide links here; this page links back once it is published.
 const costGuide = (await visibleGuides()).find((g) => g.id === 'how-much-does-a-website-cost-in-toronto');
 
-// "Which package fits?" (16 Nov 2026, competitor gap work): common requests mapped to the existing packages. No new
-// package or price: every number comes from src/data/packages.ts.
-const fits = [
-  {
-    t: 'My website is dated or hard to use on a phone',
-    d: `A redesign: the Website package, ${price('website-launch')}, rebuilds up to five pages on the domain you already own.`,
-    href: '/services/website-redesign/',
-    link: 'How a website redesign works',
-  },
-  {
-    t: 'One thing on my website is broken',
-    d: `A repair: Website Fix, ${price('website-fix')} by size, fixes one defined problem and leaves the rest of the site alone.`,
-    href: '#pkg-website-fix',
-    link: 'Website Fix',
-  },
-  {
-    t: 'I’m not sure what I need',
-    d: 'Start with the free website and Google check: a short written list of fixes, most important first, with no obligation.',
-    href: '/contact/?package=check-up#check',
-    link: 'Get my free website check',
-  },
-];
-
 const costs = [...new Set(packages.flatMap((p) => p.thirdParty).filter((c) => !c.startsWith('Everything in')))];
 
-const affects = [
-  { t: 'Pages beyond the boundary', d: 'The Website package covers up to five pages. More pages, or pages that need new writing, are quoted in writing on top.' },
-  { t: 'What you supply', d: 'Ready text and real photos keep the price at the boundary. Writing from scratch or arranging photos adds time.' },
-  { t: 'Your tools', d: 'A booking tool or phone set-up that connects easily is quicker than one that needs a workaround, or can’t connect at all.' },
-  { t: 'The state of what exists', d: 'An old profile with duplicates, or a site with broken forms, can need clean-up before the new work starts.' },
-];
-
+// 23 Nov 2026 (SEO audit copy deck §2.7): four questions; ownership is answered on Home, Website Care's terms on its page.
 const questions = [
-  {
-    q: 'Is the free check really free?',
-    a: 'Yes, with no obligation. You get a written list of fixes, most important first. If you want them done, I quote them separately.',
-  },
   {
     q: 'Are these the final prices?',
     a: 'Yes, for the scope written on each package. Your written scope lists the deliverables, exclusions, price and timing before any work starts, and that is what we agree. Prices are in Canadian dollars, plus applicable tax.',
@@ -70,20 +36,12 @@ const questions = [
     a: 'For a website, half at kickoff and half once the site passes the launch checks agreed in your scope. A Website Fix is paid once the agreed test passes. Website Care is billed monthly.',
   },
   {
-    q: 'Do I own the website?',
-    a: 'Yes. The domain, hosting, Google accounts and files are in your name from the start. At handover you get the site, a short editing guide, every login and renewal date, and the test results.',
-  },
-  {
     q: 'What if I want something outside the scope?',
     a: 'I tell you what it costs first. Anything outside the written scope is quoted, and agreed in writing, before it starts.',
   },
   {
-    q: 'Who pays for the domain, hosting and tools?',
-    a: 'You do, directly to each provider and in your name, so you keep them whatever happens. They are listed in your scope before you decide.',
-  },
-  {
-    q: 'Can I stop Website Care?',
-    a: 'Any month. You keep the site, the change log and every login, and my access is removed.',
+    q: 'Is the free check really free?',
+    a: 'Yes, with no obligation. You get a written list of fixes, most important first. If you want them done, I quote them separately.',
   },
 ];
 
@@ -104,118 +62,50 @@ const faqLd = {
   noindex={!pricesPublished}
   jsonLd={[faqLd, ...(crumbs ? [crumbs] : [])]}
 >
+  {/* 23 Nov 2026 (SEO audit copy deck §2.7; intro from the audit's §C5): one table, three short service cards, what other
+      providers bill, four questions. The long package cards above the table repeated it word for word and are gone. */}
   <PageHead
-    eyebrow="Pricing"
-    lines={['Toronto website prices,', '<span class="accent">and what they cover</span><span class="stop">.</span>']}
-    lead="Five offers for small businesses in Toronto and the GTA, each with a published price and a clear boundary, plus a free check if you’re not sure where to start. All prices in Canadian dollars, plus applicable tax."
-
+    lines={['Website and Google listing', '<span class="accent">prices, in CAD</span><span class="stop">.</span>']}
+    lead="Every price here is fixed and in Canadian dollars, plus tax. If something isn’t in a package, I quote it in writing before I start. Domain, hosting and booking tools are billed to you directly, in your name."
   >
-    {/* U4 (design upgrade Phase 3): a main button within the first two phone screens. */}
-    <div class="btn-row" data-reveal="load" style="--d:5"><Button href="/contact/#brief">Send a short brief</Button></div>
+    <div class="btn-row" data-reveal="load" style="--d:5">
+      <Button href={cta.checkHref}>{cta.check}</Button>
+      <a class="link-arrow" href={cta.briefHref}>{cta.brief} <Icon name="arrow" /></a>
+    </div>
   </PageHead>
 
-  <section class="section section--rule" aria-labelledby="pr-packages">
-    <div class="container stack" style="--stack: var(--s-6)">
-      <h2 id="pr-packages" class="visually-hidden">Packages</h2>
-      <!-- 14 Nov 2026: the free check is the sixth tile, so the offers sit in a tidy grid (3 × 2 on
-           desktop, 2 × 3 on tablets) instead of three cards, two wider cards and a banner. -->
-      <ol class="pr__grid" role="list">
-        {packages.map((p) => <PackageCard pkg={p} level={3} />)}
-        <li class="pr__free" id="pkg-check-up">
-          <p class="eyebrow">Not sure yet?</p>
-          <h3 class="pr__free-name">{checkUp.name}</h3>
-          <p class="pr__free-cost">
-            <span class="pr__free-price">Free</span>
-            <span class="pr__free-terms">No obligation to buy anything</span>
-          </p>
-          <p class="pr__free-boundary">{checkUp.boundary}</p>
-          <ul class="pr__free-list" role="list">
-            {
-              checkUp.includes.map((d) => (
-                <li>
-                  <Icon name="check" />
-                  <span>{d}</span>
-                </li>
-              ))
-            }
-          </ul>
-          <p class="small subtle">Not included: {checkUp.notIncluded[0].charAt(0).toLowerCase() + checkUp.notIncluded[0].slice(1)}.</p>
-          <div class:list={['pr__free-cta', bookingUrl && 'btn-row']}>
-            <Button href="/contact/?package=check-up#check" variant="ghost" size="sm">Get my free website check</Button>
-            {/* 16 Nov 2026: Mann's booking page, once he adds it (src/data/site.ts → bookingUrl). */}
-            <BookingButton size="sm" />
-          </div>
-        </li>
-      </ol>
-      <PackageCompare id="pr-compare" title="Side by side" level={2} />
+  <section class="section section--rule" aria-labelledby="pr-compare">
+    <div class="container">
+      <PackageCompare id="pr-compare" title="Every package, side by side" level={2} />
     </div>
   </section>
 
-  <section class="section section--rule" id="fit" aria-labelledby="pr-fit">
-    <div class="container pr__split">
-      <div class="stack" style="--stack: var(--s-4)">
-        <h2 id="pr-fit" class="pr__h2">Which package <span class="accent">fits?</span></h2>
-      </div>
-      <dl class="pr__affects">
+  <section class="section section--alt" aria-labelledby="pr-services">
+    <div class="container stack" style="--stack: var(--s-6)">
+      <h2 id="pr-services" class="pr__h2">What each service is for</h2>
+      <ul class="pr__cards" role="list">
         {
-          fits.map((f) => (
-            <div>
-              <dt>{f.t}</dt>
-              <dd>
-                {f.d}{' '}
-                <a class="link" href={f.href}>
-                  {f.link}
-                </a>
-              </dd>
-            </div>
+          servicePages.map((sp) => (
+            <li>
+              <a class="pr__card" href={`/services/${sp.slug}/`}>
+                <span class="pr__card-name">{sp.name}</span>
+                <span class="muted small">{sp.card}</span>
+                <Icon name="arrow" />
+              </a>
+            </li>
           ))
         }
-      </dl>
+      </ul>
     </div>
   </section>
 
   <!-- Real client reviews only (src/data/reviews.ts); renders nothing until there are some. -->
   <ReviewsStrip />
 
-
-  <section class="section section--alt" aria-labelledby="pr-example">
-    <div class="container pr__split">
-      <div class="stack" style="--stack: var(--s-4)">
-        <h2 id="pr-example" class="pr__h2">A salon website <span class="accent">for $1,950.</span></h2>
-        <p class="muted">What the Website package looks like for a neighbourhood salon, similar to the <a class="link" href="/work/samp-hair-spa/">Samp Hair &amp; Spa preview</a>: affordable web design in Toronto, with the price and the boundary written down before you start.</p>
-      </div>
-      <dl class="pr__affects">
-        <div><dt>Pages</dt><dd>Home, Services and Pricing, About, Gallery and Contact.</dd></div>
-        <div><dt>You provide</dt><dd>Your current service menu, approved photos, opening hours and account access.</dd></div>
-        <div><dt>The booking step</dt><dd>The site sends one enquiry to your inbox, or takes visitors to your existing booking link. A connected booking workflow is the $3,350 package.</dd></div>
-        <div><dt>Signed off when</dt><dd>The service menu reads well on a phone, the booking destination or a test enquiry works, and you have had a short walkthrough of how to edit it.</dd></div>
-        <div><dt>Payment</dt><dd>$975 at kickoff and $975 once the site passes those checks, plus applicable tax.</dd></div>
-      </dl>
-    </div>
-  </section>
-
-  <section class="section section--rule" aria-labelledby="pr-affects">
-    <div class="container pr__split">
-      <div class="stack" style="--stack: var(--s-4)">
-        <h2 id="pr-affects" class="pr__h2">What moves it <span class="accent">up or down.</span></h2>
-      </div>
-      <dl class="pr__affects">
-        {
-          affects.map((a) => (
-            <div>
-              <dt>{a.t}</dt>
-              <dd>{a.d}</dd>
-            </div>
-          ))
-        }
-      </dl>
-    </div>
-  </section>
-
   <section class="section" aria-labelledby="pr-costs">
     <div class="container pr__split">
       <div class="stack" style="--stack: var(--s-4)">
-        <h2 id="pr-costs" class="pr__h2">Billed to you, <span class="accent">in your name.</span></h2>
+        <h2 id="pr-costs" class="pr__h2">Billed to you, in your name</h2>
         <p class="muted">Each provider bills you directly, at their own prices, so the accounts stay yours.</p>
       </div>
       <ul class="pr__costs" role="list">
@@ -234,8 +124,7 @@ const faqLd = {
   <section class="section section--rule" aria-labelledby="pr-faq">
     <div class="container pr__split">
       <div class="stack" style="--stack: var(--s-4)">
-        <!-- 16 Nov 2026: a question people search for; the slogan is the eyebrow. -->
-        <h2 id="pr-faq" class="pr__h2">What’s included <span class="accent">in the price?</span></h2>
+        <h2 id="pr-faq" class="pr__h2">Questions</h2>
         {
           costGuide && (
             <a class="link-arrow" href={`/guides/${costGuide.id}/`}>
@@ -264,73 +153,51 @@ const faqLd = {
 </BaseLayout>
 
 <style>
-  .pr__grid {
+  /* 23 Nov 2026 audit (copy deck §2.7): three short cards, each linking to its service page. */
+  .pr__cards {
     display: grid;
-    gap: var(--s-4);
+    gap: var(--s-3);
   }
-  @media (min-width: 48em) {
-    .pr__grid {
-      grid-template-columns: repeat(2, minmax(0, 1fr));
-    }
-  }
-  @media (min-width: 72em) {
-    /* Five offers and the free check: three equal columns, two equal rows. */
-    .pr__grid {
+  @media (min-width: 56em) {
+    .pr__cards {
       grid-template-columns: repeat(3, minmax(0, 1fr));
     }
   }
-  .pr__free {
-    display: flex;
-    flex-direction: column;
-    gap: var(--s-4);
-    padding: clamp(1.25rem, 2.5vw, 2rem);
-    border: 1px dashed var(--control);
-    border-radius: var(--r-lg);
-  }
-  .pr__free-name {
-    font-size: var(--fs-h3);
-    letter-spacing: -0.035em;
-    line-height: 1.1;
-  }
-  .pr__free-cost {
+  .pr__card {
     display: grid;
-    gap: 0.15rem;
+    grid-template-columns: minmax(0, 1fr) auto;
+    gap: var(--s-2) var(--s-4);
+    height: 100%;
+    padding: var(--s-5);
+    border: 1px solid var(--line);
+    border-radius: var(--r-lg);
+    background: var(--bg);
+    color: var(--text);
+    text-decoration: none;
   }
-  .pr__free-price {
+  .pr__card:hover,
+  .pr__card:focus-visible {
+    border-color: var(--control);
+  }
+  .pr__card > .small {
+    grid-column: 1;
+  }
+  .pr__card :global(.icon) {
+    grid-column: 2;
+    grid-row: 1;
+    color: var(--signal);
+  }
+  .pr__card-name {
     font-size: var(--fs-h3);
     font-weight: var(--w-head);
     letter-spacing: var(--track-head);
-    line-height: 1;
-    color: var(--signal);
+    line-height: 1.15;
   }
-  .pr__free-terms {
-    font-size: var(--fs-label);
-    color: var(--text-3);
-  }
-  .pr__free-boundary {
-    font-size: var(--fs-sm);
-    font-weight: var(--w-head);
-    color: var(--text);
-  }
-  .pr__free-list {
-    display: grid;
-    gap: var(--s-2);
-    font-size: var(--fs-sm);
-    color: var(--text-2);
-  }
-  .pr__free-list li {
-    display: flex;
-    gap: var(--s-2);
-    align-items: flex-start;
-  }
-  .pr__free-list :global(.icon) {
-    flex: none;
-    margin-top: 0.2em;
-    color: var(--signal);
-  }
-  .pr__free-cta {
-    margin-top: auto;
-    padding-top: var(--s-2);
+  
+  
+  @media (min-width: 72em) {
+    /* Five offers and the free check: three equal columns, two equal rows. */
+    
   }
   .pr__h2 {
     font-size: var(--fs-h2);
@@ -352,22 +219,6 @@ const faqLd = {
       top: calc(var(--header-h) + var(--s-6));
       align-self: start;
     }
-  }
-  .pr__affects {
-    display: grid;
-    gap: var(--s-5);
-  }
-  .pr__affects div {
-    display: grid;
-    gap: var(--s-2);
-    padding-top: var(--s-4);
-    border-top: 1px solid var(--line);
-  }
-  .pr__affects dt {
-    font-weight: var(--w-head);
-  }
-  .pr__affects dd {
-    color: var(--text-2);
   }
   .pr__costs {
     display: grid;

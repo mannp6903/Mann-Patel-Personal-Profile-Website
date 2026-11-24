@@ -34,6 +34,8 @@ export interface Package {
   timeline: string;
   /** Costs billed to the client by other providers, never marked up here. */
   thirdParty: string[];
+  /** Rounds of changes, where the package names them (the /pricing/ table's "Revisions" row, copy deck §2.7). */
+  revisions?: string;
   /** Service ids (src/data/services.ts) this offer covers; used to pre-fill the brief. */
   serviceIds: string[];
   /** The focused service page that explains this offer. */
@@ -93,6 +95,7 @@ export const packages: Package[] = [
     youProvide: ['Your services, area and the details you want shown', 'Photos of your real work', 'Domain and account access in your name'],
     timeline: 'Mostly depends on how quickly your text, photos and feedback arrive. You get a dated plan with the written scope.',
     thirdParty: ['Domain name (yearly, from your registrar)', 'Hosting, if your chosen host charges for it', 'Email at your domain, if you want it'],
+    revisions: 'Two rounds',
     serviceIds: ['websites', 'seo'],
     page: '/services/web-design/',
     price: { amount: 1950, unit: 'one-time' },
@@ -127,6 +130,7 @@ export const packages: Package[] = [
       'Your booking tool’s subscription, if it charges',
       'Phone number and text-message usage, if the workflow sends texts',
     ],
+    revisions: 'Two rounds, as in the Website package',
     serviceIds: ['websites', 'seo', 'booking', 'enquiry-workflows', 'missed-calls'],
     page: '/services/enquiry-follow-up/',
     price: { amount: 3350, unit: 'one-time' },
@@ -206,6 +210,7 @@ export const packages: Package[] = [
     youProvide: ['Your approved logo, colours and photos', 'The one service the campaign is about'],
     timeline: 'Mostly depends on how quickly your logo, photos and feedback arrive. You get a dated plan with the written scope.',
     thirdParty: [],
+    revisions: 'One round',
     serviceIds: ['social-content', 'print-design'],
     page: '/services/#brand-content',
     price: { amount: 550, unit: 'one-time' },
