@@ -16,7 +16,7 @@ import DraftNote from '../components/DraftNote.astro';
 import Confirm from '../components/Confirm.astro';
 import Button from '../components/ui/Button.astro';
 import Icon from '../components/ui/Icon.astro';
-import FreeCheck from '../components/home/FreeCheck.astro';
+import CheckBanner from '../components/CheckBanner.astro';
 import ReviewsStrip from '../components/ReviewsStrip.astro';
 import { cta, gbp, profile } from '../data/site';
 import { areaIsDraft, areaPath, type Area } from '../data/areas';
@@ -206,7 +206,7 @@ const crumbs = breadcrumbJsonLd([
     </div>
   </section>
 
-  <FreeCheck id="check" />
+  <CheckBanner />
 </BaseLayout>
 
 <style>

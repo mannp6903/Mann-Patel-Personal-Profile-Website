@@ -16,7 +16,7 @@ import MissedCallCalculator from '../../components/MissedCallCalculator.astro';
 import ReviewsStrip from '../../components/ReviewsStrip.astro';
 import { cta } from '../../data/site';
 import { servicePages, moreServicePages, type ServicePage } from '../../data/service-pages';
-import FreeCheck from '../../components/home/FreeCheck.astro';
+import CheckBanner from '../../components/CheckBanner.astro';
 import { packageById, priceLabel, type Package } from '../../data/packages';
 import { absoluteUrl } from '../../lib/mode';
 import { breadcrumbJsonLd, businessRef, packageOffer, videoJsonLd } from '../../lib/seo';
@@ -38,8 +38,6 @@ const pkgs = page.packages.map((id) => packageById(id)).filter(Boolean) as Packa
 const main = pkgs[0];
 const work = (await getCollection('work')).filter((w) => page.work.includes(w.id)).sort((a, b) => a.data.order - b.data.order);
 const others = servicePages.filter((p) => p.slug !== page.slug);
-// The three main services and the Phase 4 pages share one template since the 23 Nov 2026 audit (copy deck §2.2).
-const isMain = servicePages.some((p) => p.slug === page.slug);
 // SEO audit Phase 3 (14 Nov 2026): the industry pages that need this service, its guides (once published) and
 // the Scarborough page (once published) are linked from here.
 const industries = industryPages.filter((ip) => (ip.services as readonly string[]).includes(page.slug));
@@ -313,7 +311,8 @@ const videoLd = shownVideos.map(videoJsonLd);
     </div>
   </nav>
 
-  {!isMain && <FreeCheck id="check" />}
+  {/* 23 Nov 2026 (copy deck rule 5): the free check in one line, on every service page. */}
+  <CheckBanner />
 </BaseLayout>
 
 <style>

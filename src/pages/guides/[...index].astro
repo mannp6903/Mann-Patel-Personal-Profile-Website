@@ -9,7 +9,7 @@ import BaseLayout from '../../layouts/BaseLayout.astro';
 import PageHead from '../../components/PageHead.astro';
 import Crumbs from '../../components/Crumbs.astro';
 import Icon from '../../components/ui/Icon.astro';
-import FreeCheck from '../../components/home/FreeCheck.astro';
+import CheckBanner from '../../components/CheckBanner.astro';
 import { breadcrumbJsonLd } from '../../lib/seo';
 import { visibleGuides } from '../../lib/published';
 
@@ -66,7 +66,7 @@ const crumbs = breadcrumbJsonLd([
     </div>
   </section>
 
-  <FreeCheck id="check" />
+  <CheckBanner />
 </BaseLayout>
 
 <style>

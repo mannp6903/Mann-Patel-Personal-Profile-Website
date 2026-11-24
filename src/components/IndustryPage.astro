@@ -14,7 +14,7 @@ import Crumbs from './Crumbs.astro';
 import Button from './ui/Button.astro';
 import Icon from './ui/Icon.astro';
 import ProjectMedia from './work/ProjectMedia.astro';
-import FreeCheck from './home/FreeCheck.astro';
+import CheckBanner from './CheckBanner.astro';
 import { cta } from '../data/site';
 import { industryPages, type IndustryPage } from '../data/industry-pages';
 import { servicePageBySlug, type ServicePage } from '../data/service-pages';
@@ -176,7 +176,7 @@ const crumbs = breadcrumbJsonLd([
     </div>
   </nav>
 
-  <FreeCheck id="check" />
+  <CheckBanner />
 </BaseLayout>
 
 <style>

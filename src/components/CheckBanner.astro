@@ -1,0 +1,55 @@
+---
+/**
+ * The free check in one line (23 Nov 2026 SEO audit, copy deck §2.6 and rule 5). The full block (home/FreeCheck.astro)
+ * is on Home only; /contact/ and /free-check/ carry the form itself. Every other page that ended with the full block now
+ * ends with this banner. It keeps the #check anchor and the link to the check form, which scripts/seo-check.mjs and the
+ * footer rely on.
+ */
+import { cta } from '../data/site';
+import Button from './ui/Button.astro';
+
+interface Props {
+  id?: string;
+}
+const { id = 'check' } = Astro.props;
+---
+
+<section class="cb" id={id} aria-labelledby={`${id}-title`}>
+  <div class="cb__inner container">
+    <p class="cb__text">
+      <b id={`${id}-title`}>Not sure what to fix first?</b> Get a free website and Google check: a short list of fixes by email.
+    </p>
+    <Button href={cta.checkHref} variant="ink">{cta.check}</Button>
+  </div>
+</section>
+
+<style>
+  .cb {
+    background: var(--signal);
+    color: var(--on-signal);
+  }
+  .cb ::selection {
+    background: var(--ink);
+    color: var(--signal);
+  }
+  .cb__inner {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    justify-content: space-between;
+    gap: var(--s-4) var(--s-6);
+    padding-block: var(--s-6);
+  }
+  .cb__text {
+    max-width: 52ch;
+    font-size: var(--fs-lead);
+    line-height: 1.4;
+    font-weight: var(--w-ui);
+  }
+  .cb__text b {
+    font-weight: var(--w-head);
+  }
+  .cb :global(:focus-visible) {
+    outline-color: var(--focus-on-light);
+  }
+</style>

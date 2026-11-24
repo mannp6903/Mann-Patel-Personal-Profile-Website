@@ -9,7 +9,7 @@ import BaseLayout from '../layouts/BaseLayout.astro';
 import PageHead from '../components/PageHead.astro';
 import Button from '../components/ui/Button.astro';
 import Icon from '../components/ui/Icon.astro';
-import FreeCheck from '../components/home/FreeCheck.astro';
+import CheckBanner from '../components/CheckBanner.astro';
 import Finder from '../components/Finder.astro';
 import { groups, servicesInGroup, addOns, sprint } from '../data/services';
 import { packages, packageById, priceLabel } from '../data/packages';
@@ -156,7 +156,7 @@ for (const g of groups) {
     </div>
   </section>
 
-  <FreeCheck id="check" />
+  <CheckBanner />
   <Finder />
 
   <section class="ov section section--rule" id="faq" aria-labelledby="faq-title">
