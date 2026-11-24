@@ -182,7 +182,7 @@ test.describe('pages', () => {
     ['/services/local-visibility/', 'Google Business Profile Setup in Toronto, $650 | Mann Patel', 'Local SEO and Google Business Profile setup in Toronto', 'Improve your Google presence with eligible profile setup, listing updates and a review workflow. Ask about SEO foundations and an AI search check.'],
     ['/services/enquiry-follow-up/', 'Missed-Call Text-Back & Online Booking in Toronto | Mann Patel', 'Enquiry follow-up and online booking for Toronto businesses', 'Set up missed-call text-back, form follow-up or an online booking path with tools you own. Get one scoped workflow, tested and documented.'],
     ['/work/', 'Toronto Small Business Website Projects | Mann Patel', 'Website projects for Toronto service businesses', 'See the Nest & Rest Cleaning website case study and Samp Hair & Spa preview, with dated work, project status and documented checks.'],
-    ['/pricing/', 'Website Design Prices in Toronto, from $1,950 | Mann Patel', 'Toronto website prices, and what they cover.', 'Published prices in CAD: 5-page website $1,950, website + booking $3,350, fixes $450–$850, local SEO setup $650, care $149/month. Toronto and GTA.'],
+    ['/pricing/', 'Website Design Prices in Toronto, from $1,950 | Mann Patel', 'Website and Google listing prices, in CAD.', 'Published prices in CAD: 5-page website $1,950, website + booking $3,350, fixes $450–$850, local SEO setup $650, care $149/month. Toronto and GTA.'],
     ['/vision/', 'Vision | Mann Patel, Web Designer in Toronto', 'Local businesses do the work. Software should run the rest.', 'What Mann Patel is building: local businesses that do the work while software and AI handle the rest. His ventures, what has shipped, and what comes next.'],
     // SEO audit Phase 3 (14 Nov 2026): one page per search we can win (plan C1, C3, C4).
     ['/websites-for-cleaning-companies/', 'Cleaning Company Websites in Toronto, from $1,950 | Mann Patel', 'Cleaning company website design in Toronto', 'Websites for Toronto cleaning companies: prices up front, the areas you serve and a booking request. See the Nest & Rest case study. From $1,950 CAD.'],
@@ -190,7 +190,7 @@ test.describe('pages', () => {
     // SEO audit Phase 4 (14 Nov 2026): plan C15, C16.
     ['/services/website-care/', 'Website Maintenance in Toronto, $149 a month | Mann Patel', 'Website maintenance for Toronto small businesses', 'Website Care, $149 a month: a monthly test enquiry through your form, your booking link checked, up to 30 minutes of edits and a note. Stop any month.'],
     ['/services/ai-search-optimization/', 'AI Search Optimization (AEO & GEO) in Toronto | Mann Patel', 'AI search optimization for Toronto businesses', 'See what ChatGPT, Gemini and Perplexity say about your business, then fix the public facts they draw on. Part of Google Listing Setup, $650 CAD.'],
-    ['/web-design-scarborough/', 'Web Design in Scarborough, Ontario, from $1,950 | Mann Patel', 'Web design in Scarborough, Ontario', 'Web designer based in Scarborough, Ontario: websites, Google Business Profile setup and online booking for local small businesses, with published prices.'],
+    ['/web-design-scarborough/', 'Web Design in Scarborough, Ontario, from $1,950 | Mann Patel', 'Web designer in Scarborough', 'Web designer based in Scarborough, Ontario: websites, Google Business Profile setup and online booking for local small businesses, with published prices.'],
   ];
   test('search copy: titles, H1s and descriptions name the service and the place', async ({ page }) => {
     for (const [path, title, h1, description] of COPY) {
@@ -658,7 +658,6 @@ test.describe('home interactions', () => {
     await expect(cta).toHaveAttribute('href', /\/contact\/\?package=website-enquiry&services=/);
     await cta.click();
     await expect(page.locator('#f-package')).toHaveValue('website-enquiry');
-    await expect(page.locator('input[name="services"][value="missed-calls"]')).toBeChecked();
   });
 
   test('without JavaScript, the finder submits its answers to the brief', async ({ browser }) => {
@@ -1229,8 +1228,8 @@ test.describe('services', () => {
   test('packages each ask for a quote with the package pre-selected', async ({ page }) => {
     // Package detail lives on /pricing/ only (SEO audit Phase 2, 14 Nov 2026).
     await page.goto('/pricing/');
-    const links = page.locator('.pr__grid .pkg').getByRole('link', { name: /Request a quote for/ });
-    await expect(links).toHaveCount(5);
+    const links = page.getByRole('table').getByRole('link', { name: /^Ask about it: / });
+    await expect(links).toHaveCount(6);
     await links.nth(1).click();
     await expect(page.locator('#f-package')).toHaveValue('website-launch');
   });
@@ -1242,23 +1241,22 @@ test.describe('services', () => {
     }
   });
 
-  test('the five packages compare side by side, and every price line agrees (cards, table, services overview)', async ({ page }) => {
-    // Package detail lives on /pricing/ only (SEO audit Phase 2, 14 Nov 2026).
+  // 23 Nov 2026 (SEO audit copy deck §2.7): one table holds every package's detail; the cards that repeated it are gone.
+  test('the packages compare in one table, and every price line agrees (table, services overview)', async ({ page }) => {
     await page.goto('/pricing/');
-    const table = page.getByRole('table', { name: 'Side by side' });
-    for (const name of ['Website Fix', 'Website', 'Website + Booking', 'Google Listing Setup', 'Website Care'])
+    const table = page.getByRole('table', { name: 'Every package, side by side' });
+    for (const name of ['Website Fix', 'Website', 'Website + Booking', 'Google Listing Setup', 'Website Care', 'Brand & Content Sprint'])
       await expect(table.getByRole('columnheader', { name, exact: true })).toBeVisible();
-    for (const row of ['Best for', 'Boundary', 'Covers', 'Not included', 'You provide', 'Paid to others', 'Timeline', 'Price', 'Next step'])
+    for (const row of ['Price', 'What’s included', 'Not included', 'Revisions', 'Timeline', 'Billed to you by other providers', 'Next step'])
       await expect(table.getByRole('rowheader', { name: row })).toBeVisible();
-    await expect(table.getByRole('link', { name: 'Request a quote for Website', exact: true })).toHaveAttribute('href', '/contact/?package=website-launch#brief');
-    const cardPrices = await page.locator('.pr__grid .pkg [data-price]').allInnerTexts();
+    await expect(table.getByRole('link', { name: 'Ask about it: Website', exact: true })).toHaveAttribute('href', '/contact/?package=website-launch#brief');
     const tablePrices = await table.locator('[data-price]').allInnerTexts();
-    expect(cardPrices).toEqual(['$450–$850', '$1,950', '$3,350', '$650', '$149 a month']);
-    expect(tablePrices).toEqual(cardPrices);
+    expect(tablePrices).toEqual(['$450–$850', '$1,950', '$3,350', '$650', '$149 a month', '$550']);
+    await expect(page.locator('.pkg, .pr__grid')).toHaveCount(0);
     // The services overview names the same prices in one line and sends you to /pricing/ for the detail.
     await page.goto('/services/');
     const line = page.locator('#packages');
-    for (const price of cardPrices) await expect(line).toContainText(price);
+    for (const price of tablePrices) await expect(line).toContainText(price);
     await expect(line.getByRole('link', { name: /What each package covers/ })).toHaveAttribute('href', '/pricing/');
     await expect(line.locator('table, .pkg')).toHaveCount(0);
     // No popularity badges, discounts or scarcity.
@@ -1532,42 +1530,43 @@ test.describe('direct contact', () => {
 
 test.describe('enquiry form', () => {
   const send = (page: Page) => page.getByRole('button', { name: 'Send my brief' });
-  const next = (page: Page) => page.getByRole('button', { name: 'Continue' });
+  // 23 Nov 2026 (SEO audit CONV-3): one short form, no steps.
   const fill = async (page: Page, msg = 'I run a two-chair salon in Scarborough and need a site that takes booking requests.') => {
     await page.locator('#f-name').fill('Test Owner');
     await page.locator('#f-email').fill('owner@example.ca');
     await page.locator('#f-business').fill('Example Salon');
-    await page.locator('#f-website').fill('examplesalon.ca');
-    await next(page).click();
-    await page.locator('label.area', { hasText: 'Get found and chosen' }).click();
-    await next(page).click();
     await page.locator('#f-message').fill(msg);
+    await page.locator('#f-package').selectOption('website-launch');
   };
 
-  test('steps: progress, Back and Continue, and the plain-language areas come first', async ({ page }) => {
+  test('CONV-3: one short form, five inputs, packages by their /pricing/ names', async ({ page }) => {
+    await page.setViewportSize({ width: 375, height: 812 });
     await page.goto('/contact/');
-    await expect(page.locator('[data-step-count]')).toHaveText('Step 1 of 3');
-    await expect(send(page)).toBeHidden();
-    await page.locator('#f-name').fill('Test Owner');
-    await page.locator('#f-email').fill('owner@example.ca');
-    await next(page).click();
-    await expect(page.locator('[data-step-count]')).toHaveText('Step 2 of 3');
-    for (const v of ['Get found and chosen', 'Enquiry follow-up and booking', 'A website that books work', 'Print and social content', 'Not sure yet']) {
-      await expect(page.locator('label.area', { hasText: v })).toBeVisible();
-    }
-    await expect(page.locator('[data-svc-detail]')).not.toHaveAttribute('open', '');
-    await page.getByRole('button', { name: 'Back' }).click();
-    await expect(page.locator('#f-name')).toHaveValue('Test Owner');
+    await expect(page.locator('[data-steps-nav], [data-next], input[name="services"], [name="budget"], [name="timeframe"], #f-phone')).toHaveCount(0);
+    const visible = await page.locator('#brief').evaluate((form) =>
+      [...form.querySelectorAll<HTMLInputElement>('input, select, textarea')].filter((el) => el.type !== 'hidden' && el.getClientRects().length && !el.closest('[aria-hidden="true"]')).map((el) => el.name),
+    );
+    expect(visible).toEqual(['name', 'email', 'business', 'message', 'packageId']);
+    expect(await page.locator('#f-package option').allInnerTexts()).toEqual([
+      'Not sure yet',
+      'Website Fix',
+      'Website',
+      'Website + Booking',
+      'Google Listing Setup',
+      'Website Care',
+      'Brand & Content Sprint',
+    ]);
+    await expect(send(page)).toBeVisible();
     await expect(page.locator('[data-alt-email]')).toBeVisible();
   });
 
-  test('links that pre-select services tick them and their areas', async ({ page }) => {
-    await page.goto('/contact/?services=reviews,missed-calls');
-    await expect(page.locator('[data-svc-detail]')).toHaveAttribute('open', '');
-    await expect(page.locator('input[name="services"][value="reviews"]')).toBeChecked();
-    await expect(page.locator('input[name="services"][value="area-found"]')).toBeChecked();
-    await expect(page.locator('input[name="services"][value="area-follow-up"]')).toBeChecked();
-    await expect(page.locator('input[name="services"][value="area-website"]')).not.toBeChecked();
+  test('links pre-select the package: ?package=, and ?service= by the package that covers it', async ({ page }) => {
+    await page.goto('/contact/?package=content-sprint#brief');
+    await expect(page.locator('#f-package')).toHaveValue('content-sprint');
+    await page.goto('/contact/?service=social-content#brief');
+    await expect(page.locator('#f-package')).toHaveValue('content-sprint');
+    await page.goto('/contact/?package=found#brief'); // an old id maps to the current offer
+    await expect(page.locator('#f-package')).toHaveValue('local-visibility');
   });
 
   test('a failed status check does not claim the form is disconnected', async ({ page }) => {
@@ -1577,38 +1576,34 @@ test.describe('enquiry form', () => {
     await page.goto('/contact/');
     await page.waitForTimeout(500);
     await expect(page.locator('[data-brief] [data-not-connected]')).toBeHidden();
-    await expect(next(page)).toBeEnabled();
+    await expect(send(page)).toBeEnabled();
   });
 
-  test('shows accessible errors for missing or wrong fields, step by step', async ({ page }) => {
+  test('shows accessible errors for missing or wrong fields', async ({ page }) => {
     await page.goto('/contact/');
     // Form states are not headings and are not in the page before submit (SEO audit, 14 Nov 2026).
     await expect(page.getByText('Please check these fields')).toHaveCount(0);
     await expect(page.getByText(/is on its way/)).toHaveCount(0);
-    await next(page).click();
+    await send(page).click();
     const summary = page.locator('[data-error-summary]');
     await expect(summary).toBeVisible();
     await expect(summary).toBeFocused();
     await expect(summary).toContainText('Please check these fields');
     await expect(summary.getByRole('heading')).toHaveCount(0);
-    await expect(summary.locator('li')).toHaveCount(2);
+    await expect(summary.locator('li')).toHaveCount(3);
     await expect(page.locator('#f-name')).toHaveAttribute('aria-invalid', 'true');
     await expect(page.locator('#f-email')).toHaveAttribute('aria-invalid', 'true');
-    // Step 3: an empty message alone moves focus to the field.
+    await expect(page.locator('#f-message')).toHaveAttribute('aria-invalid', 'true');
+    // An empty message alone moves focus to the field.
     await page.locator('#f-name').fill('Test Owner');
     await page.locator('#f-email').fill('owner@example.ca');
-    await next(page).click();
-    await next(page).click();
     await send(page).click();
     await expect(page.locator('#f-message')).toBeFocused();
     await expect(page.locator('#e-message')).toContainText('tell me a little');
-    // A bad email found at the end takes you back to step 1, focused on the field.
+    // A bad email alone moves focus to the email field.
     await page.locator('#f-message').fill('I run a two-chair salon in Scarborough and need a booking site.');
-    await page.getByRole('button', { name: 'Back' }).click();
-    await page.getByRole('button', { name: 'Back' }).click();
     await page.locator('#f-email').fill('owner@');
-    await page.locator('#f-email').blur();
-    await next(page).click();
+    await send(page).click();
     await expect(page.locator('#f-email')).toBeFocused();
     await expect(page.locator('#e-email')).toContainText('doesn’t look complete');
   });
@@ -1636,7 +1631,9 @@ test.describe('enquiry form', () => {
     expect(id).toMatch(/^enq_\d{8}_[0-9a-f]{8}$/);
     const store = await readFile('.data/enquiries.jsonl', 'utf8');
     expect(store).toContain(id);
-    expect(store).toContain('area-found');
+    // MEAS-1 (23 Nov 2026 audit): the lead records the form's package and the page the visit started on.
+    expect(store).toContain('"packageId":"website-launch"');
+    expect(store).toContain('"landingPage":"/contact/"');
 
     // API-level duplicate protection
     const tokenRes = await (await request.get('/api/enquiry/')).json();
@@ -1682,7 +1679,7 @@ test.describe('enquiry form', () => {
     await mailBtn.click();
     const href = await page.locator('[data-brief-form]').getAttribute('data-mailto');
     expect(href).toMatch(/^mailto:info@mannpatel\.me\?subject=Project%20brief%20from%20Test%20Owner%20\(Example%20Salon\)&body=/);
-    expect(decodeURIComponent(href!)).toContain('Help with: Get found and chosen: Google, Maps and reviews');
+    expect(decodeURIComponent(href!)).toContain('Starting point: Website');
     expect(decodeURIComponent(href!)).toContain('two-chair salon');
     await expect(page.locator('[data-brief] [data-mail-note]')).toContainText('email app should open');
     expect(posted).toBe(false);
@@ -1709,7 +1706,6 @@ test.describe('enquiry form', () => {
     const ctx = await browser.newContext({ javaScriptEnabled: false, baseURL: 'http://127.0.0.1:4321' });
     const page = await ctx.newPage();
     await page.goto('/contact/');
-    await expect(page.locator('[data-steps-nav]')).toBeHidden();
     await expect(page.locator('#f-message')).toBeVisible();
     await page.locator('#f-name').fill('No JS Owner');
     await page.locator('#f-email').fill('nojs@example.ca');
@@ -2085,19 +2081,17 @@ test.describe('desktop layout (14 Nov 2026)', () => {
     }
   });
 
-  test('pricing: the offers sit in an even grid and the comparison columns are equal widths', async ({ page }) => {
+  test('pricing: the comparison columns are equal widths and the price comes first', async ({ page }) => {
     await page.setViewportSize({ width: 1440, height: 900 });
     await page.goto('/pricing/');
-    const tiles = await page.$$eval('.pr__grid > li', (els) => els.map((e) => Math.round(e.getBoundingClientRect().width)));
-    expect(tiles).toHaveLength(6); // five offers and the free check
-    expect(Math.max(...tiles) - Math.min(...tiles)).toBeLessThanOrEqual(1);
-    await expect(page.locator('#pkg-check-up').getByRole('link', { name: 'Get my free website check' })).toHaveAttribute('href', '/contact/?package=check-up#check');
-    const table = page.getByRole('table', { name: 'Side by side' });
+    const table = page.getByRole('table', { name: 'Every package, side by side' });
     const widths = await table.locator('thead th').evaluateAll((ths) => ths.map((t) => Math.round(t.getBoundingClientRect().width)));
-    expect(widths).toHaveLength(5);
+    expect(widths).toHaveLength(6);
     expect(Math.max(...widths) - Math.min(...widths)).toBeLessThanOrEqual(1);
     // The price is the first row under the package names.
     await expect(table.locator('tbody tr').first().getByRole('rowheader')).toHaveText('Price');
+    // Three short cards, one per main service, each linking to its page.
+    await expect(page.locator('.pr__card')).toHaveCount(3);
   });
 });
 
@@ -2332,12 +2326,8 @@ test.describe('Website Playbook, conversion tracking (16 Nov 2026)', () => {
   test('generate_lead fires only once /api/enquiry accepts the brief: never on the click, an error or a failure', async ({ page }) => {
     await page.goto('/contact/');
     const send = page.getByRole('button', { name: 'Send my brief' });
-    const next = page.getByRole('button', { name: 'Continue' });
     await page.locator('#f-name').fill('Lead Test');
     await page.locator('#f-email').fill('lead-test@example.ca');
-    await next.click();
-    await page.locator('label.area', { hasText: 'Get found and chosen' }).click();
-    await next.click();
     // Too short: the browser's own check stops it, nothing is sent.
     await page.locator('#f-message').fill('Short');
     await send.click();
