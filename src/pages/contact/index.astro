@@ -32,10 +32,10 @@ const description = contact.phone
   footerCta={false}
 >
   <Crumbs items={[{ label: 'Home', href: '/' }, { label: 'Contact' }]} />
+  {/* 23 Nov 2026 (SEO audit copy deck §2.5): two ways to start, and the reply time once Mann sets it (CONV-2). */}
   <PageHead
-    eyebrow="Contact"
     lines={['Tell me about', '<span class="accent">your business</span><span class="stop">.</span>']}
-    lead="Choose a short project brief or the free check. I read every one myself and reply by email."
+    lead={`Two ways to start.${replyLine() ? ` ${replyLine()}` : ' I read every one myself and reply by email.'}`}
   />
 
   <section class="section contact" aria-label="Project brief, free check and direct contact">
@@ -45,11 +45,11 @@ const description = contact.phone
         <nav class="choose" aria-label="What would you like to send?" data-choose>
           <a class="choose__opt" href="#brief" data-choose-opt="brief" aria-current="true">
             <b>Project brief</b>
-            <span>About 2 minutes. For a project, a package or a quote.</span>
+            <span>Name, email, business, what should change and, if you know it, the package.</span>
           </a>
           <a class="choose__opt" href="#check" data-choose-opt="check">
-            <b>Free check</b>
-            <span>About 1 minute. Your website or Google listing, checked for free.</span>
+            <b>Free website and Google check</b>
+            <span>Name, email, and your website or business name. One minute.</span>
           </a>
         </nav>
         <div class="panel" data-panel="brief">
@@ -93,9 +93,9 @@ const description = contact.phone
         <div class="aside__card">
           <h2 class="aside__title">What happens next</h2>
           <ol class="aside__steps" role="list">
-            <li><span class="num">01</span><span>I read your brief and reply by email, usually with a few questions.</span></li>
-            <li><span class="num">02</span><span>If it’s a fit, you get a written scope and quote. If not, I’ll say so.</span></li>
-            <li><span class="num">03</span><span>Nothing starts, and nothing is charged, until you agree.</span></li>
+            <li><span class="num">01</span><span>I read it myself.</span></li>
+            <li><span class="num">02</span><span>I reply{profile.contact.replyTime ? ` ${profile.contact.replyTime.replace(/[.\s]+$/, '')}` : ' by email'} with questions or a written scope.</span></li>
+            <li><span class="num">03</span><span>You decide. Nothing starts, and nothing is charged, until you agree.</span></li>
           </ol>
         </div>
       </aside>
