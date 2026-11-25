@@ -1105,14 +1105,13 @@ test.describe('more service pages (SEO audit Phase 4)', () => {
   });
 });
 
-// Security headers (SEO audit Phase 4, 14 Nov 2026). The CSP ships report-only first; this applies the exact
-// policy the build wrote to dist/client/_headers as an *enforced* policy, on every page, and expects no violations,
-// so it can be switched to enforcing without breaking anything this suite covers.
+// Security headers (SEO audit Phase 4, 14 Nov 2026). The CSP is enforced (report-only until 25 Nov 2026); this applies
+// the exact policy the build wrote to dist/client/_headers on every page and expects no violations.
 test.describe('content security policy', () => {
   test('the built CSP, enforced, blocks nothing on any page', async ({ page }) => {
     const headers = readFileSync('dist/client/_headers', 'utf8');
-    const csp = (headers.match(/^\s+Content-Security-Policy-Report-Only:\s*(.+)$/m) || [])[1];
-    expect(csp, 'dist/client/_headers has no Content-Security-Policy-Report-Only line').toBeTruthy();
+    const csp = (headers.match(/^\s+Content-Security-Policy:\s*(.+)$/m) || [])[1];
+    expect(csp, 'dist/client/_headers has no Content-Security-Policy line').toBeTruthy();
     await page.route('**/*', async (route) => {
       if (route.request().resourceType() !== 'document') return route.continue();
       const res = await route.fetch();

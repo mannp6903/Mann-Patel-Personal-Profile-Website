@@ -59,12 +59,12 @@ describe('security headers', () => {
     for (const name of Object.keys(securityHeaders)) expect(file, name).not.toMatch(new RegExp(`^\\s+${name}:`, 'm'));
   });
 
-  it('the build replaces the marker with every header and a report-only CSP hashed for the pages; no marker, no build', () => {
+  it('the build replaces the marker with every header and an enforced CSP hashed for the pages; no marker, no build', () => {
     const file = `/*\n  ${HEADERS_MARKER}\n\n/fonts/*\n  Cache-Control: public, max-age=31536000, immutable\n`;
     const out = buildHeadersFile(file, ['<script>console.log(1)</script>']);
     expect(out).not.toContain(HEADERS_MARKER);
     for (const [k, v] of Object.entries(securityHeaders)) expect(out).toContain(`  ${k}: ${v}\n`);
-    expect(out).toMatch(/^  Content-Security-Policy-Report-Only: default-src 'self'; script-src 'self' 'sha256-CihokcEcBW4atb\/CW\/XWsvWwbTjqwQlE9nj9ii5ww5M=' /m);
+    expect(out).toMatch(/^  Content-Security-Policy: default-src 'self'; script-src 'self' 'sha256-CihokcEcBW4atb\/CW\/XWsvWwbTjqwQlE9nj9ii5ww5M=' /m);
     expect(out).toContain('/fonts/*\n  Cache-Control: public, max-age=31536000, immutable');
     expect(() => buildHeadersFile('/*\n', [])).toThrow(/no .* line/);
   });

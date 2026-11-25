@@ -8,11 +8,13 @@
  * subdomain of mannpatel.me must answer over HTTPS from now on (www does: Cloudflare redirects it). Not `preload`,
  * which is hard to undo. The host is Cloudflare Workers: static pages get it from _headers, the Worker's own responses
  * from withSecurityHeaders() below. The Content Security
- * Policy ships as Content-Security-Policy-Report-Only first: Cloudflare can inject scripts into the live site (an
- * analytics beacon, email obfuscation) that a local build never shows. Inline scripts are allowed by their exact
+ * Policy is enforced (Content-Security-Policy; it shipped as -Report-Only until 25 Nov 2026). Cloudflare can inject
+ * scripts into the live site that a local build never shows: Web Analytics and email obfuscation are allowed below,
+ * but keep Rocket Loader and other script-rewriting features off. Inline scripts are allowed by their exact
  * sha256 hash, computed from the built pages, never by 'unsafe-inline'. Styles need 'unsafe-inline' (the pages use
  * hundreds of style="--d:…" attributes for animation timing). The e2e suite enforces the built policy on every
- * page and expects no violations, so it can be switched to Content-Security-Policy once the live site is quiet.
+ * page and expects no violations. If the live site breaks, roll back the deploy or change the header name back to
+ * Content-Security-Policy-Report-Only in buildHeadersFile().
  */
 import { createHash } from 'node:crypto';
 
@@ -74,7 +76,7 @@ export function buildHeadersFile(headersFile: string, pages: string[]): string {
   const csp = contentSecurityPolicy(inlineScriptHashes(pages));
   if (csp.length > MAX_HEADER_LENGTH)
     throw new Error(`The Content Security Policy is ${csp.length} characters, over Cloudflare's ${MAX_HEADER_LENGTH}-character limit`);
-  const lines = [...Object.entries(securityHeaders).map(([k, v]) => `  ${k}: ${v}`), `  Content-Security-Policy-Report-Only: ${csp}`];
+  const lines = [...Object.entries(securityHeaders).map(([k, v]) => `  ${k}: ${v}`), `  Content-Security-Policy: ${csp}`];
   return headersFile.replace(new RegExp(`^[ \\t]*${HEADERS_MARKER.replace(/[.*+?^${}()|[\]\\]/g, '\\$&')}[ \\t]*$`, 'm'), lines.join('\n'));
 }
 

@@ -14,9 +14,9 @@ variable **names** only here, never values that are secret. Step-by-step setup i
   - hands `/api/enquiry/` and any 404 to Astro's handler.
 - `assets.run_worker_first: true` lets the Worker see each request before the static files are served.
   `assets.not_found_handling: "404-page"` makes an unknown address return the built 404 page with a real 404 status.
-- **Security headers** (HSTS for a year including subdomains, a report-only Content Security Policy, and others) come
-  from `src/lib/security-headers.ts`. The build writes them into `dist/client/_headers`. The CSP stays report-only
-  until the live site shows no violations.
+- **Security headers** (HSTS for a year including subdomains, an enforced Content Security Policy, and others) come
+  from `src/lib/security-headers.ts`. The build writes them into `dist/client/_headers`. The CSP was report-only until
+  25 Nov 2026. Keep Cloudflare Rocket Loader off: it rewrites scripts and the policy would block them.
 - **Custom domains:** `mannpatel.me` and `www.mannpatel.me` (`routes` in `wrangler.jsonc`). Cloudflare creates their DNS
   records and certificates on deploy.
 
