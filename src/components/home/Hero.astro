@@ -133,6 +133,10 @@ const local = packageById('local-visibility')!;
     /* Typesetting (26 Nov 2026): at display size, with the letters tracked in, Geist's word space (0.2em) reads as a
        hole. 0.16em keeps the words a line, not a row of separate words. */
     word-spacing: -0.04em;
+    /* No hinting at display size: glyph widths then scale exactly with the font size, so the em measure that
+       --fs-hero-fit relies on holds in every browser. With full hinting (headless Chromium on Linux, as in CI) each
+       glyph's width is rounded to a whole pixel and "small businesses." came out 1.5% wider at 360px (gate H8). */
+    text-rendering: geometricPrecision;
     text-wrap: balance;
   }
   /* Typesetting (26 Nov 2026): a line breaks only between phrases, never inside one, so no width leaves "small" or
