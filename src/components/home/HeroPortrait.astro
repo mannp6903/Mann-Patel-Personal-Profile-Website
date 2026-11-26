@@ -28,8 +28,8 @@ interface Props {
 }
 const { class: cls } = Astro.props;
 const widths = [320, 400, 480, 640, 800, 1080];
-// The figure is about 30rem wide from 64em, 40vw from 48em, and up to 22rem on phones (the CSS below).
-const sizes = '(min-width: 90em) 30rem, (min-width: 64em) 33vw, (min-width: 48em) 40vw, min(22rem, 88vw)';
+// The figure is 30rem wide from 90em, about 34vw from 48em (36% of the hero row, Hero.astro), and up to 22rem on phones.
+const sizes = '(min-width: 90em) 30rem, (min-width: 48em) 34vw, min(22rem, 88vw)';
 ---
 
 <div class:list={['hp', cls]} data-hero-portrait>

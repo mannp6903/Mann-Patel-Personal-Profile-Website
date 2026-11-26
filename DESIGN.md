@@ -1,5 +1,21 @@
 # DESIGN.md · "Signal" (round 5, Nov 2026), compact editorial portfolio (round 7)
 
+> **Home headline typesetting (26 Nov 2026).** Same words, face, weight, colours, tracking and leading. Before, the
+> H1 wrapped wherever the column ran out: "small" sat alone on a line at 1024, 1280 and 1920, and 768 took six lines
+> ("Websites / and Google / listings …"). Now:
+> - **It breaks only between phrases** (`.hero__phrase`, `white-space: nowrap`): "Websites and / Google listings /
+>   for Toronto / small businesses." at every size from 360px, two lines on a phone held sideways. Below 360px
+>   "small businesses." can't fit at the smallest hero size, so the phrases wrap there (as before).
+> - **Word space 0.16em** (`word-spacing: -0.04em`): Geist's 0.2em space opened holes in the tracked-in display lines.
+> - **It fits its column** (`--fs-hero-fit`: `--fs-hero`, or 12.7cqi of the hero's text column if smaller, so the
+>   longest line, 7.84em, always fits). It is `--fs-hero` from about 1100px (87.8px at 1280, 96px from 1440, as
+>   before); 54px at 768 and 72px at 1024 (were 62 and 75), still 1.25× and 1.4× the largest H2 (gate H1).
+> - **The hero grid from 48em** is `1fr` text and `min(30rem, 36%)` portrait (was 1.27fr : 1fr), so the H1 has at
+>   least 7.9em of measure. The portrait is the same 480px from about 1330px, now against the right edge (in line
+>   with the header button) instead of centred in a wider column; below that it is up to 15% smaller.
+> - Gate H8 (`tests/e2e/design-gates.spec.ts`) checks the four lines and that no line passes the column, at every
+>   matrix size.
+>
 > **Hero photo swap (23 Nov 2026, Mann's own square portrait).** The hero now shows his square portrait
 > (`assets/mann-patel-portrait.png`, dark background with a green glow behind his head) filling a rounded frame (1px
 > `--line`, `--r-lg`), 480px square at 1440, up to 22rem on phones. The cut-out, the panel and the head breaking out of
@@ -386,6 +402,7 @@ T1, `tests/unit/design-tokens.test.ts`). There are no SVG text labels since the 
 | Token | Size, 375 → 1440px | Line height | Weight | Tracking | Use |
 | --- | --- | --- | --- | --- | --- |
 | `--fs-hero` | 41.6 → 96px | 0.92 | 600 | `--track-hero` −0.035em | The Home H1 (from Phase 2), the free-check landing page H1 |
+| `--fs-hero-fit` | 41.6 → 96px (54 at 768, 72 at 1024) | 0.92 | 600 | `--track-hero`, word space −0.04em | The Home H1 in the two-column hero: `--fs-hero`, or smaller where the text column can't take "small businesses." (26 Nov 2026) |
 | `--fs-h1` | 38.4 → 80px | 0.95 | 600 | `--track-hero` | Page titles, case-study titles |
 | `--fs-h2` | 32 → 60px | 1.0 | 600 | `--track-head` −0.025em | Section titles; never above `--fs-h1` |
 | `--fs-h3` | 22 → 30px | 1.1–1.15 | 500 (600 for names and prices) | `--track-head` | Item titles, project names, prices |

@@ -1,6 +1,7 @@
 // Design upgrade gates checked in the browser (DESIGN_UPGRADE_PLAN.md §5). Each phase adds the gates it turns green.
 // Phase 1 (17 Nov 2026): T3, T4, T5 (typography), C1 (lime budget), L2 (section padding).
 // Phase 2 (17 Nov 2026): H1–H7 (hero), R3 (hero height), U2 (header button), U3, A2, A3 (consent prompt and focus).
+// H8 (26 Nov 2026, typesetting): the Home H1 breaks only between its phrases and fits its column.
 // Phase 3 (17 Nov 2026): S1–S4 (structure), L1, L3 (layout), U1, U4 (navigation and buttons).
 // Phase 4 (17 Nov 2026): M2, M3, M5, M6, M7 (motion); M1 and M4 are unit tests (tests/unit/design-tokens.test.ts).
 // Phase 5 (17 Nov 2026): G1, G2 (images); G3 and G4 are unit tests.
@@ -343,6 +344,50 @@ test.describe('design gates: hero (Phase 2)', () => {
       await page.goto('/');
       const screens = await page.evaluate(() => document.getElementById('hero')!.getBoundingClientRect().height / innerHeight);
       expect(screens, `${width}x${height}`).toBeLessThanOrEqual(max);
+    }
+  });
+
+  // Typesetting (26 Nov 2026): the H1 breaks only between phrases, so it sets the same way at every size: four lines, or
+  // two on a phone held sideways. Before, "small" or "listings" sat alone on a line at 768, 1024, 1280 and 1920.
+  test('H8: the Home H1 sets as "Websites and / Google listings / for Toronto / small businesses." and fits its column', async ({ page }) => {
+    for (const [width, height] of MATRIX) {
+      await page.setViewportSize({ width, height });
+      await page.goto('/');
+      const r = await page.evaluate(() => {
+        const h1 = document.getElementById('hero-title')!;
+        const words: { text: string; top: number; right: number }[] = [];
+        const walker = document.createTreeWalker(h1, NodeFilter.SHOW_TEXT);
+        for (let n = walker.nextNode(); n; n = walker.nextNode()) {
+          for (const m of (n.textContent || '').matchAll(/\S+/g)) {
+            const range = document.createRange();
+            range.setStart(n, m.index!);
+            range.setEnd(n, m.index! + m[0].length);
+            const rect = range.getClientRects()[0];
+            if (rect) words.push({ text: m[0], top: Math.round(rect.top), right: rect.right });
+          }
+        }
+        const lines: string[][] = [];
+        let top = -1e9;
+        for (const w of words) {
+          // The full stop is its own span: it belongs to the word before it.
+          const line = lines[lines.length - 1];
+          if (!/[A-Za-z]/.test(w.text)) line[line.length - 1] += w.text;
+          else if (Math.abs(w.top - top) > 4) {
+            lines.push([w.text]);
+            top = w.top;
+          } else line.push(w.text);
+        }
+        const column = document.querySelector('.hero__text')!.getBoundingClientRect().right;
+        return { lines: lines.map((l) => l.join(' ')), over: Math.max(...words.map((w) => w.right)) - column };
+      });
+      const expected =
+        height < 500
+          ? ['Websites and Google listings', 'for Toronto small businesses.']
+          : width < 360
+            ? ['Websites and', 'Google listings', 'for Toronto', 'small', 'businesses.'] // "small businesses." can't fit
+            : ['Websites and', 'Google listings', 'for Toronto', 'small businesses.'];
+      expect(r.lines, `${width}x${height}`).toEqual(expected);
+      expect(r.over, `${width}x${height}: px past the text column`).toBeLessThanOrEqual(0.5);
     }
   });
 });
