@@ -29,7 +29,7 @@
   "dependencies": {
     "@astrojs/cloudflare": "^14.4.3",
     "@astrojs/node": "^11.1.9",
-    "@astrojs/sitemap": "^3.7.4",
+    "@astrojs/sitemap": "^3.7.6",
     "astro": "^7.4.4"
   },
   "devDependencies": {
