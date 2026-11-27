@@ -27,7 +27,7 @@
     "check:seo": "node scripts/seo-check.mjs"
   },
   "dependencies": {
-    "@astrojs/cloudflare": "^14.4.3",
+    "@astrojs/cloudflare": "^14.4.9",
     "@astrojs/node": "^11.1.9",
     "@astrojs/sitemap": "^3.7.4",
     "astro": "^7.4.4"
